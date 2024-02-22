@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using static Utility.SpriteManager;
+using UnityEngine.U2D;
 
-public abstract class Barn : Building {
+public class Barn : Building, ITieredBuilding {
+    private SpriteAtlas atlas;
 
     protected override void Init(){
         baseHeight = 4;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,
             ButtonTypes.TIER_THREE,
@@ -20,12 +21,12 @@ public abstract class Barn : Building {
     public new void Start(){
         Init();
         base.Start();
+        atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
+        ChangeTier(2);
     }
 
-    public void ChangeToTierOne(){
-        Tilemap tilemap = GetComponent<Tilemap>();
-        tilemap.ClearAllTiles();
-        Texture2D texture = Resources.Load<Texture>("BarnTierOne") as Texture2D;
-        Tile[] tiles = SplitSprite(texture ,true);
+    public void ChangeTier(int tier){
+        if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
+        UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
     }
 }

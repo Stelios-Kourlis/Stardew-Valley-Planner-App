@@ -30,7 +30,7 @@ public class BuildingController : MonoBehaviour
 
     void Start(){
         //currentBuilding = new SprinklerT3();
-        currentBuildingType = typeof(GoldClock);
+        currentBuildingType = typeof(Barn);
         OnBuildingPlaced();
         Building.buildingWasPlaced += OnBuildingPlaced;
         //currentFloorType = FloorType.WOOD_FLOOR;
@@ -42,7 +42,11 @@ public class BuildingController : MonoBehaviour
     }
 
     void Update(){
-        foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
+        if (Building.currentAction == Actions.EDIT){
+            if (lastBuildingObjectCreated != null) Destroy(lastBuildingObjectCreated);
+        }
+
+        //foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
     }
 
     private void OnBuildingPlaced(){
@@ -69,7 +73,7 @@ public class BuildingController : MonoBehaviour
         // if (building is Floor) PlaceCurrentlySelectedFloor(position);
         // if (building is Sprinkler sprinkler) PlaceSprinkler( sprinkler, position);
         //else PlaceFarmBuilding(currentBuildingType, position);
-        PlaceFarmBuilding(BuildingType, position);
+        //PlaceFarmBuilding(BuildingType, position);
         
     }
 
@@ -93,16 +97,16 @@ public class BuildingController : MonoBehaviour
     }
 
     private void HandleGreenHouse(Building greenhouse){
-        GameObject parentTilemapObject = greenhouse.tilemap.gameObject;
-        Debug.Log("Placeing Greenhouse");
-        List<Vector3Int> extraFrontArea = GetAreaAroundPosition(new Vector3Int(greenhouse.baseCoordinates[0].x + 2, greenhouse.baseCoordinates[0].y - 2, 0), 2, 3);
-        unavailableCoordinates.UnionWith(extraFrontArea);
-        Sprite greenhouseFrontTileSprite = Sprite.Create(Resources.Load("GreenhouseFront") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);//todo Tile is wrong painted (pixelart issue)
-        Tile greenhouseFrontTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        greenhouseFrontTile.sprite = greenhouseFrontTileSprite;
-        foreach (Vector3Int cell in extraFrontArea){
-            parentTilemapObject.gameObject.GetComponent<Tilemap>().SetTile(cell, greenhouseFrontTile);
-        }
+        // GameObject parentTilemapObject = greenhouse.tilemap.gameObject;
+        // Debug.Log("Placeing Greenhouse");
+        // //List<Vector3Int> extraFrontArea = GetAreaAroundPosition(new Vector3Int(greenhouse.baseCoordinates[0].x + 2, greenhouse.baseCoordinates[0].y - 2, 0), 2, 3);
+        // unavailableCoordinates.UnionWith(extraFrontArea);
+        // Sprite greenhouseFrontTileSprite = Sprite.Create(Resources.Load("GreenhouseFront") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);//todo Tile is wrong painted (pixelart issue)
+        // Tile greenhouseFrontTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
+        // greenhouseFrontTile.sprite = greenhouseFrontTileSprite;
+        // foreach (Vector3Int cell in extraFrontArea){
+        //     parentTilemapObject.gameObject.GetComponent<Tilemap>().SetTile(cell, greenhouseFrontTile);
+        // }
         
     }
 
@@ -168,7 +172,7 @@ public class BuildingController : MonoBehaviour
         buildings.Remove(building);
         unavailableCoordinates.RemoveWhere(building.VectorInBaseCoordinates);
         building.Delete();
-        if (!isUndoing) actionLog.Add(new UserAction(Actions.DELETE, building, building.baseCoordinates[0]));
+        //if (!isUndoing) actionLog.Add(new UserAction(Actions.DELETE, building, building.baseCoordinates[0]));
         isUndoing = false;
         GetMapController().UpdateUnavailableCoordinates();
     }
@@ -236,17 +240,17 @@ public class BuildingController : MonoBehaviour
         };
 
         Building house = buildings.FirstOrDefault<Building>(building => building is House);
-        if (house != null) {
-            foreach (Vector3Int cell in house.baseCoordinates) unavailableCoordinates.Remove(cell);
-            buildings.Remove(house);
-            house.Delete();
-        }
-        house = tier switch{
-            1 => new HouseT1(),
-            2 => new HouseT2(),
-            3 => new HouseT3(),
-            _ => null,
-        };
+        // if (house != null) {
+        //     foreach (Vector3Int cell in house.baseCoordinates) unavailableCoordinates.Remove(cell);
+        //     buildings.Remove(house);
+        //     house.Delete();
+        // }
+        // house = tier switch{
+        //     1 => new HouseT1(),
+        //     2 => new HouseT2(),
+        //     3 => new HouseT3(),
+        //     _ => null,
+        // };
         GameObject.Destroy(house.buttonParent);
         isUndoing = true; //hack to prevent the action from being added to the action log
         //PlaceBuilding(house, housePos);//todo fix this

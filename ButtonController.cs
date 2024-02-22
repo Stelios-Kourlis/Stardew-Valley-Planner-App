@@ -18,8 +18,8 @@ public class ButtonController : MonoBehaviour{
         CreateButton("logCabin", "Buildings/LogCabinT1", typeof(LogCabinT1), buildingPanelTransform);
         CreateButton("stoneCabin", "Buildings/StoneCabinT1", typeof(StoneCabinT1), buildingPanelTransform);
         CreateButton("plankCabin", "Buildings/PlankCabinT1", typeof(PlankCabinT1), buildingPanelTransform);
-        CreateButton("coop", "Buildings/CoopT1", typeof(CoopT1), buildingPanelTransform);
-        CreateButton("barn", "Buildings/BarnT1", typeof(BarnT1), buildingPanelTransform);
+        CreateButton("coop", "Buildings/CoopT1", typeof(Coop), buildingPanelTransform);
+        CreateButton("barn", "Buildings/BarnT1", typeof(Barn), buildingPanelTransform);
         CreateButton("goldClock", "Buildings/GoldClock", typeof(GoldClock), buildingPanelTransform);
         CreateButton("silo", "Buildings/Silo", typeof(Silo), buildingPanelTransform);
         CreateButton("slimeHutch", "Buildings/SlimeHutch", typeof(SlimeHutch), buildingPanelTransform);
@@ -58,7 +58,7 @@ public class ButtonController : MonoBehaviour{
     }
 
     public void CreateButtonsForBuilding(Building building){
-        // GameObject parentGameObject = building.GetTilemap().gameObject;
+        GameObject parentGameObject = building.gameObject;//todo fix this
         ButtonTypes[] buttonTypes = building.buildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return;
@@ -79,7 +79,7 @@ public class ButtonController : MonoBehaviour{
         
     }
 
-    public void UpdateButtonPositionsAndScaleForBuilding(Building building){
+    public void UpdateButtonPositionsAndScaleForBuilding(Building building){//todo fix this
         float buttonScale = 10f/GetCamera().GetComponent<Camera>().orthographicSize;
         GameObject buttonParent = building.buttonParent;
         for (int buttonIndex = 0; buttonIndex < buttonParent.transform.childCount; buttonIndex++){

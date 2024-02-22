@@ -13,10 +13,10 @@ public class SlimeHutch : Building {
         baseHeight = 6;
         texture = Resources.Load("Buildings/Slime Hutch") as Texture2D;
         insideAreaTexture = Resources.Load("BuildingInsides/Barn1") as Texture2D;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 10_000},
             {Materials.Stone, 500},
             {Materials.RefinedQuartz, 10},

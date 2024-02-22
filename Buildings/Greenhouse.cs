@@ -17,7 +17,7 @@ public class Greenhouse : Building {
         baseHeight = 6;
         texture = Resources.Load("Buildings/Greenhouse") as Texture2D;
         insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
     }

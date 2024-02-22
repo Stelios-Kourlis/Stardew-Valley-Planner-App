@@ -19,7 +19,7 @@ public class SprinklerT1 : Sprinkler
 
     protected override void Init(){
         texture = Resources.Load("Buildings/Sprinkler1") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.CopperBar, 1},
             {Materials.IronBar, 1},
         };

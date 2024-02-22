@@ -22,11 +22,11 @@ public class FishPond : Building {
         name = GetType().Name;
         baseHeight = 5;
         texture = Resources.Load("Buildings/Fish Pond Top") as Texture2D;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
         };
-        _materialsNeeded = new Dictionary<Materials, int> {
+        materialsNeeded = new Dictionary<Materials, int> {
             {Materials.Coins, 5_000},
             {Materials.Wood, 200},
             {Materials.Seaweed, 5},

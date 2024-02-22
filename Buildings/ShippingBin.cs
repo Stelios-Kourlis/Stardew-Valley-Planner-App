@@ -16,7 +16,7 @@ public class ShippingBin : Building {
         name = GetType().Name;
         baseHeight = 1;
         texture = Resources.Load("Buildings/Shipping Bin") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 250},
             {Materials.Wood, 150}
         };

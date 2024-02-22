@@ -16,7 +16,7 @@ public class ShedT2 : Shed {
         name = GetType().Name;
         texture = Resources.Load("Buildings/Big Shed") as Texture2D;
         insideAreaTexture = Resources.Load("BuildingInsides/Shed2") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 15_000 + 20_000},
             {Materials.Wood, 300 + 550},
             {Materials.Stone, 300}

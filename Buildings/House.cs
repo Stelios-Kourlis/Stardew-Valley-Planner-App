@@ -14,7 +14,7 @@ public abstract class House : Building {//todo There is a T4 house with the cell
 
     protected override void Init(){
         baseHeight = 6;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,
             ButtonTypes.TIER_THREE,

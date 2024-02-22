@@ -8,7 +8,7 @@ public class GoldClock : Building {
     protected override void Init(){
         name = GetType().Name;
         baseHeight = 2;
-        _materialsNeeded = new Dictionary<Materials, int> {
+        materialsNeeded = new Dictionary<Materials, int> {
             {Materials.Coins, 10_000_000}
         };
     }

@@ -16,7 +16,7 @@ public class Well : Building {
         name = GetType().Name;
         baseHeight = 3;
         texture = Resources.Load("Buildings/Well") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 1_000},
             {Materials.Stone, 75},
         };

@@ -16,7 +16,7 @@ public class JunimoHut : Building {
         name = GetType().Name;
         baseHeight = 2;
         texture = Resources.Load("Buildings/Junimo Hut") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 20_000},
             {Materials.Stone, 200},
             {Materials.Starfruit, 9},

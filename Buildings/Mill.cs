@@ -16,7 +16,7 @@ public class Mill : Building {
         name = GetType().Name;
         baseHeight = 2;
         texture = Resources.Load("Buildings/Mill") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 2_500},
             {Materials.Stone, 50},
             {Materials.Wood, 150},

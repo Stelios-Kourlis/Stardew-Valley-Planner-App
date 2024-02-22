@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -63,6 +64,23 @@ namespace Utility{
             return tiles;
         }
 
+        public static Tile[] SplitSprite(Sprite sprite){
+            int height = sprite.texture.height;
+            int width = sprite.texture.width;
+            List<Tile> tiles = new List<Tile>();
+            Rect rect = sprite.textureRect;
+            for (int y = (int)rect.y; y < rect.y + rect.height; y += 16) {
+                for (int x = (int)rect.x; x < rect.x + rect.width; x += 16) {
+                    Sprite newSprite = Sprite.Create(sprite.texture, new Rect(x, y, 16, 16), new Vector2(0.5f, 0.5f), 16);
+                    Tile tile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
+                    tile.sprite = newSprite;
+                    tiles.Add(tile);
+                }
+            }
+            
+            
+            return tiles.ToArray();
+        }
         public static Tile LoadTile(string path) {
             Texture2D tileTexture = Resources.Load(path) as Texture2D;
             return SplitSprite(tileTexture)[0];
@@ -72,6 +90,24 @@ namespace Utility{
             Texture2D tileTexture = Resources.Load(path) as Texture2D;
             return SplitSprite(tileTexture, reverseLayerOrder);
         }
-}
+
+        ///<summary>Get a part of a 16x16 sprite</summary>
+        public static Texture2D GetPartOfSprite(Vector2Int topLeftCorner, int height, Texture2D texture) {
+            int width = texture.width / 16;
+            // Color[] pixels = texture.GetPixels(topLeftCorner.x * 16, topLeftCorner.y * 16, width * 16, height * 16);
+            // Texture2D croppedTexture = new(width * 16, height * 16);
+            // croppedTexture.SetPixels(pixels);
+            // croppedTexture.Apply();
+            Sprite sprite = Sprite.Create(texture, new Rect(topLeftCorner.x * 16, topLeftCorner.y * 16, width * 16, height * 16), new Vector2(0.5f, 0.5f), 16);
+            Texture2D croppedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+            Color[] pixels = sprite.texture.GetPixels((int)sprite.textureRect.x, 
+                                                (int)sprite.textureRect.y, 
+                                                (int)sprite.textureRect.width, 
+                                                (int)sprite.textureRect.height);
+            croppedTexture.SetPixels(pixels);
+            croppedTexture.Apply();
+            return croppedTexture;  
+        }
+    }
 
 }

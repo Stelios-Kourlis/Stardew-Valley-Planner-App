@@ -16,7 +16,7 @@ public class WaterObelisk : Building {
         name = GetType().Name;
         baseHeight = 3;
         texture = Resources.Load("Buildings/Water Obelisk") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 500_000},
             {Materials.IridiumBar, 5},
             {Materials.Clam, 10},

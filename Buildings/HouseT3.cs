@@ -16,7 +16,7 @@ public class HouseT3 : House {
         name = GetType().Name;
         texture = Resources.Load("Buildings/House3") as Texture2D;
         insideAreaTexture = Resources.Load("BuildingInsides/Barn1") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 10_000 + 50_000},
             {Materials.Wood, 450},
             {Materials.Hardwood, 150},

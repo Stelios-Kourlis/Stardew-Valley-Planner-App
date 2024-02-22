@@ -14,7 +14,7 @@ public class Shed : Building {
 
     protected override void Init() {
         baseHeight = 3;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,
             ButtonTypes.PAINT,

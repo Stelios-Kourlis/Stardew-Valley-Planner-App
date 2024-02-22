@@ -22,7 +22,7 @@ public class Silo : Building {
         name = GetType().Name;
         baseHeight = 3;
         texture = Resources.Load("Buildings/Silo") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int>(){
+        materialsNeeded = new Dictionary<Materials, int>(){
             {Materials.Coins, 100},
             {Materials.Stone, 100},
             {Materials.Clay, 10},

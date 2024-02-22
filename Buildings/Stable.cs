@@ -16,10 +16,10 @@ public class Stable : Building {
         name = GetType().Name;
         baseHeight = 2;
         texture = Resources.Load("Buildings/Stable") as Texture2D;
-        _buildingInteractions = new ButtonTypes[]{
+        buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT
         };
-        _materialsNeeded =  new Dictionary<Materials, int>(){
+        materialsNeeded =  new Dictionary<Materials, int>(){
             {Materials.Coins, 10_000},
             {Materials.Hardwood, 100},
             {Materials.IronBar, 5},

@@ -16,7 +16,7 @@ public class DesertObelisk : Building {
         name = GetType().Name;
         baseHeight = 3;
         texture = Resources.Load("Buildings/Desert Obelisk") as Texture2D;
-        _materialsNeeded = new Dictionary<Materials, int> {
+        materialsNeeded = new Dictionary<Materials, int> {
             {Materials.Coins, 1_000_000},
             {Materials.IridiumBar, 20},
             {Materials.Coconut, 10},

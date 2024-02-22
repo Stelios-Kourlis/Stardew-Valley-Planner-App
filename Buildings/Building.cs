@@ -19,33 +19,28 @@ public abstract class Building : MonoBehaviour {
     private readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
     private readonly Color OPAQUE = new Color(1,1,1,1);
 
-    private Vector3Int[] _spriteCoordinates;//backking field
     ///<summary>The array containing the coordinates of each sprite tile, probably reversed y-wise</summary>
-    public Vector3Int[] spriteCoordinates { get { return (Vector3Int[])_spriteCoordinates.Clone();} }
-        //private set {_spriteCoordinates = value;} }
-    private Vector3Int[] _baseCoordinates;//backing field
-    ///<summary>The coordinates of the base</summary>
-    public Vector3Int[] baseCoordinates { 
-        get {return (Vector3Int[])_baseCoordinates.Clone();} }
-    ///<summary>Name of building</summary>
-    public string buildingName { get; protected set;}
+    public Vector3Int[] spriteCoordinates { get; private set;}
+     ///<summary>The coordinates of the base</summary>
+    public Vector3Int[] baseCoordinates { get; private set;}
+   
     public Texture2D insideAreaTexture {get; protected set;}
     ///<summary>The sprite of the building</summary>
+    [Obsolete("Use sprite.texture instead")]
     public Texture2D texture {get; protected set;}
-    protected ButtonTypes[] _buildingInteractions = new ButtonTypes[0];//backing field
-    public ButtonTypes[] buildingInteractions{ get {return (ButtonTypes[])_buildingInteractions.Clone();} }
+    public Sprite sprite;
+    public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];//backing field
+
     public int baseHeight { get; protected set; } 
-    public int height {get {return texture.height / 16;}}
-    public int width {get {return texture.width / 16;}}
+    public int height {get {return (int) sprite.textureRect.height / 16;}}
+    public int width {get {return (int) sprite.textureRect.width / 16;}}
     ///<summary>The tilemap this building is attached to</summary>
     public Tilemap tilemap {get; private set;} //the tilemap this building is attached to
-    ///<summary>The gameobject this building is attached to</summary>
-    //public GameObject gameObject {get {return tilemap.gameObject;}}
-    ///<summary>The parent of the buttons of this building</summary>
     public GameObject buttonParent;
 
     private bool hasStarted = false;
     private bool hasBeenPlaced = false;
+    private bool hasBeenPickedUp = false;
     public static Actions currentAction {get; set;} = Actions.PLACE;
     // Define a delegate type for the event.
     public delegate void BuildingPlacedDelegate();
@@ -58,15 +53,15 @@ public abstract class Building : MonoBehaviour {
     [Range(0, 1)]
     public float red=1,green=1,blue=1,alpha=0.5f;
 
-    protected Dictionary<Materials,int> _materialsNeeded = new Dictionary<Materials, int>();
-    public Dictionary<Materials,int> materialsNeeded{ 
-        get {return new Dictionary<Materials,int>(_materialsNeeded);} 
-    }
+    public Dictionary<Materials,int> materialsNeeded { get; protected set;} = new Dictionary<Materials, int>();
+    // public Dictionary<Materials,int> materialsNeeded{ 
+    //     get {return new Dictionary<Materials,int>(_materialsNeeded);} 
+    // }
 #pragma warning restore IDE1006 // Naming Styles
 
     public void Start(){    
         AddTilemapToObject(gameObject);
-        texture = Resources.Load($"Buildings/{name}") as Texture2D;
+        //texture = Resources.Load($"Buildings/{name}") as Texture2D;
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
 
         hasStarted = true;
@@ -111,7 +106,7 @@ public abstract class Building : MonoBehaviour {
         if (hasBeenPlaced) Debug.Log($"Cleared Tiles, building was placed: {hasBeenPlaced}");
         //Debug.Log(gameObject.GetComponent<TilemapRenderer>().sortingOrder);
         Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(currentCell, height, width).ToArray();
-        gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(this, false));
+        gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(sprite));
     }
 
     private void DeleteMouseoverEffect(){
@@ -125,24 +120,30 @@ public abstract class Building : MonoBehaviour {
     }
     protected void PlaceBuildingAfterStartIsDone(Vector3Int position){
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
-        if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0) Destroy(gameObject);
+        if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0) return;
 
-        List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, height, width, true);
-        Tile[] buildingTiles = SplitSprite(this, true);
+        List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, height, width);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
-        gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
+        gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), SplitSprite(sprite));
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
         GetBuildingController().buildingGameObjects.Add(gameObject);
 
-        _baseCoordinates = GetAreaAroundPosition(position, baseHeight, width).ToArray();
-        _spriteCoordinates = spriteCoordinates.ToArray();
+        this.baseCoordinates = baseCoordinates.ToArray();
+        this.spriteCoordinates = spriteCoordinates.ToArray();
         //name = GetType().Name;
 
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
 
-
         hasBeenPlaced = true;
+        
+
+        // if (hasBeenPickedUp){
+        //     hasBeenPickedUp = false;
+        //     currentAction = Actions.EDIT;
+        //     Debug.Log("Set Mode Back to Edit");
+            
+        // }
         buildingWasPlaced.Invoke();
     }
 
@@ -157,6 +158,13 @@ public abstract class Building : MonoBehaviour {
 
     protected abstract void Init();
 
+    protected void UpdateTexture(Sprite newSprite){
+        sprite = newSprite;
+        if (!hasBeenPlaced) return;
+        Tile[] buildingTiles = SplitSprite(sprite);
+        gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
+    }
+
     public bool VectorInBaseCoordinates(Vector3Int checkForMe) {
         foreach (Vector3Int vector in baseCoordinates) if (checkForMe == vector) return true;
         return false;
@@ -167,10 +175,11 @@ public abstract class Building : MonoBehaviour {
         if(!baseCoordinates.Contains(currentCell)) return;
 
         GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
-        _baseCoordinates = null;
-        _spriteCoordinates = null;
+        baseCoordinates = null;
+        spriteCoordinates = null;
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
         hasBeenPlaced = false;
+        hasBeenPickedUp = true;
         currentAction = Actions.PLACE;
     }
 
