@@ -5,12 +5,17 @@ using UnityEngine.Tilemaps;
 
 public class Silo : Building {
 
-    public Silo(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public Silo(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public Silo() : base() {
+    // public Silo() : base() {
+    //     Init();
+    // }
+
+    public new void Start(){
         Init();
+        base.Start();
     }
 
     protected override void Init(){

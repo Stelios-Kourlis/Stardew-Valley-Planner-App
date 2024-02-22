@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Greenhouse : Building {
-    public Greenhouse(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public Greenhouse(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public Greenhouse() : base(){
-        Init();
-    }
+    // public Greenhouse() : base(){
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

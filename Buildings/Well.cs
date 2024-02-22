@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Well : Building {
-    public Well(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-       Init();
-    }
+    // public Well(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //    Init();
+    // }
 
-    public Well() : base(){
-        Init();
-    }
+    // public Well() : base(){
+    //     Init();
+    // }
 
     protected override void Init() {
         name = GetType().Name;

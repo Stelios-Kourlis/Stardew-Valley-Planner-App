@@ -72,7 +72,7 @@ public class MainController : MonoBehaviour {
 
         //utils = gameObject.GetComponent<Utility>();
         //setMap(MapTypes.Normal);
-        grid.GetComponent<BuildingController>().PlaceBuilding(new ShippingBin(null, null, null), new Vector3Int(44, 14, 0));
+        //grid.GetComponent<BuildingController>().PlaceBuilding(new ShippingBin(null, null, null), new Vector3Int(44, 14, 0));
     }
 
     void Update() {

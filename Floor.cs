@@ -15,16 +15,16 @@ public class Floor : Building {
     /// </summary>
     /// <param name="position">The position to place the floor at</param>
     /// <param name="type">The type of floor</param>
-    public Floor(Vector3Int position, FloorType type) : base(new Vector3Int[]{position}, new Vector3Int[]{position}, GetFloorTilemap()) {
-        this.position = position;
-        this.type = type;
-        Init();
-    }
+    // public Floor(Vector3Int position, FloorType type) : base(new Vector3Int[]{position}, new Vector3Int[]{position}, GetFloorTilemap()) {
+    //     this.position = position;
+    //     this.type = type;
+    //     Init();
+    // }
 
-    public Floor(FloorType type) : base(null,null,null){
-        this.type = type;
-        Init();
-    }
+    // public Floor(FloorType type) : base(null,null,null){
+    //     this.type = type;
+    //     Init();
+    // }
 
     protected override void Init() {
         name = this.GetType().Name;

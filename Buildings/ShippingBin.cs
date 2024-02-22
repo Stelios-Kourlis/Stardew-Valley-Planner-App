@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class ShippingBin : Building {
-    public ShippingBin(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public ShippingBin(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public ShippingBin() : base(){
-        Init();
-    }
+    // public ShippingBin() : base(){
+    //     Init();
+    // }
 
     protected override void Init() {
         name = GetType().Name;

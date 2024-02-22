@@ -161,7 +161,7 @@ public class ButtonController : MonoBehaviour{
         string buildingType = building.GetType().ToString();
         string tieredBuildingType = buildingType.Substring(0, buildingType.Length - 1) + tier;
         Building tieredBuilding = Activator.CreateInstance(Type.GetType(tieredBuildingType), null, null, null) as Building;
-        GetBuildingController().PlaceBuilding(tieredBuilding, building.baseCoordinates[0]);
+        //GetBuildingController().PlaceBuilding(tieredBuilding, building.baseCoordinates[0]);//todo fix this
     }
 
     private Vector3 CalculatePositionOfButton(int numberOfButtons, int buttonNumber, Vector3 middleOfBuildingScreen){

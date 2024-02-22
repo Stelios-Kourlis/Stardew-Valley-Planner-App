@@ -8,10 +8,17 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
 using System.Linq;
+using UnityEngine.Events;
+using System.Runtime.ConstrainedExecution;
+using UnityEngine.EventSystems;
 #pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
-public abstract class Building : MonoBehaviour, ICloneable {
+public abstract class Building : MonoBehaviour {
+    private readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
+    private readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
+    private readonly Color OPAQUE = new Color(1,1,1,1);
+
     private Vector3Int[] _spriteCoordinates;//backking field
     ///<summary>The array containing the coordinates of each sprite tile, probably reversed y-wise</summary>
     public Vector3Int[] spriteCoordinates { get { return (Vector3Int[])_spriteCoordinates.Clone();} }
@@ -21,7 +28,7 @@ public abstract class Building : MonoBehaviour, ICloneable {
     public Vector3Int[] baseCoordinates { 
         get {return (Vector3Int[])_baseCoordinates.Clone();} }
     ///<summary>Name of building</summary>
-    public new string name { get; protected set;}
+    public string buildingName { get; protected set;}
     public Texture2D insideAreaTexture {get; protected set;}
     ///<summary>The sprite of the building</summary>
     public Texture2D texture {get; protected set;}
@@ -38,8 +45,18 @@ public abstract class Building : MonoBehaviour, ICloneable {
     public GameObject buttonParent;
 
     private bool hasStarted = false;
+    private bool hasBeenPlaced = false;
+    public static Actions currentAction {get; set;} = Actions.PLACE;
+    // Define a delegate type for the event.
+    public delegate void BuildingPlacedDelegate();
+
+    // Define a static event of the delegate type.
+    public static event BuildingPlacedDelegate buildingWasPlaced;
 
     //public GameObject[] paintableParts;//todo figure out how to do paintable parts
+
+    [Range(0, 1)]
+    public float red=1,green=1,blue=1,alpha=0.5f;
 
     protected Dictionary<Materials,int> _materialsNeeded = new Dictionary<Materials, int>();
     public Dictionary<Materials,int> materialsNeeded{ 
@@ -47,56 +64,66 @@ public abstract class Building : MonoBehaviour, ICloneable {
     }
 #pragma warning restore IDE1006 // Naming Styles
 
-    public Building(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) {
-        //this.tilemap = tilemap;
-        _spriteCoordinates = position;
-        _baseCoordinates = basePosition;
+    public void Start(){    
+        AddTilemapToObject(gameObject);
+        texture = Resources.Load($"Buildings/{name}") as Texture2D;
+        gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
+
+        hasStarted = true;
     }
 
-    public Building(){
-        //tilemap = null;
-        _spriteCoordinates = null;
-        _baseCoordinates = null;
+    void Update(){
+        //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
+        if (currentAction == Actions.PLACE) PlaceMouseoverEffect();
+        else if (currentAction == Actions.EDIT) EditMouseoverEffect();
+        else if (currentAction == Actions.DELETE) DeleteMouseoverEffect();
+
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (Input.GetKeyDown(KeyCode.Mouse0)){
+            if(EventSystem.current.IsPointerOverGameObject()) return;
+            if (currentAction == Actions.PLACE && !hasBeenPlaced) Place(currentCell);
+            if (currentAction == Actions.EDIT && hasBeenPlaced) Pickup();
+            if (currentAction == Actions.DELETE && hasBeenPlaced) Delete();
+        }
     }
 
-    public Building(Vector3Int lowerLeftCorner){
-        //tilemap = null;
-        _spriteCoordinates = null;
-        _baseCoordinates = null;
-        // CalculateBasePositionsAndSpritePositions(lowerLeftCorner);
+    private void EditMouseoverEffect(){
+        if (!hasBeenPlaced){
+            gameObject.GetComponent<Tilemap>().ClearAllTiles();
+            return;
+        }
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (baseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
-    protected abstract void Init();
+    private void PlaceMouseoverEffect(){
+        if (hasBeenPlaced) return;
+        //Debug.Log("Placing mouseover effect");
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        gameObject.GetComponent<TilemapRenderer>().sortingOrder = -currentCell.y + 50;
 
-    public bool VectorInBaseCoordinates(Vector3Int checkForMe) {
-        foreach (Vector3Int vector in baseCoordinates) if (checkForMe == vector) return true;
-        return false;
+        Vector3Int[] unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
+        Vector3Int[] buildingBaseCoordinates = GetAreaAroundPosition(currentCell, baseHeight, width).ToArray();
+        if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        else gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        gameObject.GetComponent<Tilemap>().ClearAllTiles();
+        if (hasBeenPlaced) Debug.Log($"Cleared Tiles, building was placed: {hasBeenPlaced}");
+        //Debug.Log(gameObject.GetComponent<TilemapRenderer>().sortingOrder);
+        Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(currentCell, height, width).ToArray();
+        gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(this, false));
     }
 
-    public void Delete() {
-        GameObject.Destroy(buttonParent);
-        GameObject.Destroy(tilemap.gameObject);
+    private void DeleteMouseoverEffect(){
+        if (!hasBeenPlaced){
+            gameObject.GetComponent<Tilemap>().ClearAllTiles();
+            return;
+        }
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (baseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
-
-    public bool Equals(Building other){
-        if (other.name != name) return false;
-        if (other.baseCoordinates != baseCoordinates) return false;
-        return true;
-    }
-
-    public override int GetHashCode(){
-        int hash = 0;
-        hash += name != null ? name.GetHashCode() : 0;
-        hash += baseCoordinates != null ? baseCoordinates.GetHashCode() : 0;
-        return hash;
-    }
-
-    public override string ToString() {
-        return name;
-    }
-
     protected void PlaceBuildingAfterStartIsDone(Vector3Int position){
-        Debug.Log("Placeing building");
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0) Destroy(gameObject);
 
@@ -106,9 +133,17 @@ public abstract class Building : MonoBehaviour, ICloneable {
         gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
+        GetBuildingController().buildingGameObjects.Add(gameObject);
 
         _baseCoordinates = GetAreaAroundPosition(position, baseHeight, width).ToArray();
         _spriteCoordinates = spriteCoordinates.ToArray();
+        //name = GetType().Name;
+
+        gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
+
+
+        hasBeenPlaced = true;
+        buildingWasPlaced.Invoke();
     }
 
     private IEnumerator PlaceBuildingCoroutine(Vector3Int position){
@@ -116,20 +151,36 @@ public abstract class Building : MonoBehaviour, ICloneable {
         PlaceBuildingAfterStartIsDone(position);
     }
 
-    public void PlaceBuilding(Vector3Int position){
+    public void Place(Vector3Int position){
         StartCoroutine(PlaceBuildingCoroutine(position));
     }
 
+    protected abstract void Init();
 
-    public void Start(){
-        Debug.Log("Building starts");
-        AddTilemapToObject(gameObject);
-        texture = Resources.Load($"Buildings/{name}") as Texture2D;
-
-        hasStarted = true;
+    public bool VectorInBaseCoordinates(Vector3Int checkForMe) {
+        foreach (Vector3Int vector in baseCoordinates) if (checkForMe == vector) return true;
+        return false;
     }
 
-    public object Clone(){
-        return Activator.CreateInstance(GetType(), _spriteCoordinates, _baseCoordinates, tilemap) as Building;
+    private void Pickup(){
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if(!baseCoordinates.Contains(currentCell)) return;
+
+        GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
+        _baseCoordinates = null;
+        _spriteCoordinates = null;
+        gameObject.GetComponent<Tilemap>().ClearAllTiles();
+        hasBeenPlaced = false;
+        currentAction = Actions.PLACE;
+    }
+
+    public void Delete() {//rewrite this
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if(!baseCoordinates.Contains(currentCell)) return;
+
+        GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
+        Destroy(buttonParent);
+        Destroy(gameObject);
     }
 }
+

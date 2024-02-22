@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class CoopT2 : Coop {
-    public CoopT2(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public CoopT2(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public CoopT2() : base() {
-        Init();
-    }
+    // public CoopT2() : base() {
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

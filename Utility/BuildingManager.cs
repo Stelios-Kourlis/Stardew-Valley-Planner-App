@@ -61,7 +61,7 @@ namespace Utility{
                     string name = data[0];
                     int x = int.Parse(data[1]);
                     int y = int.Parse(data[2]);
-                    placer.PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));
+                    //placer.PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));//todo fix this
                 }
             });
         }
@@ -80,7 +80,7 @@ namespace Utility{
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 //if (type != typeof(Floor)) GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, null, null, null) as Building);
                 // else GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, floorType) as Building);
-                GetBuildingController().currentBuildingType = type;
+                GetBuildingController().SetCurrentBuildingType(type);
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
                 });
             button.name = name;

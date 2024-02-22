@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class WaterObelisk : Building {
-    public WaterObelisk(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public WaterObelisk(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public WaterObelisk() : base(){
-        Init();
-    }
+    // public WaterObelisk() : base(){
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

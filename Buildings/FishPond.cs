@@ -10,13 +10,13 @@ public class FishPond : Building {
     public FishDeco deco;
     public Fish fish;
 
-    public FishPond(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public FishPond(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public FishPond() : base(){
-        Init();
-    }
+    // public FishPond() : base(){
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;
@@ -65,11 +65,5 @@ public class FishPond : Building {
         Tile[] decoTiles = fishPond.deco.GetNextDeco();
         Tilemap decoTilemap = fishPond.deco.tilemap;
         decoTilemap.SetTiles(fishPond.deco?.GetPosition(), decoTiles);
-    }
-
-    public new object Clone(){
-        FishPond clone = base.Clone() as FishPond;
-        clone.fish = fish;
-        return clone;
     }
 }

@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class FishPondBottom : Building {
-    public FishPondBottom(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public FishPondBottom(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public FishPondBottom() : base(){
-        Init();
-    }
+    // public FishPondBottom() : base(){
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

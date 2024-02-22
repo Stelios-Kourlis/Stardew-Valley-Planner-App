@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Shed : Building {
-    public Shed(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public Shed(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public Shed() : base(){
-        Init();
-    }
+    // public Shed() : base(){
+    //     Init();
+    // }
 
     protected override void Init() {
         baseHeight = 3;

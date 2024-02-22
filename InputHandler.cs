@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
+using System;
 
 public class InputHandler : MonoBehaviour {
 
@@ -14,7 +15,7 @@ public class InputHandler : MonoBehaviour {
     BuildingController buildingController;
     bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
-    Tilemap mouseTilemap1, buildingPreviewTilemap;
+    Tilemap buildingPreviewTilemap, buildingBasePreviewTilemap;
 
     void Start() {
         Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
@@ -26,8 +27,8 @@ public class InputHandler : MonoBehaviour {
         greenTile.sprite = greenTileSprite;
 
         GameObject[] tilemaps = GameObject.FindGameObjectsWithTag("MouseTileMap");
-        mouseTilemap1 = tilemaps[0].GetComponent<Tilemap>(); //the translucent version of the building
-        buildingPreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
+        buildingPreviewTilemap = tilemaps[0].GetComponent<Tilemap>(); //the translucent version of the building
+        buildingBasePreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
 
         buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
     }
@@ -35,7 +36,7 @@ public class InputHandler : MonoBehaviour {
     void Update(){
         //Debug.Log(buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
         
-        //HandleMouseMove();//todo uncomment this
+        //HandleMouseMove();
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
             mouseIsHeld = true; 
@@ -65,32 +66,41 @@ public class InputHandler : MonoBehaviour {
     }
     /// <summary> Creates the red/green tiles representing the structure's base and follow the mouse as well as the translucent version of the current building </summary>
     public void PlaceMouseoverEffect() {
-        Building building = buildingController.GetCurrentBuilding();
-        if (building is Floor){
-            PlaceFloorMouseoverEffect();
-            return;
-        }
-        if (building is Sprinkler){
-            PlaceSprinklerMouseoverEffect();
-            return;
-        }
+        Type buildingType = buildingController.currentBuildingType;
         Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         HashSet<Vector3Int> unavailableCoordinates = buildingController.GetUnavailableCoordinates();
 
-        Vector3Int[] mouseoverEffectArea;
-
-        mouseTilemap1.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        mouseTilemap1.ClearAllTiles();
-        mouseoverEffectArea = GetAreaAroundPosition(currentCell, building.height, building.width).ToArray();
-
-        mouseTilemap1.SetTiles(mouseoverEffectArea, SplitSprite(building, false));
-
         buildingPreviewTilemap.ClearAllTiles();
-        mouseoverEffectArea = GetAreaAroundPosition(currentCell, building.baseHeight, building.width).ToArray();
-        foreach (Vector3Int vector in mouseoverEffectArea) {
-            if (unavailableCoordinates.Contains(vector)) buildingPreviewTilemap.SetTile(vector, redTile);
-            else buildingPreviewTilemap.SetTile(vector, greenTile);
-        }
+        buildingBasePreviewTilemap.ClearAllTiles();
+
+        //buildingPreviewTilemap.SetTiles(GetAreaAroundPosition(currentCell, building.height, building.width).ToArray(), SplitSprite(building, false));
+        //--
+        // Building building = buildingController.GetCurrentBuilding();
+        // if (building is Floor){
+        //     PlaceFloorMouseoverEffect();
+        //     return;
+        // }
+        // if (building is Sprinkler){
+        //     PlaceSprinklerMouseoverEffect();
+        //     return;
+        // }
+        // Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        // HashSet<Vector3Int> unavailableCoordinates = buildingController.GetUnavailableCoordinates();
+
+        // Vector3Int[] mouseoverEffectArea;
+
+        // mouseTilemap1.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        // mouseTilemap1.ClearAllTiles();
+        // mouseoverEffectArea = mouseoverEffectArea = GetAreaAroundPosition(currentCell, building.height, building.width).ToArray();;
+
+        // mouseTilemap1.SetTiles(mouseoverEffectArea, SplitSprite(building, false));
+
+        // buildingPreviewTilemap.ClearAllTiles();
+        // mouseoverEffectArea = GetAreaAroundPosition(currentCell, building.baseHeight, building.width).ToArray();
+        // foreach (Vector3Int vector in mouseoverEffectArea) {
+        //     if (unavailableCoordinates.Contains(vector)) buildingPreviewTilemap.SetTile(vector, redTile);
+        //     else buildingPreviewTilemap.SetTile(vector, greenTile);
+        // }
     }
 
     public void PlaceSprinklerMouseoverEffect(){
@@ -101,18 +111,18 @@ public class InputHandler : MonoBehaviour {
         
         
 
-        mouseTilemap1.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        mouseTilemap1.ClearAllTiles();
-        mouseTilemap1.SetTile(currentCell, SplitSprite(currentBuilding, false)[0]);
-
+        buildingPreviewTilemap.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
         buildingPreviewTilemap.ClearAllTiles();
+        buildingPreviewTilemap.SetTile(currentCell, SplitSprite(currentBuilding, false)[0]);
+
+        buildingBasePreviewTilemap.ClearAllTiles();
         Vector3Int[] mouseoverEffectArea = null;
         if (currentBuilding is SprinklerT1) mouseoverEffectArea = GetCrossAroundPosition(currentCell).ToArray();
         if (currentBuilding is SprinklerT2) mouseoverEffectArea = GetAreaAroundPosition(currentCell, 1).ToArray();
         if (currentBuilding is SprinklerT3) mouseoverEffectArea = GetAreaAroundPosition(currentCell, 2).ToArray();
         foreach (Vector3Int vector in mouseoverEffectArea) {
-            if (unavailableCoordinates.Contains(vector)) buildingPreviewTilemap.SetTile(vector, redTile);
-            else buildingPreviewTilemap.SetTile(vector, greenTile);
+            if (unavailableCoordinates.Contains(vector)) buildingBasePreviewTilemap.SetTile(vector, redTile);
+            else buildingBasePreviewTilemap.SetTile(vector, greenTile);
         }
 
 
@@ -122,46 +132,46 @@ public class InputHandler : MonoBehaviour {
     public void EditMouseoverEffect(){
         Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
 
-        mouseTilemap1.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        mouseTilemap1.ClearAllTiles();
+        buildingPreviewTilemap.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
         buildingPreviewTilemap.ClearAllTiles();
+        buildingBasePreviewTilemap.ClearAllTiles();
 
-        mouseTilemap1.SetTile(currentCell, greenTile);
+        buildingPreviewTilemap.SetTile(currentCell, greenTile);
     }
 
     public void PlaceFloorMouseoverEffect() {
-        Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        HashSet<Vector3Int> unavailableCoordinates = buildingController.GetUnavailableCoordinates();
+        // Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        // HashSet<Vector3Int> unavailableCoordinates = buildingController.GetUnavailableCoordinates();
 
-        mouseTilemap1.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        // buildingPreviewTilemap.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
 
-        mouseTilemap1.ClearAllTiles();
-        buildingPreviewTilemap.ClearAllTiles();
+        // buildingPreviewTilemap.ClearAllTiles();
+        // buildingBasePreviewTilemap.ClearAllTiles();
 
-        Building currentBuilding = buildingController.GetCurrentBuilding();
-        if (!(currentBuilding is Floor)) return;
-        HashSet<Vector3Int> placeFloorArea;
-        if (mouseIsHeld)  placeFloorArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
-        else placeFloorArea = new HashSet<Vector3Int>(){currentCell};
-        foreach (Vector3Int cell in placeFloorArea){
-            Floor floor = new Floor(cell, ((Floor) currentBuilding).GetFloorType());
-            Tile floorTile = floor.GetFloorConfig(new HashSet<FloorFlag>().ToArray(), floor.GetFloorType());//todo change floor type, maybe correctly show floor flags
-            mouseTilemap1.SetTile(cell, floorTile);
-            if (unavailableCoordinates.Contains(floor.GetPosition())) buildingPreviewTilemap.SetTile(floor.GetPosition(), redTile);
-            else buildingPreviewTilemap.SetTile(floor.GetPosition(), greenTile);
+        // Building currentBuilding = buildingController.GetCurrentBuilding();
+        // if (!(currentBuilding is Floor)) return;
+        // HashSet<Vector3Int> placeFloorArea;
+        // if (mouseIsHeld)  placeFloorArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
+        // else placeFloorArea = new HashSet<Vector3Int>(){currentCell};
+        // foreach (Vector3Int cell in placeFloorArea){
+        //     //Floor floor = new Floor(cell, ((Floor) currentBuilding).GetFloorType());
+        //     Tile floorTile = floor.GetFloorConfig(new HashSet<FloorFlag>().ToArray(), floor.GetFloorType());//todo change floor type, maybe correctly show floor flags
+        //     buildingPreviewTilemap.SetTile(cell, floorTile);
+        //     if (unavailableCoordinates.Contains(floor.GetPosition())) buildingBasePreviewTilemap.SetTile(floor.GetPosition(), redTile);
+        //     else buildingBasePreviewTilemap.SetTile(floor.GetPosition(), greenTile);
 
-        }
+        // }
 
     }
 
     public void DeleteMouseoverEffect() {
         Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        mouseTilemap1.ClearAllTiles();
         buildingPreviewTilemap.ClearAllTiles();
+        buildingBasePreviewTilemap.ClearAllTiles();
         if (mouseIsHeld){
             HashSet<Vector3Int> deleteArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
-            foreach(Vector3Int cell in deleteArea) mouseTilemap1.SetTile(cell, redTile);
-        }else mouseTilemap1.SetTile(currentCell, redTile);
+            foreach(Vector3Int cell in deleteArea) buildingPreviewTilemap.SetTile(cell, redTile);
+        }else buildingPreviewTilemap.SetTile(currentCell, redTile);
     }
 
     public void HandleMouseMove() {
@@ -186,10 +196,10 @@ public class InputHandler : MonoBehaviour {
         switch (buildingController.GetCurrentAction()){
             case Actions.PLACE:
                 if (!(buildingController.GetCurrentBuilding() is Floor)) buildingController.PlaceCurrentlySelectedBuilding(currentCell);
-                else{
-                    HashSet<Vector3Int> placeFloorArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
-                    foreach (Vector3Int cell in placeFloorArea) buildingController.PlaceCurrentlySelectedBuilding(cell);
-                }
+                // else{
+                //     HashSet<Vector3Int> placeFloorArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
+                //     foreach (Vector3Int cell in placeFloorArea) buildingController.PlaceCurrentlySelectedBuilding(cell);
+                // }
                 break;
             case Actions.DELETE:
                 HashSet<Vector3Int> deleteArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);

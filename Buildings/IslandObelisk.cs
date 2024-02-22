@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class IslandObelisk : Building {
-    public IslandObelisk(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public IslandObelisk(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public IslandObelisk() : base() {
-        Init();
-    }
+    // public IslandObelisk() : base() {
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

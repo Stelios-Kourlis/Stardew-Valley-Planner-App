@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class SlimeHutch : Building {
-    public SlimeHutch(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    // public SlimeHutch(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
         
-    }
+    // }
 
     protected override void Init(){
         name = GetType().Name;

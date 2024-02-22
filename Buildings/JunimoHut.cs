@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class JunimoHut : Building {
-    public JunimoHut(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public JunimoHut(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public JunimoHut() : base() {
-        Init();
-    }
+    // public JunimoHut() : base() {
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

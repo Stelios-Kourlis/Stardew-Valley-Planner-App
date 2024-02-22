@@ -14,7 +14,6 @@ public class GoldClock : Building {
     }
 
     public new void Start(){
-        Debug.Log("GC starts");
         Init();
         base.Start();
     }

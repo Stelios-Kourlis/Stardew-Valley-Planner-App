@@ -25,9 +25,14 @@ public class BuildingController : MonoBehaviour
     // private Dictionary<Materials, int> totalMaterialsNeeded = new Dictionary<Materials, int>();
     //private FloorType currentFloorType;
 
+    public HashSet<GameObject> buildingGameObjects = new HashSet<GameObject>();
+    private GameObject lastBuildingObjectCreated;
+
     void Start(){
         //currentBuilding = new SprinklerT3();
         currentBuildingType = typeof(GoldClock);
+        OnBuildingPlaced();
+        Building.buildingWasPlaced += OnBuildingPlaced;
         //currentFloorType = FloorType.WOOD_FLOOR;
 
         // Building house = new BarnT1();
@@ -40,16 +45,31 @@ public class BuildingController : MonoBehaviour
         foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
     }
 
+    private void OnBuildingPlaced(){
+        Debug.Log("PLACED");
+        GameObject go = new GameObject(currentBuildingType.Name);
+        go.transform.parent = transform;
+        lastBuildingObjectCreated = go;
+        go.AddComponent(currentBuildingType);
+    }
+
+    public void SetCurrentBuildingType(Type newType){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = newType;
+        lastBuildingObjectCreated.AddComponent(currentBuildingType);
+    }
+
     /// <summary>
     /// Creates a tilemap and places building on it
     /// </summary>
     /// <param name="building">The building to place</param>
     /// <param name="position">The lower left position of the building</param>
-    public void PlaceBuilding(Building building, Vector3Int position){
-        if (building is Floor) PlaceCurrentlySelectedFloor(position);
-        if (building is Sprinkler sprinkler) PlaceSprinkler( sprinkler, position);
-        //else PlaceFarmBuilding(building, position);
-        else PlaceFarmBuilding(currentBuildingType, position);
+    public void PlaceBuilding(Type BuildingType, Vector3Int position){
+        // if (building is Floor) PlaceCurrentlySelectedFloor(position);
+        // if (building is Sprinkler sprinkler) PlaceSprinkler( sprinkler, position);
+        //else PlaceFarmBuilding(currentBuildingType, position);
+        PlaceFarmBuilding(BuildingType, position);
         
     }
 
@@ -58,17 +78,17 @@ public class BuildingController : MonoBehaviour
         if (building is Greenhouse) HandleGreenHouse( (Greenhouse) building);
     }
 
-    private void HandleFishPond(FishPond fishPond){
-        GameObject parentTilemapObject = fishPond.tilemap.gameObject;
-        Tile[] fishPondBottom = SplitSprite(new FishPondBottom(null, null, null));
-        GameObject fishPondBottomTilemapObject = CreateTilemapObject(parentTilemapObject.transform, parentTilemapObject.GetComponent<TilemapRenderer>().sortingOrder - 1, "FishPondBottom");
-        fishPondBottomTilemapObject.GetComponent<Tilemap>().SetTiles(fishPond.spriteCoordinates, fishPondBottom);
-        GameObject decoTilemapObject = CreateTilemapObject(parentTilemapObject.transform, parentTilemapObject.GetComponent<TilemapRenderer>().sortingOrder + 1, "FishPondDeco");
-        FishDeco deco = new FishDeco(GetAreaAroundPosition(fishPond.spriteCoordinates[0], 3, 5).ToArray<Vector3Int>(), decoTilemapObject.GetComponent<Tilemap>());
-        Tile[] decoTiles = deco.GetDeco(0);
+    private void HandleFishPond(FishPond fishPond){//todo fix this
+        // GameObject parentTilemapObject = fishPond.tilemap.gameObject;
+        // //Tile[] fishPondBottom = SplitSprite(new FishPondBottom(null, null, null));
+        // GameObject fishPondBottomTilemapObject = CreateTilemapObject(parentTilemapObject.transform, parentTilemapObject.GetComponent<TilemapRenderer>().sortingOrder - 1, "FishPondBottom");
+        // fishPondBottomTilemapObject.GetComponent<Tilemap>().SetTiles(fishPond.spriteCoordinates, fishPondBottom);
+        // GameObject decoTilemapObject = CreateTilemapObject(parentTilemapObject.transform, parentTilemapObject.GetComponent<TilemapRenderer>().sortingOrder + 1, "FishPondDeco");
+        // FishDeco deco = new FishDeco(GetAreaAroundPosition(fishPond.spriteCoordinates[0], 3, 5).ToArray<Vector3Int>(), decoTilemapObject.GetComponent<Tilemap>());
+        // Tile[] decoTiles = deco.GetDeco(0);
         
-        decoTilemapObject.GetComponent<Tilemap>().SetTiles(deco.GetPosition(), decoTiles);
-        fishPond.deco = deco;
+        // decoTilemapObject.GetComponent<Tilemap>().SetTiles(deco.GetPosition(), decoTiles);
+        // fishPond.deco = deco;
         //fishPond.SetFishImage();
     }
 
@@ -106,10 +126,10 @@ public class BuildingController : MonoBehaviour
     // }
 
     private void PlaceFarmBuilding(Type building, Vector3Int position){
-        GameObject buildingObject = new GameObject(building.Name);
-        buildingObject.transform.parent = transform;
-        Building build = (Building) buildingObject.AddComponent(building);
-        build.PlaceBuilding(position);
+        //GameObject buildingObject = new GameObject(building.Name);
+        // buildingObject.transform.parent = transform;
+        // Building build = (Building) buildingObject.AddComponent(building);
+        // build.PlaceBuilding(position);
     }
 
     private void PlaceSprinkler(Sprinkler sprinkler, Vector3Int position){
@@ -130,7 +150,7 @@ public class BuildingController : MonoBehaviour
     /// </summary>
     /// <param name="position">The lower left position of the building</param>
     public void PlaceCurrentlySelectedBuilding(Vector3Int position){
-        PlaceBuilding(currentBuilding, position);
+        PlaceBuilding(currentBuildingType, position);
     }
 
     /// <summary>
@@ -167,31 +187,31 @@ public class BuildingController : MonoBehaviour
         return;
     }
          
-    public void PlaceCurrentlySelectedFloor(Vector3Int position) {
-        if (unavailableCoordinates.Contains(position)) return;
-        if (!(currentBuilding is Floor)) return;
-        floors.RemoveWhere(floor => floor.GetPosition() == position);
-        FloorType type = ((Floor) currentBuilding).GetFloorType();
-        Floor floor = new Floor(position, type);
-        HashSet<FloorFlag> flags = GetFloorFlags(floor, floors);
-        Tile floorTile = floor.GetFloorConfig(flags.ToArray(), type);
-        Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
-        floorTilemap.SetTile(position, floorTile);
-        floors.Add(floor);
-        if (!isUndoing) actionLog.Add(new UserAction(Actions.PLACE, floor, position));
-        isUndoing = false;
-        foreach (Floor neighborFloor in floors){
-            if (GetNeighboursOfPosition(position).Contains(neighborFloor.GetPosition())) UpdateFloor(neighborFloor.GetPosition());
-        }
+    public void PlaceCurrentlySelectedFloor(Vector3Int position) {//todo fix
+        // if (unavailableCoordinates.Contains(position)) return;
+        // if (!(currentBuilding is Floor)) return;
+        // floors.RemoveWhere(floor => floor.GetPosition() == position);
+        // FloorType type = ((Floor) currentBuilding).GetFloorType();
+        // Floor floor = new Floor(position, type);
+        // HashSet<FloorFlag> flags = GetFloorFlags(floor, floors);
+        // Tile floorTile = floor.GetFloorConfig(flags.ToArray(), type);
+        // Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
+        // floorTilemap.SetTile(position, floorTile);
+        // floors.Add(floor);
+        // if (!isUndoing) actionLog.Add(new UserAction(Actions.PLACE, floor, position));
+        // isUndoing = false;
+        // foreach (Floor neighborFloor in floors){
+        //     if (GetNeighboursOfPosition(position).Contains(neighborFloor.GetPosition())) UpdateFloor(neighborFloor.GetPosition());
+        // }
     }
 
-    public void UpdateFloor(Vector3Int position){
-        FloorType type = floors.FirstOrDefault(floor => floor.GetPosition() == position).GetFloorType();
-        Floor floor = new Floor(position, type);
-        HashSet<FloorFlag> flags = GetFloorFlags(floor, floors);
-        Tile floorTile = floor.GetFloorConfig(flags.ToArray(), type);
-        Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
-        floorTilemap.SetTile(position, floorTile);
+    public void UpdateFloor(Vector3Int position){//todo fix
+        // FloorType type = floors.FirstOrDefault(floor => floor.GetPosition() == position).GetFloorType();
+        // Floor floor = new Floor(position, type);
+        // HashSet<FloorFlag> flags = GetFloorFlags(floor, floors);
+        // Tile floorTile = floor.GetFloorConfig(flags.ToArray(), type);
+        // Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
+        // floorTilemap.SetTile(position, floorTile);
     }
 
     public void DeleteFloor(Vector3Int position){
@@ -214,6 +234,7 @@ public class BuildingController : MonoBehaviour
             MapTypes.Beach => new Vector3Int(33, 57, 0),
             _ => new Vector3Int(32, 12, 0),
         };
+
         Building house = buildings.FirstOrDefault<Building>(building => building is House);
         if (house != null) {
             foreach (Vector3Int cell in house.baseCoordinates) unavailableCoordinates.Remove(cell);
@@ -228,7 +249,7 @@ public class BuildingController : MonoBehaviour
         };
         GameObject.Destroy(house.buttonParent);
         isUndoing = true; //hack to prevent the action from being added to the action log
-        PlaceBuilding(house, housePos);
+        //PlaceBuilding(house, housePos);//todo fix this
     }
 
     /// <summary>
@@ -262,23 +283,23 @@ public class BuildingController : MonoBehaviour
     }
 
     public void UndoLastAction(){
-        if (actionLog.Count == 0) return;
-        UserAction lastAction = actionLog.Last();
-        actionLog.RemoveAt(actionLog.Count - 1);
-        // Debug.Log(lastAction.ToString() + actionLog.Count);
-        isUndoing = true;
-        switch (lastAction.action){
-            case Actions.PLACE:
-                DeleteBuilding(lastAction.position);
-                break;
-            case Actions.DELETE:
-                PlaceBuilding(lastAction.building, lastAction.position);
-                break;
-            case Actions.EDIT:
-                break;
-            default:
-                break;
-        }
+        // if (actionLog.Count == 0) return;
+        // UserAction lastAction = actionLog.Last();
+        // actionLog.RemoveAt(actionLog.Count - 1);
+        // // Debug.Log(lastAction.ToString() + actionLog.Count);
+        // isUndoing = true;
+        // switch (lastAction.action){
+        //     case Actions.PLACE:
+        //         DeleteBuilding(lastAction.position);
+        //         break;
+        //     case Actions.DELETE:
+        //         PlaceBuilding(lastAction.building, lastAction.position);
+        //         break;
+        //     case Actions.EDIT:
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
 
     public void HideTotalMaterialsNeeded(){
@@ -292,7 +313,7 @@ public class BuildingController : MonoBehaviour
     public Actions GetCurrentAction(){ return currentAction; }
     //public FloorType GetCurrentFloorType(){ return currentFloorType; }
     public HashSet<Floor> GetFloors(){ return floors; }
-    public void SetCurrentAction(Actions action){ currentAction = action; }
+    public void SetCurrentAction(Actions action){ Building.currentAction = action; }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
     public void Save(){ Utility.BuildingManager.Save(); }

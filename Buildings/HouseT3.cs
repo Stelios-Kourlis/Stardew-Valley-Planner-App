@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class HouseT3 : House {
-    public HouseT3(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public HouseT3(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public HouseT3() : base() {
-        Init();
-    }
+    // public HouseT3() : base() {
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;

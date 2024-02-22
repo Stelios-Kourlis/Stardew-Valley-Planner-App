@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public abstract class Cabin : Building {
-    public Cabin(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-       Init();
-    }
+    // public Cabin(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //    Init();
+    // }
 
-    public Cabin() : base(){
-        Init();
-    }
+    // public Cabin() : base(){
+    //     Init();
+    // }
 
     protected override void Init(){
          baseHeight = 3;

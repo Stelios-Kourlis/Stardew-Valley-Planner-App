@@ -4,13 +4,13 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Mill : Building {
-    public Mill(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-        Init();
-    }
+    // public Mill(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
+    //     Init();
+    // }
 
-    public Mill() : base() {
-        Init();
-    }
+    // public Mill() : base() {
+    //     Init();
+    // }
 
     protected override void Init(){
         name = GetType().Name;
