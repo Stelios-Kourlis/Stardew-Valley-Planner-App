@@ -22,11 +22,17 @@ public class Barn : Building, ITieredBuilding {
         Init();
         base.Start();
         atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
+        Sprite[] sprites = new Sprite[atlas.spriteCount];
+        atlas.GetSprites(sprites);
+        foreach (Sprite sprite in sprites){
+            Debug.Log($"Name {sprite.name}, Height {sprite.rect.height /16}, Width {sprite.rect.width/16}");
+        }
         ChangeTier(2);
     }
 
     public void ChangeTier(int tier){
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
+        
         UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
     }
 }

@@ -65,10 +65,10 @@ namespace Utility{
         }
 
         public static Tile[] SplitSprite(Sprite sprite){
-            int height = sprite.texture.height;
-            int width = sprite.texture.width;
+            // int height = sprite.texture.height;
+            // int width = sprite.texture.width;
             List<Tile> tiles = new List<Tile>();
-            Rect rect = sprite.textureRect;
+            Rect rect = sprite.rect;
             for (int y = (int)rect.y; y < rect.y + rect.height; y += 16) {
                 for (int x = (int)rect.x; x < rect.x + rect.width; x += 16) {
                     Sprite newSprite = Sprite.Create(sprite.texture, new Rect(x, y, 16, 16), new Vector2(0.5f, 0.5f), 16);
