@@ -32,8 +32,8 @@ public abstract class Building : MonoBehaviour {
     public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];//backing field
 
     public int baseHeight { get; protected set; } 
-    public int height {get {return (int) sprite.rect.height / 16;}}
-    public int width {get {return (int) sprite.rect.width / 16;}}
+    public int height {get {return (int) sprite.textureRect.height / 16;}}
+    public int width {get {return (int) sprite.textureRect.width / 16;}}
     ///<summary>The tilemap this building is attached to</summary>
     public Tilemap tilemap {get; private set;} //the tilemap this building is attached to
     public GameObject buttonParent;
