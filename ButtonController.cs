@@ -35,6 +35,8 @@ public class ButtonController : MonoBehaviour{
         CreateButton("greenhouse", "Buildings/Greenhouse", typeof(Greenhouse), buildingPanelTransform);
         CreateButton("mill", "Buildings/Mill", typeof(Mill), buildingPanelTransform);
         CreateButton("fishPond", "Buildings/FishPond", typeof(FishPond), buildingPanelTransform);
+        CreateButton("sprinkler", "Buildings/SprinklerT1", typeof(Sprinkler), buildingPanelTransform);
+        CreateButton("scarecrow", "Buildings/Scarecrows", typeof(Scarecrow), buildingPanelTransform);
         CreateButton("floor", "Buildings/WoodFloor", typeof(Floor), buildingPanelTransform);
 
         GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.PLACE); });

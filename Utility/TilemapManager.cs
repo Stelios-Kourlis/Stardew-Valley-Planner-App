@@ -59,6 +59,23 @@ namespace Utility{
             return GetAreaAroundPosition(new Vector3Int(middlePosition.x - radius, middlePosition.y - radius, middlePosition.z), radius * 2 + 1, radius * 2 + 1);
         }
 
+        public static List<Vector3Int> GetCircleAroundPosition(Vector3Int middlePosition, int radius){
+            HashSet<Vector3Int> coordinates = new HashSet<Vector3Int>();
+            Vector3Int lowerLeft = new Vector3Int(middlePosition.x - radius/2, middlePosition.y - radius, middlePosition.z);
+            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 17, 9, true));
+            lowerLeft += new Vector3Int(-1, 1, 0);
+            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 15, 11, true));
+            lowerLeft += new Vector3Int(-1, 1, 0);
+            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 13, 13, true));
+            lowerLeft += new Vector3Int(-1, 1, 0);
+            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 11, 15, true));
+            lowerLeft += new Vector3Int(-1, 1, 0);
+            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 9, 17, true));
+            coordinates.Remove(middlePosition);
+            coordinates.Remove(new Vector3Int(middlePosition.x, middlePosition.y + 1, middlePosition.z));
+            return coordinates.ToList();
+        }
+
         [Obsolete("getPositionsOfBuilding is deprecated, use getAreaArroundPosition with flipped = true instead.")]
         ///<summary>Given the bottom left Vector3Int, calculate the vectors3Ints for the building</summary>
         ///<param name="currentPos">the vector containing the bottom left coordinates of the rectangle</param>
