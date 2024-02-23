@@ -20,6 +20,7 @@ public class ButtonController : MonoBehaviour{
         CreateButton("plankCabin", "Buildings/PlankCabinT1", typeof(Cabin), buildingPanelTransform);
         CreateButton("coop", "Buildings/Coop", typeof(Coop), buildingPanelTransform);
         CreateButton("barn", "Buildings/Barn", typeof(Barn), buildingPanelTransform);
+        CreateButton("shed", "Buildings/ShedT1", typeof(Shed), buildingPanelTransform);
         CreateButton("goldClock", "Buildings/GoldClock", typeof(GoldClock), buildingPanelTransform);
         CreateButton("silo", "Buildings/Silo", typeof(Silo), buildingPanelTransform);
         CreateButton("slimeHutch", "Buildings/SlimeHutch", typeof(SlimeHutch), buildingPanelTransform);

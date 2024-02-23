@@ -2,15 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
 
-public class Shed : Building {
-    // public Shed(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-    //     Init();
-    // }
+public class Shed : Building, ITieredBuilding {
 
-    // public Shed() : base(){
-    //     Init();
-    // }
+    private SpriteAtlas atlas;
+    private int tier;
+    
 
     protected override void Init() {
         baseHeight = 3;
@@ -21,4 +19,18 @@ public class Shed : Building {
             ButtonTypes.ENTER,
         };
     }
+
+    public new void Start(){
+        Init();
+        base.Start();
+        atlas = Resources.Load("Buildings/ShedAtlas") as SpriteAtlas;
+        ChangeTier(1);
+    }
+
+    public void ChangeTier(int tier){
+        this.tier = tier;
+        if (tier < 0 || tier > 2) throw new System.ArgumentException($"Tier must be between 1 and 2 (got {tier})");
+        UpdateTexture(atlas.GetSprite($"ShedT{tier}"));
+    }
+    
 }

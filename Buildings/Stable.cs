@@ -4,18 +4,10 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Stable : Building {
-    // public Stable(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-    //     Init();
-    // }
-
-    // public Stable() : base(){
-    //     Init();
-    // }
 
     protected override void Init(){
         name = GetType().Name;
         baseHeight = 2;
-        texture = Resources.Load("Buildings/Stable") as Texture2D;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT
         };
@@ -24,5 +16,10 @@ public class Stable : Building {
             {Materials.Hardwood, 100},
             {Materials.IronBar, 5},
         };
+    }
+
+    public new void Start(){
+        Init();
+        base.Start();
     }
 }
