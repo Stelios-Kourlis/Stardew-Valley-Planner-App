@@ -30,8 +30,8 @@ public class BuildingController : MonoBehaviour
 
     void Start(){
         //currentBuilding = new SprinklerT3();
-        currentBuildingType = typeof(FishPond);
-        OnBuildingPlaced();
+        currentBuildingType = typeof(House);
+        //OnBuildingPlaced();
         Building.buildingWasPlaced += OnBuildingPlaced;
         //currentFloorType = FloorType.WOOD_FLOOR;
 
@@ -241,7 +241,13 @@ public class BuildingController : MonoBehaviour
             _ => new Vector3Int(32, 12, 0),
         };
 
-        Building house = buildings.FirstOrDefault<Building>(building => building is House);
+        //Building house = buildings.FirstOrDefault<Building>(building => building is House);
+        //GameObject houseGameObject = CreateTilemapObject(transform, -housePos.y + 50, "House");
+        GameObject houseGameObject = new GameObject("House");
+        houseGameObject.transform.parent = transform;
+        houseGameObject.AddComponent<House>().Start();
+        houseGameObject.GetComponent<House>().Place(housePos);
+        houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
         // if (house != null) {
         //     foreach (Vector3Int cell in house.baseCoordinates) unavailableCoordinates.Remove(cell);
         //     buildings.Remove(house);
@@ -253,7 +259,7 @@ public class BuildingController : MonoBehaviour
         //     3 => new HouseT3(),
         //     _ => null,
         // };
-        GameObject.Destroy(house.buttonParent);
+        //GameObject.Destroy(house.buttonParent);
         isUndoing = true; //hack to prevent the action from being added to the action log
         //PlaceBuilding(house, housePos);//todo fix this
     }

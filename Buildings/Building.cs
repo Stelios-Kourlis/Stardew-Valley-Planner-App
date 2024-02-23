@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine.Events;
 using System.Runtime.ConstrainedExecution;
 using UnityEngine.EventSystems;
+using UnityEditor.UI;
 #pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
@@ -54,6 +55,15 @@ public abstract class Building : MonoBehaviour {
     protected PlaceDelegate PlaceBuilding;
     protected delegate void PickupDelegate();
     protected PickupDelegate PickupBuilding;
+    protected delegate void DeleteDelegate();
+    protected DeleteDelegate DeleteBuilding;
+    protected delegate void PlacePreviewDelegate();
+    protected PlacePreviewDelegate PlacePreview;
+    protected delegate void EditPreviewDelegate();
+    protected EditPreviewDelegate EditPreview;
+    protected delegate void DeletePreviewDelegate();
+    protected DeletePreviewDelegate DeletePreview;
+
 
     [Range(0, 1)]
     public float red=1,green=1,blue=1,alpha=0.5f;
@@ -71,25 +81,29 @@ public abstract class Building : MonoBehaviour {
         AddTilemapToObject(gameObject);
         PlaceBuilding = Place;
         PickupBuilding = Pickup;
+        DeleteBuilding = Delete;
+        PlacePreview = PlaceMouseoverEffect;
+        EditPreview = EditMouseoverEffect;
+        DeletePreview = DeleteMouseoverEffect;
         //texture = Resources.Load($"Buildings/{name}") as Texture2D;
         sprite = Resources.Load<Sprite>($"Buildings/{name}");
-        gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
+        // gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
 
         hasStarted = true;
     }
 
     void Update(){
         //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
-        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlaceMouseoverEffect();
-        else if (currentAction == Actions.EDIT) EditMouseoverEffect();
-        else if (currentAction == Actions.DELETE) DeleteMouseoverEffect();
+        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
+        else if (currentAction == Actions.EDIT) EditPreview();
+        else if (currentAction == Actions.DELETE) DeletePreview();
 
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if(EventSystem.current.IsPointerOverGameObject()) return;
             if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) PlaceBuilding(currentCell);
             else if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
-            else if (currentAction == Actions.DELETE && hasBeenPlaced) Delete();
+            else if (currentAction == Actions.DELETE && hasBeenPlaced) DeleteBuilding();
         }
     }
 
@@ -107,6 +121,7 @@ public abstract class Building : MonoBehaviour {
         if (hasBeenPlaced) return;
         //Debug.Log("Placing mouseover effect");
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -currentCell.y + 50;
 
         Vector3Int[] unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
@@ -129,12 +144,17 @@ public abstract class Building : MonoBehaviour {
         if (baseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
-    protected void Place(Vector3Int position){
+    
+    public void Place(Vector3Int position){
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
-        if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0) return;
+        if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
+            Debug.LogWarning("Cannot place building here");
+            return;
+        }
 
         List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, height, width);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
+        gameObject.GetComponent<Tilemap>().color = OPAQUE;
         gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), SplitSprite(sprite));
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
@@ -143,8 +163,6 @@ public abstract class Building : MonoBehaviour {
         this.baseCoordinates = baseCoordinates.ToArray();
         this.spriteCoordinates = spriteCoordinates.ToArray();
         //name = GetType().Name;
-
-        gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
 
         hasBeenPlaced = true;
         

@@ -13,7 +13,7 @@ namespace Utility{
         public static Tile[] SplitSprite(Building building, bool reverseLayerOrder = true) {
             Tile[] tiles = new Tile[building.height * building.width];
             int index = 0;
-            Texture2D texture = building.texture;
+            Texture2D texture = building.sprite.texture;
             if (reverseLayerOrder) {
                 for (int yPivot = building.height - 1; yPivot >= 0; yPivot--) {
                     for (int xPivot = 0; xPivot < building.width; xPivot++) {

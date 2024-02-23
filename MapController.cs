@@ -39,7 +39,7 @@ public class MapController : MonoBehaviour{
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
         // ToggleRedTiles();
         // ToggleRedTiles();
-        //buildingController.PlaceHouse(1);//todo uncomment this
+        buildingController.PlaceHouse(1);
         GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
     }
 
