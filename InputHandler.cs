@@ -31,6 +31,8 @@ public class InputHandler : MonoBehaviour {
         buildingBasePreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
 
         buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
+
+        Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
     }
 
     void Update(){

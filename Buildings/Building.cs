@@ -50,6 +50,11 @@ public abstract class Building : MonoBehaviour {
 
     //public GameObject[] paintableParts;//todo figure out how to do paintable parts
 
+    protected delegate void PlaceDelegate(Vector3Int position);
+    protected PlaceDelegate PlaceBuilding;
+    protected delegate void PickupDelegate();
+    protected PickupDelegate PickupBuilding;
+
     [Range(0, 1)]
     public float red=1,green=1,blue=1,alpha=0.5f;
 
@@ -64,7 +69,10 @@ public abstract class Building : MonoBehaviour {
 
     public void Start(){    
         AddTilemapToObject(gameObject);
+        PlaceBuilding = Place;
+        PickupBuilding = Pickup;
         //texture = Resources.Load($"Buildings/{name}") as Texture2D;
+        sprite = Resources.Load<Sprite>($"Buildings/{name}");
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
 
         hasStarted = true;
@@ -79,13 +87,13 @@ public abstract class Building : MonoBehaviour {
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (Input.GetKeyDown(KeyCode.Mouse0)){
             if(EventSystem.current.IsPointerOverGameObject()) return;
-            if (currentAction == Actions.PLACE && !hasBeenPlaced) Place(currentCell);
-            if (currentAction == Actions.EDIT && hasBeenPlaced) Pickup();
+            if (currentAction == Actions.PLACE && !hasBeenPlaced) PlaceBuilding(currentCell);
+            if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
             if (currentAction == Actions.DELETE && hasBeenPlaced) Delete();
         }
     }
 
-    private void EditMouseoverEffect(){
+    protected void EditMouseoverEffect(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
             return;
@@ -95,7 +103,7 @@ public abstract class Building : MonoBehaviour {
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
-    private void PlaceMouseoverEffect(){
+    protected void PlaceMouseoverEffect(){
         if (hasBeenPlaced) return;
         //Debug.Log("Placing mouseover effect");
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
@@ -112,7 +120,7 @@ public abstract class Building : MonoBehaviour {
         gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(sprite));
     }
 
-    private void DeleteMouseoverEffect(){
+    protected void DeleteMouseoverEffect(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
             return;
@@ -121,7 +129,7 @@ public abstract class Building : MonoBehaviour {
         if (baseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
-    protected void PlaceBuildingAfterStartIsDone(Vector3Int position){
+    protected void Place(Vector3Int position){
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0) return;
 
@@ -150,14 +158,14 @@ public abstract class Building : MonoBehaviour {
         buildingWasPlaced.Invoke();
     }
 
-    private IEnumerator PlaceBuildingCoroutine(Vector3Int position){
-        while (!hasStarted) yield return null;
-        PlaceBuildingAfterStartIsDone(position);
-    }
+    // private IEnumerator PlaceBuildingCoroutine(Vector3Int position){
+    //     while (!hasStarted) yield return null;
+    //     PlaceBuildingAfterStartIsDone(position);
+    // }
 
-    public void Place(Vector3Int position){
-        StartCoroutine(PlaceBuildingCoroutine(position));
-    }
+    // public void Place(Vector3Int position){
+    //     StartCoroutine(PlaceBuildingCoroutine(position));
+    // }
 
     protected void UpdateTexture(Sprite newSprite){
         sprite = newSprite;
@@ -174,7 +182,7 @@ public abstract class Building : MonoBehaviour {
         return false;
     }
 
-    private void Pickup(){
+    protected void Pickup(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if(!baseCoordinates.Contains(currentCell)) return;
 

@@ -30,7 +30,7 @@ public class BuildingController : MonoBehaviour
 
     void Start(){
         //currentBuilding = new SprinklerT3();
-        currentBuildingType = typeof(Coop);
+        currentBuildingType = typeof(FishPond);
         OnBuildingPlaced();
         Building.buildingWasPlaced += OnBuildingPlaced;
         //currentFloorType = FloorType.WOOD_FLOOR;
@@ -50,7 +50,6 @@ public class BuildingController : MonoBehaviour
     }
 
     private void OnBuildingPlaced(){
-        Debug.Log("PLACED");
         GameObject go = new GameObject(currentBuildingType.Name);
         go.transform.parent = transform;
         lastBuildingObjectCreated = go;
@@ -271,12 +270,12 @@ public class BuildingController : MonoBehaviour
 
     //todo this needs to go elsewhere
     public void CycleFishPondDeco(Building building){
-        if (building == null || !(building is FishPond)) return;
-        FishPond fishPond = (FishPond) building;
-        Tile[] decoTiles = fishPond.deco.GetNextDeco();
-        Tilemap decoTilemap = fishPond.deco.tilemap;
-        decoTilemap.SetTiles(fishPond.deco?.GetPosition(), decoTiles);
-        //building.GetTilemap().gameObject.transform.GetChild(2).
+        // if (building == null || !(building is FishPond)) return;
+        // FishPond fishPond = (FishPond) building;
+        // Tile[] decoTiles = fishPond.deco.GetNextDeco();
+        // Tilemap decoTilemap = fishPond.deco.tilemap;
+        // decoTilemap.SetTiles(fishPond.deco?.GetPosition(), decoTiles);
+        // //building.GetTilemap().gameObject.transform.GetChild(2).
     }
 
     public void ToggleBuildingButtons(Vector3Int position){

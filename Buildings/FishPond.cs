@@ -3,25 +3,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
 using UnityEngine.UI;
+using static Utility.TilemapManager;
+using static Utility.SpriteManager;
+
 
 public class FishPond : Building {
-
-    public FishDeco deco;
+    private SpriteAtlas atlas;
     public Fish fish;
+    private Vector3Int[] decoCoordinates; 
+    private GameObject decoTilemapObject;
+    private int decoIndex = 0;
+    private GameObject waterTilemapObject;
 
-    // public FishPond(Vector3Int[] position, Vector3Int[] basePosition, Tilemap tilemap) : base(position, basePosition, tilemap) {
-    //     Init();
-    // }
-
-    // public FishPond() : base(){
-    //     Init();
-    // }
+    public new void Start(){
+        Init();
+        base.Start();
+        PlaceBuilding = Place;
+        PickupBuilding = Pickup;
+        atlas = Resources.Load("Buildings/FishPondAtlas") as SpriteAtlas;
+        decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
+        waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
+        CycleFishPondDeco();
+        CycleFishPondDeco();
+    }
 
     protected override void Init(){
         name = GetType().Name;
         baseHeight = 5;
-        texture = Resources.Load("Buildings/Fish Pond Top") as Texture2D;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
@@ -34,14 +44,29 @@ public class FishPond : Building {
         };
     }
 
+    private new void Place(Vector3Int position){
+        base.Place(position);
+        Vector3Int topRightCorner = baseCoordinates[0] + new Vector3Int(0, 4, 0);
+        decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
+        decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+        decoTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
+        waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        waterTilemapObject.GetComponent<Tilemap>().SetTiles(baseCoordinates, SplitSprite(atlas.GetSprite("FishPondBottom")));
+        waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
+    }
+
+    private new void Pickup(){
+        base.Pickup();
+        decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+    }
+
     /// <summary>
     ///Set the fish image and the pond color to a fish of your choosing
     /// </summary>
     /// <param name="fishType"> The fish</param>
-    
     public void SetFishImage(Fish fishType){
-        // GameObject fishButton = gameObject.transform.GetChild(0).gameObject;
-        //if (fishButton.GetComponent<Image>().color.a == 0) fishButton.GetComponent<Image>().color = new Color(255, 255, 255, 255);
         buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("Fish/"+ fishType.ToString());
         Color color = fishType switch
         { // RGB 0-255 dont work so these are the values normalized to 0-1
@@ -55,15 +80,13 @@ public class FishPond : Building {
         fish = fishType;
     }
 
-    public void SetFishImage(){
+    public void UpdateFishImage(){
         SetFishImage(fish);
     }
 
-    public void CycleFishPondDeco(Building building){
-        if (building == null || !(building is FishPond)) return;
-        FishPond fishPond = (FishPond) building;
-        Tile[] decoTiles = fishPond.deco.GetNextDeco();
-        Tilemap decoTilemap = fishPond.deco.tilemap;
-        decoTilemap.SetTiles(fishPond.deco?.GetPosition(), decoTiles);
+    public void CycleFishPondDeco(){
+        decoIndex++;
+        if (decoIndex > 3) decoIndex = 0;
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
     }
 }
