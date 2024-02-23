@@ -13,8 +13,6 @@ public class FloorBarHandler : MonoBehaviour {
     }
 
     void Update(){
-        Debug.Log(GetBuildingController() is null);
-        Debug.Log(GetBuildingController().GetCurrentBuildingType() is null);
         if (GetBuildingController().GetCurrentBuildingType() == typeof(Floor) && !floorBarIsOpen){
             floorBarIsOpen = true;
             StartCoroutine(OpenBar());

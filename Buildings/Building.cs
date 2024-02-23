@@ -101,7 +101,7 @@ public abstract class Building : MonoBehaviour {
             if(EventSystem.current.IsPointerOverGameObject()) return;
             if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) PlaceBuilding(currentCell);
             else if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
-            else if (currentAction == Actions.DELETE && hasBeenPlaced) DeleteBuilding();
+            else if (currentAction == Actions.DELETE) DeleteBuilding();
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse1) && buildingInteractions.Length != 0 && hasBeenPlaced && baseCoordinates.Contains(currentCell)){

@@ -30,34 +30,31 @@ public class Floor : Building {
         Init();
         base.Start();
         PlaceBuilding = Place;
+        DeleteBuilding = Delete;
         PlacePreview = PlaceMouseoverEffect;
+        DeletePreview = DeleteMouseoverEffect;
         FloorWasPlaced += AnotherFloorWasPlaced;
         atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
         sprite = atlas.GetSprite($"WOOD_FLOOR0");
-        Debug.Log(sprite.name);
         tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
     }
 
-    public new void Update(){
-        base.Update();
-        if (Input.GetKeyDown(KeyCode.B)) floorType = FloorType.RUSTIC_PLANK_FLOOR;
-    }
-
     public new void Place(Vector3Int position){
-        //if (floors.Keys.Contains(position)) return;
-        // baseCoordinates = new Vector3Int[]{position};
-        // spriteCoordinates = new Vector3Int[]{position};
         int height = GetFloorFlagsSum(position);
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
         tilemap.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
         if (floors.Keys.Contains(position)) floors[position] = floorType;
         else floors.Add(position, floorType);
-        floors.Add(position, floorType);
         FloorWasPlaced?.Invoke(position);
-        //hasBeenPlaced = true;
-        
-        //InvokeBuildingWasPlaced();
+    }
+
+    public new void Delete(){
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (!floors.Keys.Contains(currentCell)) return;
+        floors.Remove(currentCell);
+        tilemap.SetTile(currentCell, null);
+        FloorWasPlaced?.Invoke(currentCell);
     }
 
     public new void PlaceMouseoverEffect(){
@@ -66,6 +63,18 @@ public class Floor : Building {
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         if (floors.Keys.Contains(currentCell)) GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        GetComponent<Tilemap>().ClearAllTiles();
+        GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
+    }
+
+    public new void DeleteMouseoverEffect(){
+        //Debug.Log("DeleteMouseoverEffect");
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (!floors.Keys.Contains(currentCell)) return;
+        int height = GetFloorFlagsSum(currentCell);
+        Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
+        GetComponent<TilemapRenderer>().sortingOrder = 500;
+        GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         GetComponent<Tilemap>().ClearAllTiles();
         GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
     }
