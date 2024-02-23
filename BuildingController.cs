@@ -21,8 +21,6 @@ public class BuildingController : MonoBehaviour
     private Actions currentAction;
     private readonly HashSet<Floor> floors = new HashSet<Floor>();
     private bool isUndoing = false;
-    // private Dictionary<Materials, int> totalMaterialsNeeded = new Dictionary<Materials, int>();
-    //private FloorType currentFloorType;
 
     public HashSet<GameObject> buildingGameObjects = new HashSet<GameObject>();
     private GameObject lastBuildingObjectCreated;
@@ -58,62 +56,6 @@ public class BuildingController : MonoBehaviour
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
     }
 
-    /// <summary>
-    /// Delete the building at the position given
-    /// </summary>
-    /// <param name=""> The position the building you want to delete is on, can be any of the base coordinates not just bottom left</param>
-    public void DeleteBuilding(Vector3Int position){
-        //if (floors.Any(floor => floor.GetPosition() == position)) 
-        if (!unavailableCoordinates.Contains(position)){
-            DeleteFloor(position);
-            return;
-        }
-        Building building = buildings.FirstOrDefault(building => building.VectorInBaseCoordinates(position) && !(building is House));
-        if (building == null) return;
-        buildings.Remove(building);
-        unavailableCoordinates.RemoveWhere(building.VectorInBaseCoordinates);
-        building.Delete();
-        //if (!isUndoing) actionLog.Add(new UserAction(Actions.DELETE, building, building.baseCoordinates[0]));
-        isUndoing = false;
-        GetMapController().UpdateUnavailableCoordinates();
-    }
-    
-    public void PickupBuilding(Vector3Int position){//todo ALL NBT DATA IS LOST ON MOVE
-        if (!unavailableCoordinates.Contains(position)) return;
-        Building building = buildings.FirstOrDefault(building => building.VectorInBaseCoordinates(position) && !(building is House));
-        if (building == null) return;
-        buildings.Remove(building);
-        unavailableCoordinates.RemoveWhere(building.VectorInBaseCoordinates);
-        building.Delete();
-        // currentBuilding = Activator.CreateInstance(building.GetType(), null, null, null) as Building;
-        currentBuilding = building;
-        currentAction = Actions.PLACE;
-        return;
-    }
-        
-
-    public void UpdateFloor(Vector3Int position){//todo fix
-        // FloorType type = floors.FirstOrDefault(floor => floor.GetPosition() == position).GetFloorType();
-        // Floor floor = new Floor(position, type);
-        // HashSet<FloorFlag> flags = GetFloorFlags(floor, floors);
-        // Tile floorTile = floor.GetFloorConfig(flags.ToArray(), type);
-        // Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
-        // floorTilemap.SetTile(position, floorTile);
-    }
-
-    public void DeleteFloor(Vector3Int position){
-        Floor floor = floors.FirstOrDefault(floor => floor.GetPosition() == position);
-        if (floor == null) return;
-        floors.Remove(floor);
-        Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
-        floorTilemap.SetTile(position, null);
-        if (!isUndoing) actionLog.Add(new UserAction(Actions.DELETE, floor, position));
-        isUndoing = false;
-        foreach (Floor neighborFloor in floors){
-            if (GetNeighboursOfPosition(position).Contains(neighborFloor.GetPosition())) UpdateFloor(neighborFloor.GetPosition());
-        }
-    }
-
     public void PlaceHouse(int tier) {
         MapController mapController = GetMapController();
         Vector3Int housePos = mapController.GetCurrentMapType() switch{
@@ -132,7 +74,7 @@ public class BuildingController : MonoBehaviour
     /// <summary>
     /// Deletes all buildings except the house
     /// </summary>
-    public void DeleteAllBuildings() {
+    public void DeleteAllBuildings() {//fix this
         foreach (Building building in buildings) {
             if (building is House) continue;
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
@@ -140,23 +82,6 @@ public class BuildingController : MonoBehaviour
             building.Delete();
         }
         buildings.RemoveAll(building => !(building is House)); //Remove everything except the house
-    }
-
-    //todo this needs to go elsewhere
-    public void CycleFishPondDeco(Building building){
-        // if (building == null || !(building is FishPond)) return;
-        // FishPond fishPond = (FishPond) building;
-        // Tile[] decoTiles = fishPond.deco.GetNextDeco();
-        // Tilemap decoTilemap = fishPond.deco.tilemap;
-        // decoTilemap.SetTiles(fishPond.deco?.GetPosition(), decoTiles);
-        // //building.GetTilemap().gameObject.transform.GetChild(2).
-    }
-
-    public void ToggleBuildingButtons(Vector3Int position){
-        Building building = buildings.FirstOrDefault(building => building.VectorInBaseCoordinates(position));
-        if (building == null) return;
-        bool buttonsAreActive = building.buttonParent.activeInHierarchy;
-        building.buttonParent.SetActive(!buttonsAreActive);
     }
 
     public void UndoLastAction(){

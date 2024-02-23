@@ -65,12 +65,12 @@ public class ButtonController : MonoBehaviour{
         ButtonTypes[] buttonTypes = building.buildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return;
-        GameObject parentGameObject = building.gameObject;//todo fix this
+        //GameObject parentGameObject = building.gameObject;//todo fix this
         Vector3 middleOfBuildingWorld = GetMiddleOfBuildingWorld(building);
         Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(middleOfBuildingWorld);
         GameObject buttonParent = new GameObject(building.name+"buttons");
         buttonParent.transform.parent = GetCanvasGameObject().transform;
-        buttonParent.SetActive(true);//change thhis back to false after right click function is added
+        buttonParent.SetActive(false);
         buttonParent.transform.SetAsFirstSibling();
         building.buttonParent = buttonParent;
 
