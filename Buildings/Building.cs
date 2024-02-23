@@ -40,7 +40,7 @@ public abstract class Building : MonoBehaviour {
     public GameObject buttonParent;
 
     private bool hasStarted = false;
-    private bool hasBeenPlaced = false;
+    protected bool hasBeenPlaced = false;
     private bool hasBeenPickedUp = false;
     public static Actions currentAction {get; set;} = Actions.PLACE;
     // Define a delegate type for the event.
@@ -119,7 +119,6 @@ public abstract class Building : MonoBehaviour {
 
     protected void PlaceMouseoverEffect(){
         if (hasBeenPlaced) return;
-        //Debug.Log("Placing mouseover effect");
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -currentCell.y + 50;

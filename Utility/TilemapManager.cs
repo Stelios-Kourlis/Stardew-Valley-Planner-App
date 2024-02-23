@@ -47,7 +47,7 @@ namespace Utility{
         ///<summary>Get all Vector3Int representing a cross around the given position, used to get the sprinkler tier 1 area of effect</summary>
         public static List<Vector3Int> GetCrossAroundPosition(Vector3Int position){
             return new List<Vector3Int>{
-                position,
+                // position,
                 new Vector3Int(position.x - 1, position.y, position.z),
                 new Vector3Int(position.x + 1, position.y, position.z),
                 new Vector3Int(position.x, position.y - 1, position.z),

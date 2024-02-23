@@ -30,7 +30,7 @@ public class BuildingController : MonoBehaviour
 
     void Start(){
         //currentBuilding = new SprinklerT3();
-        currentBuildingType = typeof(House);
+        currentBuildingType = typeof(Sprinkler);
         //OnBuildingPlaced();
         Building.buildingWasPlaced += OnBuildingPlaced;
         //currentFloorType = FloorType.WOOD_FLOOR;

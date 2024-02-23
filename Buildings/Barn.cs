@@ -27,8 +27,8 @@ public class Barn : Building, ITieredBuilding {
     }
 
     public void ChangeTier(int tier){
-        this.tier = tier;
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
+        this.tier = tier;
         UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
     }
 

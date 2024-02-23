@@ -105,30 +105,30 @@ public class InputHandler : MonoBehaviour {
         // }
     }
 
-    public void PlaceSprinklerMouseoverEffect(){
-        Building currentBuilding = buildingController.GetCurrentBuilding();
+    // public void PlaceSprinklerMouseoverEffect(){
+    //     Building currentBuilding = buildingController.GetCurrentBuilding();
 
-        Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        HashSet<Vector3Int> unavailableCoordinates = buildingController.GetUnavailableCoordinates();
+    //     Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+    //     HashSet<Vector3Int> unavailableCoordinates = buildingController.GetUnavailableCoordinates();
         
         
 
-        buildingPreviewTilemap.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        buildingPreviewTilemap.ClearAllTiles();
-        buildingPreviewTilemap.SetTile(currentCell, SplitSprite(currentBuilding, false)[0]);
+    //     buildingPreviewTilemap.GetComponent<TilemapRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+    //     buildingPreviewTilemap.ClearAllTiles();
+    //     buildingPreviewTilemap.SetTile(currentCell, SplitSprite(currentBuilding, false)[0]);
 
-        buildingBasePreviewTilemap.ClearAllTiles();
-        Vector3Int[] mouseoverEffectArea = null;
-        if (currentBuilding is SprinklerT1) mouseoverEffectArea = GetCrossAroundPosition(currentCell).ToArray();
-        if (currentBuilding is SprinklerT2) mouseoverEffectArea = GetAreaAroundPosition(currentCell, 1).ToArray();
-        if (currentBuilding is SprinklerT3) mouseoverEffectArea = GetAreaAroundPosition(currentCell, 2).ToArray();
-        foreach (Vector3Int vector in mouseoverEffectArea) {
-            if (unavailableCoordinates.Contains(vector)) buildingBasePreviewTilemap.SetTile(vector, redTile);
-            else buildingBasePreviewTilemap.SetTile(vector, greenTile);
-        }
+    //     buildingBasePreviewTilemap.ClearAllTiles();
+    //     Vector3Int[] mouseoverEffectArea = null;
+    //     if (currentBuilding is SprinklerT1) mouseoverEffectArea = GetCrossAroundPosition(currentCell).ToArray();
+    //     if (currentBuilding is SprinklerT2) mouseoverEffectArea = GetAreaAroundPosition(currentCell, 1).ToArray();
+    //     if (currentBuilding is SprinklerT3) mouseoverEffectArea = GetAreaAroundPosition(currentCell, 2).ToArray();
+    //     foreach (Vector3Int vector in mouseoverEffectArea) {
+    //         if (unavailableCoordinates.Contains(vector)) buildingBasePreviewTilemap.SetTile(vector, redTile);
+    //         else buildingBasePreviewTilemap.SetTile(vector, greenTile);
+    //     }
 
 
-    }
+    // }
         
 
     public void EditMouseoverEffect(){
