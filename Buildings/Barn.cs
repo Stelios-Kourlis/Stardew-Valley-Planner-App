@@ -27,7 +27,7 @@ public class Barn : Building, ITieredBuilding {
         foreach (Sprite sprite in sprites){
             Debug.Log($"Name {sprite.name}, Height {sprite.rect.height /16}, Width {sprite.rect.width/16}");
         }
-        ChangeTier(2);
+        ChangeTier(1);
     }
 
     public void ChangeTier(int tier){

@@ -160,7 +160,9 @@ public abstract class Building : MonoBehaviour {
 
     protected void UpdateTexture(Sprite newSprite){
         sprite = newSprite;
-        Debug.Log($"Width: {newSprite.rect.width}, Height: {newSprite.rect.height}");
+        Debug.Log($"r Width: {sprite.rect.width/16}, Height: {sprite.rect.height/16}");
+        Debug.Log($"tr Width: {sprite.textureRect.width/16}, Height: {sprite.textureRect.height/16}");
+        Debug.Log($"Width: {width}, Height: {sprite.rect.height}");
         if (!hasBeenPlaced) return;
         Tile[] buildingTiles = SplitSprite(sprite);
         gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
