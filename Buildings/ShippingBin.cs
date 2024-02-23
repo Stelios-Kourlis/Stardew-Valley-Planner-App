@@ -8,14 +8,17 @@ public class ShippingBin : Building {
     protected override void Init() {
         name = GetType().Name;
         baseHeight = 1;
-        materialsNeeded = new Dictionary<Materials, int>(){
-            {Materials.Coins, 250},
-            {Materials.Wood, 150}
-        };
     }
 
     public new void Start(){
         Init();
         base.Start();
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return new Dictionary<Materials, int>(){
+            {Materials.Coins, 250},
+            {Materials.Wood, 150}
+        };
     }
 }

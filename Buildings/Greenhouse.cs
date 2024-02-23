@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
+using System.Collections.ObjectModel;
 
 public class Greenhouse : Building {
 
@@ -41,5 +42,9 @@ public class Greenhouse : Building {
     private new void Pickup(){
         base.Pickup();
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return new Dictionary<Materials, int>();
     }
 }

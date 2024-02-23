@@ -58,4 +58,8 @@ public class Sprinkler : Building, ITieredBuilding{
         };
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, null);
     }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        throw new NotImplementedException();
+    }
 }

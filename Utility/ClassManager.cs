@@ -7,8 +7,6 @@ namespace Utility{
     public static class ClassManager{
     public static  BuildingController GetBuildingController(){ return GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>(); }
 
-    public static MainController GetMainController(){ return GameObject.FindGameObjectWithTag("LogicComponent").GetComponent<MainController>(); }
-
     public static GameObject GetCamera(){ return GameObject.FindGameObjectWithTag("MainCamera"); }
 
     public static MapController GetMapController(){ return GameObject.FindGameObjectWithTag("Grid").GetComponent<MapController>(); }

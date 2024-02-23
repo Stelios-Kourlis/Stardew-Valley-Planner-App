@@ -14,20 +14,20 @@ public class BuildingController : MonoBehaviour
 {
     /// <summary> A coordinate is unavailable if it is occupied by a building or if its out of bounds for the current map </summary>
     private readonly HashSet<Vector3Int> unavailableCoordinates = new HashSet<Vector3Int>();
-    private readonly List<Building> buildings = new List<Building>();
+    public readonly List<Building> buildings = new List<Building>();
     private readonly List<UserAction> actionLog = new List<UserAction>();
-    private Building currentBuilding;
     public Type currentBuildingType;
     private Actions currentAction;
     private readonly HashSet<Floor> floors = new HashSet<Floor>();
-    private bool isUndoing = false;
+    //private bool isUndoing = false;
 
     public HashSet<GameObject> buildingGameObjects = new HashSet<GameObject>();
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        currentBuildingType = typeof(Floor);
+        currentBuildingType = typeof(GoldClock);
         Building.buildingWasPlaced += OnBuildingPlaced;
+        Debug.Log("BuildingController Started");
     
     }
 
@@ -68,20 +68,19 @@ public class BuildingController : MonoBehaviour
         houseGameObject.AddComponent<House>().Start();
         houseGameObject.GetComponent<House>().Place(housePos);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
-        isUndoing = true; //hack to prevent the action from being added to the action log
+        //isUndoing = true; //hack to prevent the action from being added to the action log
     }
 
     /// <summary>
     /// Deletes all buildings except the house
     /// </summary>
-    public void DeleteAllBuildings() {//fix this
+    public void DeleteAllBuildings() {
         foreach (Building building in buildings) {
             if (building is House) continue;
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
-            //if (unavailableCoordinatesAreVisible) RemoveInvalidTilesFromTilemap(building.GetBaseCoordinates());
-            building.Delete();
+            building.ForceDelete();
         }
-        buildings.RemoveAll(building => !(building is House)); //Remove everything except the house
+        buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
     }
 
     public void UndoLastAction(){
@@ -109,7 +108,6 @@ public class BuildingController : MonoBehaviour
     }
 
     public Type GetCurrentBuildingType(){ return currentBuildingType; }
-    public void SetCurrentBuilding(Building building){ currentBuilding = building; }
     public HashSet<Vector3Int> GetUnavailableCoordinates(){ return unavailableCoordinates; }
     public List<Building> GetBuildings(){ return buildings; }
     public Actions GetCurrentAction(){ return currentAction; }

@@ -8,6 +8,7 @@ using UnityEngine.U2D;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
 using static Utility.TilemapManager;
+using System.Runtime.Remoting.Messaging;
 
 public class Scarecrow : Building{
 
@@ -46,5 +47,21 @@ public class Scarecrow : Building{
         scarecrowIndex++;
         if (scarecrowIndex > 9) scarecrowIndex = 0;
         UpdateTexture(atlas.GetSprite($"Scarecrows_{scarecrowIndex}"));
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return scarecrowIndex switch{
+            9 => new Dictionary<Materials, int>(){
+                {Materials.Wood, 50},
+                {Materials.IridiumOre, 1},
+                {Materials.Fiber, 40}
+            },
+            1 => new Dictionary<Materials, int>(){
+                {Materials.Wood, 50},
+                {Materials.Coal, 1},
+                {Materials.Fiber, 40}
+            },
+            _ => throw new System.Exception("Rarecrows not supported (yet)")
+        };
     }
 }

@@ -11,7 +11,6 @@ using System.Linq;
 using UnityEngine.Events;
 using System.Runtime.ConstrainedExecution;
 using UnityEngine.EventSystems;
-using UnityEditor.UI;
 #pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
@@ -27,8 +26,6 @@ public abstract class Building : MonoBehaviour {
    
     public Texture2D insideAreaTexture {get; protected set;}
     ///<summary>The sprite of the building</summary>
-    [Obsolete("Use sprite.texture instead")]
-    public Texture2D texture {get; protected set;}
     public Sprite sprite;
     public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];//backing field
 
@@ -36,7 +33,6 @@ public abstract class Building : MonoBehaviour {
     public int height {get {return (int) sprite.textureRect.height / 16;}}
     public int width {get {return (int) sprite.textureRect.width / 16;}}
     ///<summary>The tilemap this building is attached to</summary>
-    // [Obsolete("Use gameObject intead")]
     public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}} //the tilemap this building is attached to
     public GameObject buttonParent;
     protected bool hasBeenPlaced = false;
@@ -67,6 +63,7 @@ public abstract class Building : MonoBehaviour {
     [Range(0, 1)]
     public float red=1,green=1,blue=1,alpha=0.5f;
 
+    [Obsolete("Use GetMaterialsNeeded() instead")]
     public Dictionary<Materials,int> materialsNeeded { get; protected set;} = new Dictionary<Materials, int>();
     // public Dictionary<Materials,int> materialsNeeded{ 
     //     get {return new Dictionary<Materials,int>(_materialsNeeded);} 
@@ -74,7 +71,7 @@ public abstract class Building : MonoBehaviour {
 #pragma warning restore IDE1006 // Naming Styles
 
     protected abstract void Init();
-    //protected abstract Dictionary<Materials,int> GetMaterialsNeeded();
+    public abstract Dictionary<Materials,int> GetMaterialsNeeded();
 
     public void Start(){    
         AddTilemapToObject(gameObject);
@@ -164,6 +161,7 @@ public abstract class Building : MonoBehaviour {
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
         GetBuildingController().buildingGameObjects.Add(gameObject);
+        GetBuildingController().buildings.Add(this);
 
         this.baseCoordinates = baseCoordinates.ToArray();
         this.spriteCoordinates = spriteCoordinates.ToArray();
@@ -206,9 +204,14 @@ public abstract class Building : MonoBehaviour {
     }
 
     public void Delete() {
+        if (!hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if(!baseCoordinates.Contains(currentCell)) return;
 
+        ForceDelete();
+    }
+
+    public void ForceDelete(){
         GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
         Destroy(buttonParent);
         Destroy(gameObject);

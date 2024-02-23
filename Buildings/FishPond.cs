@@ -39,7 +39,10 @@ public class FishPond : Building {
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
         };
-        materialsNeeded = new Dictionary<Materials, int> {
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return new Dictionary<Materials, int> {
             {Materials.Coins, 5_000},
             {Materials.Wood, 200},
             {Materials.Seaweed, 5},

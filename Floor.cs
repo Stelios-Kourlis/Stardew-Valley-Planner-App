@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Codice.Client.BaseCommands;
 using Microsoft.Win32;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -98,5 +97,9 @@ public class Floor : Building {
         if (floors.Keys.Contains(neighbors[2])) flags.Add(FloorFlag.BOTTOM_ATTACHED);
         if (floors.Keys.Contains(neighbors[3])) flags.Add(FloorFlag.TOP_ATTACHED);
         return flags.Cast<int>().Sum();
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        throw new NotImplementedException();
     }
 }

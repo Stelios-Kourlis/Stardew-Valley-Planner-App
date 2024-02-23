@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using AnotherFileBrowser.Windows;
+using SFB;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -32,38 +32,47 @@ namespace Utility{
             return building is FishPond || building is Greenhouse;
         }
 
-        public static void Save() {
-        var bp = new BrowserProperties{
-            filter = "Stardew Valley Planner Files (*.svp)|*.svp|All Files (*.*)|*.*",
-            filterIndex = 0
-        };
-        new FileBrowser().SaveFileBrowser(bp, "save", ".svp", path => {
-            StreamWriter writer = new StreamWriter(path, false);
-            BuildingController placer = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-            foreach (Building building in placer.GetBuildings()) {
-                writer.WriteLine(building.name + "|" + building.baseCoordinates[0].x + "|" + building.baseCoordinates[0].y);
+        public static void Save() {//todo add Save/Load
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", "svp", false);
+            if (paths.Length > 0) {
+                using StreamWriter writer = new StreamWriter(paths[0]);
+                // foreach (Building building in placer.GetBuildings()) {
+                //     writer.WriteLine(building.name + "|" + building.baseCoordinates[0].x + "|" + building.baseCoordinates[0].y);
+                // }
             }
-            writer.Close();});
         }
+        // var bp = new BrowserProperties{
+        //     filter = "Stardew Valley Planner Files (*.svp)|*.svp|All Files (*.*)|*.*",
+        //     filterIndex = 0
+        // };
+        // new FileBrowser().SaveFileBrowser(bp, "save", ".svp", path => {
+        //     StreamWriter writer = new StreamWriter(path, false);
+        //     BuildingController placer = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
+        //     foreach (Building building in placer.GetBuildings()) {
+        //         writer.WriteLine(building.name + "|" + building.baseCoordinates[0].x + "|" + building.baseCoordinates[0].y);
+        //     }
+        //     writer.Close();});
+        //}
 
         public static void Load() {
-            var bp = new BrowserProperties{
-                filter = "Stardew Valley Planner Files (*.svp)|*.svp|All Files (*.*)|*.*",
-                filterIndex = 0
-            };
-            new FileBrowser().OpenFileBrowser(bp, path => {
-                TextReader reader = File.OpenText(path);
-                BuildingController placer = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-                string text;
-                placer.DeleteAllBuildings();
-                while ((text = reader.ReadLine()) != null) {
-                    string[] data = text.Split('|');
-                    string name = data[0];
-                    int x = int.Parse(data[1]);
-                    int y = int.Parse(data[2]);
-                    //placer.PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));//todo fix this
-                }
-            });
+            var paths = StandaloneFileBrowser.SaveFilePanel("Save File", "", "Farm", "svp");
+            // var bp = new BrowserProperties{
+            //     filter = "Stardew Valley Planner Files (*.svp)|*.svp|All Files (*.*)|*.*",
+            //     filterIndex = 0
+            // };
+            // new FileBrowser().OpenFileBrowser(bp, path => {
+            //     TextReader reader = File.OpenText(path);
+            //     BuildingController placer = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
+            //     string text;
+            //     placer.DeleteAllBuildings();
+            //     while ((text = reader.ReadLine()) != null) {
+            //         string[] data = text.Split('|');
+            //         string name = data[0];
+            //         int x = int.Parse(data[1]);
+            //         int y = int.Parse(data[2]);
+            //         //placer.PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));//todo fix this
+            //     }
+            // });
         }
 
         /// <summary>

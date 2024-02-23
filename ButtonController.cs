@@ -6,7 +6,6 @@ using UnityEngine.UI;
 using static Utility.ClassManager;
 using static Utility.BuildingManager;
 using static Utility.TilemapManager;
-using Codice.CM.SEIDInfo;
 
 public class ButtonController : MonoBehaviour{
 

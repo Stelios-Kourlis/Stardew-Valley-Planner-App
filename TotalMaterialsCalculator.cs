@@ -20,7 +20,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
     
         totalMaterialsNeeded.Clear();
         foreach (Building building in GetBuildingController().GetBuildings()){
-            foreach (KeyValuePair<Materials, int> material in building.materialsNeeded){
+            foreach (KeyValuePair<Materials, int> material in building.GetMaterialsNeeded()){
                 if (totalMaterialsNeeded.ContainsKey(material.Key)) totalMaterialsNeeded[material.Key] += material.Value;
                 else totalMaterialsNeeded.Add(material.Key, material.Value);
             }

@@ -12,16 +12,19 @@ public class SlimeHutch : Building {
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-        materialsNeeded = new Dictionary<Materials, int>(){
-            {Materials.Coins, 10_000},
-            {Materials.Stone, 500},
-            {Materials.RefinedQuartz, 10},
-            {Materials.IridiumBar, 1},
-        };
     }
 
     public new void Start(){
         Init();
         base.Start();
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return new Dictionary<Materials, int>(){
+            {Materials.Coins, 10_000},
+            {Materials.Stone, 500},
+            {Materials.RefinedQuartz, 10},
+            {Materials.IridiumBar, 1},
+        };
     }
 }

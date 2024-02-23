@@ -11,24 +11,24 @@ using System;
 
 public class InputHandler : MonoBehaviour {
 
-    Tile redTile, greenTile;
+    // Tile redTile, greenTile;
     BuildingController buildingController;
-    bool mouseIsHeld = false;
+    //bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
-    Tilemap buildingPreviewTilemap, buildingBasePreviewTilemap;
+    // Tilemap buildingPreviewTilemap, buildingBasePreviewTilemap;
 
     void Start() {
-        Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        redTile.sprite = redTileSprite;
+        // Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
+        // redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
+        // redTile.sprite = redTileSprite;
 
-        Sprite greenTileSprite = Sprite.Create(Resources.Load("GreenTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        greenTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        greenTile.sprite = greenTileSprite;
+        // Sprite greenTileSprite = Sprite.Create(Resources.Load("GreenTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
+        // greenTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
+        // greenTile.sprite = greenTileSprite;
 
-        GameObject[] tilemaps = GameObject.FindGameObjectsWithTag("MouseTileMap");
-        buildingPreviewTilemap = tilemaps[0].GetComponent<Tilemap>(); //the translucent version of the building
-        buildingBasePreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
+        // GameObject[] tilemaps = GameObject.FindGameObjectsWithTag("MouseTileMap");
+        // buildingPreviewTilemap = tilemaps[0].GetComponent<Tilemap>(); //the translucent version of the building
+        // buildingBasePreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
 
         buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
 
@@ -41,12 +41,12 @@ public class InputHandler : MonoBehaviour {
         //HandleMouseMove();
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            mouseIsHeld = true; 
+            //mouseIsHeld = true; 
             mousePositionWhenHoldStarted = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse0)){
-            mouseIsHeld = false;
+            //mouseIsHeld = false;
         }
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z) ){
@@ -62,6 +62,14 @@ public class InputHandler : MonoBehaviour {
         if (Input.GetKeyUp(KeyCode.L)) buildingController.Load();
 
         if (Input.GetKeyUp(KeyCode.D)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
+
+        if (Input.GetKeyUp(KeyCode.Q)){
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #else
+                Application.Quit();
+            #endif
+        }
     }
 
 }

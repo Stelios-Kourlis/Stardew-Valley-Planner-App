@@ -40,4 +40,25 @@ public class House : Building, ITieredBuilding {//todo There is a T4 house with 
     private void NoAction(){
         return; //Cant pickup/delete house
     }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return tier switch{
+            1 => new Dictionary<Materials, int>{},
+            2 => new Dictionary<Materials, int>{
+                {Materials.Coins, 10_000},
+                {Materials.Wood, 450},
+            },
+            3 => new Dictionary<Materials, int>{
+                {Materials.Coins, 10_000 + 50_000},
+                {Materials.Wood, 450},
+                {Materials.Hardwood, 150},
+            },
+            4 => new Dictionary<Materials, int>{
+                {Materials.Coins, 10_000 + 50_000 + 100_000},
+                {Materials.Wood, 450},
+                {Materials.Hardwood, 150},
+            },
+            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+        };
+    }
 }

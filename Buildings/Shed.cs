@@ -32,5 +32,20 @@ public class Shed : Building, ITieredBuilding {
         this.tier = tier;
         UpdateTexture(atlas.GetSprite($"ShedT{tier}"));
     }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return tier switch{
+            1 => new Dictionary<Materials, int>{
+                {Materials.Coins, 15_000},
+                {Materials.Wood, 300},
+            },
+            2 => new Dictionary<Materials, int>{
+                {Materials.Coins, 15_000 + 20_000},
+                {Materials.Wood, 300 + 550},
+                {Materials.Stone, 300}
+            },
+            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+        };
+    }
     
 }

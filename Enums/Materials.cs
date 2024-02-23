@@ -21,5 +21,7 @@ public enum Materials{
     Banana,
     Starfruit,
     GoldBar,
-    BatteryPack
+    BatteryPack,
+    IridiumOre,
+    Coal
 }

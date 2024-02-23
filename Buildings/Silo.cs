@@ -9,14 +9,17 @@ public class Silo : Building {
         base.Start();
     }
 
-    protected override void Init(){
-        name = GetType().Name;
-        baseHeight = 3;
-        materialsNeeded = new Dictionary<Materials, int>(){
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return new Dictionary<Materials, int>(){
             {Materials.Coins, 100},
             {Materials.Stone, 100},
             {Materials.Clay, 10},
             {Materials.CopperBar, 5}
         };
+    }
+
+    protected override void Init(){
+        name = GetType().Name;
+        baseHeight = 3;
     }
 }

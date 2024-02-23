@@ -32,24 +32,24 @@ public class Barn : Building, ITieredBuilding {
         UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
     }
 
-    // protected override Dictionary<Materials, int> GetMaterialsNeeded(){
-    //     return tier switch{
-    //         1 => new Dictionary<Materials, int>{
-    //             {Materials.Coins, 6_000},
-    //             {Materials.Wood, 350},
-    //             {Materials.Stone, 150}
-    //         },
-    //         2 => new Dictionary<Materials, int>{
-    //             {Materials.Coins, 6_000 + 12_000},
-    //             {Materials.Wood, 350 + 450},
-    //             {Materials.Stone, 150 + 200}
-    //         },
-    //         3 => new Dictionary<Materials, int>{
-    //             {Materials.Coins, 6_000 + 12_000 + 25_000},
-    //             {Materials.Wood, 350 + 450 + 550},
-    //             {Materials.Stone, 150 + 200 + 300}
-    //         },
-    //         _ => throw new System.ArgumentException($"Invalid tier {tier}")
-    //     };
-    // }
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return tier switch{
+            1 => new Dictionary<Materials, int>{
+                {Materials.Coins, 6_000},
+                {Materials.Wood, 350},
+                {Materials.Stone, 150}
+            },
+            2 => new Dictionary<Materials, int>{
+                {Materials.Coins, 6_000 + 12_000},
+                {Materials.Wood, 350 + 450},
+                {Materials.Stone, 150 + 200}
+            },
+            3 => new Dictionary<Materials, int>{
+                {Materials.Coins, 6_000 + 12_000 + 25_000},
+                {Materials.Wood, 350 + 450 + 550},
+                {Materials.Stone, 150 + 200 + 300}
+            },
+            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+        };
+    }
 }

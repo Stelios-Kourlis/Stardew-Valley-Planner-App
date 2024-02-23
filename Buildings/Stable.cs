@@ -11,15 +11,18 @@ public class Stable : Building {
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT
         };
-        materialsNeeded =  new Dictionary<Materials, int>(){
-            {Materials.Coins, 10_000},
-            {Materials.Hardwood, 100},
-            {Materials.IronBar, 5},
-        };
     }
 
     public new void Start(){
         Init();
         base.Start();
+    }
+
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+        return new Dictionary<Materials, int>(){
+            {Materials.Coins, 10_000},
+            {Materials.Hardwood, 100},
+            {Materials.IronBar, 5},
+        };
     }
 }

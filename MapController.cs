@@ -6,16 +6,19 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using UnityEngine.Tilemaps;
 using System;
+using UnityEngine.U2D;
 
 public class MapController : MonoBehaviour{
 
+    private SpriteAtlas atlas;
     MapTypes currentMapType;
     Tile redTile;
     private bool unavailableCoordinatesAreVisible = false;
     // Start is called before the first frame update
     void Start(){
+        atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
         SetMap(MapTypes.Normal);
-
+    
         Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
         redTile.sprite = redTileSprite;
@@ -29,13 +32,14 @@ public class MapController : MonoBehaviour{
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";
         Vector3Int mapPos = new Vector3Int(-27, -36, 0);
-        Texture2D mapTexture = Resources.Load("Maps/" + mapType.ToString() + "Map") as Texture2D;
-        Vector3Int[] spriteArrayCoordinates = GetAreaAroundPosition(mapPos, mapTexture.height / 16, mapTexture.width / 16, true).ToArray();
+        Sprite mapTexture = atlas.GetSprite(map.name);
+        Vector3Int[] spriteArrayCoordinates = GetAreaAroundPosition(mapPos, (int) mapTexture.textureRect.height / 16, (int) mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
         TileBuildingData dataScript = map.AddComponent(typeof(TileBuildingData)) as TileBuildingData;
         dataScript.AddInvalidTilesData(mapType.ToString());
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
         mapTilemap.ClearAllTiles();
+        Debug.Log(tiles.Length);
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
         // ToggleRedTiles();
         // ToggleRedTiles();
