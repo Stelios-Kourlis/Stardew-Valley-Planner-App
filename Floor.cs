@@ -17,8 +17,9 @@ public class Floor : Building {
     private SpriteAtlas atlas;
     private delegate void FloorPlacedDelegate(Vector3Int position);
     public static event Action<Vector3Int> FloorWasPlaced;
-    private static List<Vector3Int> otherFloors = new List<Vector3Int>();
-    private FloorType floorType = FloorType.WOOD_FLOOR;
+    //private static List<Vector3Int> otherFloors = new List<Vector3Int>();
+    private static Dictionary<Vector3Int, FloorType> floors = new Dictionary<Vector3Int, FloorType>();
+    public static FloorType floorType = FloorType.WOOD_FLOOR;
     private new static Tilemap tilemap;
 
     protected override void Init(){
@@ -32,19 +33,27 @@ public class Floor : Building {
         PlacePreview = PlaceMouseoverEffect;
         FloorWasPlaced += AnotherFloorWasPlaced;
         atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
-        sprite = atlas.GetSprite("Wood0");
+        sprite = atlas.GetSprite($"WOOD_FLOOR0");
+        Debug.Log(sprite.name);
         tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
     }
 
+    public new void Update(){
+        base.Update();
+        if (Input.GetKeyDown(KeyCode.B)) floorType = FloorType.RUSTIC_PLANK_FLOOR;
+    }
+
     public new void Place(Vector3Int position){
-        if (otherFloors.Contains(position)) return;
+        //if (floors.Keys.Contains(position)) return;
         // baseCoordinates = new Vector3Int[]{position};
         // spriteCoordinates = new Vector3Int[]{position};
         int height = GetFloorFlagsSum(position);
-        Sprite floorSprite = atlas.GetSprite($"Wood{height}");
+        Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
         tilemap.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
-        otherFloors.Add(position);
+        if (floors.Keys.Contains(position)) floors[position] = floorType;
+        else floors.Add(position, floorType);
+        floors.Add(position, floorType);
         FloorWasPlaced?.Invoke(position);
         //hasBeenPlaced = true;
         
@@ -54,31 +63,31 @@ public class Floor : Building {
     public new void PlaceMouseoverEffect(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         int height = GetFloorFlagsSum(currentCell);
-        Sprite floorSprite = atlas.GetSprite($"Wood{height}");
-        if (otherFloors.Contains(currentCell)) GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
+        if (floors.Keys.Contains(currentCell)) GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         GetComponent<Tilemap>().ClearAllTiles();
         GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
     }
 
     private void AnotherFloorWasPlaced(Vector3Int position){
-        List<Vector3Int> neighbors = GetCrossAroundPosition(position).Intersect(otherFloors).ToList();
+        List<Vector3Int> neighbors = GetCrossAroundPosition(position).Intersect(floors.Keys).ToList();
         foreach (Vector3Int cell in neighbors) UpdateTile(cell);
     }
 
     private void UpdateTile(Vector3Int position){
         int height = GetFloorFlagsSum(position);
-        Sprite floorSprite = atlas.GetSprite($"Wood{height}");
+        Sprite floorSprite = atlas.GetSprite($"{floors[position]}{height}");
         tilemap.GetComponent<Tilemap>().SetTile(position, SplitSprite(floorSprite)[0]);
     }
 
     private int GetFloorFlagsSum(Vector3Int position){
         List<FloorFlag> flags = new List<FloorFlag>();
         Vector3Int[] neighbors = GetCrossAroundPosition(position).ToArray();
-        if (otherFloors.Contains(neighbors[0])) flags.Add(FloorFlag.LEFT_ATTACHED);
-        if (otherFloors.Contains(neighbors[1])) flags.Add(FloorFlag.RIGHT_ATTACHED);
-        if (otherFloors.Contains(neighbors[2])) flags.Add(FloorFlag.BOTTOM_ATTACHED);
-        if (otherFloors.Contains(neighbors[3])) flags.Add(FloorFlag.TOP_ATTACHED);
+        if (floors.Keys.Contains(neighbors[0])) flags.Add(FloorFlag.LEFT_ATTACHED);
+        if (floors.Keys.Contains(neighbors[1])) flags.Add(FloorFlag.RIGHT_ATTACHED);
+        if (floors.Keys.Contains(neighbors[2])) flags.Add(FloorFlag.BOTTOM_ATTACHED);
+        if (floors.Keys.Contains(neighbors[3])) flags.Add(FloorFlag.TOP_ATTACHED);
         return flags.Cast<int>().Sum();
     }
 }

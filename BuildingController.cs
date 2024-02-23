@@ -108,7 +108,7 @@ public class BuildingController : MonoBehaviour
         GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel").GetComponent<RectTransform>().localPosition = new Vector3(0, 1000, 0);
     }
 
-    public Building GetCurrentBuilding(){ return currentBuilding; }
+    public Type GetCurrentBuildingType(){ return currentBuildingType; }
     public void SetCurrentBuilding(Building building){ currentBuilding = building; }
     public HashSet<Vector3Int> GetUnavailableCoordinates(){ return unavailableCoordinates; }
     public List<Building> GetBuildings(){ return buildings; }

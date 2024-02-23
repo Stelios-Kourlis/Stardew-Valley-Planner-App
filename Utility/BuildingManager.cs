@@ -81,6 +81,7 @@ namespace Utility{
                 //if (type != typeof(Floor)) GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, null, null, null) as Building);
                 // else GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, floorType) as Building);
                 GetBuildingController().SetCurrentBuildingType(type);
+                if (type == typeof(Floor)) Floor.floorType = floorType;
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
                 });
             button.name = name;

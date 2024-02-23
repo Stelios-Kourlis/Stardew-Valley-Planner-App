@@ -89,7 +89,7 @@ public abstract class Building : MonoBehaviour {
         // gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
     }
 
-    void Update(){
+    protected void Update(){
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
         if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
