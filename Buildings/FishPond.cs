@@ -13,6 +13,7 @@ using System.Linq;
 
 public class FishPond : Building {
     private SpriteAtlas atlas;
+    private SpriteAtlas fishAtlas;
     public Fish fish;
     private Vector3Int[] decoCoordinates; 
     private GameObject decoTilemapObject;
@@ -24,10 +25,11 @@ public class FishPond : Building {
         base.Start();
         PlaceBuilding = Place;
         PickupBuilding = Pickup;
-        atlas = Resources.Load("Buildings/FishPondAtlas") as SpriteAtlas;
+        atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
+        fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
-        SetFishImage(Fish.Tuna);
+        //SetFishImage(Fish.Tuna);
     }
 
     protected override void Init(){
@@ -70,7 +72,10 @@ public class FishPond : Building {
     /// </summary>
     /// <param name="fishType"> The fish</param>
     public void SetFishImage(Fish fishType){//todo readd the fish type to the button
-        //buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = Resources.Load("Fish/"+ fishType.ToString()) as Sprite;
+        buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
+        Debug.Log(buttonParent.transform.GetChild(0).GetChild(0).name);
+        Debug.Log(fishType);
+        Debug.Log(fishAtlas.GetSprite(fishType.ToString()));
         Color color = fishType switch
         { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),

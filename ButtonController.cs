@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using static Utility.ClassManager;
 using static Utility.BuildingManager;
 using static Utility.TilemapManager;
+using Codice.CM.SEIDInfo;
 
 public class ButtonController : MonoBehaviour{
 
@@ -61,15 +62,15 @@ public class ButtonController : MonoBehaviour{
     }
 
     public void CreateButtonsForBuilding(Building building){
-        GameObject parentGameObject = building.gameObject;//todo fix this
         ButtonTypes[] buttonTypes = building.buildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return;
+        GameObject parentGameObject = building.gameObject;//todo fix this
         Vector3 middleOfBuildingWorld = GetMiddleOfBuildingWorld(building);
         Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(middleOfBuildingWorld);
         GameObject buttonParent = new GameObject(building.name+"buttons");
         buttonParent.transform.parent = GetCanvasGameObject().transform;
-        buttonParent.SetActive(false);
+        buttonParent.SetActive(true);//change thhis back to false after right click function is added
         buttonParent.transform.SetAsFirstSibling();
         building.buttonParent = buttonParent;
 
@@ -120,22 +121,32 @@ public class ButtonController : MonoBehaviour{
             fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
             fishMenu.SetActive(false);
             GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
+            FishPond fishPond = building as FishPond;
             for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
-                fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(building);
+                fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(fishPond);
             }
         }
         switch(type){
             case ButtonTypes.TIER_ONE:
-                if (building is House)button.onClick.AddListener(() => {GetBuildingController().PlaceHouse(1); });
-                else button.onClick.AddListener(() => { AddTierChangeListener(1, building); });
+                button.onClick.AddListener(() => {
+                    if (building is ITieredBuilding tieredBuilding){
+                        tieredBuilding.ChangeTier(1);
+                    }
+                 });
                 break;
             case ButtonTypes.TIER_TWO:
-                if (building is House) button.onClick.AddListener(() => {GetBuildingController().PlaceHouse(2); });
-                else button.onClick.AddListener(() => { AddTierChangeListener(2, building); });
+                button.onClick.AddListener(() => {
+                    if (building is ITieredBuilding tieredBuilding){
+                        tieredBuilding.ChangeTier(2);
+                    }
+                });
                 break;
             case ButtonTypes.TIER_THREE:
-                if (building is House) button.onClick.AddListener(() => {GetBuildingController().PlaceHouse(3); });
-                else button.onClick.AddListener(() => { AddTierChangeListener(3, building); });
+                button.onClick.AddListener(() => {
+                    if (building is ITieredBuilding tieredBuilding){
+                        tieredBuilding.ChangeTier(3);
+                    }
+                 });
                 break;
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => { /* Add valid statement here */ });//todo add building insides
@@ -151,7 +162,9 @@ public class ButtonController : MonoBehaviour{
                 break;
             case ButtonTypes.CHANGE_FISH_POND_DECO:
                 button.onClick.AddListener(() => { 
-                    GetBuildingController().CycleFishPondDeco(building);
+                    if (building is FishPond fishPond){
+                        fishPond.CycleFishPondDeco();
+                    }
                  });
                 break;
             default:
@@ -160,11 +173,9 @@ public class ButtonController : MonoBehaviour{
     }
 
     private void AddTierChangeListener(int tier, Building building){
-        GetBuildingController().DeleteBuilding(building.baseCoordinates[0]);
-        string buildingType = building.GetType().ToString();
-        string tieredBuildingType = buildingType.Substring(0, buildingType.Length - 1) + tier;
-        Building tieredBuilding = Activator.CreateInstance(Type.GetType(tieredBuildingType), null, null, null) as Building;
-        //GetBuildingController().PlaceBuilding(tieredBuilding, building.baseCoordinates[0]);//todo fix this
+        if (building is ITieredBuilding tieredBuilding){
+            tieredBuilding.ChangeTier(tier);
+        }
     }
 
     private Vector3 CalculatePositionOfButton(int numberOfButtons, int buttonNumber, Vector3 middleOfBuildingScreen){

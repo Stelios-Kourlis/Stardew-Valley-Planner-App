@@ -28,8 +28,8 @@ public class Shed : Building, ITieredBuilding {
     }
 
     public void ChangeTier(int tier){
+        if (tier < 1 || tier > 2) throw new System.ArgumentException($"Tier must be between 1 and 2 (got {tier})");
         this.tier = tier;
-        if (tier < 0 || tier > 2) throw new System.ArgumentException($"Tier must be between 1 and 2 (got {tier})");
         UpdateTexture(atlas.GetSprite($"ShedT{tier}"));
     }
     

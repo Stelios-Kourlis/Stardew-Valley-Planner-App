@@ -16,7 +16,6 @@ public class BuildingController : MonoBehaviour
     private readonly HashSet<Vector3Int> unavailableCoordinates = new HashSet<Vector3Int>();
     private readonly List<Building> buildings = new List<Building>();
     private readonly List<UserAction> actionLog = new List<UserAction>();
-    private bool buildingIsPickedUp = false;
     private Building currentBuilding;
     public Type currentBuildingType;
     private Actions currentAction;
@@ -29,15 +28,8 @@ public class BuildingController : MonoBehaviour
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        //currentBuilding = new SprinklerT3();
         currentBuildingType = typeof(Sprinkler);
-        //OnBuildingPlaced();
         Building.buildingWasPlaced += OnBuildingPlaced;
-        //currentFloorType = FloorType.WOOD_FLOOR;
-
-        // Building house = new BarnT1();
-        // var x = house.spriteCoordinates;
-        //house.spriteCoordinates[0] = new Vector3Int(0, 0, 0);
     
     }
 
@@ -64,99 +56,6 @@ public class BuildingController : MonoBehaviour
         if (component != null) Destroy(component);
         currentBuildingType = newType;
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
-    }
-
-    /// <summary>
-    /// Creates a tilemap and places building on it
-    /// </summary>
-    /// <param name="building">The building to place</param>
-    /// <param name="position">The lower left position of the building</param>
-    public void PlaceBuilding(Type BuildingType, Vector3Int position){
-        // if (building is Floor) PlaceCurrentlySelectedFloor(position);
-        // if (building is Sprinkler sprinkler) PlaceSprinkler( sprinkler, position);
-        //else PlaceFarmBuilding(currentBuildingType, position);
-        //PlaceFarmBuilding(BuildingType, position);
-        
-    }
-
-    private void HandleSpecialBuilding(Building building){
-        if (building is FishPond) HandleFishPond( (FishPond) building);
-        if (building is Greenhouse) HandleGreenHouse( (Greenhouse) building);
-    }
-
-    private void HandleFishPond(FishPond fishPond){//todo fix this
-        // GameObject parentTilemapObject = fishPond.tilemap.gameObject;
-        // //Tile[] fishPondBottom = SplitSprite(new FishPondBottom(null, null, null));
-        // GameObject fishPondBottomTilemapObject = CreateTilemapObject(parentTilemapObject.transform, parentTilemapObject.GetComponent<TilemapRenderer>().sortingOrder - 1, "FishPondBottom");
-        // fishPondBottomTilemapObject.GetComponent<Tilemap>().SetTiles(fishPond.spriteCoordinates, fishPondBottom);
-        // GameObject decoTilemapObject = CreateTilemapObject(parentTilemapObject.transform, parentTilemapObject.GetComponent<TilemapRenderer>().sortingOrder + 1, "FishPondDeco");
-        // FishDeco deco = new FishDeco(GetAreaAroundPosition(fishPond.spriteCoordinates[0], 3, 5).ToArray<Vector3Int>(), decoTilemapObject.GetComponent<Tilemap>());
-        // Tile[] decoTiles = deco.GetDeco(0);
-        
-        // decoTilemapObject.GetComponent<Tilemap>().SetTiles(deco.GetPosition(), decoTiles);
-        // fishPond.deco = deco;
-        //fishPond.SetFishImage();
-    }
-
-    private void HandleGreenHouse(Building greenhouse){
-        // GameObject parentTilemapObject = greenhouse.tilemap.gameObject;
-        // Debug.Log("Placeing Greenhouse");
-        // //List<Vector3Int> extraFrontArea = GetAreaAroundPosition(new Vector3Int(greenhouse.baseCoordinates[0].x + 2, greenhouse.baseCoordinates[0].y - 2, 0), 2, 3);
-        // unavailableCoordinates.UnionWith(extraFrontArea);
-        // Sprite greenhouseFrontTileSprite = Sprite.Create(Resources.Load("GreenhouseFront") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);//todo Tile is wrong painted (pixelart issue)
-        // Tile greenhouseFrontTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        // greenhouseFrontTile.sprite = greenhouseFrontTileSprite;
-        // foreach (Vector3Int cell in extraFrontArea){
-        //     parentTilemapObject.gameObject.GetComponent<Tilemap>().SetTile(cell, greenhouseFrontTile);
-        // }
-        
-    }
-
-    // private void PlaceFarmBuilding(Building building, Vector3Int position){
-    //     List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.baseHeight, building.width);
-    //     if (unavailableCoordinates.Intersect(baseCoordinates).Count() != 0) return;
-    //     List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, building.height, building.width, true);
-    //     Tile[] buildingTiles = SplitSprite(building);
-    //     GameObject tilemapObject = CreateTilemapObject(transform, -position.y + 50, building.name);
-    //     tilemapObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray<Vector3Int>(), buildingTiles);
-    //     Building newBuilding = Activator.CreateInstance(building.GetType(), spriteCoordinates.ToArray(), baseCoordinates.ToArray(), tilemapObject.GetComponent<Tilemap>()) as Building;
-    //     buildings.Add(newBuilding);
-    //     if (!isUndoing) actionLog.Add(new UserAction(Actions.PLACE, building, position));
-    //     isUndoing = false;
-    //     unavailableCoordinates.UnionWith(baseCoordinates);
-        
-    //     GetButtonController().CreateButtonsForBuilding(newBuilding);
-    //     if (buildingIsPickedUp == true) currentAction = Actions.EDIT;
-    //     GetMapController().UpdateUnavailableCoordinates();
-    //     if (IsSpecialBuilding(building)) HandleSpecialBuilding(newBuilding);
-    // }
-
-    private void PlaceFarmBuilding(Type building, Vector3Int position){
-        //GameObject buildingObject = new GameObject(building.Name);
-        // buildingObject.transform.parent = transform;
-        // Building build = (Building) buildingObject.AddComponent(building);
-        // build.PlaceBuilding(position);
-    }
-
-    private void PlaceSprinkler(Sprinkler sprinkler, Vector3Int position){
-        if (unavailableCoordinates.Contains(position)) return;
-        Tile buildingTile = SplitSprite(sprinkler)[0];
-        GameObject tilemapObject = CreateTilemapObject(transform, -position.y + 50, sprinkler.name);
-        tilemapObject.GetComponent<Tilemap>().SetTile(position, buildingTile);
-        Sprinkler newSprinkler = Activator.CreateInstance(sprinkler.GetType(), new Vector3Int[]{position}, new Vector3Int[]{position}, tilemapObject.GetComponent<Tilemap>()) as Sprinkler;
-        if (!isUndoing) actionLog.Add(new UserAction(Actions.PLACE, sprinkler, position));
-        isUndoing = false;
-        unavailableCoordinates.Add(position);
-        if (buildingIsPickedUp == true) currentAction = Actions.EDIT;
-        GetMapController().UpdateUnavailableCoordinates();
-    }
-
-    /// <summary>
-    /// Creates a tilemap and places BuildingPlacer's currentBuilding on it
-    /// </summary>
-    /// <param name="position">The lower left position of the building</param>
-    public void PlaceCurrentlySelectedBuilding(Vector3Int position){
-        PlaceBuilding(currentBuildingType, position);
     }
 
     /// <summary>
@@ -189,27 +88,9 @@ public class BuildingController : MonoBehaviour
         // currentBuilding = Activator.CreateInstance(building.GetType(), null, null, null) as Building;
         currentBuilding = building;
         currentAction = Actions.PLACE;
-        buildingIsPickedUp = true;
         return;
     }
-         
-    public void PlaceCurrentlySelectedFloor(Vector3Int position) {//todo fix
-        // if (unavailableCoordinates.Contains(position)) return;
-        // if (!(currentBuilding is Floor)) return;
-        // floors.RemoveWhere(floor => floor.GetPosition() == position);
-        // FloorType type = ((Floor) currentBuilding).GetFloorType();
-        // Floor floor = new Floor(position, type);
-        // HashSet<FloorFlag> flags = GetFloorFlags(floor, floors);
-        // Tile floorTile = floor.GetFloorConfig(flags.ToArray(), type);
-        // Tilemap floorTilemap = gameObject.transform.Find("FloorTilemap").GetComponent<Tilemap>();
-        // floorTilemap.SetTile(position, floorTile);
-        // floors.Add(floor);
-        // if (!isUndoing) actionLog.Add(new UserAction(Actions.PLACE, floor, position));
-        // isUndoing = false;
-        // foreach (Floor neighborFloor in floors){
-        //     if (GetNeighboursOfPosition(position).Contains(neighborFloor.GetPosition())) UpdateFloor(neighborFloor.GetPosition());
-        // }
-    }
+        
 
     public void UpdateFloor(Vector3Int position){//todo fix
         // FloorType type = floors.FirstOrDefault(floor => floor.GetPosition() == position).GetFloorType();
@@ -240,28 +121,12 @@ public class BuildingController : MonoBehaviour
             MapTypes.Beach => new Vector3Int(33, 57, 0),
             _ => new Vector3Int(32, 12, 0),
         };
-
-        //Building house = buildings.FirstOrDefault<Building>(building => building is House);
-        //GameObject houseGameObject = CreateTilemapObject(transform, -housePos.y + 50, "House");
         GameObject houseGameObject = new GameObject("House");
         houseGameObject.transform.parent = transform;
         houseGameObject.AddComponent<House>().Start();
         houseGameObject.GetComponent<House>().Place(housePos);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
-        // if (house != null) {
-        //     foreach (Vector3Int cell in house.baseCoordinates) unavailableCoordinates.Remove(cell);
-        //     buildings.Remove(house);
-        //     house.Delete();
-        // }
-        // house = tier switch{
-        //     1 => new HouseT1(),
-        //     2 => new HouseT2(),
-        //     3 => new HouseT3(),
-        //     _ => null,
-        // };
-        //GameObject.Destroy(house.buttonParent);
         isUndoing = true; //hack to prevent the action from being added to the action log
-        //PlaceBuilding(house, housePos);//todo fix this
     }
 
     /// <summary>

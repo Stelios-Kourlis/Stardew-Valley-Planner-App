@@ -36,10 +36,9 @@ public abstract class Building : MonoBehaviour {
     public int height {get {return (int) sprite.textureRect.height / 16;}}
     public int width {get {return (int) sprite.textureRect.width / 16;}}
     ///<summary>The tilemap this building is attached to</summary>
-    public Tilemap tilemap {get; private set;} //the tilemap this building is attached to
+    // [Obsolete("Use gameObject intead")]
+    public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}} //the tilemap this building is attached to
     public GameObject buttonParent;
-
-    private bool hasStarted = false;
     protected bool hasBeenPlaced = false;
     private bool hasBeenPickedUp = false;
     public static Actions currentAction {get; set;} = Actions.PLACE;
@@ -88,11 +87,10 @@ public abstract class Building : MonoBehaviour {
         //texture = Resources.Load($"Buildings/{name}") as Texture2D;
         sprite = Resources.Load<Sprite>($"Buildings/{name}");
         // gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
-
-        hasStarted = true;
     }
 
     void Update(){
+        if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
         if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
         else if (currentAction == Actions.EDIT) EditPreview();
@@ -104,6 +102,10 @@ public abstract class Building : MonoBehaviour {
             if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) PlaceBuilding(currentCell);
             else if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
             else if (currentAction == Actions.DELETE && hasBeenPlaced) DeleteBuilding();
+        }
+
+        if (Input.GetKeyUp(KeyCode.Mouse1) && buildingInteractions.Length != 0 && hasBeenPlaced && baseCoordinates.Contains(currentCell)){
+            buttonParent.SetActive(!buttonParent.activeSelf);
         }
     }
 
@@ -161,6 +163,7 @@ public abstract class Building : MonoBehaviour {
 
         this.baseCoordinates = baseCoordinates.ToArray();
         this.spriteCoordinates = spriteCoordinates.ToArray();
+        if (buildingInteractions.Length != 0) GetButtonController().CreateButtonsForBuilding(this);
         //name = GetType().Name;
 
         hasBeenPlaced = true;

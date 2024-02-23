@@ -197,7 +197,7 @@ public class InputHandler : MonoBehaviour {
         Vector3Int currentCell = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         switch (buildingController.GetCurrentAction()){
             case Actions.PLACE:
-                if (!(buildingController.GetCurrentBuilding() is Floor)) buildingController.PlaceCurrentlySelectedBuilding(currentCell);
+                //if (!(buildingController.GetCurrentBuilding() is Floor)) //buildingController.PlaceCurrentlySelectedBuilding(currentCell);
                 // else{
                 //     HashSet<Vector3Int> placeFloorArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
                 //     foreach (Vector3Int cell in placeFloorArea) buildingController.PlaceCurrentlySelectedBuilding(cell);
@@ -205,7 +205,7 @@ public class InputHandler : MonoBehaviour {
                 break;
             case Actions.DELETE:
                 HashSet<Vector3Int> deleteArea = GetAllCoordinatesInArea(currentCell, mousePositionWhenHoldStarted);
-                foreach (Vector3Int cell in deleteArea) buildingController.DeleteBuilding(cell);
+                //foreach (Vector3Int cell in deleteArea) buildingController.DeleteBuilding(cell);
                 break;
             case Actions.EDIT:
                 buildingController.PickupBuilding(currentCell);
