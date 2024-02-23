@@ -26,7 +26,7 @@ public class BuildingController : MonoBehaviour
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        currentBuildingType = typeof(Sprinkler);
+        currentBuildingType = typeof(Floor);
         Building.buildingWasPlaced += OnBuildingPlaced;
     
     }

@@ -16,14 +16,14 @@ using UnityEditor.UI;
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
 public abstract class Building : MonoBehaviour {
-    private readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
-    private readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
-    private readonly Color OPAQUE = new Color(1,1,1,1);
+    protected readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
+    protected readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
+    protected readonly Color OPAQUE = new Color(1,1,1,1);
 
     ///<summary>The array containing the coordinates of each sprite tile, probably reversed y-wise</summary>
-    public Vector3Int[] spriteCoordinates { get; private set;}
+    public Vector3Int[] spriteCoordinates { get; protected set;}
      ///<summary>The coordinates of the base</summary>
-    public Vector3Int[] baseCoordinates { get; private set;}
+    public Vector3Int[] baseCoordinates { get; protected set;}
    
     public Texture2D insideAreaTexture {get; protected set;}
     ///<summary>The sprite of the building</summary>
@@ -109,6 +109,10 @@ public abstract class Building : MonoBehaviour {
         }
     }
 
+    protected void InvokeBuildingWasPlaced(){
+        buildingWasPlaced?.Invoke();
+    }
+
     protected void EditMouseoverEffect(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
@@ -173,7 +177,7 @@ public abstract class Building : MonoBehaviour {
             hasBeenPickedUp = false;
             currentAction = Actions.EDIT;
         }
-        if (currentAction == Actions.PLACE) buildingWasPlaced.Invoke();
+        if (currentAction == Actions.PLACE) InvokeBuildingWasPlaced();
     }
 
     protected void UpdateTexture(Sprite newSprite){

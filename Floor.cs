@@ -1,52 +1,84 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
+using Codice.Client.BaseCommands;
+using Microsoft.Win32;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
 using static Utility.ClassManager;
+using static Utility.SpriteManager;
+using static Utility.TilemapManager;
 
 public class Floor : Building {
-    //private readonly string name;
-    //private readonly Texture2D texture;
-    private Vector3Int position;
-    private readonly FloorType type;
+    
+    private SpriteAtlas atlas;
+    private delegate void FloorPlacedDelegate(Vector3Int position);
+    public static event Action<Vector3Int> FloorWasPlaced;
+    private static List<Vector3Int> otherFloors = new List<Vector3Int>();
+    private FloorType floorType = FloorType.WOOD_FLOOR;
+    private new static Tilemap tilemap;
 
-    /// <summary>
-    /// Create a floor tile at the given position with the given type.
-    /// </summary>
-    /// <param name="position">The position to place the floor at</param>
-    /// <param name="type">The type of floor</param>
-    // public Floor(Vector3Int position, FloorType type) : base(new Vector3Int[]{position}, new Vector3Int[]{position}, GetFloorTilemap()) {
-    //     this.position = position;
-    //     this.type = type;
-    //     Init();
-    // }
-
-    // public Floor(FloorType type) : base(null,null,null){
-    //     this.type = type;
-    //     Init();
-    // }
-
-    protected override void Init() {
-        name = this.GetType().Name;
-        texture = Resources.Load("Floors") as Texture2D;
+    protected override void Init(){
+        baseHeight = 1;
     }
 
-    public Tile GetFloorConfig(FloorFlag[] flags, FloorType type) {
-        int x = (int)type;
-        int y = 0;
-        if (flags.Length != 0) foreach (FloorFlag flag in flags) y += (int)flag;
-        return GetFloorTile(x, y);
+    public new void Start(){
+        Init();
+        base.Start();
+        PlaceBuilding = Place;
+        PlacePreview = PlaceMouseoverEffect;
+        FloorWasPlaced += AnotherFloorWasPlaced;
+        atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
+        sprite = atlas.GetSprite("Wood0");
+        tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
     }
 
-    private Tile GetFloorTile(int xOffset, int yOffset) {
-        Sprite sprite = Sprite.Create(texture, new Rect(16 * xOffset, 16 * yOffset, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        Tile tile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        tile.sprite = sprite;
-        return tile;
+    public new void Place(Vector3Int position){
+        if (otherFloors.Contains(position)) return;
+        // baseCoordinates = new Vector3Int[]{position};
+        // spriteCoordinates = new Vector3Int[]{position};
+        int height = GetFloorFlagsSum(position);
+        Sprite floorSprite = atlas.GetSprite($"Wood{height}");
+        tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
+        tilemap.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
+        otherFloors.Add(position);
+        FloorWasPlaced?.Invoke(position);
+        //hasBeenPlaced = true;
+        
+        //InvokeBuildingWasPlaced();
     }
-    public Vector3Int GetPosition() { return position; }
 
-    public FloorType GetFloorType() { return type; }
+    public new void PlaceMouseoverEffect(){
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        int height = GetFloorFlagsSum(currentCell);
+        Sprite floorSprite = atlas.GetSprite($"Wood{height}");
+        if (otherFloors.Contains(currentCell)) GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        else GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        GetComponent<Tilemap>().ClearAllTiles();
+        GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
+    }
 
+    private void AnotherFloorWasPlaced(Vector3Int position){
+        List<Vector3Int> neighbors = GetCrossAroundPosition(position).Intersect(otherFloors).ToList();
+        foreach (Vector3Int cell in neighbors) UpdateTile(cell);
+    }
 
+    private void UpdateTile(Vector3Int position){
+        int height = GetFloorFlagsSum(position);
+        Sprite floorSprite = atlas.GetSprite($"Wood{height}");
+        tilemap.GetComponent<Tilemap>().SetTile(position, SplitSprite(floorSprite)[0]);
+    }
+
+    private int GetFloorFlagsSum(Vector3Int position){
+        List<FloorFlag> flags = new List<FloorFlag>();
+        Vector3Int[] neighbors = GetCrossAroundPosition(position).ToArray();
+        if (otherFloors.Contains(neighbors[0])) flags.Add(FloorFlag.LEFT_ATTACHED);
+        if (otherFloors.Contains(neighbors[1])) flags.Add(FloorFlag.RIGHT_ATTACHED);
+        if (otherFloors.Contains(neighbors[2])) flags.Add(FloorFlag.BOTTOM_ATTACHED);
+        if (otherFloors.Contains(neighbors[3])) flags.Add(FloorFlag.TOP_ATTACHED);
+        return flags.Cast<int>().Sum();
+    }
 }
