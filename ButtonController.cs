@@ -15,11 +15,11 @@ public class ButtonController : MonoBehaviour{
     void Start(){
 
         Transform buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(0).GetChild(0);
-        CreateButton("logCabin", "Buildings/LogCabinT1", typeof(LogCabinT1), buildingPanelTransform);
-        CreateButton("stoneCabin", "Buildings/StoneCabinT1", typeof(StoneCabinT1), buildingPanelTransform);
-        CreateButton("plankCabin", "Buildings/PlankCabinT1", typeof(PlankCabinT1), buildingPanelTransform);
-        CreateButton("coop", "Buildings/CoopT1", typeof(Coop), buildingPanelTransform);
-        CreateButton("barn", "Buildings/BarnT1", typeof(Barn), buildingPanelTransform);
+        CreateButton("logCabin", "Buildings/LogCabinT1", typeof(Cabin), buildingPanelTransform);
+        CreateButton("stoneCabin", "Buildings/StoneCabinT1", typeof(Cabin), buildingPanelTransform);
+        CreateButton("plankCabin", "Buildings/PlankCabinT1", typeof(Cabin), buildingPanelTransform);
+        CreateButton("coop", "Buildings/Coop", typeof(Coop), buildingPanelTransform);
+        CreateButton("barn", "Buildings/Barn", typeof(Barn), buildingPanelTransform);
         CreateButton("goldClock", "Buildings/GoldClock", typeof(GoldClock), buildingPanelTransform);
         CreateButton("silo", "Buildings/Silo", typeof(Silo), buildingPanelTransform);
         CreateButton("slimeHutch", "Buildings/SlimeHutch", typeof(SlimeHutch), buildingPanelTransform);

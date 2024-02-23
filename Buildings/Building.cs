@@ -59,6 +59,9 @@ public abstract class Building : MonoBehaviour {
     // }
 #pragma warning restore IDE1006 // Naming Styles
 
+    protected abstract void Init();
+    //protected abstract Dictionary<Materials,int> GetMaterialsNeeded();
+
     public void Start(){    
         AddTilemapToObject(gameObject);
         //texture = Resources.Load($"Buildings/{name}") as Texture2D;
@@ -155,8 +158,6 @@ public abstract class Building : MonoBehaviour {
     public void Place(Vector3Int position){
         StartCoroutine(PlaceBuildingCoroutine(position));
     }
-
-    protected abstract void Init();
 
     protected void UpdateTexture(Sprite newSprite){
         sprite = newSprite;
