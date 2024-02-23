@@ -45,6 +45,9 @@ public class BuildingController : MonoBehaviour
         if (Building.currentAction == Actions.EDIT){
             if (lastBuildingObjectCreated != null) Destroy(lastBuildingObjectCreated);
         }
+        else if (Building.currentAction == Actions.PLACE){
+            if (lastBuildingObjectCreated == null) OnBuildingPlaced();
+        }
 
         //foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
     }

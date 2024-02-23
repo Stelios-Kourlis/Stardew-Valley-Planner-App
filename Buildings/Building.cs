@@ -80,16 +80,16 @@ public abstract class Building : MonoBehaviour {
 
     void Update(){
         //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
-        if (currentAction == Actions.PLACE) PlaceMouseoverEffect();
+        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlaceMouseoverEffect();
         else if (currentAction == Actions.EDIT) EditMouseoverEffect();
         else if (currentAction == Actions.DELETE) DeleteMouseoverEffect();
 
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (Input.GetKeyDown(KeyCode.Mouse0)){
+        if (Input.GetKeyUp(KeyCode.Mouse0)){
             if(EventSystem.current.IsPointerOverGameObject()) return;
-            if (currentAction == Actions.PLACE && !hasBeenPlaced) PlaceBuilding(currentCell);
-            if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
-            if (currentAction == Actions.DELETE && hasBeenPlaced) Delete();
+            if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) PlaceBuilding(currentCell);
+            else if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
+            else if (currentAction == Actions.DELETE && hasBeenPlaced) Delete();
         }
     }
 
@@ -149,12 +149,11 @@ public abstract class Building : MonoBehaviour {
         hasBeenPlaced = true;
         
 
-        // if (hasBeenPickedUp){
-        //     hasBeenPickedUp = false;
-        //     currentAction = Actions.EDIT;
-        //     Debug.Log("Set Mode Back to Edit");
-        // }
-        buildingWasPlaced.Invoke();
+        if (hasBeenPickedUp){
+            hasBeenPickedUp = false;
+            currentAction = Actions.EDIT;
+        }
+        if (currentAction == Actions.PLACE) buildingWasPlaced.Invoke();
     }
 
     protected void UpdateTexture(Sprite newSprite){
@@ -179,7 +178,7 @@ public abstract class Building : MonoBehaviour {
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
         hasBeenPlaced = false;
         hasBeenPickedUp = true;
-        currentAction = Actions.PLACE;
+        currentAction = Actions.PLACE_PICKED_UP;
     }
 
     public void Delete() {
