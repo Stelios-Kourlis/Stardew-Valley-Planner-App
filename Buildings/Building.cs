@@ -153,25 +153,12 @@ public abstract class Building : MonoBehaviour {
         //     hasBeenPickedUp = false;
         //     currentAction = Actions.EDIT;
         //     Debug.Log("Set Mode Back to Edit");
-            
         // }
         buildingWasPlaced.Invoke();
     }
 
-    // private IEnumerator PlaceBuildingCoroutine(Vector3Int position){
-    //     while (!hasStarted) yield return null;
-    //     PlaceBuildingAfterStartIsDone(position);
-    // }
-
-    // public void Place(Vector3Int position){
-    //     StartCoroutine(PlaceBuildingCoroutine(position));
-    // }
-
     protected void UpdateTexture(Sprite newSprite){
         sprite = newSprite;
-        Debug.Log($"r Width: {sprite.rect.width/16}, Height: {sprite.rect.height/16}");
-        Debug.Log($"tr Width: {sprite.textureRect.width/16}, Height: {sprite.textureRect.height/16}");
-        Debug.Log($"Width: {width}, Height: {sprite.rect.height}");
         if (!hasBeenPlaced) return;
         Tile[] buildingTiles = SplitSprite(sprite);
         gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
@@ -195,7 +182,7 @@ public abstract class Building : MonoBehaviour {
         currentAction = Actions.PLACE;
     }
 
-    public void Delete() {//rewrite this
+    public void Delete() {
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if(!baseCoordinates.Contains(currentCell)) return;
 

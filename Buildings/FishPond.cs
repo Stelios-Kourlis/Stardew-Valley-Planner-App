@@ -7,6 +7,8 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
+using static Utility.ClassManager;
+using System.Linq;
 
 
 public class FishPond : Building {
@@ -25,8 +27,7 @@ public class FishPond : Building {
         atlas = Resources.Load("Buildings/FishPondAtlas") as SpriteAtlas;
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
-        CycleFishPondDeco();
-        CycleFishPondDeco();
+        SetFishImage(Fish.Tuna);
     }
 
     protected override void Init(){
@@ -57,6 +58,8 @@ public class FishPond : Building {
     }
 
     private new void Pickup(){
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if(!baseCoordinates.Contains(currentCell)) return;
         base.Pickup();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
@@ -66,8 +69,8 @@ public class FishPond : Building {
     ///Set the fish image and the pond color to a fish of your choosing
     /// </summary>
     /// <param name="fishType"> The fish</param>
-    public void SetFishImage(Fish fishType){
-        buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = Resources.Load<Sprite>("Fish/"+ fishType.ToString());
+    public void SetFishImage(Fish fishType){//todo readd the fish type to the button
+        //buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = Resources.Load("Fish/"+ fishType.ToString()) as Sprite;
         Color color = fishType switch
         { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),
@@ -76,7 +79,7 @@ public class FishPond : Building {
             Fish.VoidSalmon => new Color(0.5764706f, 0.1176471f, 0.7490196f, 1),
             _ => new Color(0.2039216f, 0.5254902f, 0.7490196f, 1),
         };
-        tilemap.gameObject.transform.GetChild(0).GetComponent<Tilemap>().color = color;
+        waterTilemapObject.GetComponent<Tilemap>().color = color;
         fish = fishType;
     }
 
