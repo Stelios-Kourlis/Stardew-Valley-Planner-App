@@ -142,7 +142,7 @@ public abstract class Building : MonoBehaviour {
             hasBeenPickedUp = false;
             currentAction = Actions.EDIT;
         }
-        //if (currentAction == Actions.PLACE) InvokeBuildingWasPlaced();
+        if (currentAction == Actions.PLACE) InvokeBuildingWasPlaced();
     }
 
     protected void UpdateTexture(Sprite newSprite){

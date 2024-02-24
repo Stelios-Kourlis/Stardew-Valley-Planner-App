@@ -19,6 +19,7 @@ public class BuildingController : MonoBehaviour
     public Type currentBuildingType;
     private Actions currentAction;
     private readonly HashSet<Floor> floors = new HashSet<Floor>();
+    public bool isLoadingSave {get; set;} = false;
     //private bool isUndoing = false;
 
     public HashSet<GameObject> buildingGameObjects = new HashSet<GameObject>();
@@ -42,6 +43,7 @@ public class BuildingController : MonoBehaviour
     }
 
     private void OnBuildingPlaced(){
+        if (isLoadingSave) return;
         GameObject go = new GameObject(currentBuildingType.Name);
         go.transform.parent = transform;
         lastBuildingObjectCreated = go;

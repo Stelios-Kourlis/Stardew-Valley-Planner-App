@@ -6,7 +6,7 @@ using UnityEngine.U2D;
 
 public class Barn : Building, ITieredBuilding {
     private SpriteAtlas atlas;
-    private int tier;
+    private int tier = 1;
 
     public new void Start(){
         baseHeight = 4;
@@ -19,7 +19,7 @@ public class Barn : Building, ITieredBuilding {
         };
         base.Start();
         atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
-        ChangeTier(1);
+        UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
     }
 
     public void ChangeTier(int tier){
@@ -51,5 +51,12 @@ public class Barn : Building, ITieredBuilding {
 
     public override string GetBuildingData(){
         return base.GetBuildingData() + $"|{tier}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        base.RecreateBuildingForData(x, y);
+        ChangeTier(int.Parse(data[0]));
+
     }
 }

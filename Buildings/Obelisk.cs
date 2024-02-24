@@ -71,6 +71,5 @@ public class Obelisk : Building{
         Start();
         base.RecreateBuildingForData(x, y);
         SetObeliskType((ObeliskTypes) int.Parse(data[0]));
-
     }
 }
