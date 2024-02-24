@@ -27,7 +27,6 @@ public class BuildingController : MonoBehaviour
     void Start(){
         currentBuildingType = typeof(GoldClock);
         Building.buildingWasPlaced += OnBuildingPlaced;
-        Debug.Log("BuildingController Started");
     
     }
 

@@ -39,7 +39,6 @@ public class MapController : MonoBehaviour{
         dataScript.AddInvalidTilesData(mapType.ToString());
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
         mapTilemap.ClearAllTiles();
-        Debug.Log(tiles.Length);
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
         // ToggleRedTiles();
         // ToggleRedTiles();

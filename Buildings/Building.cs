@@ -131,8 +131,6 @@ public abstract class Building : MonoBehaviour {
         if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
-        if (hasBeenPlaced) Debug.Log($"Cleared Tiles, building was placed: {hasBeenPlaced}");
-        //Debug.Log(gameObject.GetComponent<TilemapRenderer>().sortingOrder);
         Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(currentCell, height, width).ToArray();
         gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(sprite));
     }

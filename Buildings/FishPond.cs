@@ -25,6 +25,9 @@ public class FishPond : Building {
         base.Start();
         PlaceBuilding = Place;
         PickupBuilding = Pickup;
+        PlacePreview = PlaceMouseoverEffect;
+        EditPreview = EditMouseoverEffect;
+        DeletePreview = DeleteMouseoverEffect;
         atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
         fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
@@ -52,12 +55,14 @@ public class FishPond : Building {
 
     private new void Place(Vector3Int position){
         base.Place(position);
-        Vector3Int topRightCorner = baseCoordinates[0] + new Vector3Int(0, 4, 0);
+        Vector3Int topRightCorner = position + new Vector3Int(0, 4, 0);
         decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
         decoTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         waterTilemapObject.GetComponent<Tilemap>().SetTiles(baseCoordinates, SplitSprite(atlas.GetSprite("FishPondBottom")));
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
@@ -68,6 +73,54 @@ public class FishPond : Building {
         base.Pickup();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+    }
+
+    private new void PlaceMouseoverEffect(){
+        if (hasBeenPlaced) return;
+        base.PlaceMouseoverEffect();
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        Vector3Int topRightCorner = currentCell + new Vector3Int(0, 4, 0);
+        decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
+        decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        Vector3Int[] unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
+        Vector3Int[] buildingBaseCoordinates = GetAreaAroundPosition(currentCell, baseHeight, width).ToArray();
+        if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        else decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+        decoTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
+        waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) waterTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        else waterTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        waterTilemapObject.GetComponent<Tilemap>().SetTiles(GetAreaAroundPosition(currentCell, height, width).ToArray(), SplitSprite(atlas.GetSprite("FishPondBottom")));
+        waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
+    }
+
+    private new void EditMouseoverEffect(){
+        if (!hasBeenPlaced) return;
+        base.EditMouseoverEffect();
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (baseCoordinates.Contains(currentCell)){
+            decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+            waterTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        }
+        else{
+            decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+            waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+        }
+    }
+
+    private new void DeleteMouseoverEffect(){
+        if (!hasBeenPlaced) return;
+        base.DeleteMouseoverEffect();
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (baseCoordinates.Contains(currentCell)){
+            decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+            waterTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        }
+        else{
+            decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+            waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+        }
     }
 
     /// <summary>

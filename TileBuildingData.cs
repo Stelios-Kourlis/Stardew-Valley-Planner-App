@@ -17,11 +17,9 @@ public class TileBuildingData : MonoBehaviour {
     public void AddInvalidTilesData(string farm) {
         List<Vector3Int> tempList = new List<Vector3Int>();
         string path = "Maps/" + farm;
-        Debug.Log("Adding Data from: " + path);
         TextAsset textAsset = Resources.Load<TextAsset>(path);
         string[] tiles = textAsset.text.Split('\n');
         foreach (string tile in tiles) {
-            Debug.Log(tile);
             if (tile == "") continue;
             string[] nums = tile.Split(' ');
             int x = int.Parse(nums[0]);
