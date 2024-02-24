@@ -43,24 +43,16 @@ namespace Utility{
         }
 
         public static void Load() {
-            var paths = StandaloneFileBrowser.SaveFilePanel("Save File", "", "Farm", "svp");
-            // var bp = new BrowserProperties{
-            //     filter = "Stardew Valley Planner Files (*.svp)|*.svp|All Files (*.*)|*.*",
-            //     filterIndex = 0
-            // };
-            // new FileBrowser().OpenFileBrowser(bp, path => {
-            //     TextReader reader = File.OpenText(path);
-            //     BuildingController placer = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-            //     string text;
-            //     placer.DeleteAllBuildings();
-            //     while ((text = reader.ReadLine()) != null) {
-            //         string[] data = text.Split('|');
-            //         string name = data[0];
-            //         int x = int.Parse(data[1]);
-            //         int y = int.Parse(data[2]);
-            //         //placer.PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));//todo fix this
-            //     }
-            // });
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
+            if (paths.Length > 0) {
+                using StreamReader reader = new StreamReader(paths[0]);
+                GetBuildingController().DeleteAllBuildings();
+                while (reader.Peek() >= 0){
+                    string line = reader.ReadLine();
+                    if (line.Equals("")) continue;
+                    GetBuildingController().PlaceSavedBuilding(line);
+                }
+            }
         }
 
         /// <summary>

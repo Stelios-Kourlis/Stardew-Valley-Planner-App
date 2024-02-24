@@ -26,11 +26,11 @@ public class ButtonController : MonoBehaviour{
         CreateButton("slimeHutch", "Buildings/SlimeHutch", typeof(SlimeHutch), buildingPanelTransform);
         CreateButton("shippingBin", "Buildings/ShippingBin", typeof(ShippingBin), buildingPanelTransform);
         CreateButton("well", "Buildings/Well", typeof(Well), buildingPanelTransform);
-        CreateButton("earthObelisk", "Buildings/EarthObelisk", typeof(EarthObelisk), buildingPanelTransform);
-        CreateButton("desertObelisk", "Buildings/DesertObelisk", typeof(DesertObelisk), buildingPanelTransform);
+        CreateButton("earthObelisk", "Buildings/EarthObelisk", typeof(Obelisk), buildingPanelTransform);
+        // CreateButton("desertObelisk", "Buildings/DesertObelisk", typeof(DesertObelisk), buildingPanelTransform);
         CreateButton("stable", "Buildings/Stable", typeof(Stable), buildingPanelTransform);
-        CreateButton("islandObelisk", "Buildings/IslandObelisk", typeof(IslandObelisk), buildingPanelTransform);
-        CreateButton("waterObelisk", "Buildings/WaterObelisk", typeof(WaterObelisk), buildingPanelTransform);
+        // CreateButton("islandObelisk", "Buildings/IslandObelisk", typeof(IslandObelisk), buildingPanelTransform);
+        // CreateButton("waterObelisk", "Buildings/WaterObelisk", typeof(WaterObelisk), buildingPanelTransform);
         CreateButton("junimoHunt", "Buildings/JunimoHut", typeof(JunimoHut), buildingPanelTransform);
         CreateButton("greenhouse", "Buildings/Greenhouse", typeof(Greenhouse), buildingPanelTransform);
         CreateButton("mill", "Buildings/Mill", typeof(Mill), buildingPanelTransform);

@@ -73,9 +73,9 @@ public class BuildingController : MonoBehaviour
     /// <summary>
     /// Deletes all buildings except the house
     /// </summary>
-    public void DeleteAllBuildings() {
+    public void DeleteAllBuildings(bool deleteHouse = false) {
         foreach (Building building in buildings) {
-            if (building is House) continue;
+            if (building is House && deleteHouse) continue;
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
             building.ForceDelete();
         }
@@ -104,6 +104,21 @@ public class BuildingController : MonoBehaviour
 
     public void HideTotalMaterialsNeeded(){
         GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel").GetComponent<RectTransform>().localPosition = new Vector3(0, 1000, 0);
+    }
+
+    public void PlaceSavedBuilding(string buildingData){
+        //DeleteAllBuildings(true);
+        string[] data = buildingData.Split('|');
+        Type type = Type.GetType(data[0]);
+        int x = int.Parse(data[1]);
+        int y = int.Parse(data[2]);
+        GameObject go = new GameObject(type.Name + x);
+        go.transform.parent = transform;
+        Building building = go.AddComponent(type) as Building;
+        building?.Start();
+        building?.RecreateBuildingForData(x, y, data.Skip(3).ToArray());
+
+        //PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));
     }
 
     public Type GetCurrentBuildingType(){ return currentBuildingType; }

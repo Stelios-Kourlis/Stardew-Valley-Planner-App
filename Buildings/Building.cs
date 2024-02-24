@@ -11,7 +11,7 @@ using System.Linq;
 using UnityEngine.Events;
 using System.Runtime.ConstrainedExecution;
 using UnityEngine.EventSystems;
-// #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
 public abstract class Building : MonoBehaviour {
@@ -44,19 +44,6 @@ public abstract class Building : MonoBehaviour {
     public static event BuildingPlacedDelegate buildingWasPlaced;
 
     //public GameObject[] paintableParts;//todo figure out how to do paintable parts
-
-    // protected delegate void PlaceDelegate(Vector3Int position);
-    // protected PlaceDelegate PlaceBuilding;
-    // protected delegate void PickupDelegate();
-    // protected PickupDelegate PickupBuilding;
-    // protected delegate void DeleteDelegate();
-    // protected DeleteDelegate DeleteBuilding;
-    // protected delegate void PlacePreviewDelegate();
-    // protected PlacePreviewDelegate PlacePreview;
-    // protected delegate void EditPreviewDelegate();
-    // protected EditPreviewDelegate EditPreview;
-    // protected delegate void DeletePreviewDelegate();
-    // protected DeletePreviewDelegate DeletePreview;
 #pragma warning restore IDE1006 // Naming Styles
 
     //protected abstract void Init();
@@ -64,15 +51,7 @@ public abstract class Building : MonoBehaviour {
 
     public void Start(){    
         AddTilemapToObject(gameObject);
-        // PlaceBuilding = Place;
-        // PickupBuilding = Pickup;
-        // DeleteBuilding = Delete;
-        // PlacePreview = PlaceMouseoverEffect;
-        // EditPreview = EditMouseoverEffect;
-        // DeletePreview = DeleteMouseoverEffect;
-        //texture = Resources.Load($"Buildings/{name}") as Texture2D;
         sprite = Resources.Load<Sprite>($"Buildings/{name}");
-        // gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
     }
 
     protected void Update(){
@@ -90,8 +69,9 @@ public abstract class Building : MonoBehaviour {
             else if (currentAction == Actions.DELETE) Delete();
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse1) && buildingInteractions.Length != 0 && hasBeenPlaced && baseCoordinates.Contains(currentCell)){
-            buttonParent.SetActive(!buttonParent.activeSelf);
+        if (Input.GetKeyUp(KeyCode.Mouse1)){
+            if (baseCoordinates?.Contains(currentCell) ?? false) OnMouseRightClick();
+            
         }
     }
 
@@ -162,7 +142,7 @@ public abstract class Building : MonoBehaviour {
             hasBeenPickedUp = false;
             currentAction = Actions.EDIT;
         }
-        if (currentAction == Actions.PLACE) InvokeBuildingWasPlaced();
+        //if (currentAction == Actions.PLACE) InvokeBuildingWasPlaced();
     }
 
     protected void UpdateTexture(Sprite newSprite){
@@ -213,9 +193,15 @@ public abstract class Building : MonoBehaviour {
     }
 
     public virtual void RecreateBuildingForData(int x, int y, params string[] data){
-        baseCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), baseHeight, width).ToArray();
-        spriteCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), height, width).ToArray();
+        // baseCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), baseHeight, width).ToArray();
+        // spriteCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), height, width).ToArray();
         Place(new Vector3Int(x,y,0));
+    }
+
+    protected virtual void OnMouseRightClick(){
+        if (buildingInteractions.Length != 0 && hasBeenPlaced){
+            buttonParent.SetActive(!buttonParent.activeSelf);
+        }
     }
 }
 
