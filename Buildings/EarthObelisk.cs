@@ -5,13 +5,9 @@ using UnityEngine.Tilemaps;
 
 public class EarthObelisk : Building {
 
-    protected override void Init(){
+    public new void Start(){
         name = GetType().Name;
         baseHeight = 3;
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
     }
 

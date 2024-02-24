@@ -11,7 +11,7 @@ using System.Linq;
 using UnityEngine.Events;
 using System.Runtime.ConstrainedExecution;
 using UnityEngine.EventSystems;
-#pragma warning disable IDE1006 // Naming Styles
+// #pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
 public abstract class Building : MonoBehaviour {
@@ -28,7 +28,6 @@ public abstract class Building : MonoBehaviour {
     ///<summary>The sprite of the building</summary>
     public Sprite sprite;
     public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];//backing field
-
     public int baseHeight { get; protected set; } 
     public int height {get {return (int) sprite.textureRect.height / 16;}}
     public int width {get {return (int) sprite.textureRect.width / 16;}}
@@ -46,41 +45,31 @@ public abstract class Building : MonoBehaviour {
 
     //public GameObject[] paintableParts;//todo figure out how to do paintable parts
 
-    protected delegate void PlaceDelegate(Vector3Int position);
-    protected PlaceDelegate PlaceBuilding;
-    protected delegate void PickupDelegate();
-    protected PickupDelegate PickupBuilding;
-    protected delegate void DeleteDelegate();
-    protected DeleteDelegate DeleteBuilding;
-    protected delegate void PlacePreviewDelegate();
-    protected PlacePreviewDelegate PlacePreview;
-    protected delegate void EditPreviewDelegate();
-    protected EditPreviewDelegate EditPreview;
-    protected delegate void DeletePreviewDelegate();
-    protected DeletePreviewDelegate DeletePreview;
-
-
-    [Range(0, 1)]
-    public float red=1,green=1,blue=1,alpha=0.5f;
-
-    [Obsolete("Use GetMaterialsNeeded() instead")]
-    public Dictionary<Materials,int> materialsNeeded { get; protected set;} = new Dictionary<Materials, int>();
-    // public Dictionary<Materials,int> materialsNeeded{ 
-    //     get {return new Dictionary<Materials,int>(_materialsNeeded);} 
-    // }
+    // protected delegate void PlaceDelegate(Vector3Int position);
+    // protected PlaceDelegate PlaceBuilding;
+    // protected delegate void PickupDelegate();
+    // protected PickupDelegate PickupBuilding;
+    // protected delegate void DeleteDelegate();
+    // protected DeleteDelegate DeleteBuilding;
+    // protected delegate void PlacePreviewDelegate();
+    // protected PlacePreviewDelegate PlacePreview;
+    // protected delegate void EditPreviewDelegate();
+    // protected EditPreviewDelegate EditPreview;
+    // protected delegate void DeletePreviewDelegate();
+    // protected DeletePreviewDelegate DeletePreview;
 #pragma warning restore IDE1006 // Naming Styles
 
-    protected abstract void Init();
+    //protected abstract void Init();
     public abstract Dictionary<Materials,int> GetMaterialsNeeded();
 
     public void Start(){    
         AddTilemapToObject(gameObject);
-        PlaceBuilding = Place;
-        PickupBuilding = Pickup;
-        DeleteBuilding = Delete;
-        PlacePreview = PlaceMouseoverEffect;
-        EditPreview = EditMouseoverEffect;
-        DeletePreview = DeleteMouseoverEffect;
+        // PlaceBuilding = Place;
+        // PickupBuilding = Pickup;
+        // DeleteBuilding = Delete;
+        // PlacePreview = PlaceMouseoverEffect;
+        // EditPreview = EditMouseoverEffect;
+        // DeletePreview = DeleteMouseoverEffect;
         //texture = Resources.Load($"Buildings/{name}") as Texture2D;
         sprite = Resources.Load<Sprite>($"Buildings/{name}");
         // gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
@@ -90,15 +79,15 @@ public abstract class Building : MonoBehaviour {
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
         if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
-        else if (currentAction == Actions.EDIT) EditPreview();
+        else if (currentAction == Actions.EDIT) PickupPreview();
         else if (currentAction == Actions.DELETE) DeletePreview();
 
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if(EventSystem.current.IsPointerOverGameObject()) return;
-            if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) PlaceBuilding(currentCell);
-            else if (currentAction == Actions.EDIT && hasBeenPlaced) PickupBuilding();
-            else if (currentAction == Actions.DELETE) DeleteBuilding();
+            if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) Place(currentCell);
+            else if (currentAction == Actions.EDIT && hasBeenPlaced) Pickup();
+            else if (currentAction == Actions.DELETE) Delete();
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse1) && buildingInteractions.Length != 0 && hasBeenPlaced && baseCoordinates.Contains(currentCell)){
@@ -110,7 +99,7 @@ public abstract class Building : MonoBehaviour {
         buildingWasPlaced?.Invoke();
     }
 
-    protected void EditMouseoverEffect(){
+    protected virtual void PickupPreview(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
             return;
@@ -120,7 +109,7 @@ public abstract class Building : MonoBehaviour {
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
-    protected void PlaceMouseoverEffect(){
+    protected virtual void PlacePreview(){
         if (hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
@@ -135,7 +124,7 @@ public abstract class Building : MonoBehaviour {
         gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(sprite));
     }
 
-    protected void DeleteMouseoverEffect(){
+    protected virtual void DeletePreview(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
             return;
@@ -145,7 +134,7 @@ public abstract class Building : MonoBehaviour {
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
     
-    public void Place(Vector3Int position){
+    public virtual void Place(Vector3Int position){
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
             Debug.LogWarning("Cannot place building here");
@@ -188,7 +177,7 @@ public abstract class Building : MonoBehaviour {
         return false;
     }
 
-    protected void Pickup(){
+    protected virtual void Pickup(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if(!baseCoordinates.Contains(currentCell)) return;
 
@@ -201,7 +190,7 @@ public abstract class Building : MonoBehaviour {
         currentAction = Actions.PLACE_PICKED_UP;
     }
 
-    public void Delete() {
+    public virtual void Delete() {
         if (!hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if(!baseCoordinates.Contains(currentCell)) return;
@@ -213,6 +202,20 @@ public abstract class Building : MonoBehaviour {
         GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
         Destroy(buttonParent);
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Get all the date this building need to be recreated, for saving purposes
+    /// </summary>
+    /// <returns></returns>
+    public virtual string GetBuildingData(){
+        return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}";
+    }
+
+    public virtual void RecreateBuildingForData(int x, int y, params string[] data){
+        baseCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), baseHeight, width).ToArray();
+        spriteCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), height, width).ToArray();
+        Place(new Vector3Int(x,y,0));
     }
 }
 

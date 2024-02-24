@@ -32,27 +32,15 @@ namespace Utility{
             return building is FishPond || building is Greenhouse;
         }
 
-        public static void Save() {//todo add Save/Load
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", "svp", false);
+        public static void Save() {//todo add Load
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
             if (paths.Length > 0) {
                 using StreamWriter writer = new StreamWriter(paths[0]);
-                // foreach (Building building in placer.GetBuildings()) {
-                //     writer.WriteLine(building.name + "|" + building.baseCoordinates[0].x + "|" + building.baseCoordinates[0].y);
-                // }
+                foreach (Building building in GetBuildingController().GetBuildings()) {
+                    writer.WriteLine(building.GetBuildingData());
+                }
             }
         }
-        // var bp = new BrowserProperties{
-        //     filter = "Stardew Valley Planner Files (*.svp)|*.svp|All Files (*.*)|*.*",
-        //     filterIndex = 0
-        // };
-        // new FileBrowser().SaveFileBrowser(bp, "save", ".svp", path => {
-        //     StreamWriter writer = new StreamWriter(path, false);
-        //     BuildingController placer = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-        //     foreach (Building building in placer.GetBuildings()) {
-        //         writer.WriteLine(building.name + "|" + building.baseCoordinates[0].x + "|" + building.baseCoordinates[0].y);
-        //     }
-        //     writer.Close();});
-        //}
 
         public static void Load() {
             var paths = StandaloneFileBrowser.SaveFilePanel("Save File", "", "Farm", "svp");

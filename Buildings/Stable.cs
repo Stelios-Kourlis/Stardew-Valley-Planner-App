@@ -5,16 +5,12 @@ using UnityEngine.Tilemaps;
 
 public class Stable : Building {
 
-    protected override void Init(){
+    public new void Start(){
         name = GetType().Name;
         baseHeight = 2;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT
         };
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
     }
 

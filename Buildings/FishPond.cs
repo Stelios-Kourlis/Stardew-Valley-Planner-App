@@ -9,6 +9,8 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
 using System.Linq;
+using UnityEditor.SceneManagement;
+using System.Net.Configuration;
 
 
 public class FishPond : Building {
@@ -21,27 +23,17 @@ public class FishPond : Building {
     private GameObject waterTilemapObject;
 
     public new void Start(){
-        Init();
-        base.Start();
-        PlaceBuilding = Place;
-        PickupBuilding = Pickup;
-        PlacePreview = PlaceMouseoverEffect;
-        EditPreview = EditMouseoverEffect;
-        DeletePreview = DeleteMouseoverEffect;
-        atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
-        fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
-        decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
-        waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
-        //SetFishImage(Fish.Tuna);
-    }
-
-    protected override void Init(){
         name = GetType().Name;
         baseHeight = 5;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
         };
+        base.Start();
+        atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
+        fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
+        decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
+        waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
     }
 
     public override Dictionary<Materials, int> GetMaterialsNeeded(){
@@ -53,7 +45,7 @@ public class FishPond : Building {
         };
     }
 
-    private new void Place(Vector3Int position){
+    public override void Place(Vector3Int position){
         base.Place(position);
         Vector3Int topRightCorner = position + new Vector3Int(0, 4, 0);
         decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
@@ -75,9 +67,9 @@ public class FishPond : Building {
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 
-    private new void PlaceMouseoverEffect(){
+    protected override void PlacePreview(){
         if (hasBeenPlaced) return;
-        base.PlaceMouseoverEffect();
+        base.PlacePreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         Vector3Int topRightCorner = currentCell + new Vector3Int(0, 4, 0);
         decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
@@ -95,9 +87,9 @@ public class FishPond : Building {
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
 
-    private new void EditMouseoverEffect(){
+    protected override void PickupPreview(){
         if (!hasBeenPlaced) return;
-        base.EditMouseoverEffect();
+        base.PickupPreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (baseCoordinates.Contains(currentCell)){
             decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
@@ -109,9 +101,9 @@ public class FishPond : Building {
         }
     }
 
-    private new void DeleteMouseoverEffect(){
+    protected override void DeletePreview(){
         if (!hasBeenPlaced) return;
-        base.DeleteMouseoverEffect();
+        base.DeletePreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (baseCoordinates.Contains(currentCell)){
             decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
@@ -127,7 +119,7 @@ public class FishPond : Building {
     ///Set the fish image and the pond color to a fish of your choosing
     /// </summary>
     /// <param name="fishType"> The fish</param>
-    public void SetFishImage(Fish fishType){//todo readd the fish type to the button
+    public void SetFishImage(Fish fishType){
         buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
         Debug.Log(buttonParent.transform.GetChild(0).GetChild(0).name);
         Debug.Log(fishType);

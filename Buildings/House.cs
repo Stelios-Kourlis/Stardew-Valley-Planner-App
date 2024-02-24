@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
-public class House : Building, ITieredBuilding {//todo There is a T4 house with the cellar
+public class House : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
     private int tier;
 
-    protected override void Init(){
+    public new void Start(){
         baseHeight = 6;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -17,16 +17,8 @@ public class House : Building, ITieredBuilding {//todo There is a T4 house with 
             ButtonTypes.TIER_THREE,
             ButtonTypes.ENTER
         };
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
         atlas = Resources.Load<SpriteAtlas>("Buildings/HouseAtlas");
-        PickupBuilding = NoAction;
-        DeleteBuilding = NoAction;
-        EditPreview = NoAction;
-        DeletePreview = NoAction;
         ChangeTier(1);
     }
 
@@ -37,8 +29,20 @@ public class House : Building, ITieredBuilding {//todo There is a T4 house with 
         UpdateTexture(atlas.GetSprite($"HouseT{tier}"));
     }
 
-    private void NoAction(){
-        return; //Cant pickup/delete house
+    protected override void Pickup(){
+        return; //Cant pickup house
+    }
+
+    public override void Delete(){
+        return; //Cant delete house
+    }
+
+    protected override void DeletePreview(){
+        return; //Cant delete house
+    }
+
+    protected override void PickupPreview(){
+        return; //Cant pickup house
     }
 
     public override Dictionary<Materials, int> GetMaterialsNeeded(){

@@ -64,7 +64,6 @@ public class ButtonController : MonoBehaviour{
         ButtonTypes[] buttonTypes = building.buildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return;
-        //GameObject parentGameObject = building.gameObject;//todo fix this
         Vector3 middleOfBuildingWorld = GetMiddleOfBuildingWorld(building);
         Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(middleOfBuildingWorld);
         GameObject buttonParent = new GameObject(building.name+"buttons");
@@ -82,7 +81,7 @@ public class ButtonController : MonoBehaviour{
         
     }
 
-    public void UpdateButtonPositionsAndScaleForBuilding(Building building){//todo fix this
+    public void UpdateButtonPositionsAndScaleForBuilding(Building building){
         float buttonScale = 10f/GetCamera().GetComponent<Camera>().orthographicSize;
         GameObject buttonParent = building.buttonParent;
         for (int buttonIndex = 0; buttonIndex < buttonParent.transform.childCount; buttonIndex++){

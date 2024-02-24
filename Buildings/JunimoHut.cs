@@ -4,14 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class JunimoHut : Building {
-
-    protected override void Init(){
+    public new void Start(){
         name = GetType().Name;
         baseHeight = 2;
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
     }
 
@@ -22,5 +17,9 @@ public class JunimoHut : Building {
             {Materials.Starfruit, 9},
             {Materials.Fiber, 100}
         };
+    }
+
+    protected override void PlacePreview(){//todo add range
+        base.PlacePreview();
     }
 }

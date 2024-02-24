@@ -17,23 +17,18 @@ public class Scarecrow : Building{
     private Tile greenTile;
 
     public new void Start(){
-        Init();
+        name = GetType().Name;
+        baseHeight = 1;
         base.Start();
-        PlacePreview = PlaceMouseoverEffect;
         atlas = Resources.Load<SpriteAtlas>("Buildings/ScarecrowAtlas");
         greenTile = LoadTile("GreenTile");
         sprite = atlas.GetSprite("Scarecrows_9");
     }
 
-    protected override void Init(){
-        name = GetType().Name;
-        baseHeight = 1;
-    }
-
-    private new void PlaceMouseoverEffect(){
+    protected override void PlacePreview(){
         if (hasBeenPlaced) return;
         GetComponent<Tilemap>();
-        base.PlaceMouseoverEffect();
+        base.PlacePreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         Vector3Int[] coverageArea = scarecrowIndex switch{
             9 => null,

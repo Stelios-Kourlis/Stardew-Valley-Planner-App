@@ -21,24 +21,16 @@ public class Floor : Building {
     public static FloorType floorType = FloorType.WOOD_FLOOR;
     private new static Tilemap tilemap;
 
-    protected override void Init(){
-        baseHeight = 1;
-    }
-
     public new void Start(){
-        Init();
+        baseHeight = 1;//todo do I need this? can it be 0?
         base.Start();
-        PlaceBuilding = Place;
-        DeleteBuilding = Delete;
-        PlacePreview = PlaceMouseoverEffect;
-        DeletePreview = DeleteMouseoverEffect;
         FloorWasPlaced += AnotherFloorWasPlaced;
         atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
         sprite = atlas.GetSprite($"WOOD_FLOOR0");
         tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
     }
 
-    public new void Place(Vector3Int position){
+    public override void Place(Vector3Int position){
         int height = GetFloorFlagsSum(position);
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
@@ -48,7 +40,7 @@ public class Floor : Building {
         FloorWasPlaced?.Invoke(position);
     }
 
-    public new void Delete(){
+    public override void Delete(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (!floors.Keys.Contains(currentCell)) return;
         floors.Remove(currentCell);
@@ -56,7 +48,7 @@ public class Floor : Building {
         FloorWasPlaced?.Invoke(currentCell);
     }
 
-    public new void PlaceMouseoverEffect(){
+    protected override void PlacePreview(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         int height = GetFloorFlagsSum(currentCell);
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
@@ -66,7 +58,7 @@ public class Floor : Building {
         GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
     }
 
-    public new void DeleteMouseoverEffect(){
+    protected override void DeletePreview(){
         //Debug.Log("DeleteMouseoverEffect");
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (!floors.Keys.Contains(currentCell)) return;

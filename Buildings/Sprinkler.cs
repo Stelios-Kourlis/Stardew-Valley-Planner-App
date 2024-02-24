@@ -14,16 +14,10 @@ public class Sprinkler : Building, ITieredBuilding{
     private int tier;
     private Tile greenTile;
 
-    protected override void Init(){
+    public new void Start(){
         name = GetType().Name;
         baseHeight = 1;
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
-        PlaceBuilding = Place;
-        PlacePreview = PlaceMouseoverEffect;
         atlas = Resources.Load<SpriteAtlas>("Buildings/SprinklerAtlas");
         greenTile = LoadTile("GreenTile");
         ChangeTier(1);
@@ -35,10 +29,10 @@ public class Sprinkler : Building, ITieredBuilding{
         UpdateTexture(atlas.GetSprite($"SprinklerT{tier}"));
     }
 
-    public new void PlaceMouseoverEffect(){
+    protected override void PlacePreview(){
         if (hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        base.PlaceMouseoverEffect();
+        base.PlacePreview();
         Vector3Int[] coverageArea = tier switch{
             1 => GetCrossAroundPosition(currentCell).ToArray(),
             2 => GetAreaAroundPosition(currentCell, 1).ToArray(),
@@ -48,7 +42,7 @@ public class Sprinkler : Building, ITieredBuilding{
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
     }
 
-    public new void Place(Vector3Int position){
+    public override void Place(Vector3Int position){
         base.Place(position);
         Vector3Int[] coverageArea = tier switch{
             1 => GetCrossAroundPosition(position).ToArray(),

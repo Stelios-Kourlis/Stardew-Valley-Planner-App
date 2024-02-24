@@ -8,7 +8,7 @@ public class Barn : Building, ITieredBuilding {
     private SpriteAtlas atlas;
     private int tier;
 
-    protected override void Init(){
+    public new void Start(){
         baseHeight = 4;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -17,10 +17,6 @@ public class Barn : Building, ITieredBuilding {
             ButtonTypes.ENTER,
             ButtonTypes.PAINT
         };
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
         atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
         ChangeTier(1);
@@ -51,5 +47,9 @@ public class Barn : Building, ITieredBuilding {
             },
             _ => throw new System.ArgumentException($"Invalid tier {tier}")
         };
+    }
+
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{tier}";
     }
 }

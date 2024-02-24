@@ -4,13 +4,10 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Well : Building {
-    protected override void Init() {
-        name = GetType().Name;
-        baseHeight = 3;
-    }
 
     public new void Start(){
-        Init();
+        name = GetType().Name;
+        baseHeight = 3;
         base.Start();
     }
 

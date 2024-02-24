@@ -17,13 +17,6 @@ public class Cabin : Building, ITieredBuilding {
     private int tier;
 
     public new void Start(){
-        Init();
-        base.Start();
-        atlas = Resources.Load("Buildings/CabinAtlas") as SpriteAtlas;
-        ChangeTier(1);
-    }
-
-    protected override void Init(){
         baseHeight = 3;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -32,6 +25,9 @@ public class Cabin : Building, ITieredBuilding {
             ButtonTypes.ENTER,
             ButtonTypes.PAINT
         };
+        base.Start();
+        atlas = Resources.Load("Buildings/CabinAtlas") as SpriteAtlas;
+        ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
@@ -49,25 +45,26 @@ public class Cabin : Building, ITieredBuilding {
         };
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return tier switch{
-            1 => new Dictionary<Materials, int>{
-                {Materials.Coins, 6_000},
-                {Materials.Wood, 350},
-                {Materials.Stone, 150}
-            },
-            2 => new Dictionary<Materials, int>{
-                {Materials.Coins, 6_000 + 12_000},
-                {Materials.Wood, 350 + 450},
-                {Materials.Stone, 150 + 200}
-            },
-            3 => new Dictionary<Materials, int>{
-                {Materials.Coins, 6_000 + 12_000 + 25_000},
-                {Materials.Wood, 350 + 450 + 550},
-                {Materials.Stone, 150 + 200 + 300}
-            },
-            _ => throw new System.ArgumentException($"Invalid tier {tier}")
-        };
+    public override Dictionary<Materials, int> GetMaterialsNeeded(){//Completely wrong
+        throw new System.NotImplementedException();
+        // return tier switch{
+        //     1 => new Dictionary<Materials, int>{
+        //         {Materials.Coins, 6_000},
+        //         {Materials.Wood, 350},
+        //         {Materials.Stone, 150}
+        //     },
+        //     2 => new Dictionary<Materials, int>{
+        //         {Materials.Coins, 6_000 + 12_000},
+        //         {Materials.Wood, 350 + 450},
+        //         {Materials.Stone, 150 + 200}
+        //     },
+        //     3 => new Dictionary<Materials, int>{
+        //         {Materials.Coins, 6_000 + 12_000 + 25_000},
+        //         {Materials.Wood, 350 + 450 + 550},
+        //         {Materials.Stone, 150 + 200 + 300}
+        //     },
+        //     _ => throw new System.ArgumentException($"Invalid tier {tier}")
+        // };
     }
 
 }

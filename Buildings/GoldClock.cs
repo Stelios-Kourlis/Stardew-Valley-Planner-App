@@ -5,13 +5,10 @@ using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 
 public class GoldClock : Building {
-    protected override void Init(){
-        name = GetType().Name;
-        baseHeight = 2;
-    }
 
     public new void Start(){
-        Init();
+        name = GetType().Name;
+        baseHeight = 2;
         base.Start();
     }
 

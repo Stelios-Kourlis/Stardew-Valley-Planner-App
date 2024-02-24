@@ -5,17 +5,13 @@ using UnityEngine.Tilemaps;
 
 public class SlimeHutch : Building {
 
-    protected override void Init(){
+    public new void Start(){
         name = GetType().Name;
         baseHeight = 6;
         insideAreaTexture = Resources.Load("BuildingInsides/Barn1") as Texture2D;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
     }
 

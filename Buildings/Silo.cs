@@ -5,7 +5,8 @@ using UnityEngine.Tilemaps;
 
 public class Silo : Building {
     public new void Start(){
-        Init();
+        name = GetType().Name;
+        baseHeight = 3;
         base.Start();
     }
 
@@ -16,10 +17,5 @@ public class Silo : Building {
             {Materials.Clay, 10},
             {Materials.CopperBar, 5}
         };
-    }
-
-    protected override void Init(){
-        name = GetType().Name;
-        baseHeight = 3;
     }
 }

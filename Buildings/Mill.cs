@@ -4,14 +4,11 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Mill : Building {
-
-    protected override void Init(){
-        name = GetType().Name;
-        baseHeight = 2;
-    }
+        
 
     public new void Start(){
-        Init();
+        name = GetType().Name;
+        baseHeight = 2;
         base.Start();
     }
 

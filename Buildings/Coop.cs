@@ -8,7 +8,7 @@ public class Coop : Building, ITieredBuilding {
     private SpriteAtlas atlas;
     private int tier;
 
-    protected override void Init(){
+    public new void Start(){
         baseHeight = 3;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -17,10 +17,6 @@ public class Coop : Building, ITieredBuilding {
             ButtonTypes.ENTER,
             ButtonTypes.PAINT
         };
-    }
-
-    public new void Start(){
-        Init();
         base.Start();
         atlas = Resources.Load("Buildings/CoopAtlas") as SpriteAtlas;
         Sprite[] sprites = new Sprite[atlas.spriteCount];
