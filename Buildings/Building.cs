@@ -29,8 +29,8 @@ public abstract class Building : MonoBehaviour {
     public Sprite sprite;
     public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];//backing field
     public int baseHeight { get; protected set; } 
-    public int height {get {return (int) sprite.textureRect.height / 16;}}
-    public int width {get {return (int) sprite.textureRect.width / 16;}}
+    public int height {get { return sprite == null ? 0 : (int)sprite.textureRect.height / 16;}}
+    public int width {get { return (int) sprite.textureRect.width / 16;} }
     ///<summary>The tilemap this building is attached to</summary>
     public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}} //the tilemap this building is attached to
     public GameObject buttonParent;
@@ -47,16 +47,18 @@ public abstract class Building : MonoBehaviour {
 #pragma warning restore IDE1006 // Naming Styles
 
     //protected abstract void Init();
-    public abstract Dictionary<Materials,int> GetMaterialsNeeded();
+    public abstract List<MaterialInfo> GetMaterialsNeeded();
+
+    public abstract void RecreateBuildingForData(int x, int y, params string[] data);
 
     public void Start(){    
         AddTilemapToObject(gameObject);
-        sprite = Resources.Load<Sprite>($"Buildings/{name}");
+        if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{name}");
+        //Debug.Log($"Building {this} has started");
     }
 
     protected void Update(){
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
-        //gameObject.GetComponent<Tilemap>().color = new Color(red,green,blue,alpha);
         if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
         else if (currentAction == Actions.EDIT) PickupPreview();
         else if (currentAction == Actions.DELETE) DeletePreview();
@@ -71,12 +73,7 @@ public abstract class Building : MonoBehaviour {
 
         if (Input.GetKeyUp(KeyCode.Mouse1)){
             if (baseCoordinates?.Contains(currentCell) ?? false) OnMouseRightClick();
-            
         }
-    }
-
-    protected void InvokeBuildingWasPlaced(){
-        buildingWasPlaced?.Invoke();
     }
 
     protected virtual void PickupPreview(){
@@ -114,10 +111,15 @@ public abstract class Building : MonoBehaviour {
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
     
+    /// <summary>
+    /// Place the building at the given position
+    /// </summary>
+    /// <param name="position"></param>
     public virtual void Place(Vector3Int position){
+        Debug.Log($"Placeing {this} with baseHeight {baseHeight} and width {width}");
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
-            Debug.LogWarning("Cannot place building here");
+            Debug.LogWarning($"Cannot place {this} here");
             return;
         }
 
@@ -133,7 +135,6 @@ public abstract class Building : MonoBehaviour {
         this.baseCoordinates = baseCoordinates.ToArray();
         this.spriteCoordinates = spriteCoordinates.ToArray();
         if (buildingInteractions.Length != 0) GetButtonController().CreateButtonsForBuilding(this);
-        //name = GetType().Name;
 
         hasBeenPlaced = true;
         
@@ -142,7 +143,9 @@ public abstract class Building : MonoBehaviour {
             hasBeenPickedUp = false;
             currentAction = Actions.EDIT;
         }
-        if (currentAction == Actions.PLACE) InvokeBuildingWasPlaced();
+        if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
+
+        Debug.LogWarning($"Placed {this} at {position}");
     }
 
     protected void UpdateTexture(Sprite newSprite){
@@ -157,6 +160,9 @@ public abstract class Building : MonoBehaviour {
         return false;
     }
 
+    /// <summary>
+    /// Pickup the building
+    /// </summary>
     protected virtual void Pickup(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if(!baseCoordinates.Contains(currentCell)) return;
@@ -170,6 +176,9 @@ public abstract class Building : MonoBehaviour {
         currentAction = Actions.PLACE_PICKED_UP;
     }
 
+    /// <summary>
+    /// Delete the building
+    /// </summary>
     public virtual void Delete() {
         if (!hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
@@ -178,6 +187,9 @@ public abstract class Building : MonoBehaviour {
         ForceDelete();
     }
 
+    /// <summary>
+    /// Force delete the building, meaning this deletes buildings that cant be deleted any other way (house, greenhouse)
+    /// </summary>
     public void ForceDelete(){
         GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
         Destroy(buttonParent);
@@ -190,12 +202,6 @@ public abstract class Building : MonoBehaviour {
     /// <returns></returns>
     public virtual string GetBuildingData(){
         return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}";
-    }
-
-    public virtual void RecreateBuildingForData(int x, int y, params string[] data){
-        // baseCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), baseHeight, width).ToArray();
-        // spriteCoordinates = GetAreaAroundPosition(new Vector3Int(x,y,0), height, width).ToArray();
-        Place(new Vector3Int(x,y,0));
     }
 
     protected virtual void OnMouseRightClick(){

@@ -25,32 +25,32 @@ public class Obelisk : Building{
         //SetObeliskType(ObeliskTypes.DesertObelisk);
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded(){
         return obeliskType switch{
-            ObeliskTypes.WaterObelisk => new Dictionary<Materials, int>(){
-                {Materials.Coins, 500_000},
-                {Materials.IridiumBar, 5},
-                {Materials.Clam, 10},
-                {Materials.Coral, 10}
+            ObeliskTypes.WaterObelisk => new List<MaterialInfo>{
+                new MaterialInfo(500000, Materials.Coins),
+                new MaterialInfo(5, Materials.IridiumBar),
+                new MaterialInfo(10, Materials.Clam),
+                new MaterialInfo(10, Materials.Coral)
             },
-            ObeliskTypes.DesertObelisk => new Dictionary<Materials, int>{
-                {Materials.Coins, 1_000_000},
-                {Materials.IridiumBar, 20},
-                {Materials.Coconut, 10},
-                {Materials.CactusFruit, 10}
+            ObeliskTypes.DesertObelisk => new List<MaterialInfo>{
+                new MaterialInfo(1000000, Materials.Coins),
+                new MaterialInfo(20, Materials.IridiumBar),
+                new MaterialInfo(10, Materials.Coconut),
+                new MaterialInfo(10, Materials.CactusFruit)
             },
-            ObeliskTypes.IslandObelisk => new Dictionary<Materials, int>(){
-                {Materials.Coins, 1_000_000},
-                {Materials.IridiumBar, 10},
-                {Materials.DragonTooth, 10},
-                {Materials.Banana, 10}
+            ObeliskTypes.IslandObelisk => new List<MaterialInfo>{
+                new MaterialInfo(1000000, Materials.Coins),
+                new MaterialInfo(10, Materials.IridiumBar),
+                new MaterialInfo(10, Materials.DragonTooth),
+                new MaterialInfo(10, Materials.Banana)
             },
-            ObeliskTypes.EarthObelisk => new Dictionary<Materials, int>{
-                {Materials.Coins, 500_000},
-                {Materials.IridiumBar, 10},
-                {Materials.EarthCrystal, 10}
+            ObeliskTypes.EarthObelisk => new List<MaterialInfo>{
+                new MaterialInfo(500000, Materials.Coins),
+                new MaterialInfo(10, Materials.IridiumBar),
+                new MaterialInfo(10, Materials.EarthCrystal)
             },
-            _ => new Dictionary<Materials, int>()
+            _ => new List<MaterialInfo>()
         };
     }
 
@@ -69,7 +69,7 @@ public class Obelisk : Building{
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         Start();
-        base.RecreateBuildingForData(x, y);
+        Place(new Vector3Int(x,y,0));
         SetObeliskType((ObeliskTypes) int.Parse(data[0]));
     }
 }

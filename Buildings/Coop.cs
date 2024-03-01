@@ -6,7 +6,7 @@ using UnityEngine.U2D;
 
 public class Coop : Building, ITieredBuilding {
     private SpriteAtlas atlas;
-    private int tier;
+    private int tier = 0;
 
     public new void Start(){
         baseHeight = 3;
@@ -19,12 +19,7 @@ public class Coop : Building, ITieredBuilding {
         };
         base.Start();
         atlas = Resources.Load("Buildings/CoopAtlas") as SpriteAtlas;
-        Sprite[] sprites = new Sprite[atlas.spriteCount];
-        atlas.GetSprites(sprites);
-        foreach (Sprite sprite in sprites){
-            Debug.Log($"Name {sprite.name}, Height {sprite.rect.height /16}, Width {sprite.rect.width/16}");
-        }
-        ChangeTier(1);
+        if (tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
@@ -33,24 +28,34 @@ public class Coop : Building, ITieredBuilding {
         UpdateTexture(atlas.GetSprite($"CoopAtlas_{tier}"));
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded(){
         return tier switch{
-            1 => new Dictionary<Materials, int>{
-                {Materials.Coins, 4_000},
-                {Materials.Wood, 300},
-                {Materials.Stone, 100}
+            1 => new List<MaterialInfo>{
+                new MaterialInfo(4_000, Materials.Coins),
+                new MaterialInfo(300, Materials.Wood),
+                new MaterialInfo(100, Materials.Stone)
             },
-            2 => new Dictionary<Materials, int>{
-                {Materials.Coins, 4_000 + 10_000},
-                {Materials.Wood, 300 + 400},
-                {Materials.Stone, 100 + 150}
+            2 => new List<MaterialInfo>{
+                new MaterialInfo(4_000 + 10_000, Materials.Coins),
+                new MaterialInfo(300 + 400, Materials.Wood),
+                new MaterialInfo(100 + 150, Materials.Stone)
             },
-            3 => new Dictionary<Materials, int>{
-                {Materials.Coins, 4_000 + 10_000 + 20_000},
-                {Materials.Wood, 300 + 400 + 500},
-                {Materials.Stone, 100 + 150 + 200}
+            3 => new List<MaterialInfo>{
+                new MaterialInfo(4_000 + 10_000 + 20_000, Materials.Coins),
+                new MaterialInfo(300 + 400 + 500, Materials.Wood),
+                new MaterialInfo(100 + 150 + 200, Materials.Stone)
             },
             _ => throw new System.ArgumentException($"Invalid tier {tier}")
         };
+    }
+
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{tier}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
+        ChangeTier(int.Parse(data[0]));
     }
 }

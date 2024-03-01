@@ -53,7 +53,35 @@ public class Sprinkler : Building, ITieredBuilding{
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, null);
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        throw new NotImplementedException();
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return tier switch{
+            1 => new List<MaterialInfo>{
+                new MaterialInfo(1, Materials.IronBar),
+                new MaterialInfo(1, Materials.CopperBar),
+            },
+            2 => new List<MaterialInfo>{
+                new MaterialInfo(1, Materials.GoldBar),
+                new MaterialInfo(1, Materials.IronBar),
+                new MaterialInfo(1, Materials.RefinedQuartz)
+            },
+            3 => new List<MaterialInfo>{
+                new MaterialInfo(1, Materials.IridiumBar),
+                new MaterialInfo(1, Materials.GoldBar),
+                new MaterialInfo(1, Materials.BatteryPack),
+            },
+            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+        };
     }
+
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{tier}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
+        ChangeTier(int.Parse(data[0]));
+    }
+
+    
 }

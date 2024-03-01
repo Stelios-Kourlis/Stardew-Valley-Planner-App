@@ -91,7 +91,12 @@ public class Floor : Building {
         return flags.Cast<int>().Sum();
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        throw new NotImplementedException();
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data)
+    {
         throw new NotImplementedException();
     }
 }

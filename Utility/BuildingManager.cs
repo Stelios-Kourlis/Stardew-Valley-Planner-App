@@ -12,25 +12,6 @@ using static Utility.ClassManager;
 
 namespace Utility{
     public static class BuildingManager{
-        public static Building DeepCopyOfBuilding(string name, List<Vector3Int> position = null, List<Vector3Int> basePosition = null, Tilemap tilemap = null) {
-            var buildingTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(Building)) && !type.IsAbstract);
-            Dictionary<string, Type> buildingMap = new Dictionary<string, Type>();
-            foreach (var buildingType in buildingTypes) {
-                buildingMap.Add(buildingType.Name, buildingType);
-            }
-            if (buildingMap.ContainsKey(name)) {
-                var buildingType = buildingMap[name];
-                Building building = null;
-                if (buildingType == typeof(Floor)) building = (Building)Activator.CreateInstance(buildingType, position[0]);
-                else building = (Building) Activator.CreateInstance(buildingType, position, basePosition, tilemap);
-                return building;
-            }
-            return null;
-        }   
-
-        public static bool IsSpecialBuilding(Building building) {
-            return building is FishPond || building is Greenhouse;
-        }
 
         public static void Save() {//todo add Load
             var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
@@ -44,6 +25,7 @@ namespace Utility{
 
         public static void Load() {
             var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
+            Type currentType = GetBuildingController().currentBuildingType;
             if (paths.Length > 0) {
                 using StreamReader reader = new StreamReader(paths[0]);
                 GetBuildingController().DeleteAllBuildings();
@@ -55,6 +37,7 @@ namespace Utility{
                 }
                 GetBuildingController().isLoadingSave = false;
             }
+            GetBuildingController().SetCurrentBuildingType(currentType);
         }
 
         /// <summary>

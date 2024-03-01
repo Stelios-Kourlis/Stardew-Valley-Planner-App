@@ -12,13 +12,18 @@ public class Mill : Building {
         base.Start();
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int>(){
-            {Materials.Coins, 2_500},
-            {Materials.Stone, 50},
-            {Materials.Wood, 150},
-            {Materials.Cloth, 4}
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return new List<MaterialInfo>(){
+            new MaterialInfo(2500, Materials.Coins),
+            new MaterialInfo(50, Materials.Stone),
+            new MaterialInfo(150, Materials.Wood),
+            new MaterialInfo(4, Materials.Cloth)
         };
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
     }
 }
 

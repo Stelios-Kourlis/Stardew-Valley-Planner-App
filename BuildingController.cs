@@ -77,7 +77,7 @@ public class BuildingController : MonoBehaviour
     /// </summary>
     public void DeleteAllBuildings(bool deleteHouse = false) {
         foreach (Building building in buildings) {
-            if (building is House && deleteHouse) continue;
+            if (building is House && !deleteHouse) continue;
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
             building.ForceDelete();
         }
@@ -114,10 +114,11 @@ public class BuildingController : MonoBehaviour
         Type type = Type.GetType(data[0]);
         int x = int.Parse(data[1]);
         int y = int.Parse(data[2]);
-        GameObject go = new GameObject(type.Name + x);
+        GameObject go = new GameObject(type.Name);
         go.transform.parent = transform;
         Building building = go.AddComponent(type) as Building;
         building?.Start();
+        Debug.Log(type);
         building?.RecreateBuildingForData(x, y, data.Skip(3).ToArray());
 
         //PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));

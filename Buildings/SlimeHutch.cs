@@ -15,12 +15,17 @@ public class SlimeHutch : Building {
         base.Start();
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int>(){
-            {Materials.Coins, 10_000},
-            {Materials.Stone, 500},
-            {Materials.RefinedQuartz, 10},
-            {Materials.IridiumBar, 1},
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return new List<MaterialInfo>(){
+            new MaterialInfo(10000, Materials.Coins),
+            new MaterialInfo(500, Materials.Stone),
+            new MaterialInfo(10, Materials.RefinedQuartz),
+            new MaterialInfo(1, Materials.IridiumBar)
         };
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
     }
 }

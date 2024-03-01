@@ -76,7 +76,14 @@ public class Greenhouse : Building {
         return; //cant delete greenhouse
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int>();
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return new List<MaterialInfo>{
+            new MaterialInfo("Complete the community center's pantry room.")
+        };
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data)
+    {
+        throw new System.NotImplementedException();
     }
 }

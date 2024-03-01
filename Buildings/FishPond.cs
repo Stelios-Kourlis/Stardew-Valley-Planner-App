@@ -36,12 +36,12 @@ public class FishPond : Building {
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int> {
-            {Materials.Coins, 5_000},
-            {Materials.Wood, 200},
-            {Materials.Seaweed, 5},
-            {Materials.GreenAlgae, 5}
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return new List<MaterialInfo> {
+            new MaterialInfo(5_000, Materials.Coins),
+            new MaterialInfo(200, Materials.Wood),
+            new MaterialInfo(5, Materials.Seaweed),
+            new MaterialInfo(5, Materials.GreenAlgae)
         };
     }
 
@@ -144,5 +144,16 @@ public class FishPond : Building {
         decoIndex++;
         if (decoIndex > 3) decoIndex = 0;
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+    }
+
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{decoIndex}|{(int)fish}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
+        SetFishImage((Fish) int.Parse(data[1]) );
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{data[0]}")));
     }
 }

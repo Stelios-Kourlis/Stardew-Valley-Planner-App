@@ -7,7 +7,7 @@ using UnityEngine.U2D;
 public class Shed : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
-    private int tier;
+    private int tier = 0;
 
     public new void Start(){
         baseHeight = 3;
@@ -19,7 +19,7 @@ public class Shed : Building, ITieredBuilding {
         };
         base.Start();
         atlas = Resources.Load("Buildings/ShedAtlas") as SpriteAtlas;
-        ChangeTier(1);
+        if (tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
@@ -28,19 +28,30 @@ public class Shed : Building, ITieredBuilding {
         UpdateTexture(atlas.GetSprite($"ShedT{tier}"));
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded(){
         return tier switch{
-            1 => new Dictionary<Materials, int>{
-                {Materials.Coins, 15_000},
-                {Materials.Wood, 300},
+            1 => new List<MaterialInfo>{
+                new MaterialInfo(15000, Materials.Coins),
+                new MaterialInfo(300, Materials.Wood),
             },
-            2 => new Dictionary<Materials, int>{
-                {Materials.Coins, 15_000 + 20_000},
-                {Materials.Wood, 300 + 550},
-                {Materials.Stone, 300}
+            2 => new List<MaterialInfo>{
+                new MaterialInfo(35000, Materials.Coins),
+                new MaterialInfo(850, Materials.Wood),
+                new MaterialInfo(300, Materials.Stone)
             },
             _ => throw new System.ArgumentException($"Invalid tier {tier}")
         };
+    }
+
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{tier}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
+        ChangeTier(int.Parse(data[0]));
+        Debug.Log($"Changed tier to {tier}");
     }
     
 }

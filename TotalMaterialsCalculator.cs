@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +12,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
     // const int X_POSITION = -325;
     // const int STARTING_Y_POSITION = 230;
 
-    private readonly Dictionary<Materials, int> totalMaterialsNeeded = new Dictionary<Materials, int>();
+    private readonly Dictionary<Materials, int> totalMaterialsNeeded = new Dictionary<Materials, int>();//todo fix this is wrong
 
     public void SumTotalMaterialsNeeded(){
         GameObject materialsNeededPanel = GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel");
@@ -19,12 +20,17 @@ public class TotalMaterialsCalculator : MonoBehaviour{
         GameObject scrollContent = materialsNeededPanel.transform.GetChild(1).GetChild(0).gameObject;
     
         totalMaterialsNeeded.Clear();
+        List<MaterialInfo> specialMaterials = new List<MaterialInfo>();
         foreach (Building building in GetBuildingController().GetBuildings()){
-            foreach (KeyValuePair<Materials, int> material in building.GetMaterialsNeeded()){
-                if (totalMaterialsNeeded.ContainsKey(material.Key)) totalMaterialsNeeded[material.Key] += material.Value;
-                else totalMaterialsNeeded.Add(material.Key, material.Value);
+            foreach (MaterialInfo material in building.GetMaterialsNeeded()){
+                if (material.name != null) AddMaterialToList(material);
+                else specialMaterials.Add(material);
             }
         }
+
+        // foreach (MaterialInfo material in specialMaterials){
+        //     totalMaterialsNeeded.Add(material.name ?? Materials.DummyMaterial, material.amount);
+        // }
 
         for (int childIndex = 0; childIndex < scrollContent.transform.childCount; childIndex++){
             Destroy(scrollContent.transform.GetChild(childIndex).gameObject);
@@ -38,6 +44,20 @@ public class TotalMaterialsCalculator : MonoBehaviour{
             GameObject text = CreateTextGameObject(material.Key.ToString() + "Text", material.Key + ": " + material.Value.ToString("N0"), line.transform);
             GameObject image = CreateImageGameObject(material.Key.ToString() + "Image", "Materials/"+material.Key.ToString(), line.transform);
             counter++;
+        }
+        foreach (MaterialInfo material in specialMaterials){
+            GameObject line = new GameObject(material.howToGet.ToString());
+            line.transform.SetParent(scrollContent.transform);
+            line.AddComponent<RectTransform>();
+            
+            counter++;
+        }
+    }
+
+    private void AddMaterialToList(MaterialInfo material){
+        if (material.name != null) {
+            if (totalMaterialsNeeded.ContainsKey(material.name ?? Materials.DummyMaterial)) totalMaterialsNeeded[material.name ?? Materials.DummyMaterial] += material.amount;
+            else totalMaterialsNeeded.Add(material.name ?? Materials.DummyMaterial, material.amount);
         }
     }
 

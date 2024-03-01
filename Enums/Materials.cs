@@ -1,4 +1,6 @@
 public enum Materials{
+
+    DummyMaterial,//should not be used but compiler at TotalMaterialCalculator needs it
     Coins,
     Wood,
     Stone,

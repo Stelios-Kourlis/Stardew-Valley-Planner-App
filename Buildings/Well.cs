@@ -11,10 +11,15 @@ public class Well : Building {
         base.Start();
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int>(){
-            {Materials.Coins, 1_000},
-            {Materials.Stone, 75},
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+    return new List<MaterialInfo>(){
+        new MaterialInfo(1000, Materials.Coins),
+        new MaterialInfo(75, Materials.Stone),
         };
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
     }
 }

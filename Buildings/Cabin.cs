@@ -45,7 +45,7 @@ public class Cabin : Building, ITieredBuilding {
         };
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){//Completely wrong
+    public override List<MaterialInfo> GetMaterialsNeeded(){//Completely wrong
         throw new System.NotImplementedException();
         // return tier switch{
         //     1 => new Dictionary<Materials, int>{
@@ -67,4 +67,12 @@ public class Cabin : Building, ITieredBuilding {
         // };
     }
 
+    public override string GetBuildingData(){
+        throw new System.NotImplementedException();
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data)
+    {
+        throw new System.NotImplementedException();
+    }
 }

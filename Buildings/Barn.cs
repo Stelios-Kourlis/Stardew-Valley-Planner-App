@@ -6,7 +6,7 @@ using UnityEngine.U2D;
 
 public class Barn : Building, ITieredBuilding {
     private SpriteAtlas atlas;
-    private int tier = 1;
+    private int tier = 0;
 
     public new void Start(){
         baseHeight = 4;
@@ -19,7 +19,7 @@ public class Barn : Building, ITieredBuilding {
         };
         base.Start();
         atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
-        UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
+        if (tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
@@ -28,22 +28,22 @@ public class Barn : Building, ITieredBuilding {
         UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded(){
         return tier switch{
-            1 => new Dictionary<Materials, int>{
-                {Materials.Coins, 6_000},
-                {Materials.Wood, 350},
-                {Materials.Stone, 150}
+            1 => new List<MaterialInfo>{
+                new MaterialInfo(6_000, Materials.Coins),
+                new MaterialInfo(350, Materials.Wood),
+                new MaterialInfo(150, Materials.Stone)
             },
-            2 => new Dictionary<Materials, int>{
-                {Materials.Coins, 6_000 + 12_000},
-                {Materials.Wood, 350 + 450},
-                {Materials.Stone, 150 + 200}
+            2 => new List<MaterialInfo>{
+                new MaterialInfo(6_000 + 12_000, Materials.Coins),
+                new MaterialInfo(350 + 450, Materials.Wood),
+                new MaterialInfo(150 + 200, Materials.Stone)
             },
-            3 => new Dictionary<Materials, int>{
-                {Materials.Coins, 6_000 + 12_000 + 25_000},
-                {Materials.Wood, 350 + 450 + 550},
-                {Materials.Stone, 150 + 200 + 300}
+            3 => new List<MaterialInfo>{
+                new MaterialInfo(6_000 + 12_000 + 25_000, Materials.Coins),
+                new MaterialInfo(350 + 450 + 550, Materials.Wood),
+                new MaterialInfo(150 + 200 + 300, Materials.Stone)
             },
             _ => throw new System.ArgumentException($"Invalid tier {tier}")
         };
@@ -55,8 +55,7 @@ public class Barn : Building, ITieredBuilding {
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         Start();
-        base.RecreateBuildingForData(x, y);
+        Place(new Vector3Int(x,y,0));
         ChangeTier(int.Parse(data[0]));
-
     }
 }

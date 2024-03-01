@@ -4,18 +4,17 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Silo : Building {
-    public new void Start(){
-        name = GetType().Name;
-        baseHeight = 3;
-        base.Start();
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return new List<MaterialInfo>(){
+            new MaterialInfo(100, Materials.Coins),
+            new MaterialInfo(100, Materials.Stone),
+            new MaterialInfo(10, Materials.Clay),
+            new MaterialInfo(5, Materials.CopperBar)
+        };
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int>(){
-            {Materials.Coins, 100},
-            {Materials.Stone, 100},
-            {Materials.Clay, 10},
-            {Materials.CopperBar, 5}
-        };
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
     }
 }

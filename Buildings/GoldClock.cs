@@ -12,9 +12,14 @@ public class GoldClock : Building {
         base.Start();
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
-        return new Dictionary<Materials, int> {
-            {Materials.Coins, 10_000_000}
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return new List<MaterialInfo> {
+            new MaterialInfo(10_000_000, Materials.Coins)
         };
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Start();
+        Place(new Vector3Int(x,y,0));
     }
 }

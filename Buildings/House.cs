@@ -7,7 +7,7 @@ using UnityEngine.U2D;
 public class House : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
-    private int tier;
+    private int tier = 0;
 
     public new void Start(){
         baseHeight = 6;
@@ -19,7 +19,7 @@ public class House : Building, ITieredBuilding {
         };
         base.Start();
         atlas = Resources.Load<SpriteAtlas>("Buildings/HouseAtlas");
-        ChangeTier(1);
+        if (tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
@@ -45,24 +45,35 @@ public class House : Building, ITieredBuilding {
         return; //Cant pickup house
     }
 
-    public override Dictionary<Materials, int> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded(){
         return tier switch{
-            1 => new Dictionary<Materials, int>{},
-            2 => new Dictionary<Materials, int>{
-                {Materials.Coins, 10_000},
-                {Materials.Wood, 450},
+            1 => new List<MaterialInfo>{},
+            2 => new List<MaterialInfo>{
+                new MaterialInfo(10000, Materials.Coins),
+                new MaterialInfo(450, Materials.Wood),
             },
-            3 => new Dictionary<Materials, int>{
-                {Materials.Coins, 10_000 + 50_000},
-                {Materials.Wood, 450},
-                {Materials.Hardwood, 150},
+            3 => new List<MaterialInfo>{
+                new MaterialInfo(60000, Materials.Coins),
+                new MaterialInfo(450, Materials.Wood),
+                new MaterialInfo(150, Materials.Hardwood),
             },
-            4 => new Dictionary<Materials, int>{
-                {Materials.Coins, 10_000 + 50_000 + 100_000},
-                {Materials.Wood, 450},
-                {Materials.Hardwood, 150},
+            4 => new List<MaterialInfo>{
+                new MaterialInfo(160000, Materials.Coins),
+                new MaterialInfo(450, Materials.Wood),
+                new MaterialInfo(150, Materials.Hardwood),
             },
             _ => throw new System.ArgumentException($"Invalid tier {tier}")
         };
+    }
+
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{tier}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Debug.Log($"Recreating house at {x},{y}");
+        Start();
+        Place(new Vector3Int(x,y,0));
+        ChangeTier(int.Parse(data[0]));
     }
 }
