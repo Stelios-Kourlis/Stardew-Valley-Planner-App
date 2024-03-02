@@ -18,6 +18,7 @@ public abstract class Building : MonoBehaviour {
     protected readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
     protected readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
     protected readonly Color OPAQUE = new Color(1,1,1,1);
+    public int UID {get; private set;} = 0;
 
     ///<summary>The array containing the coordinates of each sprite tile, probably reversed y-wise</summary>
     public Vector3Int[] spriteCoordinates { get; protected set;}
@@ -66,9 +67,20 @@ public abstract class Building : MonoBehaviour {
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if(EventSystem.current.IsPointerOverGameObject()) return;
-            if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced) Place(currentCell);
-            else if (currentAction == Actions.EDIT && hasBeenPlaced) Pickup();
-            else if (currentAction == Actions.DELETE) Delete();
+            
+            if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced){
+                Place(currentCell);
+                UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
+                GetBuildingController().AddActionToLog($"{Actions.DELETE}|{UID}");
+            }
+            else if (currentAction == Actions.EDIT && hasBeenPlaced && (baseCoordinates?.Contains(currentCell) ?? false)){
+                GetBuildingController().AddActionToLog($"{Actions.PLACE}|{GetBuildingData()}");
+                Pickup();
+            }
+            else if (currentAction == Actions.DELETE && (baseCoordinates?.Contains(currentCell) ?? false)){
+                if (!(this is House)) GetBuildingController().AddActionToLog($"{Actions.PLACE}|{GetBuildingData()}");
+                Delete();
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse1)){
@@ -116,7 +128,6 @@ public abstract class Building : MonoBehaviour {
     /// </summary>
     /// <param name="position"></param>
     public virtual void Place(Vector3Int position){
-        Debug.Log($"Placeing {this} with baseHeight {baseHeight} and width {width}");
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
             Debug.LogWarning($"Cannot place {this} here");
@@ -145,7 +156,7 @@ public abstract class Building : MonoBehaviour {
         }
         if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
 
-        Debug.LogWarning($"Placed {this} at {position}");
+        // Debug.LogWarning($"Placed {this} at {position}");
     }
 
     protected void UpdateTexture(Sprite newSprite){
@@ -174,6 +185,7 @@ public abstract class Building : MonoBehaviour {
         hasBeenPlaced = false;
         hasBeenPickedUp = true;
         currentAction = Actions.PLACE_PICKED_UP;
+
     }
 
     /// <summary>

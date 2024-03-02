@@ -51,7 +51,7 @@ public class Shed : Building, ITieredBuilding {
         Start();
         Place(new Vector3Int(x,y,0));
         ChangeTier(int.Parse(data[0]));
-        Debug.Log($"Changed tier to {tier}");
+        // Debug.Log($"Changed tier to {tier}");
     }
     
 }

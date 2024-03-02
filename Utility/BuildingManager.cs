@@ -28,7 +28,7 @@ namespace Utility{
             Type currentType = GetBuildingController().currentBuildingType;
             if (paths.Length > 0) {
                 using StreamReader reader = new StreamReader(paths[0]);
-                GetBuildingController().DeleteAllBuildings();
+                GetBuildingController().DeleteAllBuildings(true);
                 GetBuildingController().isLoadingSave = true;
                 while (reader.Peek() >= 0){
                     string line = reader.ReadLine();

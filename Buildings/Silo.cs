@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Silo : Building {
+
+    public new void Start(){
+        baseHeight = 4;
+        base.Start();
+    }
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
             new MaterialInfo(100, Materials.Coins),

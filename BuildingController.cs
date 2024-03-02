@@ -15,7 +15,7 @@ public class BuildingController : MonoBehaviour
     /// <summary> A coordinate is unavailable if it is occupied by a building or if its out of bounds for the current map </summary>
     private readonly HashSet<Vector3Int> unavailableCoordinates = new HashSet<Vector3Int>();
     public readonly List<Building> buildings = new List<Building>();
-    private readonly List<UserAction> actionLog = new List<UserAction>();
+    private readonly List<string> actionLog = new List<string>();
     public Type currentBuildingType;
     private Actions currentAction;
     private readonly HashSet<Floor> floors = new HashSet<Floor>();
@@ -84,24 +84,32 @@ public class BuildingController : MonoBehaviour
         buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
     }
 
+    public void AddActionToLog(string action){
+        actionLog.Add(action);
+        Debug.Log("--||--");
+        foreach (string act in actionLog) Debug.Log(act);
+    }
+
     public void UndoLastAction(){
-        // if (actionLog.Count == 0) return;
-        // UserAction lastAction = actionLog.Last();
-        // actionLog.RemoveAt(actionLog.Count - 1);
-        // // Debug.Log(lastAction.ToString() + actionLog.Count);
-        // isUndoing = true;
-        // switch (lastAction.action){
-        //     case Actions.PLACE:
-        //         DeleteBuilding(lastAction.position);
-        //         break;
-        //     case Actions.DELETE:
-        //         PlaceBuilding(lastAction.building, lastAction.position);
-        //         break;
-        //     case Actions.EDIT:
-        //         break;
-        //     default:
-        //         break;
-        // }
+        if (actionLog.Count == 0) return;
+        string lastAction = actionLog.Last();
+        Debug.Log($"Undoing {lastAction}");
+        actionLog.RemoveAt(actionLog.Count - 1);
+        string[] data = lastAction.Split('|');
+        Actions action = (Actions) Enum.Parse(typeof(Actions), data[0]);
+        data = data.Skip(1).ToArray();
+        switch (action){
+            case Actions.PLACE:
+                PlaceSavedBuilding(string.Join("|", data));
+                break;
+            case Actions.DELETE:
+                DeleteBuilding(int.Parse(data[0]));
+                break;
+            case Actions.EDIT:
+                break;
+            default:
+                throw new System.ArgumentException($"Invalid action {action}");
+        }
     }
 
     public void HideTotalMaterialsNeeded(){
@@ -118,10 +126,23 @@ public class BuildingController : MonoBehaviour
         go.transform.parent = transform;
         Building building = go.AddComponent(type) as Building;
         building?.Start();
-        Debug.Log(type);
+        // Debug.Log(type);
         building?.RecreateBuildingForData(x, y, data.Skip(3).ToArray());
 
         //PlaceBuilding(DeepCopyOfBuilding(name), new Vector3Int(x, y, 0));
+    }
+
+    public void DeleteBuilding(int buildingUID){
+        for (int index = 0; index < transform.childCount; index++){
+            var child = transform.GetChild(index);
+            var building = child.GetComponent<Building>();
+            Debug.Log($"Checking {building?.UID} from {child.name} against {buildingUID}");
+            if (building?.UID == buildingUID){
+                Debug.Log("Found a match");
+                building.ForceDelete();
+                return;
+            }
+        };
     }
 
     public Type GetCurrentBuildingType(){ return currentBuildingType; }
