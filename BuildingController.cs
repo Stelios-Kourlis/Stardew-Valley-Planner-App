@@ -16,6 +16,7 @@ public class BuildingController : MonoBehaviour
     private readonly HashSet<Vector3Int> unavailableCoordinates = new HashSet<Vector3Int>();
     public readonly List<Building> buildings = new List<Building>();
     private readonly List<string> actionLog = new List<string>();
+    private readonly List<string> undoLog = new List<string>();
     public Type currentBuildingType;
     private Actions currentAction;
     private readonly HashSet<Floor> floors = new HashSet<Floor>();
@@ -87,12 +88,14 @@ public class BuildingController : MonoBehaviour
     public void AddActionToLog(string action){
         actionLog.Add(action);
         Debug.Log("--||--");
+        undoLog.Clear();
         foreach (string act in actionLog) Debug.Log(act);
     }
 
     public void UndoLastAction(){
         if (actionLog.Count == 0) return;
         string lastAction = actionLog.Last();
+        undoLog.Add(lastAction);
         Debug.Log($"Undoing {lastAction}");
         actionLog.RemoveAt(actionLog.Count - 1);
         string[] data = lastAction.Split('|');
