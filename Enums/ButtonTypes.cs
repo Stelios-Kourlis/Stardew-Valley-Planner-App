@@ -9,5 +9,6 @@ public enum ButtonTypes {
     ENTER,
     PAINT,
     PLACE_FISH,
-    CHANGE_FISH_POND_DECO
+    CHANGE_FISH_POND_DECO,
+    ADD_ANIMAL,
 }

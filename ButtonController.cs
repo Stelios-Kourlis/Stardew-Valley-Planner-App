@@ -110,20 +110,8 @@ public class ButtonController : MonoBehaviour{
     }
 
     private void AddButtonListener(ButtonTypes type, Button button, Building building){
-        if (type == ButtonTypes.PLACE_FISH){
-            GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
-            GameObject fishMenu = Instantiate(fishMenuPrefab);
-            fishMenu.transform.SetParent(button.transform);
-            Vector3 fishMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
-            fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
-            fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-            fishMenu.SetActive(false);
-            GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
-            FishPond fishPond = building as FishPond;
-            for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
-                fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(fishPond);
-            }
-        }
+        if (type == ButtonTypes.PLACE_FISH) AddFishMenuObject(button, building);
+        if (type == ButtonTypes.ADD_ANIMAL) AddAnimalMenuObject(button, building);
         switch(type){
             case ButtonTypes.TIER_ONE:
                 button.onClick.AddListener(() => {
@@ -165,14 +153,50 @@ public class ButtonController : MonoBehaviour{
                     }
                  });
                 break;
+            case ButtonTypes.ADD_ANIMAL:
+                button.onClick.AddListener(() => { 
+                    bool isObjectActive =  button.transform.GetChild(0).gameObject.activeInHierarchy;
+                    button.transform.GetChild(0).gameObject.SetActive(!isObjectActive);
+                 });
+                break;
             default:
                 throw new ArgumentException("This should never happen");
         }
     }
 
-    private void AddTierChangeListener(int tier, Building building){
-        if (building is ITieredBuilding tieredBuilding){
-            tieredBuilding.ChangeTier(tier);
+    private void AddAnimalMenuObject(Button button, Building building){
+        Debug.Log("Creating animal game object");
+        GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
+        GameObject animalMenu = Instantiate(animalMenuPrefab);
+        animalMenu.transform.SetParent(button.transform);
+        Vector3 animalMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
+        animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
+        animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        animalMenu.SetActive(false);
+        GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
+        IAnimalHouse animalHouse = building as IAnimalHouse;
+        for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++){
+            Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+            addAnimalButton.onClick.AddListener(() => {
+                //Debug.Log($"Adding animal {addAnimalButton.gameObject.name} to {building.name}");
+                animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
+            });
+        }
+        Debug.Log("Created animal game object");
+    }
+
+    private void AddFishMenuObject(Button button, Building building){
+        GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
+        GameObject fishMenu = Instantiate(fishMenuPrefab);
+        fishMenu.transform.SetParent(button.transform);
+        Vector3 fishMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
+        fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
+        fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        fishMenu.SetActive(false);
+        GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
+        FishPond fishPond = building as FishPond;
+        for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
+            fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(fishPond);
         }
     }
 
@@ -181,7 +205,7 @@ public class ButtonController : MonoBehaviour{
         float BUTTON_OFFSET = 5 * BUTTON_SIZE / 4 * (7.5f/GetCamera().GetComponent<Camera>().orthographicSize);
         //Debug.Log("Finding position of button "+buttonNumber+"/"+numberOfButtons + ", offset = "+BUTTON_OFFSET + ", middleOfBuildingScreen = "+middleOfBuildingScreen);
         if (numberOfButtons <= 0) throw new ArgumentException("numberOfButtons must be greater than 0");
-        if (numberOfButtons > 5) throw new ArgumentException("numberOfButtons must be less than 5");
+        if (numberOfButtons > Enum.GetValues(typeof(ButtonTypes)).Length) throw new ArgumentException("numberOfButtons must be less than 5");
         
         return numberOfButtons switch{
             1 => middleOfBuildingScreen,
@@ -210,6 +234,15 @@ public class ButtonController : MonoBehaviour{
                 3 => new Vector3(middleOfBuildingScreen.x, middleOfBuildingScreen.y - BUTTON_OFFSET),
                 4 => new Vector3(middleOfBuildingScreen.x - BUTTON_OFFSET, middleOfBuildingScreen.y),
                 5 => middleOfBuildingScreen,
+                _ => throw new ArgumentException("This should never happen")
+            },
+            6 => buttonNumber switch{
+                6 => new Vector3(middleOfBuildingScreen.x - BUTTON_OFFSET, middleOfBuildingScreen.y - BUTTON_OFFSET / 2),
+                4 => new Vector3(middleOfBuildingScreen.x - BUTTON_OFFSET, middleOfBuildingScreen.y + BUTTON_OFFSET / 2),
+                5 => new Vector3(middleOfBuildingScreen.x, middleOfBuildingScreen.y + BUTTON_OFFSET),
+                1 => new Vector3(middleOfBuildingScreen.x + BUTTON_OFFSET, middleOfBuildingScreen.y + BUTTON_OFFSET / 2),
+                2 => new Vector3(middleOfBuildingScreen.x + BUTTON_OFFSET, middleOfBuildingScreen.y - BUTTON_OFFSET / 2),
+                3 => new Vector3(middleOfBuildingScreen.x, middleOfBuildingScreen.y - BUTTON_OFFSET),
                 _ => throw new ArgumentException("This should never happen")
             },
             _ => throw new ArgumentException("This should never happen")

@@ -27,7 +27,7 @@ public class BuildingController : MonoBehaviour
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        currentBuildingType = typeof(GoldClock);
+        currentBuildingType = typeof(Barn);
         Building.buildingWasPlaced += OnBuildingPlaced;
     
     }
@@ -87,9 +87,9 @@ public class BuildingController : MonoBehaviour
 
     public void AddActionToLog(string action){
         actionLog.Add(action);
-        Debug.Log("--||--");
+        // Debug.Log("--||--");
         undoLog.Clear();
-        foreach (string act in actionLog) Debug.Log(act);
+        // foreach (string act in actionLog) Debug.Log(act);
     }
 
     public void UndoLastAction(){
@@ -111,7 +111,7 @@ public class BuildingController : MonoBehaviour
             case Actions.EDIT:
                 break;
             default:
-                throw new System.ArgumentException($"Invalid action {action}");
+                throw new ArgumentException($"Invalid action {action}");
         }
     }
 
@@ -139,9 +139,9 @@ public class BuildingController : MonoBehaviour
         for (int index = 0; index < transform.childCount; index++){
             var child = transform.GetChild(index);
             var building = child.GetComponent<Building>();
-            Debug.Log($"Checking {building?.UID} from {child.name} against {buildingUID}");
+            // Debug.Log($"Checking {building?.UID} from {child.name} against {buildingUID}");
             if (building?.UID == buildingUID){
-                Debug.Log("Found a match");
+                // Debug.Log("Found a match");
                 building.ForceDelete();
                 return;
             }

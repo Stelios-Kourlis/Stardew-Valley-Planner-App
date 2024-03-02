@@ -15,7 +15,8 @@ public class Coop : Building, ITieredBuilding {
             ButtonTypes.TIER_TWO,
             ButtonTypes.TIER_THREE,
             ButtonTypes.ENTER,
-            ButtonTypes.PAINT
+            ButtonTypes.PAINT,
+            ButtonTypes.ADD_ANIMAL
         };
         base.Start();
         atlas = Resources.Load("Buildings/CoopAtlas") as SpriteAtlas;
