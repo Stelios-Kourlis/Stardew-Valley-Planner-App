@@ -11,7 +11,7 @@ using System;
 
 public class InputHandler : MonoBehaviour {
 
-    // Tile redTile, greenTile;
+    public bool IsSearching {get; set;} = false;
     BuildingController buildingController;
     //bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
@@ -39,6 +39,7 @@ public class InputHandler : MonoBehaviour {
         //Debug.Log(buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
         
         //HandleMouseMove();
+        if (IsSearching) return;
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
             //mouseIsHeld = true; 

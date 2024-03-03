@@ -19,5 +19,6 @@ namespace Utility{
 
     public static NotificationManager GetNotificationManager(){ return GameObject.FindWithTag("LogicComponent").GetComponent<NotificationManager>(); }
 
+    public static InputHandler GetInputHandler(){ return GameObject.FindWithTag("LogicComponent").GetComponent<InputHandler>(); }
     }
 }
