@@ -4,9 +4,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using UnityEngine.UI;
 
 public class Barn : Building, ITieredBuilding, IAnimalHouse {
     private SpriteAtlas atlas;
+    private SpriteAtlas animalAtlas;
     private int tier = 0;
     private List<Animals> animals = new List<Animals>();
     private int animalCapacity;
@@ -23,6 +25,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
         };
         base.Start();
         atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
+        animalAtlas = Resources.Load("BarnAnimalsAtlas") as SpriteAtlas;
         if (tier == 0) ChangeTier(1);
     }
 
@@ -71,10 +74,21 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
         if (!allowedAnimals.Contains(animal)) throw new System.ArgumentException($"Animal {animal} is not allowed in a level {tier} barn");
         if (animals.Count >= animalCapacity) throw new System.ArgumentException($"Barn is full ({animals.Count}/{animalCapacity}), cannot add {animal}");
         animals.Add(animal);
+        AddAnimalButton(animal);
         Debug.Log($"Added {animal} to the list\n--||--");
         foreach (var item in animals){
             Debug.Log(item);
         }
+    }
 
+    private void AddAnimalButton(Animals animal){
+        buttonParent.transform.GetChild(5);
+        GameObject button = new GameObject(animal.ToString());
+        button.transform.SetParent(buttonParent.transform.GetChild(5).GetChild(1).GetChild(0));
+        button.AddComponent<Image>().sprite = animalAtlas.GetSprite(animal.ToString());
+        button.AddComponent<Button>().onClick.AddListener(() => {
+            animals.Remove(animal);
+            Destroy(button);
+        });
     }
 }

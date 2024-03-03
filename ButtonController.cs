@@ -157,6 +157,7 @@ public class ButtonController : MonoBehaviour{
                 button.onClick.AddListener(() => { 
                     bool isObjectActive =  button.transform.GetChild(0).gameObject.activeInHierarchy;
                     button.transform.GetChild(0).gameObject.SetActive(!isObjectActive);
+                    button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
                  });
                 break;
             default:
@@ -165,6 +166,7 @@ public class ButtonController : MonoBehaviour{
     }
 
     private void AddAnimalMenuObject(Button button, Building building){
+        //Animal Add
         Debug.Log("Creating animal game object");
         GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
@@ -182,6 +184,16 @@ public class ButtonController : MonoBehaviour{
                 animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
             });
         }
+
+        //Animal Remove
+        GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
+        GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
+        animalInBuilding.transform.SetParent(button.transform);
+        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y - 4);
+        animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
+        animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        animalInBuilding.SetActive(false);
+
         Debug.Log("Created animal game object");
     }
 
