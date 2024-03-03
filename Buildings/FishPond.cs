@@ -9,8 +9,6 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
 using System.Linq;
-using UnityEditor.SceneManagement;
-using System.Net.Configuration;
 
 
 public class FishPond : Building {

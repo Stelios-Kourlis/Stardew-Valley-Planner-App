@@ -156,6 +156,8 @@ public abstract class Building : MonoBehaviour {
             hasBeenPickedUp = false;
             currentAction = Actions.EDIT;
         }
+
+        if (this is ITieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);
         if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
 
         // Debug.LogWarning($"Placed {this} at {position}");

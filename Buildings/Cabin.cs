@@ -14,7 +14,7 @@ public class Cabin : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
     private CabinTypes type = CabinTypes.Stone;
-    private int tier;
+    public int Tier {get; private set;}
 
     public new void Start(){
         baseHeight = 3;
@@ -32,7 +32,7 @@ public class Cabin : Building, ITieredBuilding {
 
     public void ChangeTier(int tier){
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
-        this.tier = tier;
+        Tier = tier;
         UpdateTexture(atlas.GetSprite($"{type}Cabin_{tier}"));
     }
 

@@ -46,9 +46,9 @@ public class NotificationManager : MonoBehaviour{
         foreach (Notification notification in notifications){
             GameObject notificationGameObject = notification.notificationGameObject;
             int index = notifications.IndexOf(notification);
-            Debug.LogWarning(-Screen.width/2);
+            // Debug.LogWarning(-Screen.width/2);
             notificationGameObject.GetComponent<RectTransform>().localPosition = new Vector3(-Screen.width/2, notificationGameObject.GetComponent<RectTransform>().sizeDelta.y * index - Screen.height/2, 0);
-            Debug.LogWarning(notificationGameObject.GetComponent<RectTransform>().localPosition);
+            // Debug.LogWarning(notificationGameObject.GetComponent<RectTransform>().localPosition);
         }
     }
 

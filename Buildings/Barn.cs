@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
@@ -11,10 +12,12 @@ using static Utility.ClassManager;
 public class Barn : Building, ITieredBuilding, IAnimalHouse {
     private SpriteAtlas atlas;
     private SpriteAtlas animalAtlas;
-    private int tier = 0;
+    private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
+    //public int tier {get; private set;} = 0;
     //private List<Animals> animals = new List<Animals>();
     private List<KeyValuePair<Animals, GameObject>> animals = new List<KeyValuePair<Animals, GameObject>>();
     private int animalCapacity;
+    public int Tier { get; private set; } = 0;
 
     public new void Start(){
         baseHeight = 4;
@@ -29,12 +32,13 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
         base.Start();
         atlas = Resources.Load("Buildings/BarnAtlas") as SpriteAtlas;
         animalAtlas = Resources.Load("BarnAnimalsAtlas") as SpriteAtlas;
-        if (tier == 0) ChangeTier(1);
+        animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
+        if (Tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){//todo on tier decrease check animals
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
-        this.tier = tier;
+        Tier = tier;
         animalCapacity = 4 * tier;
         UpdateTexture(atlas.GetSprite($"BarnA_{tier}"));
 
@@ -55,6 +59,11 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
             Destroy(animals.Last().Value);
             animals.Remove(animals.Last());
         }
+
+        if (buttonParent == null) return;
+        buttonParent.transform.GetChild(5).GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(620, 100 * Tier + 100);
+        buttonParent.transform.GetChild(5).GetChild(1).GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{animalCapacity}");
+        buttonParent.transform.GetChild(5).GetChild(1).GetChild(0).GetComponent<RectTransform>().sizeDelta= new Vector2(580, 100 * Tier + 100 - 50);
     }
 
     private string GetRemovedAnimals(){
@@ -84,7 +93,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
             };
             
         }
-        return tier switch{
+        return Tier switch{
             1 => new List<MaterialInfo>{
                 new MaterialInfo(6_000 + animalCost, Materials.Coins),
                 new MaterialInfo(350, Materials.Wood),
@@ -100,12 +109,12 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
                 new MaterialInfo(350 + 450 + 550, Materials.Wood),
                 new MaterialInfo(150 + 200 + 300, Materials.Stone)
             },
-            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };
     }
 
     public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{tier}";
+        return base.GetBuildingData() + $"|{Tier}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
@@ -116,9 +125,9 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
 
     public void AddAnimal(Animals animal){
         List<Animals> allowedAnimals = new List<Animals>{Animals.Cow, Animals.Ostrich};
-        if (tier >= 2) allowedAnimals.Add(Animals.Goat);
-        if (tier == 3) { allowedAnimals.Add(Animals.Sheep); allowedAnimals.Add(Animals.Pig); }
-        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Cannot add {animal} to barn tier {tier}"); return;}
+        if (Tier >= 2) allowedAnimals.Add(Animals.Goat);
+        if (Tier == 3) { allowedAnimals.Add(Animals.Sheep); allowedAnimals.Add(Animals.Pig); }
+        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Cannot add {animal} to barn tier {Tier}"); return;}
         if (animals.Count >= animalCapacity) {GetNotificationManager().SendNotification($"Barn is full ({animals.Count}/{animalCapacity}), cannot add {animal}"); return;}
         AddAnimalButton(animal);
     }
@@ -134,5 +143,6 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
             Destroy(button);
         });
         AddHoverEffect(button.GetComponent<Button>());
+        button.transform.localScale = new Vector3(1, 1);
     }
 }

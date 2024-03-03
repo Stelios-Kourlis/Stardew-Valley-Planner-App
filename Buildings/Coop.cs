@@ -11,7 +11,8 @@ using static Utility.ClassManager;
 public class Coop : Building, ITieredBuilding, IAnimalHouse {
     private SpriteAtlas atlas;
     private SpriteAtlas animalAtlas;
-    private int tier = 0;
+    private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
+    public int Tier {get; private set;} = 0;
     private List<KeyValuePair<Animals, GameObject>> animals = new List<KeyValuePair<Animals, GameObject>>();
     private int animalCapacity;
 
@@ -28,12 +29,13 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
         base.Start();
         atlas = Resources.Load("Buildings/CoopAtlas") as SpriteAtlas;
         animalAtlas = Resources.Load("CoopAnimalsAtlas") as SpriteAtlas;
-        if (tier == 0) ChangeTier(1);
+        animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
+        if (Tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
-        this.tier = tier;
+        Tier = tier;
         animalCapacity = 4 * tier;
         UpdateTexture(atlas.GetSprite($"CoopAtlas_{tier}"));
 
@@ -55,6 +57,11 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
             Destroy(animals.Last().Value);
             animals.Remove(animals.Last());
         }
+
+        if (buttonParent == null) return;
+        buttonParent.transform.GetChild(5).GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(620, 100 * Tier + 100);
+        buttonParent.transform.GetChild(5).GetChild(1).GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{animalCapacity}");
+        buttonParent.transform.GetChild(5).GetChild(1).GetChild(0).GetComponent<RectTransform>().sizeDelta= new Vector2(580, 100 * Tier + 100 - 50);
     }
 
     private string GetRemovedAnimals(){
@@ -86,7 +93,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        return tier switch{
+        return Tier switch{
             1 => new List<MaterialInfo>{
                 new MaterialInfo(4_000, Materials.Coins),
                 new MaterialInfo(300, Materials.Wood),
@@ -102,12 +109,12 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
                 new MaterialInfo(300 + 400 + 500, Materials.Wood),
                 new MaterialInfo(100 + 150 + 200, Materials.Stone)
             },
-            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };
     }
 
     public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{tier}";
+        return base.GetBuildingData() + $"|{Tier}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
@@ -118,9 +125,9 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
 
     public void AddAnimal(Animals animal){
         List<Animals> allowedAnimals = new List<Animals>{Animals.Chicken};
-        if (tier >= 2) allowedAnimals.AddRange( new List<Animals>{Animals.Duck, Animals.VoidChicken, Animals.Dinosaur, Animals.GoldenChicken});
-        if (tier == 3) allowedAnimals.Add(Animals.Rabbit);
-        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Animal {animal} is not allowed in a level {tier} coop"); return;}
+        if (Tier >= 2) allowedAnimals.AddRange( new List<Animals>{Animals.Duck, Animals.VoidChicken, Animals.Dinosaur, Animals.GoldenChicken});
+        if (Tier == 3) allowedAnimals.Add(Animals.Rabbit);
+        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Animal {animal} is not allowed in a level {Tier} coop"); return;}
         if (animals.Count >= animalCapacity) {GetNotificationManager().SendNotification($"Coop is full ({animals.Count}/{animalCapacity}), cannot add {animal}"); return;}
         AddAnimalButton(animal);
     }
@@ -136,5 +143,6 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
             Destroy(button);
         });
         AddHoverEffect(button.GetComponent<Button>());
+        button.transform.localScale = new Vector3(1, 1);
     }
 }

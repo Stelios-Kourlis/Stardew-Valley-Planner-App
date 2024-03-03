@@ -7,7 +7,7 @@ using UnityEngine.U2D;
 public class Shed : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
-    private int tier = 0;
+    public int Tier {get; set;} = 0;
 
     public new void Start(){
         baseHeight = 3;
@@ -19,17 +19,17 @@ public class Shed : Building, ITieredBuilding {
         };
         base.Start();
         atlas = Resources.Load("Buildings/ShedAtlas") as SpriteAtlas;
-        if (tier == 0) ChangeTier(1);
+        if (Tier == 0) ChangeTier(1);
     }
 
     public void ChangeTier(int tier){
         if (tier < 1 || tier > 2) throw new System.ArgumentException($"Tier must be between 1 and 2 (got {tier})");
-        this.tier = tier;
+        Tier = tier;
         UpdateTexture(atlas.GetSprite($"ShedT{tier}"));
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        return tier switch{
+        return Tier switch{
             1 => new List<MaterialInfo>{
                 new MaterialInfo(15000, Materials.Coins),
                 new MaterialInfo(300, Materials.Wood),
@@ -39,12 +39,12 @@ public class Shed : Building, ITieredBuilding {
                 new MaterialInfo(850, Materials.Wood),
                 new MaterialInfo(300, Materials.Stone)
             },
-            _ => throw new System.ArgumentException($"Invalid tier {tier}")
+            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };
     }
 
     public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{tier}";
+        return base.GetBuildingData() + $"|{Tier}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){

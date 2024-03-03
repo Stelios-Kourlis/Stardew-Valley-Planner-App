@@ -169,7 +169,6 @@ public class ButtonController : MonoBehaviour{
 
     private void AddAnimalMenuObject(Button button, Building building){
         //Animal Add
-        Debug.Log("Creating animal game object");
         GameObject animalMenuPrefab = building.GetType() switch{
             Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
             Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
@@ -197,12 +196,11 @@ public class ButtonController : MonoBehaviour{
         GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
         GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
         animalInBuilding.transform.SetParent(button.transform);
-        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y - 2);
+        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
         animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
         animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalInBuilding.SetActive(false);
-
-        Debug.Log("Created animal game object");
+        
     }
 
     private void AddFishMenuObject(Button button, Building building){
