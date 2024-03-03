@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using static Utility.ClassManager;
 using static Utility.BuildingManager;
 using static Utility.TilemapManager;
+using UnityEngine.EventSystems;
+
 
 public class ButtonController : MonoBehaviour{
 
@@ -168,7 +170,12 @@ public class ButtonController : MonoBehaviour{
     private void AddAnimalMenuObject(Button button, Building building){
         //Animal Add
         Debug.Log("Creating animal game object");
-        GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
+        GameObject animalMenuPrefab = building.GetType() switch{
+            Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
+            Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
+            _ => throw new ArgumentException("This should never happen")
+        };
+        //GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
         animalMenu.transform.SetParent(button.transform);
         Vector3 animalMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
@@ -179,6 +186,7 @@ public class ButtonController : MonoBehaviour{
         IAnimalHouse animalHouse = building as IAnimalHouse;
         for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++){
             Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+            AddHoverEffect(addAnimalButton);
             addAnimalButton.onClick.AddListener(() => {
                 //Debug.Log($"Adding animal {addAnimalButton.gameObject.name} to {building.name}");
                 animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
@@ -189,7 +197,7 @@ public class ButtonController : MonoBehaviour{
         GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
         GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
         animalInBuilding.transform.SetParent(button.transform);
-        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y - 4);
+        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y - 2);
         animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
         animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalInBuilding.SetActive(false);
@@ -208,7 +216,14 @@ public class ButtonController : MonoBehaviour{
         GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
         FishPond fishPond = building as FishPond;
         for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
-            fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(fishPond);
+            Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+            AddHoverEffect(fishButton);
+            fishButton.onClick.AddListener(() => {
+                Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
+                fishPond.SetFishImage(fishType);
+            });
+            // fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(fishPond);
+            
         }
     }
 

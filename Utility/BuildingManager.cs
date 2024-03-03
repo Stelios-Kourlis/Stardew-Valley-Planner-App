@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using SFB;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.ClassManager;
@@ -49,7 +50,7 @@ namespace Utility{
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor, only use if Type is typeof(Floor)</param>
         public static void CreateButton(string name, string imagePath, Type type, Transform transform, FloorType floorType = FloorType.WOOD_FLOOR){
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("BuildingButton"), transform);
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 //if (type != typeof(Floor)) GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, null, null, null) as Building);
@@ -60,5 +61,21 @@ namespace Utility{
                 });
             button.name = name;
         }
+
+        public static void AddHoverEffect(Button button){
+            EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+            EventTrigger.Entry pointerEnterEntry = new EventTrigger.Entry();
+            pointerEnterEntry.eventID = EventTriggerType.PointerEnter;
+            pointerEnterEntry.callback.AddListener((eventData) => {
+                button.transform.localScale = new Vector3(1.2f, 1.2f);
+            });
+            eventTrigger.triggers.Add(pointerEnterEntry);
+            EventTrigger.Entry pointerExitEntry = new EventTrigger.Entry();
+            pointerExitEntry.eventID = EventTriggerType.PointerExit;
+            pointerExitEntry.callback.AddListener((eventData) => {
+                button.transform.localScale = new Vector3(1, 1);
+            });
+            eventTrigger.triggers.Add(pointerExitEntry);
+    }
     }
 }

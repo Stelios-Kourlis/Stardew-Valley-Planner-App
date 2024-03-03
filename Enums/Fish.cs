@@ -1,4 +1,5 @@
 public enum Fish{
+    PLACE_FISH,
     Pufferfish,
     Anchovy,
     Tuna,

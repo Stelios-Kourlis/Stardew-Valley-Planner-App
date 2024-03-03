@@ -25,5 +25,6 @@ public enum Materials{
     GoldBar,
     BatteryPack,
     IridiumOre,
-    Coal
+    Coal,
+    OstrichEgg,
 }

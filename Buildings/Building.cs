@@ -70,8 +70,10 @@ public abstract class Building : MonoBehaviour {
             
             if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced){
                 Place(currentCell);
+                if (hasBeenPlaced){
                 UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
                 GetBuildingController().AddActionToLog($"{Actions.DELETE}|{UID}");
+                }
             }
             else if (currentAction == Actions.EDIT && hasBeenPlaced && (baseCoordinates?.Contains(currentCell) ?? false)){
                 GetBuildingController().AddActionToLog($"{Actions.PLACE}|{GetBuildingData()}");
@@ -130,7 +132,7 @@ public abstract class Building : MonoBehaviour {
     public virtual void Place(Vector3Int position){
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
-            Debug.LogWarning($"Cannot place {this} here");
+            GetNotificationManager().SendNotification($"Cannot place {GetType()} here");
             return;
         }
 

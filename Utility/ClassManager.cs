@@ -17,5 +17,7 @@ namespace Utility{
 
     public static ButtonController GetButtonController(){ return GameObject.FindWithTag("LogicComponent").GetComponent<ButtonController>(); }
 
+    public static NotificationManager GetNotificationManager(){ return GameObject.FindWithTag("LogicComponent").GetComponent<NotificationManager>(); }
+
     }
 }
