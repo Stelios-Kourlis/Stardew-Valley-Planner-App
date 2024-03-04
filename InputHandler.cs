@@ -54,6 +54,10 @@ public class InputHandler : MonoBehaviour {
             buildingController.UndoLastAction();
         }
 
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y) ){
+            buildingController.RedoLastUndo();
+        }
+
         if (Input.GetKeyUp(KeyCode.I)) GetMapController().ToggleMapUnavailableCoordinates();
 
         if (Input.GetKeyUp(KeyCode.Escape)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();

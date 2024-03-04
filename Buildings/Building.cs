@@ -66,21 +66,21 @@ public abstract class Building : MonoBehaviour {
 
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (Input.GetKeyUp(KeyCode.Mouse0)){
-            if(EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current.IsPointerOverGameObject()) return;
             
             if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced){
                 Place(currentCell);
+                // Debug.Log("PLACED BUILDING");
                 if (hasBeenPlaced){
-                UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
-                GetBuildingController().AddActionToLog($"{Actions.DELETE}|{UID}");
+                    GetBuildingController().AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
                 }
             }
             else if (currentAction == Actions.EDIT && hasBeenPlaced && (baseCoordinates?.Contains(currentCell) ?? false)){
-                GetBuildingController().AddActionToLog($"{Actions.PLACE}|{GetBuildingData()}");
+                GetBuildingController().AddActionToLog(new UserAction(Actions.EDIT, UID, GetBuildingData()));
                 Pickup();
             }
             else if (currentAction == Actions.DELETE && (baseCoordinates?.Contains(currentCell) ?? false)){
-                if (!(this is House)) GetBuildingController().AddActionToLog($"{Actions.PLACE}|{GetBuildingData()}");
+                if (!(this is House)) GetBuildingController().AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
                 Delete();
             }
         }
@@ -160,7 +160,8 @@ public abstract class Building : MonoBehaviour {
         if (this is ITieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);
         if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
 
-        // Debug.LogWarning($"Placed {this} at {position}");
+        UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
+        Debug.Log($"UID: {UID}");
     }
 
     protected void UpdateTexture(Sprite newSprite){

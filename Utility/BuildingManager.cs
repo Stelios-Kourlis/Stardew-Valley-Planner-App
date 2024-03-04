@@ -30,13 +30,13 @@ namespace Utility{
             if (paths.Length > 0) {
                 using StreamReader reader = new StreamReader(paths[0]);
                 GetBuildingController().DeleteAllBuildings(true);
-                GetBuildingController().isLoadingSave = true;
+                GetBuildingController().IsLoadingSave = true;
                 while (reader.Peek() >= 0){
                     string line = reader.ReadLine();
                     if (line.Equals("")) continue;
                     GetBuildingController().PlaceSavedBuilding(line);
                 }
-                GetBuildingController().isLoadingSave = false;
+                GetBuildingController().IsLoadingSave = false;
             }
             GetBuildingController().SetCurrentBuildingType(currentType);
         }
