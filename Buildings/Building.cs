@@ -15,25 +15,30 @@ using UnityEngine.EventSystems;
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
 public abstract class Building : MonoBehaviour {
+    //Set values for the colors of the building
     protected readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
     protected readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
     protected readonly Color OPAQUE = new Color(1,1,1,1);
+
+    /// <summary> A unique ID that identifies this object </summary>
     public int UID {get; private set;} = 0;
 
-    ///<summary>The array containing the coordinates of each sprite tile, probably reversed y-wise</summary>
+    ///<summary>The array containing the coordinates of each sprite tile</summary>
     public Vector3Int[] spriteCoordinates { get; protected set;}
      ///<summary>The coordinates of the base</summary>
     public Vector3Int[] baseCoordinates { get; protected set;}
-   
+    /// <summary> The texture of the building</summary>
     public Texture2D insideAreaTexture {get; protected set;}
-    ///<summary>The sprite of the building</summary>
+    ///<summary>The sprite of the building </summary>
     public Sprite sprite;
-    public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];//backing field
+    ///<summary>The ways the user can interact with the building </summary>
+    public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];
     public int baseHeight { get; protected set; } 
     public int height {get { return sprite == null ? 0 : (int)sprite.textureRect.height / 16;}}
     public int width {get { return (int) sprite.textureRect.width / 16;} }
     ///<summary>The tilemap this building is attached to</summary>
-    public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}} //the tilemap this building is attached to
+    public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}}
+    /// <summary> The parent of the buttons that are created for this building </summary>
     public GameObject buttonParent;
     protected bool hasBeenPlaced = false;
     private bool hasBeenPickedUp = false;
@@ -43,19 +48,24 @@ public abstract class Building : MonoBehaviour {
 
     // Define a static event of the delegate type.
     public static event BuildingPlacedDelegate buildingWasPlaced;
-
-    //public GameObject[] paintableParts;//todo figure out how to do paintable parts
 #pragma warning restore IDE1006 // Naming Styles
 
-    //protected abstract void Init();
+    /// <summary>
+    /// Get the materials needed to build this building
+    /// </summary>
     public abstract List<MaterialInfo> GetMaterialsNeeded();
 
+    /// <summary>
+    /// Recreate a building from its data, aquire data from <see cref="GetBuildingData()"/>
+    /// </summary>
+    /// <param name="x">The 2nd element in the data list</param>
+    /// <param name="y">The 3rd element in the data list</param>
+    /// <param name="data">All subsequent elements</param>
     public abstract void RecreateBuildingForData(int x, int y, params string[] data);
 
     public void Start(){    
         AddTilemapToObject(gameObject);
         if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{name}");
-        //Debug.Log($"Building {this} has started");
     }
 
     protected void Update(){
@@ -164,6 +174,9 @@ public abstract class Building : MonoBehaviour {
         Debug.Log($"UID: {UID}");
     }
 
+    /// <summary>
+    /// Update the sprite of the building
+    /// </summary>
     protected void UpdateTexture(Sprite newSprite){
         sprite = newSprite;
         if (!hasBeenPlaced) return;
@@ -216,7 +229,7 @@ public abstract class Building : MonoBehaviour {
     /// <summary>
     /// Get all the date this building need to be recreated, for saving purposes
     /// </summary>
-    /// <returns></returns>
+    /// <returns>a string starting with Type,base[0].x,base[0].y and followed by building specific data, fields seperated by | </returns>
     public virtual string GetBuildingData(){
         return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}";
     }

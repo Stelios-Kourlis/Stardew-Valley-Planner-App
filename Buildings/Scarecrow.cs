@@ -13,7 +13,7 @@ using System.Runtime.Remoting.Messaging;
 public class Scarecrow : Building{
 
     private SpriteAtlas atlas;
-    private int scarecrowIndex = 0;
+    private int scarecrowIndex = 9;
     private Tile greenTile;
 
     public new void Start(){
@@ -31,7 +31,7 @@ public class Scarecrow : Building{
         base.PlacePreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         Vector3Int[] coverageArea = scarecrowIndex switch{
-            9 => null,
+            9 => GetCircleAroundPosition(currentCell, 16).ToArray(),
             _ => GetCircleAroundPosition(currentCell, 8).ToArray()
         };
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
@@ -92,5 +92,9 @@ public class Scarecrow : Building{
         Start();
         Place(new Vector3Int(x,y,0));
         UpdateTexture(atlas.GetSprite($"Scarecrows_{data[0]}"));
+    }
+
+    protected override void OnMouseRightClick(){
+        CycleTexture();
     }
 }

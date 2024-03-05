@@ -4,7 +4,7 @@ using UnityEngine;
 using static Utility.ClassManager;
 
 public class FloorBarHandler : MonoBehaviour {
-    private float moveScale = 5f;
+    private readonly float moveScale = 5f;
     private bool floorBarIsOpen = false;
     private bool isHidden;
 
@@ -17,12 +17,10 @@ public class FloorBarHandler : MonoBehaviour {
         if (GetBuildingController().GetCurrentBuildingType() == typeof(Floor) && !floorBarIsOpen){
             floorBarIsOpen = true;
             StartCoroutine(OpenBar());
-            ///transform.GetChild(1).gameObject.SetActive(true);
         }
         else if (!(GetBuildingController().GetCurrentBuildingType() == typeof(Floor)) && floorBarIsOpen) {
             floorBarIsOpen = false;
             StartCoroutine(CloseBar());
-            //transform.GetChild(1).gameObject.SetActive(false);
         }
     }
 
@@ -52,7 +50,6 @@ public class FloorBarHandler : MonoBehaviour {
     }
 
     IEnumerator HideBar() {
-        Debug.Log($"{gameObject.GetComponent<RectTransform>().anchoredPosition.x}/{Screen.width/2 + GetComponent<RectTransform>().sizeDelta.x}, width is {Screen.width}");
         while (gameObject.GetComponent<RectTransform>().anchoredPosition.x < Screen.width/2 + GetComponent<RectTransform>().sizeDelta.x) {
             gameObject.transform.position = new Vector3(gameObject.transform.position.x + moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
             yield return null;
