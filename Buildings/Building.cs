@@ -171,7 +171,7 @@ public abstract class Building : MonoBehaviour {
         if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
 
         UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
-        Debug.Log($"UID: {UID}");
+        // Debug.Log($"UID: {UID}");
     }
 
     /// <summary>

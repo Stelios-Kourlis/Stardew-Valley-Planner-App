@@ -46,10 +46,16 @@ public class BuildingController : MonoBehaviour{
 
     private void OnBuildingPlaced(){
         if (IsLoadingSave) return;
+        Debug.Log("Building Placed");
         GameObject go = new GameObject(currentBuildingType.Name);
         go.transform.parent = transform;
-        lastBuildingObjectCreated = go;
         go.AddComponent(currentBuildingType);
+        if (currentBuildingType == typeof(Craftables)){
+            CraftableUtility lastCraftable = (CraftableUtility) lastBuildingObjectCreated.GetComponent<Craftables>().CraftableType;
+            go.GetComponent<Craftables>().SetCraftable(lastCraftable);
+            go.name += lastCraftable;
+        }
+        lastBuildingObjectCreated = go;
     }
 
     public void SetCurrentBuildingType(Type newType){
@@ -57,6 +63,25 @@ public class BuildingController : MonoBehaviour{
         if (component != null) Destroy(component);
         currentBuildingType = newType;
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
+        lastBuildingObjectCreated.name = currentBuildingType.Name;
+    }
+
+    public void SetCurrentBuildingToFloor(FloorType floorType){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = typeof(Floor);
+        lastBuildingObjectCreated.AddComponent(currentBuildingType);
+        Floor.floorType = floorType;
+        lastBuildingObjectCreated.name = currentBuildingType.Name;
+    }
+
+    public void SetCurrentBuildingToPlaceable(CraftableUtility placeable){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = typeof(Craftables);
+        Debug.Log("Set Craftable to " + placeable + " in BuildingController also " + (lastBuildingObjectCreated.GetComponent<Craftables>() == null));
+        lastBuildingObjectCreated.AddComponent<Craftables>().SetCraftable(placeable);
+        lastBuildingObjectCreated.name = currentBuildingType.Name + "" + placeable;
     }
 
     public void PlaceHouse(int tier) {

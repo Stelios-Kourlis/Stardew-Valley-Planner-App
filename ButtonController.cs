@@ -13,9 +13,21 @@ public class ButtonController : MonoBehaviour{
 
     readonly float BUTTON_SIZE = 75;
     
-    // Start is called before the first frame update
     void Start(){
+        //Tab Buttons
+        GameObject panelGameObject = GameObject.FindWithTag("Panel");
+        panelGameObject.transform.Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
+            panelGameObject.transform.Find("ScrollAreaBuildings").gameObject.SetActive(true);
+            panelGameObject.transform.Find("ScrollAreaPlaceables").gameObject.SetActive(false);
+            panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
+        });
+        panelGameObject.transform.Find("PlaceablesButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
+            panelGameObject.transform.Find("ScrollAreaBuildings").gameObject.SetActive(false);
+            panelGameObject.transform.Find("ScrollAreaPlaceables").gameObject.SetActive(true);
+            panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
+        });
 
+        //Building Buttons
         Transform buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(0).GetChild(0);
         CreateButton("logCabin", "Buildings/LogCabinT1", typeof(Cabin), buildingPanelTransform);
         CreateButton("stoneCabin", "Buildings/StoneCabinT1", typeof(Cabin), buildingPanelTransform);
@@ -29,10 +41,7 @@ public class ButtonController : MonoBehaviour{
         CreateButton("shippingBin", "Buildings/ShippingBin", typeof(ShippingBin), buildingPanelTransform);
         CreateButton("well", "Buildings/Well", typeof(Well), buildingPanelTransform);
         CreateButton("earthObelisk", "Buildings/EarthObelisk", typeof(Obelisk), buildingPanelTransform);
-        // CreateButton("desertObelisk", "Buildings/DesertObelisk", typeof(DesertObelisk), buildingPanelTransform);
         CreateButton("stable", "Buildings/Stable", typeof(Stable), buildingPanelTransform);
-        // CreateButton("islandObelisk", "Buildings/IslandObelisk", typeof(IslandObelisk), buildingPanelTransform);
-        // CreateButton("waterObelisk", "Buildings/WaterObelisk", typeof(WaterObelisk), buildingPanelTransform);
         CreateButton("junimoHunt", "Buildings/JunimoHut", typeof(JunimoHut), buildingPanelTransform);
         CreateButton("greenhouse", "Buildings/Greenhouse", typeof(Greenhouse), buildingPanelTransform);
         CreateButton("mill", "Buildings/Mill", typeof(Mill), buildingPanelTransform);
@@ -41,24 +50,53 @@ public class ButtonController : MonoBehaviour{
         CreateButton("scarecrow", "Buildings/Scarecrows", typeof(Scarecrow), buildingPanelTransform);
         CreateButton("floor", "Buildings/WoodFloor", typeof(Floor), buildingPanelTransform);
 
+        //Placeables Buttons
+        buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(1).GetChild(0);
+        CreateButton("Beehouse", "Buildings/Placeables/Beehouse", buildingPanelTransform, CraftableUtility.Beehouse);
+        CreateButton("Bonemill", "Buildings/Placeables/Bonemill", buildingPanelTransform, CraftableUtility.BoneMill);
+        CreateButton("Cask", "Buildings/Placeables/Cask", buildingPanelTransform, CraftableUtility.Cask);
+        CreateButton("CharcoalKiln", "Buildings/Placeables/CharcoalKiln", buildingPanelTransform, CraftableUtility.CharcoalKiln);
+        CreateButton("CheesePress", "Buildings/Placeables/CheesePress", buildingPanelTransform, CraftableUtility.CheesePress);
+        CreateButton("Crystalarium", "Buildings/Placeables/Crystalarium", buildingPanelTransform, CraftableUtility.Crystalarium);
+        CreateButton("FarmComputer", "Buildings/Placeables/FarmComputer", buildingPanelTransform, CraftableUtility.FarmComputer);
+        CreateButton("Furnace", "Buildings/Placeables/Furnace", buildingPanelTransform, CraftableUtility.Furnace);
+        CreateButton("GeodeCrusher", "Buildings/Placeables/GeodeCrusher", buildingPanelTransform, CraftableUtility.GeodeCrusher);
+        CreateButton("Hopper", "Buildings/Placeables/Hopper", buildingPanelTransform, CraftableUtility.Hopper);
+        CreateButton("Keg", "Buildings/Placeables/Keg", buildingPanelTransform, CraftableUtility.Keg);
+        CreateButton("LightningRod", "Buildings/Placeables/LightningRod", buildingPanelTransform, CraftableUtility.LightningRod);
+        CreateButton("Loom", "Buildings/Placeables/Loom", buildingPanelTransform, CraftableUtility.Loom);
+        CreateButton("MayonnaiseMachine", "Buildings/Placeables/MayonnaiseMachine", buildingPanelTransform, CraftableUtility.MayonnaiseMachine);
+        CreateButton("MiniObelisk", "Buildings/Placeables/MiniObelisk", buildingPanelTransform, CraftableUtility.MiniObelisk);
+        CreateButton("OilMaker", "Buildings/Placeables/OilMaker", buildingPanelTransform, CraftableUtility.OilMaker);
+        CreateButton("PreservesJar", "Buildings/Placeables/PreservesJar", buildingPanelTransform, CraftableUtility.PreservesJar);
+        CreateButton("RecyclingMachine", "Buildings/Placeables/RecyclingMachine", buildingPanelTransform, CraftableUtility.RecyclingMachine);
+        CreateButton("SeedMaker", "Buildings/Placeables/SeedMaker", buildingPanelTransform, CraftableUtility.SeedMaker);
+        CreateButton("SlimeEggPress", "Buildings/Placeables/SlimeEggPress", buildingPanelTransform, CraftableUtility.SlimeEggPress);
+        CreateButton("SlimeIncubator", "Buildings/Placeables/SlimeIncubator", buildingPanelTransform, CraftableUtility.SlimeIncubator);
+        CreateButton("SolarPanel", "Buildings/Placeables/SolarPanel", buildingPanelTransform, CraftableUtility.SolarPanel);
+        CreateButton("WormBin", "Buildings/Placeables/WormBin", buildingPanelTransform, CraftableUtility.WormBin);
+        GameObject.FindWithTag("Panel").transform.GetChild(1).gameObject.SetActive(false);
+
+        //Action Buttons
         GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.PLACE); });
         GameObject.FindWithTag("DeleteButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.DELETE); });
         GameObject.FindWithTag("PickupButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.EDIT); });
 
+        //Floor Type Buttons
         Transform floorBarTransform = GameObject.FindWithTag("FloorSelectBar").transform.GetChild(0).GetChild(0);
-        CreateButton("WoodFloor", "Floors/WoodFloor", typeof(Floor), floorBarTransform, FloorType.WOOD_FLOOR);
-        CreateButton("RusticPlankFloor", "Floors/RusticPlankFloor", typeof(Floor), floorBarTransform, FloorType.RUSTIC_PLANK_FLOOR);
-        CreateButton("StrawFloor", "Floors/StrawFloor", typeof(Floor), floorBarTransform, FloorType.STRAW_FLOOR);
-        CreateButton("WeatheredFloor", "Floors/WeatheredFloor", typeof(Floor), floorBarTransform, FloorType.WEATHERED_FLOOR);
-        CreateButton("CrystalFloor", "Floors/CrystalFloor", typeof(Floor), floorBarTransform, FloorType.CRYSTAL_FLOOR);
-        CreateButton("StoneFloor", "Floors/StoneFloor", typeof(Floor), floorBarTransform, FloorType.STONE_FLOOR);
-        CreateButton("StoneWalkwayFloor", "Floors/StoneWalkwayFloor", typeof(Floor), floorBarTransform, FloorType.STONE_WALKWAY_FLOOR);
-        CreateButton("BrickFloor", "Floors/BrickFloor", typeof(Floor), floorBarTransform, FloorType.BRICK_FLOOR);
-        CreateButton("WoodPath", "Floors/WoodPath", typeof(Floor), floorBarTransform, FloorType.WOOD_PATH);
-        CreateButton("GravelPath", "Floors/GravelPath", typeof(Floor), floorBarTransform, FloorType.GRAVEL_PATH);
-        CreateButton("CobblestonePath", "Floors/CobblestonePath", typeof(Floor), floorBarTransform, FloorType.COBBLESTONE_PATH);
-        CreateButton("SteppingStonePath", "Floors/SteppingStonePath", typeof(Floor), floorBarTransform, FloorType.STEPPING_STONE_PATH);
-        CreateButton("CrystalPath", "Floors/CrystalPath", typeof(Floor), floorBarTransform, FloorType.CRYSTAL_PATH);
+        CreateButton("WoodFloor", "Floors/WoodFloor", floorBarTransform, FloorType.WOOD_FLOOR);
+        CreateButton("RusticPlankFloor", "Floors/RusticPlankFloor", floorBarTransform, FloorType.RUSTIC_PLANK_FLOOR);
+        CreateButton("StrawFloor", "Floors/StrawFloor", floorBarTransform, FloorType.STRAW_FLOOR);
+        CreateButton("WeatheredFloor", "Floors/WeatheredFloor", floorBarTransform, FloorType.WEATHERED_FLOOR);
+        CreateButton("CrystalFloor", "Floors/CrystalFloor", floorBarTransform, FloorType.CRYSTAL_FLOOR);
+        CreateButton("StoneFloor", "Floors/StoneFloor", floorBarTransform, FloorType.STONE_FLOOR);
+        CreateButton("StoneWalkwayFloor", "Floors/StoneWalkwayFloor", floorBarTransform, FloorType.STONE_WALKWAY_FLOOR);
+        CreateButton("BrickFloor", "Floors/BrickFloor", floorBarTransform, FloorType.BRICK_FLOOR);
+        CreateButton("WoodPath", "Floors/WoodPath", floorBarTransform, FloorType.WOOD_PATH);
+        CreateButton("GravelPath", "Floors/GravelPath", floorBarTransform, FloorType.GRAVEL_PATH);
+        CreateButton("CobblestonePath", "Floors/CobblestonePath", floorBarTransform, FloorType.COBBLESTONE_PATH);
+        CreateButton("SteppingStonePath", "Floors/SteppingStonePath", floorBarTransform, FloorType.STEPPING_STONE_PATH);
+        CreateButton("CrystalPath", "Floors/CrystalPath", floorBarTransform, FloorType.CRYSTAL_PATH);
         
     }
 
@@ -274,4 +312,5 @@ public class ButtonController : MonoBehaviour{
         };
 
     }
+
 }

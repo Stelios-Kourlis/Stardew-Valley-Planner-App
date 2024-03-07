@@ -48,15 +48,48 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="type">The type of building this button creates</param>
         /// <param name="transform">The transform of the parent object</param>
-        /// <param name="floorType">The type of floor, only use if Type is typeof(Floor)</param>
-        public static void CreateButton(string name, string imagePath, Type type, Transform transform, FloorType floorType = FloorType.WOOD_FLOOR){
+        public static void CreateButton(string name, string imagePath, Type type, Transform transform){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
-                //if (type != typeof(Floor)) GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, null, null, null) as Building);
-                // else GetBuildingController().SetCurrentBuilding(Activator.CreateInstance(type, floorType) as Building);
                 GetBuildingController().SetCurrentBuildingType(type);
-                if (type == typeof(Floor)) Floor.floorType = floorType;
+                GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                });
+            button.name = name;
+        }
+
+        /// <summary>
+        /// Create a button to set the current building to floor and set the floor type
+        /// </summary>
+        /// <param name="name">the name of the GameObject created</param>
+        /// <param name="imagePath">the path of the image for the button</param>
+        /// <param name="type">The type of building this button creates</param>
+        /// <param name="transform">The transform of the parent object</param>
+        /// <param name="floorType">The type of floor, only use if Type is typeof(Floor)</param>
+        public static void CreateButton(string name, string imagePath, Transform transform, FloorType floorType){
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                GetBuildingController().SetCurrentBuildingToFloor(floorType);
+                GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                });
+            button.name = name;
+        }
+
+        /// <summary>
+        /// Create a button to set the current building to floor and set the floor type
+        /// </summary>
+        /// <param name="name">the name of the GameObject created</param>
+        /// <param name="imagePath">the path of the image for the button</param>
+        /// <param name="type">The type of building this button creates</param>
+        /// <param name="transform">The transform of the parent object</param>
+        /// <param name="floorType">The type of floor, only use if Type is typeof(Floor)</param>
+        public static void CreateButton(string name, string imagePath, Transform transform, CraftableUtility craftableType){
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                Debug.Log("Set Craftable to " + craftableType + " in BuildingManager");
+                GetBuildingController().SetCurrentBuildingToPlaceable(craftableType);
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
                 });
             button.name = name;
