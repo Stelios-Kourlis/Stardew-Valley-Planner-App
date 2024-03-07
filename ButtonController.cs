@@ -29,29 +29,30 @@ public class ButtonController : MonoBehaviour{
 
         //Building Buttons
         Transform buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(0).GetChild(0);
-        CreateButton("logCabin", "Buildings/LogCabinT1", typeof(Cabin), buildingPanelTransform);
-        CreateButton("stoneCabin", "Buildings/StoneCabinT1", typeof(Cabin), buildingPanelTransform);
-        CreateButton("plankCabin", "Buildings/PlankCabinT1", typeof(Cabin), buildingPanelTransform);
-        CreateButton("coop", "Buildings/Coop", typeof(Coop), buildingPanelTransform);
-        CreateButton("barn", "Buildings/Barn", typeof(Barn), buildingPanelTransform);
-        CreateButton("shed", "Buildings/ShedT1", typeof(Shed), buildingPanelTransform);
-        CreateButton("goldClock", "Buildings/GoldClock", typeof(GoldClock), buildingPanelTransform);
-        CreateButton("silo", "Buildings/Silo", typeof(Silo), buildingPanelTransform);
-        CreateButton("slimeHutch", "Buildings/SlimeHutch", typeof(SlimeHutch), buildingPanelTransform);
-        CreateButton("shippingBin", "Buildings/ShippingBin", typeof(ShippingBin), buildingPanelTransform);
-        CreateButton("well", "Buildings/Well", typeof(Well), buildingPanelTransform);
-        CreateButton("earthObelisk", "Buildings/EarthObelisk", typeof(Obelisk), buildingPanelTransform);
-        CreateButton("stable", "Buildings/Stable", typeof(Stable), buildingPanelTransform);
-        CreateButton("junimoHunt", "Buildings/JunimoHut", typeof(JunimoHut), buildingPanelTransform);
-        CreateButton("greenhouse", "Buildings/Greenhouse", typeof(Greenhouse), buildingPanelTransform);
-        CreateButton("mill", "Buildings/Mill", typeof(Mill), buildingPanelTransform);
-        CreateButton("fishPond", "Buildings/FishPond", typeof(FishPond), buildingPanelTransform);
-        CreateButton("sprinkler", "Buildings/SprinklerT1", typeof(Sprinkler), buildingPanelTransform);
-        CreateButton("scarecrow", "Buildings/Scarecrows", typeof(Scarecrow), buildingPanelTransform);
-        CreateButton("floor", "Buildings/WoodFloor", typeof(Floor), buildingPanelTransform);
+        CreateButton("logCabin", "Buildings/LogCabinT1", buildingPanelTransform, typeof(Cabin));
+        CreateButton("stoneCabin", "Buildings/StoneCabinT1", buildingPanelTransform, typeof(Cabin));
+        CreateButton("plankCabin", "Buildings/PlankCabinT1", buildingPanelTransform, typeof(Cabin));
+        CreateButton("coop", "Buildings/Coop", buildingPanelTransform, typeof(Coop));
+        CreateButton("barn", "Buildings/Barn", buildingPanelTransform, typeof(Barn));
+        CreateButton("shed", "Buildings/ShedT1", buildingPanelTransform, typeof(Shed));
+        CreateButton("goldClock", "Buildings/GoldClock", buildingPanelTransform, typeof(GoldClock));
+        CreateButton("silo", "Buildings/Silo", buildingPanelTransform, typeof(Silo));
+        CreateButton("slimeHutch", "Buildings/SlimeHutch", buildingPanelTransform, typeof(SlimeHutch));
+        CreateButton("shippingBin", "Buildings/ShippingBin", buildingPanelTransform, typeof(ShippingBin));
+        CreateButton("well", "Buildings/Well", buildingPanelTransform, typeof(Well));
+        CreateButton("earthObelisk", "Buildings/EarthObelisk", buildingPanelTransform, typeof(Obelisk));
+        CreateButton("stable", "Buildings/Stable", buildingPanelTransform, typeof(Stable));
+        CreateButton("junimoHunt", "Buildings/JunimoHut", buildingPanelTransform, typeof(JunimoHut));
+        CreateButton("greenhouse", "Buildings/Greenhouse", buildingPanelTransform, typeof(Greenhouse));
+        CreateButton("mill", "Buildings/Mill", buildingPanelTransform, typeof(Mill));
+        CreateButton("fishPond", "Buildings/FishPond", buildingPanelTransform, typeof(FishPond));
+        CreateButton("floor", "Buildings/WoodFloor", buildingPanelTransform, typeof(Floor));
 
         //Placeables Buttons
         buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(1).GetChild(0);
+        CreateButton("Scarecrow", "Buildings/Scarecrow", buildingPanelTransform, false);
+        CreateButton("DeluxeScarecrow", "Buildings/DeluxeScarecrow",buildingPanelTransform, true);
+        CreateButton("sprinkler", "Buildings/SprinklerT1", buildingPanelTransform, typeof(Sprinkler));
         CreateButton("Beehouse", "Buildings/Placeables/Beehouse", buildingPanelTransform, CraftableUtility.Beehouse);
         CreateButton("Bonemill", "Buildings/Placeables/Bonemill", buildingPanelTransform, CraftableUtility.BoneMill);
         CreateButton("Cask", "Buildings/Placeables/Cask", buildingPanelTransform, CraftableUtility.Cask);

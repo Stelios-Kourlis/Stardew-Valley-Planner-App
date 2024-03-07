@@ -13,6 +13,8 @@ public class Sprinkler : Building, ITieredBuilding{
     private SpriteAtlas atlas;
     public int Tier {get; private set;}
     private Tile greenTile;
+    private bool HasPressureNozzle {get; set;} = false;
+    private bool HasEnricher {get; set;} = false;
 
     public new void Start(){
         name = GetType().Name;
@@ -26,7 +28,7 @@ public class Sprinkler : Building, ITieredBuilding{
     public void ChangeTier(int tier){
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
         Tier = tier;
-        UpdateTexture(atlas.GetSprite($"SprinklerT{tier}"));
+        UpdateTexture(atlas.GetSprite($"Sprinkler{tier}"));
     }
 
     protected override void PlacePreview(){
@@ -83,5 +85,18 @@ public class Sprinkler : Building, ITieredBuilding{
         ChangeTier(int.Parse(data[0]));
     }
 
-    
+    protected override void OnMouseRightClick(){
+        if (HasPressureNozzle){
+            HasEnricher = true;
+            HasPressureNozzle = false;
+            UpdateTexture(atlas.GetSprite($"Sprinkler{Tier}Enricher"));
+        }else if (HasEnricher){
+            HasEnricher = false;
+            HasPressureNozzle = true;
+            UpdateTexture(atlas.GetSprite($"Sprinkler{Tier}PressureNozzle"));
+        }else{
+            HasPressureNozzle = true;
+        }
+        UpdateTexture(atlas.GetSprite($"Sprinkler{Tier}"));
+    }
 }

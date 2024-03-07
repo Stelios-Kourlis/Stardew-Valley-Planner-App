@@ -48,7 +48,7 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="type">The type of building this button creates</param>
         /// <param name="transform">The transform of the parent object</param>
-        public static void CreateButton(string name, string imagePath, Type type, Transform transform){
+        public static void CreateButton(string name, string imagePath, Transform transform, Type type){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
@@ -59,13 +59,29 @@ namespace Utility{
         }
 
         /// <summary>
+        /// Create a button to set the current building to scarecrow
+        /// </summary>
+        /// <param name="name">the name of the GameObject created</param>
+        /// <param name="imagePath">the path of the image for the button</param>
+        /// <param name="transform">The transform of the parent object</param>
+        /// <param name="isScarecrowDeluxe"> If the scarecrow is deluxe</param>
+        public static void CreateButton(string name, string imagePath, Transform transform, bool isScarecrowDeluxe){
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                GetBuildingController().SetCurrentBuildingToScarecrow(isScarecrowDeluxe);
+                GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                });
+            button.name = name;
+        }
+
+        /// <summary>
         /// Create a button to set the current building to floor and set the floor type
         /// </summary>
         /// <param name="name">the name of the GameObject created</param>
         /// <param name="imagePath">the path of the image for the button</param>
-        /// <param name="type">The type of building this button creates</param>
         /// <param name="transform">The transform of the parent object</param>
-        /// <param name="floorType">The type of floor, only use if Type is typeof(Floor)</param>
+        /// <param name="floorType">The type of floor</param>
         public static void CreateButton(string name, string imagePath, Transform transform, FloorType floorType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
@@ -81,9 +97,8 @@ namespace Utility{
         /// </summary>
         /// <param name="name">the name of the GameObject created</param>
         /// <param name="imagePath">the path of the image for the button</param>
-        /// <param name="type">The type of building this button creates</param>
         /// <param name="transform">The transform of the parent object</param>
-        /// <param name="floorType">The type of floor, only use if Type is typeof(Floor)</param>
+        /// <param name="craftableType">The type of craftable</param>
         public static void CreateButton(string name, string imagePath, Transform transform, CraftableUtility craftableType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);

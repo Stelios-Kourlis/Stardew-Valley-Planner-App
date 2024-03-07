@@ -66,6 +66,15 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
+    public void SetCurrentBuildingToScarecrow(bool IsDeluxe){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = typeof(Scarecrow);
+        if (IsDeluxe) lastBuildingObjectCreated.AddComponent<Scarecrow>().SetDeluxe();
+        else lastBuildingObjectCreated.AddComponent<Scarecrow>();
+        lastBuildingObjectCreated.name = currentBuildingType.Name;
+    }
+
     public void SetCurrentBuildingToFloor(FloorType floorType){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);

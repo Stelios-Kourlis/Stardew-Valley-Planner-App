@@ -13,8 +13,9 @@ using System.Runtime.Remoting.Messaging;
 public class Scarecrow : Building{
 
     private SpriteAtlas atlas;
-    private int scarecrowIndex = 9;
+    private int scarecrowIndex = 0;
     private Tile greenTile;
+    private bool IsDeluxe {get; set;} = false;
 
     public new void Start(){
         name = GetType().Name;
@@ -22,7 +23,13 @@ public class Scarecrow : Building{
         base.Start();
         atlas = Resources.Load<SpriteAtlas>("Buildings/ScarecrowAtlas");
         greenTile = LoadTile("GreenTile");
-        sprite = atlas.GetSprite("Scarecrows_9");
+        UpdateTexture(atlas.GetSprite($"Scarecrows_{scarecrowIndex}"));
+    }
+
+    public void SetDeluxe(){
+        IsDeluxe = true;
+        scarecrowIndex = 9;
+        UpdateTexture(atlas.GetSprite($"Scarecrows_9"));
     }
 
     protected override void PlacePreview(){
@@ -31,16 +38,17 @@ public class Scarecrow : Building{
         base.PlacePreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         Vector3Int[] coverageArea = scarecrowIndex switch{
-            9 => GetCircleAroundPosition(currentCell, 16).ToArray(),
-            _ => GetCircleAroundPosition(currentCell, 8).ToArray()
+            9 => GetRangeOfDeluxeScarecrow(currentCell).ToArray(),
+            _ => GetRangeOfScarecrow(currentCell).ToArray()
         };
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
     }
 
     private void CycleTexture(){
         if (!hasBeenPlaced) return;
+        if (IsDeluxe) return;
         scarecrowIndex++;
-        if (scarecrowIndex > 9) scarecrowIndex = 0;
+        if (scarecrowIndex > 8) scarecrowIndex = 0;
         UpdateTexture(atlas.GetSprite($"Scarecrows_{scarecrowIndex}"));
     }
 
