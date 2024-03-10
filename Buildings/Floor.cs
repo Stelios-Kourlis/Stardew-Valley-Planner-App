@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using UnityEngine.UIElements;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
@@ -16,8 +17,9 @@ public class Floor : Building {
     private SpriteAtlas atlas;
     private delegate void FloorPlacedDelegate(Vector3Int position);
     public static event Action<Vector3Int> FloorWasPlaced;
+    private Vector3Int position;
     //private static List<Vector3Int> otherFloors = new List<Vector3Int>();
-    private static Dictionary<Vector3Int, FloorType> floors = new Dictionary<Vector3Int, FloorType>();
+    private static readonly Dictionary<Vector3Int, FloorType> floors = new Dictionary<Vector3Int, FloorType>();
     public static FloorType floorType = FloorType.WOOD_FLOOR;
     private new static Tilemap tilemap;
 
@@ -31,6 +33,7 @@ public class Floor : Building {
     }
 
     public override void Place(Vector3Int position){
+        if (hasBeenPlaced) return;
         int height = GetFloorFlagsSum(position);
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
@@ -38,14 +41,25 @@ public class Floor : Building {
         if (floors.Keys.Contains(position)) floors[position] = floorType;
         else floors.Add(position, floorType);
         FloorWasPlaced?.Invoke(position);
+        baseCoordinates = new Vector3Int[]{new Vector3Int(position.x, position.y, position.z)};
+        spriteCoordinates = new Vector3Int[]{new Vector3Int(position.x, position.y, position.z)};
+        this.position = position;
+        hasBeenPlaced = true;
+        UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
+        // Debug.Log(baseCoordinates.Count());
+        // Debug.Log(baseCoordinates[0]);
+        InvokeBuildingWasPlaced();
     }
 
     public override void Delete(){
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (!floors.Keys.Contains(currentCell)) return;
-        floors.Remove(currentCell);
-        tilemap.SetTile(currentCell, null);
-        FloorWasPlaced?.Invoke(currentCell);
+        // Debug.Log("Delete");
+        if(!hasBeenPlaced) return;
+        //Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        // if (!floors.Keys.Contains(currentCell)) return;
+        floors.Remove(position);
+        tilemap.SetTile(position, null);
+        FloorWasPlaced?.Invoke(position);
+        ForceDelete();
     }
 
     protected override void PlacePreview(){
@@ -61,13 +75,14 @@ public class Floor : Building {
     protected override void DeletePreview(){
         //Debug.Log("DeleteMouseoverEffect");
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (!floors.Keys.Contains(currentCell)) return;
+        GetComponent<Tilemap>().ClearAllTiles();
         int height = GetFloorFlagsSum(currentCell);
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         GetComponent<TilemapRenderer>().sortingOrder = 500;
-        GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
-        GetComponent<Tilemap>().ClearAllTiles();
-        GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
+        if (currentCell == position){
+            GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+            GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
+        }else GetComponent<Tilemap>().color = OPAQUE;
     }
 
     private void AnotherFloorWasPlaced(Vector3Int position){
@@ -95,8 +110,11 @@ public class Floor : Building {
         throw new NotImplementedException();
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data)
-    {
+    public override string GetBuildingData(){
+        return $"{GetType()}|{position.x}|{position.y}|{floorType}";
+    }
+
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
         throw new NotImplementedException();
     }
 }

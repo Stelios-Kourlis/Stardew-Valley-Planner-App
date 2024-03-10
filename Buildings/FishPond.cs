@@ -119,9 +119,6 @@ public class FishPond : Building {
     /// <param name="fishType"> The fish</param>
     public void SetFishImage(Fish fishType){
         buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
-        Debug.Log(buttonParent.transform.GetChild(0).GetChild(0).name);
-        Debug.Log(fishType);
-        Debug.Log(fishAtlas.GetSprite(fishType.ToString()));
         Color color = fishType switch
         { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),

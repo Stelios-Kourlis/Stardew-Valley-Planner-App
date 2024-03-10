@@ -21,7 +21,7 @@ public abstract class Building : MonoBehaviour {
     protected readonly Color OPAQUE = new Color(1,1,1,1);
 
     /// <summary> A unique ID that identifies this object </summary>
-    public int UID {get; private set;} = 0;
+    public int UID {get; protected set;} = 0;
 
     ///<summary>The array containing the coordinates of each sprite tile</summary>
     public Vector3Int[] spriteCoordinates { get; protected set;}
@@ -62,6 +62,10 @@ public abstract class Building : MonoBehaviour {
     /// <param name="y">The 3rd element in the data list</param>
     /// <param name="data">All subsequent elements</param>
     public abstract void RecreateBuildingForData(int x, int y, params string[] data);
+
+    protected void InvokeBuildingWasPlaced(){
+        buildingWasPlaced?.Invoke();
+    }
 
     public void Start(){    
         AddTilemapToObject(gameObject);
@@ -211,9 +215,6 @@ public abstract class Building : MonoBehaviour {
     /// </summary>
     public virtual void Delete() {
         if (!hasBeenPlaced) return;
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if(!baseCoordinates.Contains(currentCell)) return;
-
         ForceDelete();
     }
 

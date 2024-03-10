@@ -12,6 +12,9 @@ public class UserAction
         this.action = action;
         this.UID = UID;
         buildingData = data;
-        
+    }
+
+    public override string ToString(){
+        return $"Action: {action}, UID: {UID}, Data: {buildingData}";
     }
 }

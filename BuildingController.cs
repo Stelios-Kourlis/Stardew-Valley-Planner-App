@@ -46,7 +46,7 @@ public class BuildingController : MonoBehaviour{
 
     private void OnBuildingPlaced(){
         if (IsLoadingSave) return;
-        Debug.Log("Building Placed");
+        // Debug.Log("Building Placed");
         GameObject go = new GameObject(currentBuildingType.Name);
         go.transform.parent = transform;
         go.AddComponent(currentBuildingType);
@@ -122,14 +122,18 @@ public class BuildingController : MonoBehaviour{
     }
 
     public void AddActionToLog(UserAction action){
+        Debug.Log($"Pushing {action} to log");
         actionLog.Push(action);
         undoLog.Clear();
     }
 
     public void UndoLastAction(){
-        Debug.Log("Entering Undo");
+        foreach(var item in actionLog){
+            Debug.Log(item);
+        }
         if (actionLog.Count == 0) return;
         UserAction lastAction = actionLog.Pop();
+        Debug.Log($"Got {lastAction}");
         undoLog.Push(lastAction);
         Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
         Actions action = lastAction.action;
@@ -187,7 +191,7 @@ public class BuildingController : MonoBehaviour{
             var child = transform.GetChild(index);
             var building = child.GetComponent<Building>();
             if (building?.UID == buildingUID){
-                building.ForceDelete();
+                building.Delete();
                 return;
             }
         };
