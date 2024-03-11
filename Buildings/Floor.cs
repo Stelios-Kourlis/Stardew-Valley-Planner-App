@@ -34,6 +34,7 @@ public class Floor : Building {
 
     public override void Place(Vector3Int position){
         if (hasBeenPlaced) return;
+        if (floors.Keys.Contains(position)) return;
         int height = GetFloorFlagsSum(position);
         Sprite floorSprite = atlas.GetSprite($"{floorType}{height}");
         tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
@@ -45,7 +46,8 @@ public class Floor : Building {
         spriteCoordinates = new Vector3Int[]{new Vector3Int(position.x, position.y, position.z)};
         this.position = position;
         hasBeenPlaced = true;
-        UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
+        // UID = Guid.NewGuid().GetHashCode();
+        // UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
         // Debug.Log(baseCoordinates.Count());
         // Debug.Log(baseCoordinates[0]);
         InvokeBuildingWasPlaced();

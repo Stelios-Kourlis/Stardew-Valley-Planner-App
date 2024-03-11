@@ -10,7 +10,6 @@ public class ToggleBuildingMenu : MonoBehaviour {
     private Sprite[] arrowButtons = new Sprite[2];
     // Start is called before the first frame update
     void Start() {
-        //thisButton.onClick.AddListener(toggleBuildingMenu);
         thisButton = gameObject.GetComponent<Button>();
         arrowButtons[0] = Sprite.Create(Resources.Load("UI/ExtendBuildingMenu") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         arrowButtons[1] = Sprite.Create(Resources.Load("UI/HideBuildingMenu") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
@@ -20,10 +19,10 @@ public class ToggleBuildingMenu : MonoBehaviour {
     }
 
     public void toggleBuildingMenu() { //Not 0 refrences called from UnityUI
-        StartCoroutine(onClickCour());
+        StartCoroutine(OnClickCour());
     }
 
-    IEnumerator onClickCour() {
+    IEnumerator OnClickCour() {
         if (thisButton.GetComponent<Image>().sprite == arrowButtons[0]) thisButton.GetComponent<Image>().sprite = arrowButtons[1];
         else thisButton.GetComponent<Image>().sprite = arrowButtons[0];
         for (int i = 0; i < 80; i++) {

@@ -14,9 +14,9 @@ public class TileBuildingData : MonoBehaviour {
     ///<param name="farm">The name of the farm, possible farms:
     ///Normal, Riverland, Forest, Hilltop, Wilderness, Four Corners, Beach. IS CASE SENSITIVE</param>
     ///<returns>True if there are no other tiles and within the rectangle, otherwise false</returns>
-    public void AddInvalidTilesData(string farm) {
+    public void AddInvalidTilesData(MapController.MapTypes farm) {
         List<Vector3Int> tempList = new List<Vector3Int>();
-        string path = "Maps/" + farm;
+        string path = "Maps/" + farm.ToString();
         TextAsset textAsset = Resources.Load<TextAsset>(path);
         string[] tiles = textAsset.text.Split('\n');
         foreach (string tile in tiles) {
@@ -26,15 +26,8 @@ public class TileBuildingData : MonoBehaviour {
             int y = int.Parse(nums[1]);
             int z = int.Parse(nums[2]);
             tempList.Add(new Vector3Int(x, y, z));
+            // Debug.Log("Added " + x + " " + y + " " + z);
         }
-        // string text;
-        // while ((text = reader.ReadLine()) != null) {
-        //     string[] nums = text.Split(' ');
-        //     int x = int.Parse(nums[0]);
-        //     int y = int.Parse(nums[1]);
-        //     int z = int.Parse(nums[2]);
-        //     tempList.Add(new Vector3Int(x, y, z));
-        // }
         BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
         foreach (Vector3Int vec in tempList) buildingController.GetUnavailableCoordinates().Add(vec);
 

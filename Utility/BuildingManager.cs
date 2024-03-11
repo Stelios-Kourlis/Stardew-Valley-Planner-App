@@ -99,7 +99,7 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="craftableType">The type of craftable</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, CraftableUtility craftableType){
+        public static void CreateButton(string name, string imagePath, Transform transform, Craftables.Type craftableType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 

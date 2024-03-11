@@ -43,11 +43,9 @@ public abstract class Building : MonoBehaviour {
     protected bool hasBeenPlaced = false;
     private bool hasBeenPickedUp = false;
     public static Actions currentAction {get; set;} = Actions.PLACE;
-    // Define a delegate type for the event.
     public delegate void BuildingPlacedDelegate();
-
-    // Define a static event of the delegate type.
     public static event BuildingPlacedDelegate buildingWasPlaced;
+    private Vector3Int mousePositionOfLastFrame;
 #pragma warning restore IDE1006 // Naming Styles
 
     /// <summary>
@@ -70,15 +68,18 @@ public abstract class Building : MonoBehaviour {
     public void Start(){    
         AddTilemapToObject(gameObject);
         if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{name}");
+        mousePositionOfLastFrame = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
     }
 
     protected void Update(){
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (currentCell == mousePositionOfLastFrame) return;
         if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
         else if (currentAction == Actions.EDIT) PickupPreview();
         else if (currentAction == Actions.DELETE) DeletePreview();
 
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+       
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if (EventSystem.current.IsPointerOverGameObject()) return;
             
@@ -86,6 +87,7 @@ public abstract class Building : MonoBehaviour {
                 Place(currentCell);
                 // Debug.Log("PLACED BUILDING");
                 if (hasBeenPlaced){
+                    UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
                     GetBuildingController().AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
                 }
             }
@@ -174,7 +176,6 @@ public abstract class Building : MonoBehaviour {
         if (this is ITieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);
         if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
 
-        UID = name.GetHashCode() + baseCoordinates[0].x + baseCoordinates[0].y;
         // Debug.Log($"UID: {UID}");
     }
 

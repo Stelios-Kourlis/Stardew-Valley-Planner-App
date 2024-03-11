@@ -7,21 +7,53 @@ using static Utility.SpriteManager;
 using UnityEngine.Tilemaps;
 using System;
 using UnityEngine.U2D;
+using System.IO;
 
 public class MapController : MonoBehaviour{
+    public enum MapTypes {
+        Normal,
+        Riverland,
+        Forest,
+        Hilltop,
+        Wilderness,
+        FourCorners,
+        Beach,
+        GingerIsland,
 
+    }
     private SpriteAtlas atlas;
     MapTypes currentMapType;
     Tile redTile;
     private bool unavailableCoordinatesAreVisible = false;
+    private bool addingInvalidTiles = false;
     // Start is called before the first frame update
     void Start(){
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
-        SetMap(MapTypes.Normal);
+        SetMap(MapTypes.GingerIsland);
     
         Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
         redTile.sprite = redTileSprite;
+    }
+
+    public void Update(){
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.A)){
+            addingInvalidTiles = !addingInvalidTiles;
+            GetNotificationManager().SendNotification($"Toggled addingInvalidTiles, its now {addingInvalidTiles}");
+        }
+        else
+        if (Input.GetKeyUp(KeyCode.Mouse0) && addingInvalidTiles) AddTileToCurrentMapInvalidTiles();
+    }
+
+    private void AddTileToCurrentMapInvalidTiles(){
+        string path = "Assets/Resources/Maps/GingerIsland.txt";
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        File.AppendAllText(path, $"{currentCell.x} {currentCell.y} {currentCell.z}\n");
+        Debug.Log($"Added {currentCell.x} {currentCell.y} {currentCell.z} to {currentMapType}");
+        GameObject map = GameObject.FindWithTag("CurrentMap");
+        TileBuildingData dataScript = map.GetComponent<TileBuildingData>();
+        GetBuildingController().GetUnavailableCoordinates().Add(currentCell);
+        UpdateUnavailableCoordinates();
     }
 
     public void SetMap(MapTypes mapType) {
@@ -36,13 +68,13 @@ public class MapController : MonoBehaviour{
         Vector3Int[] spriteArrayCoordinates = GetAreaAroundPosition(mapPos, (int) mapTexture.textureRect.height / 16, (int) mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
         TileBuildingData dataScript = map.AddComponent(typeof(TileBuildingData)) as TileBuildingData;
-        dataScript.AddInvalidTilesData(mapType.ToString());
+        dataScript.AddInvalidTilesData(mapType);
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
         mapTilemap.ClearAllTiles();
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
         // ToggleRedTiles();
         // ToggleRedTiles();
-        buildingController.PlaceHouse(1);
+        if (mapType != MapTypes.GingerIsland) buildingController.PlaceHouse(1);
         GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
     }
 

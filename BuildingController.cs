@@ -41,6 +41,8 @@ public class BuildingController : MonoBehaviour{
             if (lastBuildingObjectCreated == null) OnBuildingPlaced();
         }
 
+        if (Input.GetKeyUp(KeyCode.Z)) Debug.Log(unavailableCoordinates.Count);
+
         //foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
     }
 
@@ -51,7 +53,7 @@ public class BuildingController : MonoBehaviour{
         go.transform.parent = transform;
         go.AddComponent(currentBuildingType);
         if (currentBuildingType == typeof(Craftables)){
-            CraftableUtility lastCraftable = (CraftableUtility) lastBuildingObjectCreated.GetComponent<Craftables>().CraftableType;
+            Craftables.Type lastCraftable = (Craftables.Type) lastBuildingObjectCreated.GetComponent<Craftables>().CraftableType;
             go.GetComponent<Craftables>().SetCraftable(lastCraftable);
             go.name += lastCraftable;
         }
@@ -84,7 +86,7 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
-    public void SetCurrentBuildingToPlaceable(CraftableUtility placeable){
+    public void SetCurrentBuildingToPlaceable(Craftables.Type placeable){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Craftables);
@@ -96,8 +98,8 @@ public class BuildingController : MonoBehaviour{
     public void PlaceHouse(int tier) {
         MapController mapController = GetMapController();
         Vector3Int housePos = mapController.GetCurrentMapType() switch{
-            MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-            MapTypes.Beach => new Vector3Int(33, 57, 0),
+            MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+            MapController.MapTypes.Beach => new Vector3Int(33, 57, 0),
             _ => new Vector3Int(32, 12, 0),
         };
         GameObject houseGameObject = new GameObject("House");
@@ -122,7 +124,9 @@ public class BuildingController : MonoBehaviour{
     }
 
     public void AddActionToLog(UserAction action){
-        Debug.Log($"Pushing {action} to log");
+        // if (actionLog.FirstOrDefault(item => item.UID == action.UID) != null){
+        //     Debug.LogWarning($"UID {action.UID} already exists in actionLog\n {action} shares UID with {actionLog.FirstOrDefault(item => item.UID == action.UID)}");
+        // }
         actionLog.Push(action);
         undoLog.Clear();
     }

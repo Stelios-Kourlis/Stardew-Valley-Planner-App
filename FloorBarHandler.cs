@@ -1,16 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static Utility.ClassManager;
 
 public class FloorBarHandler : MonoBehaviour {
     private readonly float moveScale = 5f;
     private bool floorBarIsOpen = false;
     private bool isHidden;
+    private Sprite[] arrowButtons = new Sprite[2];
 
     // Start is called before the first frame update
     void Start() {
         gameObject.transform.position = new Vector3(Screen.width + 300, 5, 0);
+        arrowButtons[0] = Sprite.Create(Resources.Load("UI/FloorBarUnhide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
+        arrowButtons[1] = Sprite.Create(Resources.Load("UI/FloorBarHide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
     }
 
     void Update(){
@@ -40,6 +44,7 @@ public class FloorBarHandler : MonoBehaviour {
             gameObject.transform.position = new Vector3(gameObject.transform.position.x - moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
             yield return null;
         }
+        transform.GetChild(1).GetComponent<Image>().sprite = arrowButtons[1];
     }
 
     IEnumerator CloseBar() {
@@ -54,5 +59,6 @@ public class FloorBarHandler : MonoBehaviour {
             gameObject.transform.position = new Vector3(gameObject.transform.position.x + moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
             yield return null;
         }
+        transform.GetChild(1).GetComponent<Image>().sprite = arrowButtons[0];
     }
 }
