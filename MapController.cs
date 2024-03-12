@@ -29,7 +29,7 @@ public class MapController : MonoBehaviour{
     // Start is called before the first frame update
     void Start(){
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
-        SetMap(MapTypes.GingerIsland);
+        SetMap(MapTypes.Normal);
     
         Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;

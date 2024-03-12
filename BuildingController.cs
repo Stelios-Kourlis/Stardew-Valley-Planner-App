@@ -60,12 +60,13 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated = go;
     }
 
-    public void SetCurrentBuildingType(Type newType){
+    public void SetCurrentBuildingType(Type newType, Action extraAction = null){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = newType;
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
+        extraAction?.Invoke();
     }
 
     public void SetCurrentBuildingToScarecrow(bool IsDeluxe){
@@ -83,6 +84,14 @@ public class BuildingController : MonoBehaviour{
         currentBuildingType = typeof(Floor);
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
         Floor.floorType = floorType;
+        lastBuildingObjectCreated.name = currentBuildingType.Name;
+    }
+
+    public void SetCurrentBuildingToCabin(Cabin.CabinTypes cabinType){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = typeof(Cabin);
+        lastBuildingObjectCreated.AddComponent<Cabin>().SetType(cabinType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 

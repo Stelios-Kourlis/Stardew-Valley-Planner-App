@@ -49,16 +49,16 @@ public class House : Building, ITieredBuilding {
         return Tier switch{
             1 => new List<MaterialInfo>{},
             2 => new List<MaterialInfo>{
-                new MaterialInfo(10000, Materials.Coins),
+                new MaterialInfo(10_000, Materials.Coins),
                 new MaterialInfo(450, Materials.Wood),
             },
             3 => new List<MaterialInfo>{
-                new MaterialInfo(60000, Materials.Coins),
+                new MaterialInfo(60_000, Materials.Coins),
                 new MaterialInfo(450, Materials.Wood),
                 new MaterialInfo(150, Materials.Hardwood),
             },
             4 => new List<MaterialInfo>{
-                new MaterialInfo(160000, Materials.Coins),
+                new MaterialInfo(160_000, Materials.Coins),
                 new MaterialInfo(450, Materials.Wood),
                 new MaterialInfo(150, Materials.Hardwood),
             },

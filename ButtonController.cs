@@ -7,6 +7,7 @@ using static Utility.ClassManager;
 using static Utility.BuildingManager;
 using static Utility.TilemapManager;
 using UnityEngine.EventSystems;
+using System.Configuration;
 
 
 public class ButtonController : MonoBehaviour{
@@ -29,9 +30,9 @@ public class ButtonController : MonoBehaviour{
 
         //Building Buttons
         Transform buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(0).GetChild(0);
-        CreateButton("logCabin", "Buildings/LogCabinT1", buildingPanelTransform, typeof(Cabin));
-        CreateButton("stoneCabin", "Buildings/StoneCabinT1", buildingPanelTransform, typeof(Cabin));
-        CreateButton("plankCabin", "Buildings/PlankCabinT1", buildingPanelTransform, typeof(Cabin));
+        CreateButton("logCabin", "Buildings/LogCabinT1", buildingPanelTransform, Cabin.CabinTypes.Wood);
+        CreateButton("stoneCabin", "Buildings/StoneCabinT1", buildingPanelTransform, Cabin.CabinTypes.Stone);
+        CreateButton("plankCabin", "Buildings/PlankCabinT1", buildingPanelTransform, Cabin.CabinTypes.Plank);
         CreateButton("coop", "Buildings/Coop", buildingPanelTransform, typeof(Coop));
         CreateButton("barn", "Buildings/Barn", buildingPanelTransform, typeof(Barn));
         CreateButton("shed", "Buildings/ShedT1", buildingPanelTransform, typeof(Shed));

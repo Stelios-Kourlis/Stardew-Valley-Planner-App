@@ -48,12 +48,13 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="type">The type of building this button creates</param>
         /// <param name="transform">The transform of the parent object</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Type type){
+        public static void CreateButton(string name, string imagePath, Transform transform, Type type, Action action = null){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 GetBuildingController().SetCurrentBuildingType(type);
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                action?.Invoke();
                 });
             button.name = name;
         }
@@ -91,6 +92,24 @@ namespace Utility{
                 });
             button.name = name;
         }
+
+        /// <summary>
+        /// Create a button to set the current building to cabin and set the cabin type
+        /// </summary>
+        /// <param name="name">the name of the GameObject created</param>
+        /// <param name="imagePath">the path of the image for the button</param>
+        /// <param name="transform">The transform of the parent object</param>
+        /// <param name="floorType">The type of floor</param>
+        public static void CreateButton(string name, string imagePath, Transform transform, Cabin.CabinTypes cabinType){
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                GetBuildingController().SetCurrentBuildingToCabin(cabinType);
+                GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                });
+            button.name = name;
+        }
+
 
         /// <summary>
         /// Create a button to set the current building to floor and set the floor type
