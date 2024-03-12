@@ -186,7 +186,8 @@ public abstract class Building : MonoBehaviour {
         sprite = newSprite;
         if (!hasBeenPlaced) return;
         Tile[] buildingTiles = SplitSprite(sprite);
-        gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
+        Debug.Log(gameObject == null);
+        gameObject?.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
     }
 
     public bool VectorInBaseCoordinates(Vector3Int checkForMe) {

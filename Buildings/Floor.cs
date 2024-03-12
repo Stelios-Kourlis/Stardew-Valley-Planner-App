@@ -15,12 +15,13 @@ using static Utility.TilemapManager;
 public class Floor : Building {
     
     private SpriteAtlas atlas;
-    private delegate void FloorPlacedDelegate(Vector3Int position);
+    // private delegate void FloorPlacedDelegate(Vector3Int position);
     public static event Action<Vector3Int> FloorWasPlaced;
     private Vector3Int position;
     //private static List<Vector3Int> otherFloors = new List<Vector3Int>();
     private static readonly Dictionary<Vector3Int, FloorType> floors = new Dictionary<Vector3Int, FloorType>();
     public static FloorType floorType = FloorType.WOOD_FLOOR;
+    private FloorType type = FloorType.WOOD_FLOOR;
     private new static Tilemap tilemap;
 
     public new void Start(){
@@ -46,6 +47,7 @@ public class Floor : Building {
         spriteCoordinates = new Vector3Int[]{new Vector3Int(position.x, position.y, position.z)};
         this.position = position;
         hasBeenPlaced = true;
+        type = floorType;
         // UID = Guid.NewGuid().GetHashCode();
         // UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
         // Debug.Log(baseCoordinates.Count());
@@ -88,15 +90,20 @@ public class Floor : Building {
     }
 
     private void AnotherFloorWasPlaced(Vector3Int position){
-        List<Vector3Int> neighbors = GetCrossAroundPosition(position).Intersect(floors.Keys).ToList();
-        foreach (Vector3Int cell in neighbors) UpdateTile(cell);
+        List<Vector3Int> neighbors = GetCrossAroundPosition(position).ToList();
+        if (neighbors.Contains(this.position)){
+            sprite = atlas.GetSprite($"{type}{GetFloorFlagsSum(baseCoordinates[0])}");
+            if (!hasBeenPlaced) return;
+            Tile[] buildingTiles = SplitSprite(sprite);
+            tilemap.SetTiles(spriteCoordinates.ToArray(), buildingTiles);
+        }
     }
 
-    private void UpdateTile(Vector3Int position){
-        int height = GetFloorFlagsSum(position);
-        Sprite floorSprite = atlas.GetSprite($"{floors[position]}{height}");
-        tilemap.GetComponent<Tilemap>().SetTile(position, SplitSprite(floorSprite)[0]);
-    }
+    // private void UpdateTile(Vector3Int position){
+    //     int height = GetFloorFlagsSum(position);
+    //     Sprite floorSprite = atlas.GetSprite($"{floors[position]}{height}");
+    //     tilemap.GetComponent<Tilemap>().SetTile(position, SplitSprite(floorSprite)[0]);
+    // }
 
     private int GetFloorFlagsSum(Vector3Int position){
         List<FloorFlag> flags = new List<FloorFlag>();

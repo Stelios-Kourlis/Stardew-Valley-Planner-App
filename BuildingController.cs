@@ -28,7 +28,7 @@ public class BuildingController : MonoBehaviour{
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        currentBuildingType = typeof(Barn);
+        currentBuildingType = typeof(Fence);
         Building.buildingWasPlaced += OnBuildingPlaced;
     
     }
