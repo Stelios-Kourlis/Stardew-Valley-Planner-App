@@ -8,8 +8,9 @@ public class House : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
     public int Tier {get; private set;} = 0;
+    public override string TooltipMessage => "Right Click For More Options";
 
-    public new void Start(){
+    public override void OnAwake(){
         baseHeight = 6;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -17,7 +18,7 @@ public class House : Building, ITieredBuilding {
             ButtonTypes.TIER_THREE,
             ButtonTypes.ENTER
         };
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/HouseAtlas");
         if (Tier == 0) ChangeTier(1);
     }
@@ -72,7 +73,7 @@ public class House : Building, ITieredBuilding {
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         // Debug.Log($"Recreating house at {x},{y}");
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         ChangeTier(int.Parse(data[0]));
     }

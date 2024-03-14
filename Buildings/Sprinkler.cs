@@ -9,6 +9,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 
 public class Sprinkler : Building, ITieredBuilding{
+    public override string TooltipMessage => "Right Click For More Options";
 
     private SpriteAtlas atlas;
     public int Tier {get; private set;}
@@ -16,10 +17,10 @@ public class Sprinkler : Building, ITieredBuilding{
     private bool HasPressureNozzle {get; set;} = false;
     private bool HasEnricher {get; set;} = false;
 
-    public new void Start(){
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 1;
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/SprinklerAtlas");
         greenTile = LoadTile("GreenTile");
         ChangeTier(1);
@@ -79,7 +80,7 @@ public class Sprinkler : Building, ITieredBuilding{
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         ChangeTier(int.Parse(data[0]));
     }

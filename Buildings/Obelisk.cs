@@ -16,10 +16,12 @@ public class Obelisk : Building{
     private ObeliskTypes obeliskType = ObeliskTypes.WaterObelisk;
     private SpriteAtlas atlas;
 
-    public new void Start(){
+    public override string TooltipMessage => "Right Click To Cycle Through Obelisks";
+
+    public override void OnAwake(){
         //name = GetType().Name;
         baseHeight = 3;
-        base.Start(); 
+        base.OnAwake(); 
         atlas = Resources.Load<SpriteAtlas>("Buildings/ObeliskAtlas");
         UpdateTexture(atlas.GetSprite(obeliskType.ToString()));
         //SetObeliskType(ObeliskTypes.DesertObelisk);
@@ -68,7 +70,7 @@ public class Obelisk : Building{
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         SetObeliskType((ObeliskTypes) int.Parse(data[0]));
     }

@@ -19,15 +19,16 @@ public class FishPond : Building {
     private GameObject decoTilemapObject;
     private int decoIndex = 0;
     private GameObject waterTilemapObject;
+    public override string TooltipMessage => "Right Click For More Options";
 
-    public new void Start(){
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 5;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
         };
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
         fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
@@ -145,7 +146,7 @@ public class FishPond : Building {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         SetFishImage((Fish) int.Parse(data[1]) );
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{data[0]}")));

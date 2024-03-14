@@ -4,10 +4,11 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Silo : Building {
+    public override string TooltipMessage => "";
 
-    public new void Start(){
+    public override void OnAwake(){
         baseHeight = 4;
-        base.Start();
+        base.OnAwake();
     }
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
@@ -19,7 +20,7 @@ public class Silo : Building {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
     }
 }

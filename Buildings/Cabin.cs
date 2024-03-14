@@ -22,7 +22,9 @@ public class Cabin : Building, ITieredBuilding {
     public static bool StoneCabinHasBeenPlaced;
     public int Tier {get; private set;}
 
-    public new void Start(){
+    public override string TooltipMessage => "Right Click For More Options";
+
+    public override void OnAwake(){
         baseHeight = 3;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -31,7 +33,7 @@ public class Cabin : Building, ITieredBuilding {
             ButtonTypes.ENTER,
             ButtonTypes.PAINT
         };
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load("Buildings/CabinAtlas") as SpriteAtlas;
         ChangeTier(1);
     }

@@ -16,7 +16,9 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
     private List<KeyValuePair<Animals, GameObject>> animals = new List<KeyValuePair<Animals, GameObject>>();
     private int animalCapacity;
 
-    public new void Start(){
+    public override string TooltipMessage => "Right Click For More Options";
+
+    public override void OnAwake(){
         baseHeight = 3;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -26,7 +28,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
             ButtonTypes.PAINT,
             ButtonTypes.ADD_ANIMAL
         };
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load("Buildings/CoopAtlas") as SpriteAtlas;
         animalAtlas = Resources.Load("CoopAnimalsAtlas") as SpriteAtlas;
         animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
@@ -118,7 +120,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         ChangeTier(int.Parse(data[0]));
     }

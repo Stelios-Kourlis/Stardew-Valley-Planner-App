@@ -7,6 +7,7 @@ using System.Runtime.Remoting.Messaging;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
+using static Utility.BuildingManager;
 using System.Linq;
 using UnityEngine.Events;
 using System.Runtime.ConstrainedExecution;
@@ -14,7 +15,7 @@ using UnityEngine.EventSystems;
 #pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
-public abstract class Building : MonoBehaviour {
+public abstract class Building : TooltipableGameObject {
     //Set values for the colors of the building
     protected readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
     protected readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
@@ -65,13 +66,22 @@ public abstract class Building : MonoBehaviour {
         buildingWasPlaced?.Invoke();
     }
 
-    public void Start(){    
+    public override bool ShowTooltipCondition(){
+        if (!hasBeenPlaced) return false;
+        // Debug.Log("Has Been Placed " + hasBeenPlaced);
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (baseCoordinates?.Contains(currentCell) ?? false) return true;
+        else return false;
+    }
+
+    public override void OnAwake(){    
+        Debug.Log("Building OnAwake");
         AddTilemapToObject(gameObject);
         if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{name}");
         mousePositionOfLastFrame = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
     }
 
-    protected void Update(){
+    public override void OnUpdate(){
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
@@ -101,6 +111,8 @@ public abstract class Building : MonoBehaviour {
 
     private void PlaceWrapper(Vector3Int position){
         if (hasBeenPlaced) return;
+        if (!CanBuildingBePlacedThere(position, this)) return;
+        // Debug.Log($"{this} can be placed at {position}");
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
             GetNotificationManager().SendNotification($"Cannot place {GetType()} here");

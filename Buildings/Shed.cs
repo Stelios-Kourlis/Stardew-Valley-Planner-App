@@ -8,8 +8,9 @@ public class Shed : Building, ITieredBuilding {
 
     private SpriteAtlas atlas;
     public int Tier {get; set;} = 0;
+    public override string TooltipMessage => "Right Click For More Options";
 
-    public new void Start(){
+    public override void OnAwake(){
         baseHeight = 3;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -17,7 +18,7 @@ public class Shed : Building, ITieredBuilding {
             ButtonTypes.PAINT,
             ButtonTypes.ENTER,
         };
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load("Buildings/ShedAtlas") as SpriteAtlas;
         if (Tier == 0) ChangeTier(1);
     }
@@ -48,7 +49,7 @@ public class Shed : Building, ITieredBuilding {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         ChangeTier(int.Parse(data[0]));
         // Debug.Log($"Changed tier to {tier}");

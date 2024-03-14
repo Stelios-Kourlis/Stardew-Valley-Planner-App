@@ -18,6 +18,8 @@ public class Fence : Building{
         Hardwood
     }
 
+    public override string TooltipMessage => "";
+
     private Type type;
     public static Type currentType = Type.Wood;
     private SpriteAtlas atlas;
@@ -55,11 +57,11 @@ public class Fence : Building{
         throw new System.NotImplementedException();
     }
 
-    void Awake(){
+    public override void OnAwake(){
         atlas = Resources.Load<SpriteAtlas>("Fences/FencesAtlas");
         // Debug.Log($"Fence Atlas is null at start: {atlas == null}");
         baseHeight = 1;
-        base.Start();
+        base.OnAwake();
         FenceWasPlaced += AnotherFenceWasPlaced;
         SetType(currentType);
         sprite = atlas.GetSprite($"{type}Fence0");

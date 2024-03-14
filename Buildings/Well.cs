@@ -4,11 +4,12 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Well : Building {
+    public override string TooltipMessage => "";
 
-    public new void Start(){
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 3;
-        base.Start();
+        base.OnAwake();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -19,7 +20,7 @@ public class Well : Building {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
     }
 }

@@ -4,15 +4,16 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class SlimeHutch : Building {
+    public override string TooltipMessage => "Right Click For More Options";
 
-    public new void Start(){
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 6;
         insideAreaTexture = Resources.Load("BuildingInsides/Barn1") as Texture2D;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-        base.Start();
+        base.OnAwake();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -25,7 +26,7 @@ public class SlimeHutch : Building {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
     }
 }

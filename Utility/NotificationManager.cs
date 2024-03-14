@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using static Utility.ClassManager;
@@ -18,8 +19,10 @@ public class NotificationManager : MonoBehaviour{
         }
     }
 
-    private int MAX_POSSIBLE_NOTIFICATIONS = 5;
-    private float NOTIFICATION_LIFETIME_SECONDS = 5;
+    private readonly int MAX_POSSIBLE_NOTIFICATIONS = 5;
+    private readonly float NOTIFICATION_LIFETIME_SECONDS = 5;
+    private readonly float TOOLTIP_DELAY_SECONDS = 0.75f;
+    public bool IsShowingTooltip {get; private set;} = false;
 
     private List<Notification> notifications = new List<Notification>();
 
@@ -57,6 +60,52 @@ public class NotificationManager : MonoBehaviour{
         Destroy(notification.notificationGameObject);
         notifications.Remove(notification);;
         OnNotificationChanged();
+    }
+
+    public void ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject){
+        GameObject tooltipGameObject = Resources.Load("UI/Tooltip") as GameObject;
+        tooltipGameObject = Instantiate(tooltipGameObject, GetCanvasGameObject().transform);
+        tooltipGameObject.transform.GetChild(0).GetComponent<Text>().text = tooltipableGameObject.TooltipMessage;
+        tooltipGameObject.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+        StartCoroutine(MakeTooltipFollowCursor(tooltipableGameObject, tooltipGameObject));
+    }
+
+    IEnumerator MakeTooltipFollowCursor(TooltipableGameObject tooltipedGameObjectscript, GameObject tooltip){
+        while (true){
+
+            if (tooltipedGameObjectscript.ShowTooltipCondition()){
+                tooltip.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+                yield return null;
+            }
+            else{
+                IsShowingTooltip = false;
+                Destroy(tooltip);
+                yield break;
+            }
+            
+        }
+    }
+
+    public void StartTooltipCountdown(TooltipableGameObject tooltipableScript){
+        if (IsShowingTooltip) return;
+        if (tooltipableScript.TooltipMessage == "") return;
+        // Debug.Log($"isShowingTooltip: {IsShowingTooltip}, TooltipMessage: {tooltipableScript.TooltipMessage}, can start");
+        IsShowingTooltip = true;
+        StartCoroutine(StartTooltipCountdownCoroutine(tooltipableScript));
+    }
+    private IEnumerator StartTooltipCountdownCoroutine(TooltipableGameObject tooltipableScript){
+        GameObject tooltipableGameObject = tooltipableScript.gameObject;
+        float counter = 0;
+        while (counter < TOOLTIP_DELAY_SECONDS){
+            counter += Time.deltaTime;
+            if (tooltipableScript.ShowTooltipCondition()) yield return null;
+            else{
+                IsShowingTooltip = false;
+                yield break;
+            }
+        }
+        if (tooltipableScript.ShowTooltipCondition()) ShowTooltipOnGameObject(tooltipableScript);
+
     }
 
 

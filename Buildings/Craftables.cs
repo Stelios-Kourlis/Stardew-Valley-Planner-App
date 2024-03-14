@@ -40,10 +40,11 @@ public class Craftables : Building{
     private SpriteAtlas atlas;
     public Type? CraftableType {get; private set;} = null;
     private static int miniObeliskCount;
+    public override string TooltipMessage => "";
 
-    public void Awake(){
+    public override void OnAwake(){
         baseHeight = 1;
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/Placeables/PlaceablesAtlas");
         if (CraftableType == null) SetCraftable(Type.Beehouse);
     } 

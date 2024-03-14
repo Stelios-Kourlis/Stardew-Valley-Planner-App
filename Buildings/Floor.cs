@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using UnityEngine.U2D.Animation;
 using UnityEngine.UIElements;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
@@ -39,10 +40,12 @@ public class Floor : Building {
     // public static FloorType floorType = FloorType.WOOD_FLOOR;
     private Type type = Type.WOOD_FLOOR;
     private new static Tilemap tilemap;
+    public override string TooltipMessage => "";
 
-    public new void Start(){
+    public override void OnAwake(){
+        Debug.Log("Floor OnAwake");
         baseHeight = 1;
-        base.Start();
+        base.OnAwake();
         FloorWasPlaced += AnotherFloorWasPlaced;
         atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
         sprite = atlas.GetSprite($"{type}0");
@@ -98,7 +101,7 @@ public class Floor : Building {
         if(!hasBeenPlaced) return;
         List<Vector3Int> neighbors = GetCrossAroundPosition(position).ToList();
         if (neighbors.Contains(baseCoordinates[0])){
-            Debug.Log("Neibhor Floor detected");
+            // Debug.Log("Neibhor Floor detected");
             UpdateTexture(atlas.GetSprite($"{type}{GetFloorFlagsSum(baseCoordinates[0])}"));
             // sprite = atlas.GetSprite($"{type}{GetFloorFlagsSum(baseCoordinates[0])}");
             // Tile[] buildingTiles = SplitSprite(sprite);

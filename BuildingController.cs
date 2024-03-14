@@ -28,7 +28,7 @@ public class BuildingController : MonoBehaviour{
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        currentBuildingType = typeof(Floor);
+        currentBuildingType = typeof(Silo);
         Building.buildingWasPlaced += OnBuildingPlaced;
     
     }
@@ -111,7 +111,7 @@ public class BuildingController : MonoBehaviour{
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Craftables);
-        Debug.Log("Set Craftable to " + placeable + " in BuildingController also " + (lastBuildingObjectCreated.GetComponent<Craftables>() == null));
+        // Debug.Log("Set Craftable to " + placeable + " in BuildingController also " + (lastBuildingObjectCreated.GetComponent<Craftables>() == null));
         lastBuildingObjectCreated.AddComponent<Craftables>().SetCraftable(placeable);
         lastBuildingObjectCreated.name = currentBuildingType.Name + "" + placeable;
     }
@@ -125,7 +125,7 @@ public class BuildingController : MonoBehaviour{
         };
         GameObject houseGameObject = new GameObject("House");
         houseGameObject.transform.parent = transform;
-        houseGameObject.AddComponent<House>().Start();
+        houseGameObject.AddComponent<House>().OnAwake();
         houseGameObject.GetComponent<House>().Place(housePos);
         houseGameObject.GetComponent<House>().ChangeTier(tier);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
@@ -207,7 +207,7 @@ public class BuildingController : MonoBehaviour{
         GameObject go = new GameObject(type.Name);
         go.transform.parent = transform;
         Building building = go.AddComponent(type) as Building;
-        building?.Start();
+        building?.OnAwake();
         building?.RecreateBuildingForData(x, y, data.Skip(3).ToArray());
     }
 

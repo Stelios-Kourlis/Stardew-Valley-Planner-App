@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Stable : Building {
+    public override string TooltipMessage => "";
 
-    public new void Start(){
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 2;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT
         };
-        base.Start();
+        base.OnAwake();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -23,7 +24,7 @@ public class Stable : Building {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
     }
 }

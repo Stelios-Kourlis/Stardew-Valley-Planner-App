@@ -41,6 +41,33 @@ namespace Utility{
             GetBuildingController().SetCurrentBuildingType(currentType);
         }
 
+        public static bool CanBuildingBePlacedThere(Vector3Int position, Building building){
+            MapController.MapTypes mapType = GetMapController().CurrentMapType;
+            HashSet<Type> cantBePlacedOnGingerInslad = new HashSet<Type>{
+                typeof(Barn),
+                typeof(Cabin),
+                typeof(Coop),
+                typeof(FishPond),
+                typeof(GoldClock),
+                typeof(Greenhouse),
+                typeof(House),
+                typeof(JunimoHut),
+                typeof(Mill),
+                typeof(Obelisk),
+                typeof(Shed),
+                typeof(ShippingBin),
+                typeof(Silo),
+                typeof(SlimeHutch),
+                typeof(Stable),
+                typeof(Well),
+            };
+            if (mapType == MapController.MapTypes.GingerIsland && cantBePlacedOnGingerInslad.Contains(building.GetType())){
+                GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island");
+                return false;
+            }
+            return true;
+        }
+
         /// <summary>
         /// Create a button to set the current building to the building type given
         /// </summary>
@@ -139,7 +166,7 @@ namespace Utility{
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
-                Debug.Log("Set Craftable to " + craftableType + " in BuildingManager");
+                // Debug.Log("Set Craftable to " + craftableType + " in BuildingManager");
                 GetBuildingController().SetCurrentBuildingToPlaceable(craftableType);
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
                 });

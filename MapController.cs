@@ -23,7 +23,7 @@ public class MapController : MonoBehaviour{
 
     }
     private SpriteAtlas atlas;
-    MapTypes currentMapType;
+    public MapTypes CurrentMapType {get; private set;}
     Tile redTile;
     private bool unavailableCoordinatesAreVisible = false;
     private bool addingInvalidTiles = false;
@@ -31,7 +31,7 @@ public class MapController : MonoBehaviour{
     // Start is called before the first frame update
     void Start(){
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
-        SetMap(MapTypes.GingerIsland);
+        SetMap(MapTypes.Normal);
     
         Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
@@ -59,7 +59,7 @@ public class MapController : MonoBehaviour{
     private void AddTileToCurrentMapInvalidTiles(Vector3Int tile){
         string path = "Assets/Resources/Maps/GingerIsland.txt";
         File.AppendAllText(path, $"{tile.x} {tile.y} {tile.z}\n");
-        Debug.Log($"Added {tile.x} {tile.y} {tile.z} to {currentMapType}");
+        Debug.Log($"Added {tile.x} {tile.y} {tile.z} to {CurrentMapType}");
         GameObject map = GameObject.FindWithTag("CurrentMap");
         TileBuildingData dataScript = map.GetComponent<TileBuildingData>();
         GetBuildingController().GetUnavailableCoordinates().Add(tile);
@@ -67,7 +67,7 @@ public class MapController : MonoBehaviour{
     }
 
     public void SetMap(MapTypes mapType) {
-        currentMapType = mapType;
+        CurrentMapType = mapType;
         BuildingController buildingController = GetBuildingController();
         buildingController.DeleteAllBuildings();
         buildingController.GetUnavailableCoordinates().Clear();
@@ -114,6 +114,6 @@ public class MapController : MonoBehaviour{
         ToggleMapUnavailableCoordinates(); //easiest way to update the tiles
     }
 
-    public MapTypes GetCurrentMapType() { return currentMapType; }
+    public MapTypes GetCurrentMapType() { return CurrentMapType; }
 
 }

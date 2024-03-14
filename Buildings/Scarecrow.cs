@@ -17,10 +17,15 @@ public class Scarecrow : Building{
     private Tile greenTile;
     private bool IsDeluxe {get; set;} = false;
 
-    public new void Start(){
+    public override string TooltipMessage{get{
+        if (!IsDeluxe) return "Right Click To Cycle Scarecrow Type";
+        else return "";
+    }}
+
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 1;
-        base.Start();
+        base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/ScarecrowAtlas");
         greenTile = LoadTile("GreenTile");
         UpdateTexture(atlas.GetSprite($"Scarecrows_{scarecrowIndex}"));
@@ -96,7 +101,7 @@ public class Scarecrow : Building{
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Start();
+        OnAwake();
         Place(new Vector3Int(x,y,0));
         UpdateTexture(atlas.GetSprite($"Scarecrows_{data[0]}"));
     }

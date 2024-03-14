@@ -12,15 +12,16 @@ public class Greenhouse : Building {
 
     private GameObject porchTilemapObject;
     private Sprite porchSprite;
+    public override string TooltipMessage => "Right Click For More Options";
 
-    public new void Start(){
+    public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 6;
         insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-        base.Start();
+        base.OnAwake();
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
     }
