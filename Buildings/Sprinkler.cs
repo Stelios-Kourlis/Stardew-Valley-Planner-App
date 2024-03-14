@@ -31,14 +31,13 @@ public class Sprinkler : Building, ITieredBuilding{
         UpdateTexture(atlas.GetSprite($"Sprinkler{tier}"));
     }
 
-    protected override void PlacePreview(){
+    protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        base.PlacePreview();
+        base.PlacePreview(position);
         Vector3Int[] coverageArea = Tier switch{
-            1 => GetCrossAroundPosition(currentCell).ToArray(),
-            2 => GetAreaAroundPosition(currentCell, 1).ToArray(),
-            3 => GetAreaAroundPosition(currentCell, 2).ToArray(),
+            1 => GetCrossAroundPosition(position).ToArray(),
+            2 => GetAreaAroundPosition(position, 1).ToArray(),
+            3 => GetAreaAroundPosition(position, 2).ToArray(),
             _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);

@@ -32,14 +32,13 @@ public class Scarecrow : Building{
         UpdateTexture(atlas.GetSprite($"Scarecrows_9"));
     }
 
-    protected override void PlacePreview(){
+    protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
         GetComponent<Tilemap>();
-        base.PlacePreview();
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        base.PlacePreview(position);
         Vector3Int[] coverageArea = scarecrowIndex switch{
-            9 => GetRangeOfDeluxeScarecrow(currentCell).ToArray(),
-            _ => GetRangeOfScarecrow(currentCell).ToArray()
+            9 => GetRangeOfDeluxeScarecrow(position).ToArray(),
+            _ => GetRangeOfScarecrow(position).ToArray()
         };
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
     }

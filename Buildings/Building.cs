@@ -75,7 +75,7 @@ public abstract class Building : MonoBehaviour {
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
-        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview();
+        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview(currentCell);
         else if (currentAction == Actions.EDIT) PickupPreview();
         else if (currentAction == Actions.DELETE) DeletePreview();
 
@@ -83,14 +83,7 @@ public abstract class Building : MonoBehaviour {
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if (EventSystem.current.IsPointerOverGameObject()) return;
             
-            if ((currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP)  && !hasBeenPlaced){
-                Place(currentCell);
-                // Debug.Log("PLACED BUILDING");
-                if (hasBeenPlaced){
-                    UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
-                    GetBuildingController().AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
-                }
-            }
+            if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
             else if (currentAction == Actions.EDIT && hasBeenPlaced && (baseCoordinates?.Contains(currentCell) ?? false)){
                 GetBuildingController().AddActionToLog(new UserAction(Actions.EDIT, UID, GetBuildingData()));
                 Pickup();
@@ -106,6 +99,21 @@ public abstract class Building : MonoBehaviour {
         }
     }
 
+    private void PlaceWrapper(Vector3Int position){
+        if (hasBeenPlaced) return;
+        List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
+        if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
+            GetNotificationManager().SendNotification($"Cannot place {GetType()} here");
+            return;
+        }
+        Place(position);
+        GetBuildingController().buildingGameObjects.Add(gameObject);
+        GetBuildingController().buildings.Add(this);
+        UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
+        GetBuildingController().AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
+        if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
+    }
+
     protected virtual void PickupPreview(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
@@ -116,7 +124,7 @@ public abstract class Building : MonoBehaviour {
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
-    protected virtual void PlacePreview(){
+    protected virtual void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
@@ -142,24 +150,27 @@ public abstract class Building : MonoBehaviour {
     }
     
     /// <summary>
-    /// Place the building at the given position
+    /// Place the building at the given position.
+    /// <para>When this is called it means that:</para>
+    /// <code>
+    ///     hasBeenPlaced = false;
+    ///     baseCoordinates are available
+    /// </code>
+    /// <para>After this is called:</para>
+    /// <code>
+    ///     buildingWasPlaced will be invoked
+    ///     The building will have been added to GetBuildingController().buildingGameObjects
+    /// </code>
     /// </summary>
-    /// <param name="position"></param>
+    /// <param name="position">The position you want to place the building</param>
     public virtual void Place(Vector3Int position){
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
-        if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
-            GetNotificationManager().SendNotification($"Cannot place {GetType()} here");
-            return;
-        }
-
         List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, height, width);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
         gameObject.GetComponent<Tilemap>().color = OPAQUE;
         gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), SplitSprite(sprite));
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
-        GetBuildingController().buildingGameObjects.Add(gameObject);
-        GetBuildingController().buildings.Add(this);
 
         this.baseCoordinates = baseCoordinates.ToArray();
         this.spriteCoordinates = spriteCoordinates.ToArray();
@@ -174,7 +185,6 @@ public abstract class Building : MonoBehaviour {
         }
 
         if (this is ITieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);
-        if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
 
         // Debug.Log($"UID: {UID}");
     }
@@ -186,8 +196,8 @@ public abstract class Building : MonoBehaviour {
         sprite = newSprite;
         if (!hasBeenPlaced) return;
         Tile[] buildingTiles = SplitSprite(sprite);
-        Debug.Log(gameObject == null);
-        gameObject?.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
+        // Debug.Log(this.gameObject == null);
+        this.gameObject?.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
     }
 
     public bool VectorInBaseCoordinates(Vector3Int checkForMe) {

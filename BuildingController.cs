@@ -28,7 +28,7 @@ public class BuildingController : MonoBehaviour{
     private GameObject lastBuildingObjectCreated;
 
     void Start(){
-        currentBuildingType = typeof(Fence);
+        currentBuildingType = typeof(Floor);
         Building.buildingWasPlaced += OnBuildingPlaced;
     
     }
@@ -57,6 +57,11 @@ public class BuildingController : MonoBehaviour{
             go.GetComponent<Craftables>().SetCraftable(lastCraftable);
             go.name += lastCraftable;
         }
+        if (currentBuildingType == typeof(Fence)){
+            Fence.Type lastFence = Fence.currentType;
+            go.GetComponent<Fence>().SetType(lastFence);
+            go.name += lastFence;
+        }
         lastBuildingObjectCreated = go;
     }
 
@@ -78,13 +83,20 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
-    public void SetCurrentBuildingToFloor(FloorType floorType){
+    public void SetCurrentBuildingToFloor(Floor.Type floorType){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Floor);
-        lastBuildingObjectCreated.AddComponent(currentBuildingType);
-        Floor.floorType = floorType;
-        lastBuildingObjectCreated.name = currentBuildingType.Name;
+        lastBuildingObjectCreated.AddComponent<Floor>().SetType(floorType);
+        lastBuildingObjectCreated.name = currentBuildingType.Name + floorType;
+    }
+
+    public void SetCurrentBuildingToFence(Fence.Type fenceType){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = typeof(Fence);
+        lastBuildingObjectCreated.AddComponent<Fence>().SetType(fenceType);
+        lastBuildingObjectCreated.name = currentBuildingType.Name + fenceType;
     }
 
     public void SetCurrentBuildingToCabin(Cabin.CabinTypes cabinType){

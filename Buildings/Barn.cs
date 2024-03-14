@@ -36,7 +36,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
         if (Tier == 0) ChangeTier(1);
     }
 
-    public void ChangeTier(int tier){//todo on tier decrease check animals
+    public void ChangeTier(int tier){
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
         Tier = tier;
         animalCapacity = 4 * tier;
@@ -85,7 +85,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
         foreach (var animal in animals){
             animalCost += animal.Key switch{
                 Animals.Cow => 1_500,
-                //Animals.Ostrich => Egg,//todo Add ostrich egg
+                // Animals.Ostrich => Egg,//todo Add ostrich egg
                 Animals.Goat => 4_000,
                 Animals.Sheep => 8_000,
                 Animals.Pig => 16_000,

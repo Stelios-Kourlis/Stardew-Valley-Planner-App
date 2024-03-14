@@ -26,17 +26,16 @@ public class JunimoHut : Building {
     };
 }
 
-    protected override void PlacePreview(){//todo add range
+    protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        base.PlacePreview();
-        List<Vector3Int> coverageArea = GetAreaAroundPosition(new Vector3Int(currentCell.x-7, currentCell.y-8, 0), 17, 17);
-        coverageArea.Remove(currentCell);
-        coverageArea.Remove(new Vector3Int(currentCell.x+1, currentCell.y, 0));
-        coverageArea.Remove(new Vector3Int(currentCell.x+2, currentCell.y, 0));
-        coverageArea.Remove(new Vector3Int(currentCell.x, currentCell.y+1, 0));
-        coverageArea.Remove(new Vector3Int(currentCell.x+1, currentCell.y+1, 0));
-        coverageArea.Remove(new Vector3Int(currentCell.x+2, currentCell.y+1, 0));
+        base.PlacePreview(position);
+        List<Vector3Int> coverageArea = GetAreaAroundPosition(new Vector3Int(position.x-7, position.y-8, 0), 17, 17);
+        coverageArea.Remove(position);
+        coverageArea.Remove(new Vector3Int(position.x+1, position.y, 0));
+        coverageArea.Remove(new Vector3Int(position.x+2, position.y, 0));
+        coverageArea.Remove(new Vector3Int(position.x, position.y+1, 0));
+        coverageArea.Remove(new Vector3Int(position.x+1, position.y+1, 0));
+        coverageArea.Remove(new Vector3Int(position.x+2, position.y+1, 0));
         foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
     }
 

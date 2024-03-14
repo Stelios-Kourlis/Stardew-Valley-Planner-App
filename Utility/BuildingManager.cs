@@ -14,7 +14,7 @@ using static Utility.ClassManager;
 namespace Utility{
     public static class BuildingManager{
 
-        public static void Save() {//todo add Load
+        public static void Save() {
             var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
             if (paths.Length > 0) {
                 using StreamWriter writer = new StreamWriter(paths[0]);
@@ -83,11 +83,28 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, FloorType floorType){
+        public static void CreateButton(string name, string imagePath, Transform transform, Floor.Type floorType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 GetBuildingController().SetCurrentBuildingToFloor(floorType);
+                GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                });
+            button.name = name;
+        }
+
+        /// <summary>
+        /// Create a button to set the current building to fence and set the fence type
+        /// </summary>
+        /// <param name="name">the name of the GameObject created</param>
+        /// <param name="imagePath">the path of the image for the button</param>
+        /// <param name="transform">The transform of the parent object</param>
+        /// <param name="floorType">The type of floor</param>
+        public static void CreateButton(string name, string imagePath, Transform transform, Fence.Type fenceType){
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                GetBuildingController().SetCurrentBuildingToFence(fenceType);
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
                 });
             button.name = name;

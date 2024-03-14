@@ -8,6 +8,7 @@ using UnityEngine.Tilemaps;
 using System;
 using UnityEngine.U2D;
 using System.IO;
+using System.Linq;
 
 public class MapController : MonoBehaviour{
     public enum MapTypes {
@@ -26,10 +27,11 @@ public class MapController : MonoBehaviour{
     Tile redTile;
     private bool unavailableCoordinatesAreVisible = false;
     private bool addingInvalidTiles = false;
+    private Vector3Int startTile;
     // Start is called before the first frame update
     void Start(){
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
-        SetMap(MapTypes.Normal);
+        SetMap(MapTypes.GingerIsland);
     
         Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
@@ -37,22 +39,30 @@ public class MapController : MonoBehaviour{
     }
 
     public void Update(){
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.A)){
+        if (Input.GetKeyUp(KeyCode.A)){
+            Debug.Log("Ctrl A");
             addingInvalidTiles = !addingInvalidTiles;
             GetNotificationManager().SendNotification($"Toggled addingInvalidTiles, its now {addingInvalidTiles}");
         }
-        else
-        if (Input.GetKeyUp(KeyCode.Mouse0) && addingInvalidTiles) AddTileToCurrentMapInvalidTiles();
+
+        if (Input.GetKeyDown(KeyCode.Mouse0) && addingInvalidTiles){
+            startTile = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        }if (Input.GetKeyUp(KeyCode.Mouse0) && addingInvalidTiles){
+            Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            Vector3Int[] tileList;
+            if (startTile != currentCell) tileList = GetAllCoordinatesInArea(startTile, currentCell).ToArray();
+            else tileList = new Vector3Int[]{currentCell};
+            foreach (Vector3Int tile in tileList) AddTileToCurrentMapInvalidTiles(tile);
+        }
     }
 
-    private void AddTileToCurrentMapInvalidTiles(){
+    private void AddTileToCurrentMapInvalidTiles(Vector3Int tile){
         string path = "Assets/Resources/Maps/GingerIsland.txt";
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        File.AppendAllText(path, $"{currentCell.x} {currentCell.y} {currentCell.z}\n");
-        Debug.Log($"Added {currentCell.x} {currentCell.y} {currentCell.z} to {currentMapType}");
+        File.AppendAllText(path, $"{tile.x} {tile.y} {tile.z}\n");
+        Debug.Log($"Added {tile.x} {tile.y} {tile.z} to {currentMapType}");
         GameObject map = GameObject.FindWithTag("CurrentMap");
         TileBuildingData dataScript = map.GetComponent<TileBuildingData>();
-        GetBuildingController().GetUnavailableCoordinates().Add(currentCell);
+        GetBuildingController().GetUnavailableCoordinates().Add(tile);
         UpdateUnavailableCoordinates();
     }
 

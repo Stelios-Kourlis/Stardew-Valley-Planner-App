@@ -18,11 +18,25 @@ public class FloorBarHandler : MonoBehaviour {
     }
 
     void Update(){
-        if (GetBuildingController().GetCurrentBuildingType() == typeof(Floor) && !floorBarIsOpen){
+        bool isCurrentBuildingFloor = GetBuildingController().GetCurrentBuildingType() == typeof(Floor);
+        bool isCurrentBuildingFence = GetBuildingController().GetCurrentBuildingType() == typeof(Fence);
+        if (isCurrentBuildingFloor && !floorBarIsOpen){
             floorBarIsOpen = true;
+            for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
+                if (i<13) transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(true);
+                else transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(false);
+            }
             StartCoroutine(OpenBar());
         }
-        else if (!(GetBuildingController().GetCurrentBuildingType() == typeof(Floor)) && floorBarIsOpen) {
+        else if (isCurrentBuildingFence && !floorBarIsOpen){
+            floorBarIsOpen = true;
+            for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
+                if (i<13) transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(false);
+                else transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(true);
+            }
+            StartCoroutine(OpenBar());
+        }
+        else if (!isCurrentBuildingFence && !isCurrentBuildingFloor && floorBarIsOpen) {
             floorBarIsOpen = false;
             StartCoroutine(CloseBar());
         }

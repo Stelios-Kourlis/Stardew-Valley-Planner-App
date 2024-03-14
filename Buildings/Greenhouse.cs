@@ -42,11 +42,10 @@ public class Greenhouse : Building {
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 
-    protected override void PlacePreview(){
+    protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
-        base.PlacePreview();
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        Vector3Int porchBottomRight = currentCell + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
+        base.PlacePreview(position);
+        Vector3Int porchBottomRight = position + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
         Vector3Int[] porchCoordinates = GetAreaAroundPosition(porchBottomRight, 2, 3).ToArray();
         HashSet<Vector3Int> unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates();
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();

@@ -26,7 +26,7 @@ namespace Utility{
         ///<returns>An array of Vector3Int that containts every vector in the rectangle</returns>
         public static List<Vector3Int> GetAreaAroundPosition(Vector3Int lowerLeftCorner, int height, int width, bool flipped = false) {
             if (lowerLeftCorner == null) throw new ArgumentNullException("Position cannot be null");
-            if (height <= 0 || width <= 0) throw new ArgumentException($"Height and width must be positive, got {height} height and {width} width.");
+            if (height < 0 || width < 0) throw new ArgumentException($"Height and width must be positive, got {height} height and {width} width.");
             List<Vector3Int> area = new List<Vector3Int>();
             if (!flipped){
                 for (int heightOffset = 0; heightOffset < height; heightOffset++) {

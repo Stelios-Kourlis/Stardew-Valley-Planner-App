@@ -53,7 +53,7 @@ public class Craftables : Building{
         if (sprite == null){
             Debug.LogWarning("Sprite is null");
             SetCraftable((Type)CraftableType);
-        }//todo for some reason when switchng craftables, CraftableType is Beehouse and sprite is null
+        }
         base.Update();
     }
 
