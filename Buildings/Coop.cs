@@ -39,7 +39,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
         Tier = tier;
         animalCapacity = 4 * tier;
-        UpdateTexture(atlas.GetSprite($"CoopAtlas_{tier}"));
+        UpdateTexture(atlas.GetSprite($"Coop{tier}"));
 
         //Update Animals
         List<KeyValuePair<Animals, GameObject>> animalsToRemove = new List<KeyValuePair<Animals, GameObject>>();

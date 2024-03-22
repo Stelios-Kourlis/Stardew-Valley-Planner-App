@@ -11,6 +11,13 @@ using System;
 
 public class InputHandler : MonoBehaviour {
 
+    public enum CursorType {
+        Default,
+        Delete,
+        Place,
+        Pickup
+    }
+
     public bool IsSearching {get; set;} = false;
     BuildingController buildingController;
     //bool mouseIsHeld = false;
@@ -31,8 +38,7 @@ public class InputHandler : MonoBehaviour {
         // buildingBasePreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
 
         buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-
-        Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+        SetCursor(CursorType.Default);
     }
 
     void Update(){
@@ -69,12 +75,26 @@ public class InputHandler : MonoBehaviour {
         if (Input.GetKeyUp(KeyCode.D)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
 
         if (Input.GetKeyUp(KeyCode.Q)){
-            #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-            #else
-                Application.Quit();
-            #endif
+            GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
+            quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
         }
     }
 
+    public void SetCursor(CursorType type){
+        //Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+        switch (type){
+            case CursorType.Default:
+                Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+                break;
+            case CursorType.Delete:
+                Cursor.SetCursor(Resources.Load("UI/CursorDelete") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+                break;
+            case CursorType.Place:
+                Cursor.SetCursor(Resources.Load("UI/CursorPlace") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+                break;
+            case CursorType.Pickup:
+                Cursor.SetCursor(Resources.Load("UI/CursorHand") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+                break;
+        }
+    }
 }

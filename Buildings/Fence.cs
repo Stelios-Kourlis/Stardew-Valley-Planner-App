@@ -48,8 +48,6 @@ public class Fence : Building{
     public void SetType(Type type){
         currentType = type;
         this.type = type;
-        // Debug.Log(atlas == null);
-        // Debug.Log(atlas.GetSprite($"{type}Fence0")==null);
         UpdateTexture(atlas.GetSprite($"{type}Fence0"));
     }
 
@@ -59,7 +57,6 @@ public class Fence : Building{
 
     public override void OnAwake(){
         atlas = Resources.Load<SpriteAtlas>("Fences/FencesAtlas");
-        // Debug.Log($"Fence Atlas is null at start: {atlas == null}");
         baseHeight = 1;
         base.OnAwake();
         FenceWasPlaced += AnotherFenceWasPlaced;

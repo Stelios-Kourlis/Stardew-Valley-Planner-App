@@ -75,7 +75,6 @@ public abstract class Building : TooltipableGameObject {
     }
 
     public override void OnAwake(){    
-        Debug.Log("Building OnAwake");
         AddTilemapToObject(gameObject);
         if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{name}");
         mousePositionOfLastFrame = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
@@ -85,23 +84,26 @@ public abstract class Building : TooltipableGameObject {
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
-        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlacePreview(currentCell);
-        else if (currentAction == Actions.EDIT) PickupPreview();
-        else if (currentAction == Actions.DELETE) DeletePreview();
+        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP){
+            GetInputHandler().SetCursor(InputHandler.CursorType.Place);
+            PlacePreview(currentCell);
+        }
+        else if (currentAction == Actions.EDIT){
+            GetInputHandler().SetCursor(InputHandler.CursorType.Pickup);
+            PickupPreview();
+        }
+        else if (currentAction == Actions.DELETE){
+            GetInputHandler().SetCursor(InputHandler.CursorType.Delete);
+            DeletePreview();
+        }
 
        
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if (EventSystem.current.IsPointerOverGameObject()) return;
             
             if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
-            else if (currentAction == Actions.EDIT && hasBeenPlaced && (baseCoordinates?.Contains(currentCell) ?? false)){
-                GetBuildingController().AddActionToLog(new UserAction(Actions.EDIT, UID, GetBuildingData()));
-                Pickup();
-            }
-            else if (currentAction == Actions.DELETE && (baseCoordinates?.Contains(currentCell) ?? false)){
-                if (!(this is House)) GetBuildingController().AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
-                Delete();
-            }
+            else if (currentAction == Actions.EDIT) PickupWrapper();
+            else if (currentAction == Actions.DELETE) DeleteWrapper();
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse1)){
@@ -124,6 +126,22 @@ public abstract class Building : TooltipableGameObject {
         UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
         GetBuildingController().AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
         if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
+    }
+
+    private void PickupWrapper(){
+        if (!hasBeenPlaced) return;
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (!baseCoordinates?.Contains(currentCell) ?? false) return;
+        GetBuildingController().AddActionToLog(new UserAction(Actions.EDIT, UID, GetBuildingData()));
+        Pickup();
+    }
+
+    private void DeleteWrapper(){
+        if (!hasBeenPlaced) return;
+        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        if (!baseCoordinates?.Contains(currentCell) ?? false) return;
+        GetBuildingController().AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
+        Delete();
     }
 
     protected virtual void PickupPreview(){

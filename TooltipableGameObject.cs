@@ -16,7 +16,6 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
     public void Awake(){
         graphicRaycaster = GetComponent<GraphicRaycaster>();
         if (graphicRaycaster == null){graphicRaycaster = gameObject.AddComponent<GraphicRaycaster>();}
-        Debug.Log("TooltipableGameObject Awake");
 
         OnAwake();
     }

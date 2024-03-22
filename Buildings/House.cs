@@ -27,7 +27,7 @@ public class House : Building, ITieredBuilding {
         if (tier < 1 || tier > 4) throw new System.ArgumentException($"Tier must be between 1 and 4 (got {tier})");
         Tier = tier;
         if (Tier == 4) Tier = 3;//Tier 3 and 4 share the same outside texture
-        UpdateTexture(atlas.GetSprite($"HouseT{tier}"));
+        UpdateTexture(atlas.GetSprite($"House{tier}"));
     }
 
     protected override void Pickup(){
