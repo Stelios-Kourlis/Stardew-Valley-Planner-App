@@ -65,8 +65,8 @@ public class InputHandler : MonoBehaviour {
         }
 
         if (Input.GetKeyUp(KeyCode.I)){
-            GetMapController().ToggleMapUnavailableCoordinates();
-            GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility");
+            GetMapController().ToggleAllCoordinates();
+            GetNotificationManager().SendNotification("Toggled coordinates visibility");
         }
 
         if (Input.GetKeyUp(KeyCode.Escape)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();

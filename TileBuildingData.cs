@@ -30,13 +30,49 @@ public class TileBuildingData : MonoBehaviour {
         }
         BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
         foreach (Vector3Int vec in tempList) buildingController.GetUnavailableCoordinates().Add(vec);
+    }
 
+    public void AddPlantableTilesData(MapController.MapTypes farm) {
+        List<Vector3Int> tempList = new List<Vector3Int>();
+        string path = "Maps/" + farm.ToString() + "P";
+        TextAsset textAsset = Resources.Load<TextAsset>(path);
+        string[] tiles = textAsset.text.Split('\n');
+        foreach (string tile in tiles) {
+            if (tile == "") continue;
+            string[] nums = tile.Split(' ');
+            int x = int.Parse(nums[0]);
+            int y = int.Parse(nums[1]);
+            int z = int.Parse(nums[2]);
+            tempList.Add(new Vector3Int(x, y, z));
+            // Debug.Log("Added " + x + " " + y + " " + z);
+        }
+        BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
+        foreach (Vector3Int vec in tempList) buildingController.GetPlantableCoordinates().Add(vec);
     }
 
     public void RemoveAllDuplicates() {
-        string[] names = { "Normal", "Riverland", "Forest", "Hilltop", "Wilderness", "Four Corners", "Beach" };
+        string[] names = { "Normal", "Riverland", "Forest", "Hilltop", "Wilderness", "Four Corners", "Beach", "GingerIsland" };
         foreach (string mapName in names) {
             string path = "Assets/Resources/Maps" + mapName + ".txt";
+            HashSet<Vector3Int> tiles = new HashSet<Vector3Int>();
+            TextReader reader = File.OpenText(path);
+            string text;
+            while ((text = reader.ReadLine()) != null) {
+                string[] nums = text.Split(' ');
+                int x = int.Parse(nums[0]);
+                int y = int.Parse(nums[1]);
+                int z = int.Parse(nums[2]);
+                tiles.Add(new Vector3Int(x, y, z));
+            }
+            StreamWriter writer = new StreamWriter(path, true);
+            foreach (Vector3Int vec in tiles) {
+                writer.WriteLine(vec.x + " " + vec.y + " " + vec.z);
+            }
+            writer.Close();
+        }
+
+        foreach (string mapName in names) {
+            string path = "Assets/Resources/Maps" + mapName + "P.txt";
             HashSet<Vector3Int> tiles = new HashSet<Vector3Int>();
             TextReader reader = File.OpenText(path);
             string text;
