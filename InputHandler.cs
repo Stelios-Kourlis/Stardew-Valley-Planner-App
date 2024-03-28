@@ -64,7 +64,10 @@ public class InputHandler : MonoBehaviour {
             buildingController.RedoLastUndo();
         }
 
-        if (Input.GetKeyUp(KeyCode.I)) GetMapController().ToggleMapUnavailableCoordinates();
+        if (Input.GetKeyUp(KeyCode.I)){
+            GetMapController().ToggleMapUnavailableCoordinates();
+            GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility");
+        }
 
         if (Input.GetKeyUp(KeyCode.Escape)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();
 
@@ -72,7 +75,22 @@ public class InputHandler : MonoBehaviour {
 
         if (Input.GetKeyUp(KeyCode.L)) buildingController.Load();
 
-        if (Input.GetKeyUp(KeyCode.D)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
+        if (Input.GetKeyUp(KeyCode.P)){
+            Building.currentAction = Actions.PLACE;
+            GetNotificationManager().SendNotification("Set mode to placement");
+        }
+
+        if (Input.GetKeyUp(KeyCode.E)){
+            Building.currentAction = Actions.EDIT;
+            GetNotificationManager().SendNotification("Set mode to edit");
+        }
+
+        if (Input.GetKeyUp(KeyCode.D)){
+            Building.currentAction = Actions.DELETE;
+            GetNotificationManager().SendNotification("Set mode to delete");
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.D)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
 
         if (Input.GetKeyUp(KeyCode.Q)){
             GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
@@ -81,7 +99,6 @@ public class InputHandler : MonoBehaviour {
     }
 
     public void SetCursor(CursorType type){
-        //Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
         switch (type){
             case CursorType.Default:
                 Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);

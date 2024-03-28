@@ -65,6 +65,10 @@ namespace Utility{
                 GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island");
                 return false;
             }
+            if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
+                GetNotificationManager().SendNotification("Can't place a crop there");
+                return false;
+            }
             return true;
         }
 

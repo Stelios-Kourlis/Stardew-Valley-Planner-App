@@ -13,6 +13,7 @@ using UnityEngine.UI;
 public class BuildingController : MonoBehaviour{
     /// <summary> A coordinate is unavailable if it is occupied by a building or if its out of bounds for the current map </summary>
     private readonly HashSet<Vector3Int> unavailableCoordinates = new HashSet<Vector3Int>();
+    private readonly HashSet<Vector3Int> plantableCoordinates = new HashSet<Vector3Int>();
     public readonly List<Building> buildings = new List<Building>();
     /// <summary> actions the user has done, the first 2 elements always are Action, UID and then the building data  </summary>
     private readonly Stack<UserAction> actionLog = new Stack<UserAction>();
@@ -41,7 +42,7 @@ public class BuildingController : MonoBehaviour{
             if (lastBuildingObjectCreated == null) OnBuildingPlaced();
         }
 
-        if (Input.GetKeyUp(KeyCode.Z)) Debug.Log(unavailableCoordinates.Count);
+        // if (Input.GetKeyUp(KeyCode.Z)) Debug.Log(unavailableCoordinates.Count);
 
         //foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
     }
@@ -225,6 +226,7 @@ public class BuildingController : MonoBehaviour{
 
     public Type GetCurrentBuildingType(){ return currentBuildingType; }
     public HashSet<Vector3Int> GetUnavailableCoordinates(){ return unavailableCoordinates; }
+    public HashSet<Vector3Int> GetPlantableCoordinates(){ return plantableCoordinates; }
     public List<Building> GetBuildings(){ return buildings; }
     // public Actions GetCurrentAction(){ return currentAction; }
     //public FloorType GetCurrentFloorType(){ return currentFloorType; }
