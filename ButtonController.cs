@@ -49,6 +49,7 @@ public class ButtonController : MonoBehaviour{
         CreateButton("fishPond", "Buildings/FishPond", buildingPanelTransform, typeof(FishPond));
         CreateButton("floor", "Buildings/WoodFloor", buildingPanelTransform, typeof(Floor));
         CreateButton("Fence", "Fences/WoodFence", buildingPanelTransform, typeof(Fence));
+        CreateButton("Crop", "Buildings/Crop", buildingPanelTransform, typeof(Crop));
 
         //Placeables Buttons
         buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(1).GetChild(0);
@@ -87,23 +88,25 @@ public class ButtonController : MonoBehaviour{
 
         //Floor Type Buttons
         Transform floorBarTransform = GameObject.FindWithTag("FloorSelectBar").transform.GetChild(0).GetChild(0);
-        CreateButton("WoodFloor", "Floors/WoodFloor", floorBarTransform, Floor.Type.WOOD_FLOOR);
-        CreateButton("RusticPlankFloor", "Floors/RusticPlankFloor", floorBarTransform, Floor.Type.RUSTIC_PLANK_FLOOR);
-        CreateButton("StrawFloor", "Floors/StrawFloor", floorBarTransform, Floor.Type.STRAW_FLOOR);
-        CreateButton("WeatheredFloor", "Floors/WeatheredFloor", floorBarTransform, Floor.Type.WEATHERED_FLOOR);
-        CreateButton("CrystalFloor", "Floors/CrystalFloor", floorBarTransform, Floor.Type.CRYSTAL_FLOOR);
-        CreateButton("StoneFloor", "Floors/StoneFloor", floorBarTransform, Floor.Type.STONE_FLOOR);
-        CreateButton("StoneWalkwayFloor", "Floors/StoneWalkwayFloor", floorBarTransform, Floor.Type.STONE_WALKWAY_FLOOR);
-        CreateButton("BrickFloor", "Floors/BrickFloor", floorBarTransform, Floor.Type.BRICK_FLOOR);
-        CreateButton("WoodPath", "Floors/WoodPath", floorBarTransform, Floor.Type.WOOD_PATH);
-        CreateButton("GravelPath", "Floors/GravelPath", floorBarTransform, Floor.Type.GRAVEL_PATH);
-        CreateButton("CobblestonePath", "Floors/CobblestonePath", floorBarTransform, Floor.Type.COBBLESTONE_PATH);
-        CreateButton("SteppingStonePath", "Floors/SteppingStonePath", floorBarTransform, Floor.Type.STEPPING_STONE_PATH);
-        CreateButton("CrystalPath", "Floors/CrystalPath", floorBarTransform, Floor.Type.CRYSTAL_PATH);
-        CreateButton("WoodFence", "Fences/WoodFence", floorBarTransform, Fence.Type.Wood);
-        CreateButton("HardwoodFence", "Fences/HardwoodFence", floorBarTransform, Fence.Type.Hardwood);
-        CreateButton("IronFence", "Fences/IronFence", floorBarTransform, Fence.Type.Iron);
-        CreateButton("StoneFence", "Fences/StoneFence", floorBarTransform, Fence.Type.Stone);
+        CreateButton("WoodFloor", "Floors/WoodFloor", floorBarTransform, Floor.Types.WOOD_FLOOR);
+        CreateButton("RusticPlankFloor", "Floors/RusticPlankFloor", floorBarTransform, Floor.Types.RUSTIC_PLANK_FLOOR);
+        CreateButton("StrawFloor", "Floors/StrawFloor", floorBarTransform, Floor.Types.STRAW_FLOOR);
+        CreateButton("WeatheredFloor", "Floors/WeatheredFloor", floorBarTransform, Floor.Types.WEATHERED_FLOOR);
+        CreateButton("CrystalFloor", "Floors/CrystalFloor", floorBarTransform, Floor.Types.CRYSTAL_FLOOR);
+        CreateButton("StoneFloor", "Floors/StoneFloor", floorBarTransform, Floor.Types.STONE_FLOOR);
+        CreateButton("StoneWalkwayFloor", "Floors/StoneWalkwayFloor", floorBarTransform, Floor.Types.STONE_WALKWAY_FLOOR);
+        CreateButton("BrickFloor", "Floors/BrickFloor", floorBarTransform, Floor.Types.BRICK_FLOOR);
+        CreateButton("WoodPath", "Floors/WoodPath", floorBarTransform, Floor.Types.WOOD_PATH);
+        CreateButton("GravelPath", "Floors/GravelPath", floorBarTransform, Floor.Types.GRAVEL_PATH);
+        CreateButton("CobblestonePath", "Floors/CobblestonePath", floorBarTransform, Floor.Types.COBBLESTONE_PATH);
+        CreateButton("SteppingStonePath", "Floors/SteppingStonePath", floorBarTransform, Floor.Types.STEPPING_STONE_PATH);
+        CreateButton("CrystalPath", "Floors/CrystalPath", floorBarTransform, Floor.Types.CRYSTAL_PATH);
+        CreateButton("WoodFence", "Fences/WoodFence", floorBarTransform, Fence.Types.Wood);
+        CreateButton("HardwoodFence", "Fences/HardwoodFence", floorBarTransform, Fence.Types.Hardwood);
+        CreateButton("IronFence", "Fences/IronFence", floorBarTransform, Fence.Types.Iron);
+        CreateButton("StoneFence", "Fences/StoneFence", floorBarTransform, Fence.Types.Stone);
+        CreateButton("Parsnip", "Fences/StoneFence", floorBarTransform, Crop.Types.Parsnip);
+        CreateButton("Pumpkin", "Fences/StoneFence", floorBarTransform, Crop.Types.Pumpkin);
         
     }
 

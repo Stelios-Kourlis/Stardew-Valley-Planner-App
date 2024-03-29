@@ -13,9 +13,9 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 
-public class Floor : Building {
+public class Floor : Building, IMultipleTypeBuilding<Floor.Types>{
 
-    public enum Type {
+    public enum Types {
         WOOD_FLOOR,
         RUSTIC_PLANK_FLOOR,
         STRAW_FLOOR,
@@ -37,10 +37,14 @@ public class Floor : Building {
     // private Vector3Int position;
     //private static List<Vector3Int> otherFloors = new List<Vector3Int>();
     private static readonly List<Vector3Int> floors = new List<Vector3Int>();
-    // public static FloorType floorType = FloorType.WOOD_FLOOR;
-    private Type type = Type.WOOD_FLOOR;
+    // public static FloorType floorType = FloorTypes.WOOD_FLOOR;
+    public Types Type {get; private set;} = Types.WOOD_FLOOR;
     private new static Tilemap tilemap;
     public override string TooltipMessage => "";
+
+    //Types IMultipleTypeBuilding<Types>.Type => throw new NotImplementedException();
+
+    //Types IMultipleTypeBuilding<Types>.Type => throw new NotImplementedException();
 
     public override void OnAwake(){
         Debug.Log("Floor OnAwake");
@@ -48,7 +52,7 @@ public class Floor : Building {
         base.OnAwake();
         FloorWasPlaced += AnotherFloorWasPlaced;
         atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
-        sprite = atlas.GetSprite($"{type}0");
+        sprite = atlas.GetSprite($"{Type}0");
         tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
     }
 
@@ -56,7 +60,7 @@ public class Floor : Building {
         base.Place(position);
         floors.Add(position);
         hasBeenPlaced = true;
-        UpdateTexture(atlas.GetSprite($"{type}{GetFloorFlagsSum(position)}"));
+        UpdateTexture(atlas.GetSprite($"{Type}{GetFloorFlagsSum(position)}"));
         Tile[] buildingTiles = SplitSprite(sprite);
         tilemap.SetTiles(spriteCoordinates.ToArray(), buildingTiles);
         FloorWasPlaced?.Invoke(position);
@@ -75,7 +79,7 @@ public class Floor : Building {
     protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
         int height = GetFloorFlagsSum(position);
-        Sprite floorSprite = atlas.GetSprite($"{type}{height}");
+        Sprite floorSprite = atlas.GetSprite($"{Type}{height}");
         if (floors.Contains(position)) GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         GetComponent<Tilemap>().ClearAllTiles();
@@ -84,17 +88,6 @@ public class Floor : Building {
 
     protected override void DeletePreview(){
         base.DeletePreview();
-        // if (!hasBeenPlaced) return;
-        // Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        // GetComponent<Tilemap>().ClearAllTiles();
-        // int height = GetFloorFlagsSum(currentCell);
-        // Sprite floorSprite = atlas.GetSprite($"{type}{height}");
-        // GetComponent<TilemapRenderer>().sortingOrder = 500;
-        // // Debug.Log(baseCoordinates.Length);
-        // if (currentCell == baseCoordinates[0]){
-        //     GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
-        //     GetComponent<Tilemap>().SetTile(currentCell, SplitSprite(floorSprite)[0]);
-        // }else GetComponent<Tilemap>().color = OPAQUE;
     }
 
     private void AnotherFloorWasPlaced(Vector3Int position){
@@ -102,15 +95,15 @@ public class Floor : Building {
         List<Vector3Int> neighbors = GetCrossAroundPosition(position).ToList();
         if (neighbors.Contains(baseCoordinates[0])){
             // Debug.Log("Neibhor Floor detected");
-            UpdateTexture(atlas.GetSprite($"{type}{GetFloorFlagsSum(baseCoordinates[0])}"));
+            UpdateTexture(atlas.GetSprite($"{Type}{GetFloorFlagsSum(baseCoordinates[0])}"));
             // sprite = atlas.GetSprite($"{type}{GetFloorFlagsSum(baseCoordinates[0])}");
             // Tile[] buildingTiles = SplitSprite(sprite);
             // tilemap.SetTiles(spriteCoordinates.ToArray(), buildingTiles);
         }
     }
 
-    public void SetType(Type type){
-        this.type = type;
+    public void SetType(Types type){
+        Type = type;
         UpdateTexture(atlas.GetSprite($"{type}0"));
     }
 
@@ -125,46 +118,46 @@ public class Floor : Building {
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        return type switch{
-            Type.WOOD_FLOOR => new List<MaterialInfo>(){
+        return Type switch{
+            Types.WOOD_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Wood)
             },
-            Type.RUSTIC_PLANK_FLOOR => new List<MaterialInfo>(){
+            Types.RUSTIC_PLANK_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Wood)
             },
-            Type.STRAW_FLOOR => new List<MaterialInfo>(){
+            Types.STRAW_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Wood),
                 new MaterialInfo(1, Materials.Fiber)
             },
-            Type.WEATHERED_FLOOR => new List<MaterialInfo>(){
+            Types.WEATHERED_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Wood)
             },
-            Type.CRYSTAL_FLOOR => new List<MaterialInfo>(){
+            Types.CRYSTAL_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.RefinedQuartz)
             },
-            Type.STONE_FLOOR => new List<MaterialInfo>(){
+            Types.STONE_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Stone)
             },
-            Type.STONE_WALKWAY_FLOOR => new List<MaterialInfo>(){
+            Types.STONE_WALKWAY_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Stone)
             },
-            Type.BRICK_FLOOR => new List<MaterialInfo>(){
+            Types.BRICK_FLOOR => new List<MaterialInfo>(){
                 new MaterialInfo(2, Materials.Clay),
                 new MaterialInfo(5, Materials.Stone)
             },
-            Type.WOOD_PATH => new List<MaterialInfo>(){
+            Types.WOOD_PATH => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Wood)
             },
-            Type.GRAVEL_PATH => new List<MaterialInfo>(){
+            Types.GRAVEL_PATH => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Stone)
             },
-            Type.COBBLESTONE_PATH => new List<MaterialInfo>(){
+            Types.COBBLESTONE_PATH => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Stone)
             },
-            Type.STEPPING_STONE_PATH => new List<MaterialInfo>(){
+            Types.STEPPING_STONE_PATH => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.Stone)
             },
-            Type.CRYSTAL_PATH => new List<MaterialInfo>(){
+            Types.CRYSTAL_PATH => new List<MaterialInfo>(){
                 new MaterialInfo(1, Materials.RefinedQuartz)
             },
             _ => throw new Exception("Invalid Floor Type")
@@ -172,10 +165,14 @@ public class Floor : Building {
     }
 
     public override string GetBuildingData(){
-        return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}|{type}";
+        return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}|{Type}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        throw new NotImplementedException();
+        throw new NotImplementedException();//todo add
+    }
+
+    public void CycleType(){
+        SetType((Types)(((int)Type + 1) % Enum.GetValues(typeof(Types)).Length));
     }
 }

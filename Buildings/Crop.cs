@@ -4,9 +4,9 @@ using System.Configuration;
 using UnityEngine;
 using UnityEngine.U2D;
 
-public class Crop : Building{
+public class Crop : Building, IMultipleTypeBuilding<Crop.Types>{
 
-    public enum Type{
+    public enum Types{
         BlueJazz,
         Carrot,
         Cauliflower,
@@ -54,28 +54,35 @@ public class Crop : Building{
         TeaLeaves
     }
     
-    public Type type {get; private set;}
+    public Types Type {get; private set;}
     private SpriteAtlas atlas;
 
-    public override string TooltipMessage => type.ToString();
+    public override string TooltipMessage => Type.ToString();
+
+    // Type IMultipleTypeBuilding<Type>.Type => throw new System.NotImplementedException();
+
     public override void OnAwake(){
         baseHeight = 1;
         base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/CropsAtlas");
-        SetType(Type.Hops);
+        SetType(Types.Hops);
     }
 
-    public void SetType(Type type){
-        this.type = type;
+    public void SetType(Types type){
+        Type = type;
         sprite = atlas.GetSprite(type.ToString());
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        throw new System.NotImplementedException();
+        throw new System.NotImplementedException();//todo add materials
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         Place(new Vector3Int(x, y, 0));
-        type = (Type)System.Enum.Parse(typeof(Type), data[0]);
+        Type = (Types)System.Enum.Parse(typeof(Types), data[0]);
+    }
+
+    public void CycleType(){
+        SetType((Types)(((int)Type + 1) % System.Enum.GetValues(typeof(Types)).Length));
     }
 }

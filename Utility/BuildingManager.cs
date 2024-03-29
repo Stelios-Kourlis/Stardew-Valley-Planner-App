@@ -114,7 +114,7 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Floor.Type floorType){
+        public static void CreateButton(string name, string imagePath, Transform transform, Floor.Types floorType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
@@ -131,7 +131,7 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Fence.Type fenceType){
+        public static void CreateButton(string name, string imagePath, Transform transform, Fence.Types fenceType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
@@ -153,6 +153,16 @@ namespace Utility{
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 GetBuildingController().SetCurrentBuildingToCabin(cabinType);
+                GetBuildingController().SetCurrentAction(Actions.PLACE); 
+                });
+            button.name = name;
+        }
+
+        public static void CreateButton(string name, string imagePath, Transform transform, Crop.Types cropType){
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                GetBuildingController().SetCurrentBuildingToCrop(cropType);
                 GetBuildingController().SetCurrentAction(Actions.PLACE); 
                 });
             button.name = name;

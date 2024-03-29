@@ -59,7 +59,7 @@ public class BuildingController : MonoBehaviour{
             go.name += lastCraftable;
         }
         if (currentBuildingType == typeof(Fence)){
-            Fence.Type lastFence = Fence.currentType;
+            Fence.Types lastFence = Fence.currentType;
             go.GetComponent<Fence>().SetType(lastFence);
             go.name += lastFence;
         }
@@ -84,7 +84,7 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
-    public void SetCurrentBuildingToFloor(Floor.Type floorType){
+    public void SetCurrentBuildingToFloor(Floor.Types floorType){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Floor);
@@ -92,7 +92,7 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated.name = currentBuildingType.Name + floorType;
     }
 
-    public void SetCurrentBuildingToFence(Fence.Type fenceType){
+    public void SetCurrentBuildingToFence(Fence.Types fenceType){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Fence);
@@ -105,6 +105,14 @@ public class BuildingController : MonoBehaviour{
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Cabin);
         lastBuildingObjectCreated.AddComponent<Cabin>().SetType(cabinType);
+        lastBuildingObjectCreated.name = currentBuildingType.Name;
+    }
+
+    public void SetCurrentBuildingToCrop(Crop.Types cropType){
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        currentBuildingType = typeof(Crop);
+        lastBuildingObjectCreated.AddComponent<Crop>().SetType(cropType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
