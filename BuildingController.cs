@@ -143,6 +143,7 @@ public class BuildingController : MonoBehaviour{
             building.ForceDelete();
         }
         buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
+        GetNotificationManager().SendNotification("Deleted all buildings");
     }
 
     public void AddActionToLog(UserAction action){

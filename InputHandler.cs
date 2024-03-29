@@ -8,6 +8,7 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
 using System;
+using System.Diagnostics.Eventing.Reader;
 
 public class InputHandler : MonoBehaviour {
 
@@ -44,8 +45,14 @@ public class InputHandler : MonoBehaviour {
     void Update(){
         //Debug.Log(buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
         
-        //HandleMouseMove();
-        if (IsSearching) return;
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)){
+            GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
+            quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+        }
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();
+
+        if (IsSearching) return; //the 2 above should always be available, rest should be disabled when searching
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
             //mouseIsHeld = true; 
@@ -56,46 +63,44 @@ public class InputHandler : MonoBehaviour {
             //mouseIsHeld = false;
         }
 
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Z) ){
-            buildingController.UndoLastAction();
-        }
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Undo)) buildingController.UndoLastAction();
 
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.Y) ){
-            buildingController.RedoLastUndo();
-        }
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Redo)) buildingController.RedoLastUndo();
 
-        if (Input.GetKeyUp(KeyCode.I)){
+        if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleAvailableTiles)){
             GetMapController().ToggleAllCoordinates();
             GetNotificationManager().SendNotification("Toggled coordinates visibility");
         }
 
-        if (Input.GetKeyUp(KeyCode.Escape)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();
 
-        if (Input.GetKeyUp(KeyCode.S)) buildingController.Save();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) buildingController.Save();
 
-        if (Input.GetKeyUp(KeyCode.L)) buildingController.Load();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) buildingController.Load();
 
-        if (Input.GetKeyUp(KeyCode.P)){
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Place)){
             Building.currentAction = Actions.PLACE;
             GetNotificationManager().SendNotification("Set mode to placement");
         }
 
-        if (Input.GetKeyUp(KeyCode.E)){
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)){
             Building.currentAction = Actions.EDIT;
             GetNotificationManager().SendNotification("Set mode to edit");
         }
 
-        if (Input.GetKeyUp(KeyCode.D)){
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Delete)){
             Building.currentAction = Actions.DELETE;
             GetNotificationManager().SendNotification("Set mode to delete");
         }
 
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.D)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
+    }
 
-        if (Input.GetKeyUp(KeyCode.Q)){
-            GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
-            quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-        }
+    public bool KeybindsForActionArePressed(KeybindHandler.Action action){
+        KeybindHandler.Keybind keybind = KeybindHandler.GetKeybind(action);
+        bool isPrimaryPressed = Input.GetKeyUp(keybind.keybind);
+        bool isSecondaryPressed = keybind.optionalSecondButton == KeyCode.None || Input.GetKey(keybind.optionalSecondButton);
+        return isPrimaryPressed && isSecondaryPressed;
     }
 
     public void SetCursor(CursorType type){
