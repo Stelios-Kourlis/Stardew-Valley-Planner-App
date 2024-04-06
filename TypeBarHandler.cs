@@ -1,3 +1,4 @@
+using System;
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,77 +6,74 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using static Utility.ClassManager;
+using static Utility.BuildingManager;
+using System.Reflection;
+using Utility;
 
 public class TypeBarHandler : MonoBehaviour {
     private readonly float moveScale = 5f;
     private bool typeBarIsOpen = false;
     private bool isHidden;
     private readonly Sprite[] arrowButtons = new Sprite[2];
+    private Type lastType;
 
     // Start is called before the first frame update
     void Start() {
         gameObject.transform.position = new Vector3(Screen.width + 300, 5, 0);
         arrowButtons[0] = Sprite.Create(Resources.Load("UI/TypeBarUnhide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
         arrowButtons[1] = Sprite.Create(Resources.Load("UI/TypeBarHide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
+
+        // Debug.Log("TBH: Getting all building types");
+        var buildingType = typeof(MultipleTypeBuilding<>);
+        var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => p.BaseType != null && p.BaseType.IsGenericType && p.BaseType.GetGenericTypeDefinition() == buildingType && p.IsClass && !p.IsAbstract);
+
+        foreach (var type in allTypes){
+            // if (type == typeof(Obelisk)) continue;
+            // GameObject tempGO = new GameObject();
+            dynamic buildingTemp = gameObject.AddComponent(type);
+            GameObject[] buttons = buildingTemp.CreateButtonsForAllTypes();
+            Transform typeBarContent = transform.GetChild(0).GetChild(0);
+            foreach (GameObject button in buttons){
+                button.name = $"{type}{button.name}";
+                button.transform.SetParent(typeBarContent);
+            }
+            StartCoroutine(RemoveComponentNextFrame(buildingTemp)); //Components cant be removed the same frame they are added
+        }
+
+        static IEnumerator RemoveComponentNextFrame(Component component){
+            yield return null; // wait until the next frame
+            Destroy(component);
+        }
+
+        lastType = GetBuildingController().GetCurrentBuildingType();
+        // GameObject[] typeButtons = currentBuilding.CreateButtonsForAllTypes();
+        // foreach (GameObject button in typeButtons) button.transform.SetParent(contentGameObject.transform);
     }
 
     void Update(){
-        bool isCurrentBuildingFloor = GetBuildingController().GetCurrentBuildingType() == typeof(Floor);
-        bool isCurrentBuildingFence = GetBuildingController().GetCurrentBuildingType() == typeof(Fence);
-        var currentBuildingType = GetBuildingController().GetCurrentBuildingType();
-        bool isCurrentlyBuildingMultipleTypeBuilding = currentBuildingType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMultipleTypeBuilding<>));
-        Debug.Log(isCurrentlyBuildingMultipleTypeBuilding);
+        Type currentBuildingType = GetBuildingController().GetCurrentBuildingType();
+        if (currentBuildingType == lastType) return;
+        Type currentBuildingTypeBase = currentBuildingType.BaseType;
+        bool isCurrentlyBuildingMultipleTypeBuilding = currentBuildingTypeBase.IsGenericType && currentBuildingTypeBase.GetGenericTypeDefinition() == typeof(MultipleTypeBuilding<>);
         if (isCurrentlyBuildingMultipleTypeBuilding){
             if (!typeBarIsOpen){
                 typeBarIsOpen = true;
                 StartCoroutine(OpenBar());
             }   
-            if (GetBuildingController().GetCurrentBuildingType() == typeof(Floor)){
-                for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
-                    GameObject child = transform.GetChild(0).GetChild(0).GetChild(i).gameObject;
-                    if (child.name.Contains("Floor") || child.name.Contains("Path")) child.SetActive(true);
-                    else child.SetActive(false); 
-                    // if (i<13) transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(true);
-                    // else transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(false);
-                }
-            }else if (GetBuildingController().GetCurrentBuildingType() == typeof(Fence)){
-                for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
-                    GameObject child = transform.GetChild(0).GetChild(0).GetChild(i).gameObject;
-                    if (child.name.Contains("Fence")) child.SetActive(true);
-                    else child.SetActive(false); 
-                }
-            }else{
-                for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
-                    GameObject child = transform.GetChild(0).GetChild(0).GetChild(i).gameObject;
-                    if (child.name.Contains("Fence") || child.name.Contains("Floor") || child.name.Contains("Path")) child.SetActive(false);
-                    else child.SetActive(true); 
-                }
+            Transform typeBarContent = transform.GetChild(0).GetChild(0);
+            for (int i = 0; i<typeBarContent.childCount; i++){
+                if (typeBarContent.GetChild(i).name.Contains(currentBuildingType.Name)) typeBarContent.GetChild(i).gameObject.SetActive(true);
+                else typeBarContent.GetChild(i).gameObject.SetActive(false);
             }
         }else if (!isCurrentlyBuildingMultipleTypeBuilding && typeBarIsOpen) {
             typeBarIsOpen = false;
             StartCoroutine(CloseBar());
         }
-        // if (isCurrentBuildingFloor && !typeBarIsOpen){
-        //     typeBarIsOpen = true;
-        //     for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
-        //         if (i<13) transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(true);
-        //         else transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(false);
-        //     }
-        //     StartCoroutine(OpenBar());
-        // }
-        // else if (isCurrentBuildingFence && !typeBarIsOpen){
-        //     typeBarIsOpen = true;
-        //     for (int i = 0; i < transform.GetChild(0).GetChild(0).childCount; i++){
-        //         if (i<13) transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(false);
-        //         else transform.GetChild(0).GetChild(0).GetChild(i).gameObject.SetActive(true);
-        //     }
-        //     StartCoroutine(OpenBar());
-        // }
-        // else if (!isCurrentBuildingFence && !isCurrentBuildingFloor && typeBarIsOpen) {
-        //     typeBarIsOpen = false;
-        //     StartCoroutine(CloseBar());
-        // }
     }
+
+    // public void CreateButtonForCurrentBuilding(){
+    //     GameObject contentGameObject = transform.GetChild(0).GetChild(0).gameObject;
+    // }
 
 
     /// <summary>

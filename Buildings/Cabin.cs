@@ -7,20 +7,19 @@ using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 using static Utility.ClassManager;
 
-public class Cabin : Building, ITieredBuilding {
+public class Cabin : TieredBuilding {//todo: add cabin types
 
     public enum CabinTypes{//add types
+        NO_TYPE,
         Wood,
         Plank,
         Stone
     }
 
-    private SpriteAtlas atlas;
     private CabinTypes type = CabinTypes.Stone;
     private static bool WoodCabinHasBeenPlaced;
     private static bool PlankCabinHasBeenPlaced;
     public static bool StoneCabinHasBeenPlaced;
-    public int Tier {get; private set;}
 
     public override string TooltipMessage => "Right Click For More Options";
 
@@ -33,15 +32,8 @@ public class Cabin : Building, ITieredBuilding {
             ButtonTypes.ENTER,
             ButtonTypes.PAINT
         };
+        MaxTier = 3;
         base.OnAwake();
-        atlas = Resources.Load("Buildings/CabinAtlas") as SpriteAtlas;
-        ChangeTier(1);
-    }
-
-    public void ChangeTier(int tier){
-        if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
-        Tier = tier;
-        UpdateTexture(atlas.GetSprite($"{type}Cabin{tier}"));
     }
 
     public void CycleType(){

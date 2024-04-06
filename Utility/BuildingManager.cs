@@ -168,6 +168,16 @@ namespace Utility{
             button.name = name;
         }
 
+        // public static void CreateButton2<T>(string name, string imagePath, Transform transform, MultipleTypeBuilding<T> building, T type) where T : struct{
+        //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+        //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+        //     button.GetComponent<Button>().onClick.AddListener(() => { 
+        //         GetBuildingController().SetCurrentBuildingToMultipleTypeBuilding<T>(building, type);
+        //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
+        //         });
+        //     button.name = name;
+        // }
+
 
         /// <summary>
         /// Create a button to set the current building to floor and set the floor type

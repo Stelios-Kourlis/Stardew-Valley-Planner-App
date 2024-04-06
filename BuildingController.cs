@@ -26,12 +26,11 @@ public class BuildingController : MonoBehaviour{
     //private bool isUndoing = false;
 
     public HashSet<GameObject> buildingGameObjects = new HashSet<GameObject>();
-    private GameObject lastBuildingObjectCreated;
+    public GameObject lastBuildingObjectCreated {get; private set;}
 
     void Start(){
-        currentBuildingType = typeof(Crop);
+        currentBuildingType = typeof(Barn);
         Building.buildingWasPlaced += OnBuildingPlaced;
-    
     }
 
     void Update(){
@@ -53,16 +52,21 @@ public class BuildingController : MonoBehaviour{
         GameObject go = new GameObject(currentBuildingType.Name);
         go.transform.parent = transform;
         go.AddComponent(currentBuildingType);
-        if (currentBuildingType == typeof(Craftables)){
-            Craftables.Type lastCraftable = (Craftables.Type) lastBuildingObjectCreated.GetComponent<Craftables>().CraftableType;
-            go.GetComponent<Craftables>().SetCraftable(lastCraftable);
-            go.name += lastCraftable;
-        }
-        if (currentBuildingType == typeof(Fence)){
-            Fence.Types lastFence = Fence.currentType;
-            go.GetComponent<Fence>().SetType(lastFence);
-            go.name += lastFence;
-        }
+
+        
+        // if (typeof(MultipleTypeBuilding).IsAssignableFrom(currentBuildingType))
+
+
+        // if (currentBuildingType == typeof(Craftables)){
+        //     Craftables.Type lastCraftable = (Craftables.Type) lastBuildingObjectCreated.GetComponent<Craftables>().CraftableType;
+        //     go.GetComponent<Craftables>().SetCraftable(lastCraftable);
+        //     go.name += lastCraftable;
+        // }
+        // if (currentBuildingType == typeof(Fence)){
+        //     Fence.Types lastFence = Fence.currentType;
+        //     go.GetComponent<Fence>().SetType(lastFence);
+        //     go.name += lastFence;
+        // }
         lastBuildingObjectCreated = go;
     }
 
@@ -113,6 +117,14 @@ public class BuildingController : MonoBehaviour{
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Crop);
         lastBuildingObjectCreated.AddComponent<Crop>().SetType(cropType);
+        lastBuildingObjectCreated.name = currentBuildingType.Name;
+    }
+
+    public void SetCurrentBuildingToMultipleTypeBuilding<T>(Type buildingType, T type) where T : struct{
+        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        if (component != null) Destroy(component);
+        MultipleTypeBuilding<T> building = (MultipleTypeBuilding<T>) lastBuildingObjectCreated.AddComponent(buildingType);
+        building.SetType(type);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 

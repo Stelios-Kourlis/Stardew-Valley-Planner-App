@@ -4,10 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
-public class House : Building, ITieredBuilding {
-
-    private SpriteAtlas atlas;
-    public int Tier {get; private set;} = 0;
+public class House : TieredBuilding {
     public override string TooltipMessage => "Right Click For More Options";
 
     public override void OnAwake(){
@@ -18,15 +15,13 @@ public class House : Building, ITieredBuilding {
             ButtonTypes.TIER_THREE,
             ButtonTypes.ENTER
         };
+        MaxTier = 4;
         base.OnAwake();
-        atlas = Resources.Load<SpriteAtlas>("Buildings/HouseAtlas");
-        if (Tier == 0) ChangeTier(1);
     }
 
-    public void ChangeTier(int tier){
-        if (tier < 1 || tier > 4) throw new System.ArgumentException($"Tier must be between 1 and 4 (got {tier})");
-        Tier = tier;
-        if (Tier == 4) Tier = 3;//Tier 3 and 4 share the same outside texture
+    public override void ChangeTier(int tier){
+        base.ChangeTier(tier);
+        if (tier == 4) tier = 3;//Tier 3 and 4 share the same outside texture
         UpdateTexture(atlas.GetSprite($"House{tier}"));
     }
 

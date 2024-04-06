@@ -4,10 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
-public class Shed : Building, ITieredBuilding {
-
-    private SpriteAtlas atlas;
-    public int Tier {get; set;} = 0;
+public class Shed : TieredBuilding {
     public override string TooltipMessage => "Right Click For More Options";
 
     public override void OnAwake(){
@@ -18,15 +15,8 @@ public class Shed : Building, ITieredBuilding {
             ButtonTypes.PAINT,
             ButtonTypes.ENTER,
         };
+        MaxTier = 2;
         base.OnAwake();
-        atlas = Resources.Load("Buildings/ShedAtlas") as SpriteAtlas;
-        if (Tier == 0) ChangeTier(1);
-    }
-
-    public void ChangeTier(int tier){
-        if (tier < 1 || tier > 2) throw new System.ArgumentException($"Tier must be between 1 and 2 (got {tier})");
-        Tier = tier;
-        UpdateTexture(atlas.GetSprite($"Shed{tier}"));
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){

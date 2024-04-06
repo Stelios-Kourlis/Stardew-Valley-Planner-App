@@ -17,7 +17,7 @@ public class Greenhouse : Building {
     public override void OnAwake(){
         name = GetType().Name;
         baseHeight = 6;
-        insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
+        // insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
         buildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };

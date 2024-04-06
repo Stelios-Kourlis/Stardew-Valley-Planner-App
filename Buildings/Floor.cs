@@ -3,19 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Microsoft.Win32;
+using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEngine.U2D;
-using UnityEngine.U2D.Animation;
-using UnityEngine.UIElements;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 
-public class Floor : Building, IMultipleTypeBuilding<Floor.Types>{
+public class Floor : MultipleTypeBuilding<Floor.Types>{
 
     public enum Types {
+        NO_TYPE,
         WOOD_FLOOR,
         RUSTIC_PLANK_FLOOR,
         STRAW_FLOOR,
@@ -31,27 +29,17 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>{
         CRYSTAL_PATH
     }
     
-    private SpriteAtlas atlas;
-    // private delegate void FloorPlacedDelegate(Vector3Int position);
     public static event Action<Vector3Int> FloorWasPlaced;
-    // private Vector3Int position;
-    //private static List<Vector3Int> otherFloors = new List<Vector3Int>();
     private static readonly List<Vector3Int> floors = new List<Vector3Int>();
-    // public static FloorType floorType = FloorTypes.WOOD_FLOOR;
-    public Types Type {get; private set;} = Types.WOOD_FLOOR;
     private new static Tilemap tilemap;
     public override string TooltipMessage => "";
 
-    //Types IMultipleTypeBuilding<Types>.Type => throw new NotImplementedException();
-
-    //Types IMultipleTypeBuilding<Types>.Type => throw new NotImplementedException();
-
     public override void OnAwake(){
-        Debug.Log("Floor OnAwake");
         baseHeight = 1;
+        if (CurrentType == Types.NO_TYPE) CurrentType = Types.WOOD_FLOOR;
         base.OnAwake();
+        defaultSprite = atlas.GetSprite($"WOOD_FLOOR0");
         FloorWasPlaced += AnotherFloorWasPlaced;
-        atlas = Resources.Load<SpriteAtlas>("Buildings/FloorAtlas");
         sprite = atlas.GetSprite($"{Type}0");
         tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
     }
@@ -93,18 +81,7 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>{
     private void AnotherFloorWasPlaced(Vector3Int position){
         if(!hasBeenPlaced) return;
         List<Vector3Int> neighbors = GetCrossAroundPosition(position).ToList();
-        if (neighbors.Contains(baseCoordinates[0])){
-            // Debug.Log("Neibhor Floor detected");
-            UpdateTexture(atlas.GetSprite($"{Type}{GetFloorFlagsSum(baseCoordinates[0])}"));
-            // sprite = atlas.GetSprite($"{type}{GetFloorFlagsSum(baseCoordinates[0])}");
-            // Tile[] buildingTiles = SplitSprite(sprite);
-            // tilemap.SetTiles(spriteCoordinates.ToArray(), buildingTiles);
-        }
-    }
-
-    public void SetType(Types type){
-        Type = type;
-        UpdateTexture(atlas.GetSprite($"{type}0"));
+        if (neighbors.Contains(baseCoordinates[0])) UpdateTexture(atlas.GetSprite($"{Type}{GetFloorFlagsSum(baseCoordinates[0])}"));
     }
 
     private int GetFloorFlagsSum(Vector3Int position){
@@ -172,7 +149,23 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>{
         throw new NotImplementedException();//todo add
     }
 
-    public void CycleType(){
-        SetType((Types)(((int)Type + 1) % Enum.GetValues(typeof(Types)).Length));
+    public override GameObject[] CreateButtonsForAllTypes(){
+        List<GameObject> buttons = new List<GameObject>();
+        foreach (Types type in Enum.GetValues(typeof(Types))){
+            if ((int)(object)type == 0) continue; // skip the first element (None)
+            GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+            button.name = $"{type}Button";
+            button.GetComponent<Image>().sprite = atlas.GetSprite($"{type}0");
+
+            Type buildingType = GetType();
+            BuildingController buildingController = GetBuildingController();
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                Debug.Log($"Setting current building to {type}");
+                buildingController.SetCurrentBuildingToMultipleTypeBuilding<Types>(buildingType, type);
+                buildingController.SetCurrentAction(Actions.PLACE); 
+                });
+            buttons.Add(button);
+        }
+        return buttons.ToArray();
     }
 }

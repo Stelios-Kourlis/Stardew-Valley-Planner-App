@@ -26,7 +26,7 @@ public class Scarecrow : Building{
         name = GetType().Name;
         baseHeight = 1;
         base.OnAwake();
-        atlas = Resources.Load<SpriteAtlas>("Buildings/ScarecrowAtlas");
+        atlas = Resources.Load<SpriteAtlas>("Buildings/ScarecrowsAtlas");
         greenTile = LoadTile("GreenTile");
         UpdateTexture(atlas.GetSprite($"Scarecrows_{scarecrowIndex}"));
     }

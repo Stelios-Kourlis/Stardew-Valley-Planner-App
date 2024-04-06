@@ -3,15 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.U2D;
 using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using UnityEngine.Tilemaps;
 
-public class Fence : Building, IMultipleTypeBuilding<Fence.Types>{
+public class Fence : MultipleTypeBuilding<Fence.Types>{
 
     public enum Types{
+        NO_TYPE,
         Wood,
         Stone,
         Iron,
@@ -19,11 +21,6 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>{
     }
 
     public override string TooltipMessage => "";
-
-    public Types Type {get; private set;}
-    public static Types currentType = Types.Wood;
-    private SpriteAtlas atlas;
-    // private delegate void FencePlacedDelegate(Vector3Int position);
     public static event Action<Vector3Int> FenceWasPlaced;
     private Vector3Int position;
     private static readonly List<Vector3Int> fences = new List<Vector3Int>();
@@ -45,22 +42,16 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>{
         };
     }
 
-    public void SetType(Types type){
-        currentType = type;
-        Type = type;
-        UpdateTexture(atlas.GetSprite($"{type}Fence0"));
-    }
-
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         throw new System.NotImplementedException();
     }
 
     public override void OnAwake(){
-        atlas = Resources.Load<SpriteAtlas>("Fences/FencesAtlas");
         baseHeight = 1;
+        if (CurrentType == Types.NO_TYPE) CurrentType = Types.Wood;
         base.OnAwake();
+        defaultSprite = atlas.GetSprite($"WoodFence0");
         FenceWasPlaced += AnotherFenceWasPlaced;
-        SetType(currentType);
         sprite = atlas.GetSprite($"{Type}Fence0");
     }
 
@@ -104,7 +95,23 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>{
         return flags.Cast<int>().Sum();
     }
 
-    public void CycleType(){
-        SetType((Types)(((int)Type + 1) % Enum.GetValues(typeof(Types)).Length));
+    public override GameObject[] CreateButtonsForAllTypes(){
+        List<GameObject> buttons = new List<GameObject>();
+        foreach (Types type in Enum.GetValues(typeof(Types))){
+            if ((int)(object)type == 0) continue; // skip the first element (None)
+            GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+            button.name = $"{type}Button";
+            button.GetComponent<Image>().sprite = atlas.GetSprite($"{type}Fence0");
+
+            Type buildingType = GetType();
+            BuildingController buildingController = GetBuildingController();
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                Debug.Log($"Setting current building to {type}");
+                buildingController.SetCurrentBuildingToMultipleTypeBuilding<Types>(buildingType, type);
+                buildingController.SetCurrentAction(Actions.PLACE); 
+                });
+            buttons.Add(button);
+        }
+        return buttons.ToArray();
     }
 }

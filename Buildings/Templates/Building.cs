@@ -12,6 +12,7 @@ using System.Linq;
 using UnityEngine.Events;
 using System.Runtime.ConstrainedExecution;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 #pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
@@ -21,22 +22,26 @@ public abstract class Building : TooltipableGameObject {
     protected readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
     protected readonly Color OPAQUE = new Color(1,1,1,1);
 
-    /// <summary> A unique ID that identifies this object </summary>
+    /// <summary> A unique ID that identifies this object, 2 building of the same type, on the same location will have the same UID</summary>
     public int UID {get; protected set;} = 0;
 
     ///<summary>The array containing the coordinates of each sprite tile</summary>
     public Vector3Int[] spriteCoordinates { get; protected set;}
      ///<summary>The coordinates of the base</summary>
     public Vector3Int[] baseCoordinates { get; protected set;}
-    /// <summary> The texture of the building</summary>
-    public Texture2D insideAreaTexture {get; protected set;}
+    // /// <summary> The texture of the building</summary>
+    // public Texture2D insideAreaTexture {get; protected set;}
     ///<summary>The sprite of the building </summary>
     public Sprite sprite;
     ///<summary>The ways the user can interact with the building </summary>
     public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];
     public int baseHeight { get; protected set; } 
-    public int height {get { return sprite == null ? 0 : (int)sprite.textureRect.height / 16;}}
-    public int width {get { return (int) sprite.textureRect.width / 16;} }
+    public int height {get { 
+        Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
+        return (int) sprite.textureRect.height / 16;}}
+    public int width {get { 
+        Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
+        return (int) sprite.textureRect.width / 16;}}
     ///<summary>The tilemap this building is attached to</summary>
     public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}}
     /// <summary> The parent of the buttons that are created for this building </summary>
@@ -81,6 +86,7 @@ public abstract class Building : TooltipableGameObject {
     }
 
     public override void OnUpdate(){
+        Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
         if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
@@ -214,7 +220,7 @@ public abstract class Building : TooltipableGameObject {
             currentAction = Actions.EDIT;
         }
 
-        if (this is ITieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);
+        // if (this is TieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);//todo is this needed?
 
         // Debug.Log($"UID: {UID}");
     }
@@ -281,6 +287,25 @@ public abstract class Building : TooltipableGameObject {
         if (buildingInteractions.Length != 0 && hasBeenPlaced){
             buttonParent.SetActive(!buttonParent.activeSelf);
         }
+    }
+
+    /// <summary>
+    /// Create a button that sets the current building to this building
+    /// </summary>
+    /// <returns>The game object of the button, with no parent, caller should use transform.SetParent()</returns>
+    public virtual GameObject CreateButton(){
+        GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+        button.name = $"{GetType()}Button";
+        button.GetComponent<Image>().sprite = sprite;
+
+        Type buildingType = GetType();
+        BuildingController buildingController = GetBuildingController();
+        button.GetComponent<Button>().onClick.AddListener(() => { 
+                // Debug.Log($"Setting current building to {buildingType}");
+                buildingController.SetCurrentBuildingType(buildingType);
+                buildingController.SetCurrentAction(Actions.PLACE); 
+                });
+        return button;
     }
 }
 

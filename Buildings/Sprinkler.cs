@@ -8,28 +8,18 @@ using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
 
-public class Sprinkler : Building, ITieredBuilding{
+public class Sprinkler : TieredBuilding{
     public override string TooltipMessage => "Right Click For More Options";
 
-    private SpriteAtlas atlas;
-    public int Tier {get; private set;}
     private Tile greenTile;
     private bool HasPressureNozzle {get; set;} = false;
     private bool HasEnricher {get; set;} = false;
 
     public override void OnAwake(){
-        name = GetType().Name;
         baseHeight = 1;
+        MaxTier = 3;
         base.OnAwake();
-        atlas = Resources.Load<SpriteAtlas>("Buildings/SprinklerAtlas");
         greenTile = LoadTile("GreenTile");
-        ChangeTier(1);
-    }
-
-    public void ChangeTier(int tier){
-        if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
-        Tier = tier;
-        UpdateTexture(atlas.GetSprite($"Sprinkler{tier}"));
     }
 
     protected override void PlacePreview(Vector3Int position){

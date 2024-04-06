@@ -8,11 +8,9 @@ using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-public class Coop : Building, ITieredBuilding, IAnimalHouse {
-    private SpriteAtlas atlas;
+public class Coop : TieredBuilding, IAnimalHouse {
     private SpriteAtlas animalAtlas;
     private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
-    public int Tier {get; private set;} = 0;
     private List<KeyValuePair<Animals, GameObject>> animals = new List<KeyValuePair<Animals, GameObject>>();
     private int animalCapacity;
 
@@ -28,20 +26,17 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
             ButtonTypes.PAINT,
             ButtonTypes.ADD_ANIMAL
         };
+        MaxTier = 3;
         base.OnAwake();
-        atlas = Resources.Load("Buildings/CoopAtlas") as SpriteAtlas;
         animalAtlas = Resources.Load("CoopAnimalsAtlas") as SpriteAtlas;
         animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
-        if (Tier == 0) ChangeTier(1);
     }
 
-    public void ChangeTier(int tier){
-        if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier must be between 1 and 3 (got {tier})");
-        Tier = tier;
-        animalCapacity = 4 * tier;
-        UpdateTexture(atlas.GetSprite($"Coop{tier}"));
+    public override void ChangeTier(int tier){
+        base.ChangeTier(tier);
 
         //Update Animals
+        animalCapacity = 4 * tier;
         List<KeyValuePair<Animals, GameObject>> animalsToRemove = new List<KeyValuePair<Animals, GameObject>>();
 
         string animalsRemoved = GetRemovedAnimals();
