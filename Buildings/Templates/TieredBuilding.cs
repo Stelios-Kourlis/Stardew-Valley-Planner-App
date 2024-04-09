@@ -8,7 +8,7 @@ using UnityEngine.U2D;
 public class TieredBuilding{
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
     public int Tier {get; private set;}
-    private int MaxTier {get; set;}
+    public int MaxTier {get; private set;}
     private SpriteAtlas Atlas {get; set;}
     private Building Building {get; set;}
 

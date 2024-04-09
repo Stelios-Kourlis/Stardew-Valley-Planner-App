@@ -11,7 +11,7 @@ using static Utility.TilemapManager;
 using System.Runtime.Remoting.Messaging;
 using System;
 
-public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>{
+public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRangeEffectBuilding{//todo range is bugged when switching scarecrow type
 
     public enum Types{
         Scarecrow,
@@ -25,7 +25,6 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>{
         Rarecrow8,
         DeluxeScarecrow
     }
-    private Tile greenTile;//todo add range interface
     private bool IsDeluxe {get; set;} = false;
 
     public override string TooltipMessage{get{
@@ -35,29 +34,30 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>{
 
     public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
 
+    public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
+
     public override void OnAwake(){
         name = GetType().Name;
         BaseHeight = 1;
-        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake();
-        greenTile = LoadTile("GreenTile");
+        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
+        RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     }
-
-    // public void SetDeluxe(){
-    //     IsDeluxe = true;
-    //     scarecrowIndex = 9;
-    //     UpdateTexture(atlas.GetSprite($"Scarecrows_9"));
-    // }
 
     protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
-        GetComponent<Tilemap>();
+        // GetComponent<Tilemap>();
         base.PlacePreview(position);
-        // Vector3Int[] coverageArea = scarecrowIndex switch{
-        //     9 => GetRangeOfDeluxeScarecrow(position).ToArray(),
-        //     _ => GetRangeOfScarecrow(position).ToArray()
-        // };
-        // foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
+        Vector3Int[] coverageArea = MultipleTypeBuildingComponent.Type switch{
+            Types.DeluxeScarecrow => GetRangeOfDeluxeScarecrow(position).ToArray(),
+            _ => GetRangeOfScarecrow(position).ToArray()
+        };
+        RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
+    }
+
+    public override void Place(Vector3Int position){
+        base.Place(position);
+        RangeEffectBuildingComponent.HideEffectRange();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -112,6 +112,15 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>{
 
     protected override void OnMouseRightClick(){
         MultipleTypeBuildingComponent.CycleType();
+    }
+
+    protected override void OnMouseEnter(){
+        Vector3Int lowerLeftCorner = BaseCoordinates[0];
+        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x-7, lowerLeftCorner.y-8, 0), 17, 17).ToArray());
+    }
+
+    protected override void OnMouseExit(){
+        RangeEffectBuildingComponent.HideEffectRange();
     }
 
     public GameObject[] CreateButtonsForAllTypes(){

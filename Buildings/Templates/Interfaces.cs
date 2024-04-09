@@ -8,8 +8,8 @@ public interface IBuilding{
 }
 
 public interface ITieredBuilding{
-    TieredBuilding TieredBuildingCompenent {get;}
-    void SetTier(int tier) => TieredBuildingCompenent.SetTier(tier);
+    TieredBuilding TieredBuildingComponent {get;}
+    void SetTier(int tier) => TieredBuildingComponent.SetTier(tier);
 }
 
 public interface IMultipleTypeBuilding<T> where T : Enum{
@@ -27,4 +27,10 @@ public interface IAnimalHouse{
     List<Animals> AnimalsInBuilding => AnimalHouseComponent.AnimalsInBuilding;
     void AddAnimal(Animals animal) => AnimalHouseComponent.AddAnimal(animal);
     void RemoveAnimal(Animals animal) => AnimalHouseComponent.RemoveAnimal(animal);
+}
+
+public interface IRangeEffectBuilding{
+    RangeEffectBuilding RangeEffectBuildingComponent {get;}
+    void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
+    void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
 }

@@ -29,7 +29,7 @@ public class BuildingController : MonoBehaviour{
     public GameObject lastBuildingObjectCreated {get; private set;}
 
     void Start(){
-        currentBuildingType = typeof(Shed);
+        currentBuildingType = typeof(JunimoHut);
         Building.BuildingWasPlaced += OnBuildingPlaced;
     }
 

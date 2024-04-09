@@ -41,6 +41,7 @@ public abstract class Building : TooltipableGameObject {
     public GameObject buttonParent;
     protected bool hasBeenPlaced = false;
     private bool hasBeenPickedUp = false;
+    private bool isMouseOverBuilding = false;
     public static Actions CurrentAction {get; set;} = Actions.PLACE;
     private Vector3Int mousePositionOfLastFrame;
     public delegate void BuildingPlacedDelegate();
@@ -106,6 +107,19 @@ public abstract class Building : TooltipableGameObject {
 
         if (Input.GetKeyUp(KeyCode.Mouse1)){
             if (BaseCoordinates?.Contains(currentCell) ?? false) OnMouseRightClick();
+        }
+
+        if (BaseCoordinates?.Contains(currentCell) ?? false){
+            if (!isMouseOverBuilding){
+                OnMouseEnter();
+                isMouseOverBuilding = true;
+            }
+        }
+        if ((!BaseCoordinates?.Contains(currentCell)) ?? false){
+            if (isMouseOverBuilding){
+                OnMouseExit();
+                isMouseOverBuilding = false;
+            }
         }
     }
 
@@ -279,6 +293,14 @@ public abstract class Building : TooltipableGameObject {
         if (BuildingInteractions.Length != 0 && hasBeenPlaced){
             buttonParent.SetActive(!buttonParent.activeSelf);
         }
+    }
+
+    protected virtual void OnMouseEnter(){
+        //ehm.... override this?
+    }
+
+    protected virtual void OnMouseExit(){
+        //ehm.... override this?
     }
 
     /// <summary>

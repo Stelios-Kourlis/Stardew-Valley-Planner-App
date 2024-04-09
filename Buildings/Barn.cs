@@ -12,7 +12,7 @@ using static Utility.ClassManager;
 public class Barn : Building, ITieredBuilding, IAnimalHouse {
     public override string TooltipMessage => "Right Click For More Options";
     public AnimalHouse AnimalHouseComponent {get; private set;}
-    public TieredBuilding TieredBuildingCompenent {get; private set;}
+    public TieredBuilding TieredBuildingComponent {get; private set;}
 
     public override void OnAwake(){
         BaseHeight = 4;
@@ -24,13 +24,13 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
             ButtonTypes.PAINT,
             ButtonTypes.ADD_ANIMAL
         };
-        TieredBuildingCompenent = new TieredBuilding(this, 3);
-        AnimalHouseComponent = new AnimalHouse(this);
+        TieredBuildingComponent = new TieredBuilding(this, 3);
+        AnimalHouseComponent = new AnimalHouse(this, new Animals[]{Animals.Cow, Animals.Ostrich}, new Animals[]{Animals.Goat}, new Animals[]{Animals.Sheep, Animals.Pig}, TieredBuildingComponent);
         base.OnAwake();
     }
 
     public void SetTier(int tier){
-        TieredBuildingCompenent.SetTier(tier);
+        TieredBuildingComponent.SetTier(tier);
 
         // //Update Animals
         // animalCapacity = 4 * tier;
@@ -106,13 +106,13 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
     }
 
     public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{TieredBuildingCompenent.Tier}";
+        return base.GetBuildingData() + $"|{TieredBuildingComponent.Tier}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         OnAwake();
         Place(new Vector3Int(x,y,0));
-        TieredBuildingCompenent.SetTier(int.Parse(data[0]));
+        TieredBuildingComponent.SetTier(int.Parse(data[0]));
     }
 
     // public void AddAnimal(Animals animal){

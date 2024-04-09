@@ -7,14 +7,18 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using System.Linq;
 
-public class JunimoHut : Building {//todo add range interface
+public class JunimoHut : Building, IRangeEffectBuilding {//todo add range interface
 
     private Tile greenTile;
     public override string TooltipMessage => "";
+
+    public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
+
     public override void OnAwake(){
         name = GetType().Name;
         BaseHeight = 2;
         base.OnAwake();
+        RangeEffectBuildingComponent = new RangeEffectBuilding(this);
         greenTile = LoadTile("GreenTile");
     }
 
@@ -30,26 +34,21 @@ public class JunimoHut : Building {//todo add range interface
     protected override void PlacePreview(Vector3Int position){
         if (hasBeenPlaced) return;
         base.PlacePreview(position);
-        List<Vector3Int> coverageArea = GetAreaAroundPosition(new Vector3Int(position.x-7, position.y-8, 0), 17, 17);
-        coverageArea.Remove(position);
-        coverageArea.Remove(new Vector3Int(position.x+1, position.y, 0));
-        coverageArea.Remove(new Vector3Int(position.x+2, position.y, 0));
-        coverageArea.Remove(new Vector3Int(position.x, position.y+1, 0));
-        coverageArea.Remove(new Vector3Int(position.x+1, position.y+1, 0));
-        coverageArea.Remove(new Vector3Int(position.x+2, position.y+1, 0));
-        foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, greenTile);
+        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(position.x-7, position.y-8, 0), 17, 17).ToArray());
     }
 
     public override void Place(Vector3Int position){
         base.Place(position);
-        List<Vector3Int> coverageArea = GetAreaAroundPosition(new Vector3Int(position.x-7, position.y-8, 0), 17, 17);
-        coverageArea.Remove(position);
-        coverageArea.Remove(new Vector3Int(position.x+1, position.y, 0));
-        coverageArea.Remove(new Vector3Int(position.x-1, position.y, 0));
-        coverageArea.Remove(new Vector3Int(position.x, position.y+1, 0));
-        coverageArea.Remove(new Vector3Int(position.x+1, position.y+1, 0));
-        coverageArea.Remove(new Vector3Int(position.x-1, position.y+1, 0));
-        foreach (Vector3Int cell in coverageArea) GetComponent<Tilemap>().SetTile(cell, null);
+        RangeEffectBuildingComponent.HideEffectRange();
+    }
+
+    protected override void OnMouseEnter(){
+        Vector3Int lowerLeftCorner = BaseCoordinates[0];
+        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x-7, lowerLeftCorner.y-8, 0), 17, 17).ToArray());
+    }
+
+    protected override void OnMouseExit(){
+        RangeEffectBuildingComponent.HideEffectRange();
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
