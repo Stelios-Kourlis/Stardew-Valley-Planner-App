@@ -5,10 +5,11 @@ using System.Configuration;
 using UnityEngine;
 using static Utility.BuildingManager;
 
-public class Crop : MultipleTypeBuilding<Crop.Types>{
+public class Crop: Building, IMultipleTypeBuilding<Crop.Types>{
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
 
     public enum Types{
-        NO_CROP,
+        Parsnip,
         BlueJazz,
         Carrot,
         Cauliflower,
@@ -16,7 +17,6 @@ public class Crop : MultipleTypeBuilding<Crop.Types>{
         Garlic,
         GreenBean,
         Kale,
-        Parsnip,
         Potato,
         Rhubarb,
         Strawberry,
@@ -56,13 +56,12 @@ public class Crop : MultipleTypeBuilding<Crop.Types>{
         TeaLeaves
     }
     
-    public override string TooltipMessage => Type.ToString();
+    public override string TooltipMessage => MultipleTypeBuildingComponent.Type.ToString();
 
     public override void OnAwake(){
-        baseHeight = 1;
-        if (CurrentType == Types.NO_CROP) CurrentType = Types.Parsnip;
+        BaseHeight = 1;
+        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake();
-        defaultSprite = atlas.GetSprite($"Parsnip");
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -71,16 +70,10 @@ public class Crop : MultipleTypeBuilding<Crop.Types>{
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         Place(new Vector3Int(x, y, 0));
-        Type = (Types)System.Enum.Parse(typeof(Types), data[0]);
-        UpdateTexture(atlas.GetSprite(Type.ToString()));
+        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
     }
 
-    // public static void CreateButtonForCrops(){
-    //     Transform contentGameObjectTransform = GameObject.Find("FloorSelectBar").transform.GetChild(0).GetChild(0);
-    //     foreach (Types type in Enum.GetValues(typeof(Types))){
-    //         if (type == Types.NO_CROP) continue; // skip the first element (None)
-    //         Debug.Log($"Creating button for {type}, of enum {typeof(Types)}");
-    //         CreateButton2<Crop.Types>(type.ToString(), $"Buildings/{type}", contentGameObjectTransform, null, type);
-    //     }
-    // }
+    public GameObject[] CreateButtonsForAllTypes(){
+        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
+    }
 }

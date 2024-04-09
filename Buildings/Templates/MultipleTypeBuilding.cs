@@ -13,36 +13,39 @@ using static Utility.ClassManager;
 /// T should be an enum with the types of the building, first element should be a dummy element, second should be the type that will be on the button
 /// </summary>
 
-public abstract class MultipleTypeBuilding<T> : Building where T : struct{
-    public T Type {get; protected set;}
-    public static T CurrentType {get; protected set;}
-    protected SpriteAtlas atlas;
-    protected Sprite defaultSprite;
+public class MultipleTypeBuilding<T> where T : Enum{
+    public T Type {get; private set;}
+    public static T CurrentType {get; private set;}
+    private SpriteAtlas Atlas {get; set;}
+    public Sprite DefaultSprite {get; private set;}
+    public Building Building {get; private set;}
 
-    public override void OnAwake(){
+    public MultipleTypeBuilding(Building building){
         if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
-        base.OnAwake();
-        atlas = Resources.Load<SpriteAtlas>($"Buildings/{GetType().Name}sAtlas");
-        Debug.Assert(atlas != null, $"Atlas \"{GetType().Name}sAtlas\" was not found");
+        Building = building;
+        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType().Name}sAtlas");
+        Debug.Assert(Atlas != null, $"Atlas \"{Building.GetType().Name}sAtlas\" was not found");
         SetType(CurrentType);
+        DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(typeof(T)).GetValue(0)}");
     }
 
-    public virtual void CycleType(){
+    public void CycleType(){
         int enumLength = Enum.GetValues(typeof(T)).Length;
         int intValue = Convert.ToInt32(Type);
         intValue = (intValue + 1) % enumLength;
         SetType((T)Enum.ToObject(typeof(T), intValue));
     }
 
-    public virtual void SetType(T type){
+    public void SetType(T type){
         CurrentType = type;
         Type = type;
-        UpdateTexture(atlas.GetSprite($"{type}"));
+        Building.UpdateTexture(Atlas.GetSprite($"{type}"));
+        Debug.Assert(Atlas.GetSprite($"{type}") != null, $"Sprite for {type} was not found in {Atlas.name}");
     }
 
-    public override GameObject CreateButton(){
-        GameObject button = base.CreateButton();
-        button.GetComponent<Image>().sprite = defaultSprite;
+    public GameObject CreateButton(){
+        GameObject button = Building.CreateButton();
+        button.GetComponent<Image>().sprite = DefaultSprite;
         return button;
     }
 
@@ -51,22 +54,26 @@ public abstract class MultipleTypeBuilding<T> : Building where T : struct{
     /// </summary>
     /// <returns>An array with a button for each type, with no parent, caller should call transform.SetParent()</returns>
     public virtual GameObject[] CreateButtonsForAllTypes(){
-        List<GameObject> buttons = new List<GameObject>();
+        List<GameObject> buttons = new();
         foreach (T type in Enum.GetValues(typeof(T))){
-            if ((int)(object)type == 0) continue; // skip the first element (None)
-            GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+            // if ((int)(object)type == 0) continue; // skip the first element (None)
+            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}Button";
-            button.GetComponent<Image>().sprite = atlas.GetSprite($"{type}");
+            button.GetComponent<Image>().sprite = Atlas.GetSprite($"{type}");
 
-            Type buildingType = GetType();
+            Type buildingType = Building.GetType();
             BuildingController buildingController = GetBuildingController();
             button.GetComponent<Button>().onClick.AddListener(() => { 
-                Debug.Log($"Setting current building to {type}");
-                buildingController.SetCurrentBuildingToMultipleTypeBuilding<T>(buildingType, type);
+                buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
                 buildingController.SetCurrentAction(Actions.PLACE); 
                 });
             buttons.Add(button);
         }
         return buttons.ToArray();
+    }
+
+    public static explicit operator MultipleTypeBuilding<T>(Component v)
+    {
+        throw new NotImplementedException();
     }
 }

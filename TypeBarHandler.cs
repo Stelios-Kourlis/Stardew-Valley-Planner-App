@@ -25,24 +25,20 @@ public class TypeBarHandler : MonoBehaviour {
 
         // Debug.Log("TBH: Getting all building types");
         var buildingType = typeof(MultipleTypeBuilding<>);
-        var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => p.BaseType != null && p.BaseType.IsGenericType && p.BaseType.GetGenericTypeDefinition() == buildingType && p.IsClass && !p.IsAbstract);
-
+        var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMultipleTypeBuilding<>)));
+        
         foreach (var type in allTypes){
-            // if (type == typeof(Obelisk)) continue;
-            // GameObject tempGO = new GameObject();
-            dynamic buildingTemp = gameObject.AddComponent(type);
+            GameObject temp = new();
+            dynamic buildingTemp = temp.AddComponent(type);
             GameObject[] buttons = buildingTemp.CreateButtonsForAllTypes();
             Transform typeBarContent = transform.GetChild(0).GetChild(0);
             foreach (GameObject button in buttons){
                 button.name = $"{type}{button.name}";
                 button.transform.SetParent(typeBarContent);
+                button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             }
-            StartCoroutine(RemoveComponentNextFrame(buildingTemp)); //Components cant be removed the same frame they are added
-        }
-
-        static IEnumerator RemoveComponentNextFrame(Component component){
-            yield return null; // wait until the next frame
-            Destroy(component);
+            Destroy(temp);
+            // StartCoroutine(RemoveComponentNextFrame(buildingTemp)); //Components cant be removed the same frame they are added
         }
 
         lastType = GetBuildingController().GetCurrentBuildingType();
@@ -52,9 +48,8 @@ public class TypeBarHandler : MonoBehaviour {
 
     void Update(){
         Type currentBuildingType = GetBuildingController().GetCurrentBuildingType();
-        if (currentBuildingType == lastType) return;
-        Type currentBuildingTypeBase = currentBuildingType.BaseType;
-        bool isCurrentlyBuildingMultipleTypeBuilding = currentBuildingTypeBase.IsGenericType && currentBuildingTypeBase.GetGenericTypeDefinition() == typeof(MultipleTypeBuilding<>);
+        if (currentBuildingType == lastType) return; 
+        bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(currentBuildingType);
         if (isCurrentlyBuildingMultipleTypeBuilding){
             if (!typeBarIsOpen){
                 typeBarIsOpen = true;
@@ -71,9 +66,15 @@ public class TypeBarHandler : MonoBehaviour {
         }
     }
 
-    // public void CreateButtonForCurrentBuilding(){
-    //     GameObject contentGameObject = transform.GetChild(0).GetChild(0).gameObject;
-    // }
+    public bool IsMultipleTypeBuilding(Type type){
+         var interfaces = type.GetInterfaces();
+         foreach (var i in interfaces){
+            if (i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMultipleTypeBuilding<>)){
+                return true;
+            }
+        }
+        return false;
+    }
 
 
     /// <summary>

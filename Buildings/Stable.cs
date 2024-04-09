@@ -8,8 +8,8 @@ public class Stable : Building {
 
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 2;
-        buildingInteractions = new ButtonTypes[]{
+        BaseHeight = 2;
+        BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT
         };
         base.OnAwake();

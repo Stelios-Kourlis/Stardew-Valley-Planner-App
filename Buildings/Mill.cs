@@ -9,7 +9,7 @@ public class Mill : Building {
     
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 2;
+        BaseHeight = 2;
         base.OnAwake();
     }
 

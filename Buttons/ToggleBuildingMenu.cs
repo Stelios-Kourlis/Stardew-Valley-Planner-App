@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ToggleBuildingMenu : MonoBehaviour {
     private Button thisButton;
     private GameObject panel;
-    private float moveScale = 6.75f;
+    private float moveScale = 3f;
     private Sprite[] arrowButtons = new Sprite[2];
     // Start is called before the first frame update
     void Start() {

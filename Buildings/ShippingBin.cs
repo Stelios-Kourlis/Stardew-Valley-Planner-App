@@ -8,7 +8,7 @@ public class ShippingBin : Building {
 
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 1;
+        BaseHeight = 1;
         base.OnAwake();
     }
 

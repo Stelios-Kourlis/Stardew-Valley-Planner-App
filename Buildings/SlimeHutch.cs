@@ -8,9 +8,9 @@ public class SlimeHutch : Building {
 
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 4;
+        BaseHeight = 4;
         // insideAreaTexture = Resources.Load("BuildingInsides/Barn1") as Texture2D;
-        buildingInteractions = new ButtonTypes[]{
+        BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
         base.OnAwake();

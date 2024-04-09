@@ -7,13 +7,13 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using System.Linq;
 
-public class JunimoHut : Building {
+public class JunimoHut : Building {//todo add range interface
 
     private Tile greenTile;
     public override string TooltipMessage => "";
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 2;
+        BaseHeight = 2;
         base.OnAwake();
         greenTile = LoadTile("GreenTile");
     }

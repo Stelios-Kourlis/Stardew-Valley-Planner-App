@@ -7,7 +7,7 @@ public class Silo : Building {
     public override string TooltipMessage => "";
 
     public override void OnAwake(){
-        baseHeight = 3;
+        BaseHeight = 3;
         base.OnAwake();
     }
     public override List<MaterialInfo> GetMaterialsNeeded(){

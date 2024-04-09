@@ -8,7 +8,7 @@ public class Well : Building {
 
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 3;
+        BaseHeight = 3;
         base.OnAwake();
     }
 

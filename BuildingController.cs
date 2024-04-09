@@ -29,15 +29,15 @@ public class BuildingController : MonoBehaviour{
     public GameObject lastBuildingObjectCreated {get; private set;}
 
     void Start(){
-        currentBuildingType = typeof(Barn);
-        Building.buildingWasPlaced += OnBuildingPlaced;
+        currentBuildingType = typeof(Shed);
+        Building.BuildingWasPlaced += OnBuildingPlaced;
     }
 
     void Update(){
-        if (Building.currentAction == Actions.EDIT){
+        if (Building.CurrentAction == Actions.EDIT){
             if (lastBuildingObjectCreated != null) Destroy(lastBuildingObjectCreated);
         }
-        else if (Building.currentAction == Actions.PLACE){
+        else if (Building.CurrentAction == Actions.PLACE){
             if (lastBuildingObjectCreated == null) OnBuildingPlaced();
         }
 
@@ -49,30 +49,16 @@ public class BuildingController : MonoBehaviour{
     private void OnBuildingPlaced(){
         if (IsLoadingSave) return;
         // Debug.Log("Building Placed");
-        GameObject go = new GameObject(currentBuildingType.Name);
+        GameObject go = new(currentBuildingType.Name);
         go.transform.parent = transform;
         go.AddComponent(currentBuildingType);
-
-        
-        // if (typeof(MultipleTypeBuilding).IsAssignableFrom(currentBuildingType))
-
-
-        // if (currentBuildingType == typeof(Craftables)){
-        //     Craftables.Type lastCraftable = (Craftables.Type) lastBuildingObjectCreated.GetComponent<Craftables>().CraftableType;
-        //     go.GetComponent<Craftables>().SetCraftable(lastCraftable);
-        //     go.name += lastCraftable;
-        // }
-        // if (currentBuildingType == typeof(Fence)){
-        //     Fence.Types lastFence = Fence.currentType;
-        //     go.GetComponent<Fence>().SetType(lastFence);
-        //     go.name += lastFence;
-        // }
         lastBuildingObjectCreated = go;
     }
 
     public void SetCurrentBuildingType(Type newType, Action extraAction = null){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
+        // Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
+        // if (component != null) Destroy(component);
+        lastBuildingObjectCreated.GetComponent<Building>().ForceDelete();
         currentBuildingType = newType;
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
@@ -83,8 +69,8 @@ public class BuildingController : MonoBehaviour{
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Scarecrow);
-        if (IsDeluxe) lastBuildingObjectCreated.AddComponent<Scarecrow>().SetDeluxe();
-        else lastBuildingObjectCreated.AddComponent<Scarecrow>();
+        // if (IsDeluxe) lastBuildingObjectCreated.AddComponent<Scarecrow>().SetDeluxe();
+        // else lastBuildingObjectCreated.AddComponent<Scarecrow>();
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
@@ -92,7 +78,7 @@ public class BuildingController : MonoBehaviour{
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Floor);
-        lastBuildingObjectCreated.AddComponent<Floor>().SetType(floorType);
+        // lastBuildingObjectCreated.AddComponent<Floor>().SetType(floorType);
         lastBuildingObjectCreated.name = currentBuildingType.Name + floorType;
     }
 
@@ -100,15 +86,15 @@ public class BuildingController : MonoBehaviour{
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Fence);
-        lastBuildingObjectCreated.AddComponent<Fence>().SetType(fenceType);
+        // lastBuildingObjectCreated.AddComponent<Fence>().SetType(fenceType);
         lastBuildingObjectCreated.name = currentBuildingType.Name + fenceType;
     }
 
-    public void SetCurrentBuildingToCabin(Cabin.CabinTypes cabinType){
+    public void SetCurrentBuildingToCabin(Cabin.Types cabinType){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Cabin);
-        lastBuildingObjectCreated.AddComponent<Cabin>().SetType(cabinType);
+        // lastBuildingObjectCreated.AddComponent<Cabin>().SetType(cabinType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
@@ -116,14 +102,16 @@ public class BuildingController : MonoBehaviour{
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Crop);
-        lastBuildingObjectCreated.AddComponent<Crop>().SetType(cropType);
+        // lastBuildingObjectCreated.AddComponent<Crop>().SetType(cropType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
-    public void SetCurrentBuildingToMultipleTypeBuilding<T>(Type buildingType, T type) where T : struct{
+    public void SetCurrentBuildingToMultipleTypeBuilding<T>(Type buildingType, T type) where T : Enum{
+        Debug.Assert(type != null, $"Type is null in SetCurrentBuildingToMultipleTypeBuilding");
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
-        MultipleTypeBuilding<T> building = (MultipleTypeBuilding<T>) lastBuildingObjectCreated.AddComponent(buildingType);
+        IMultipleTypeBuilding<T> building = lastBuildingObjectCreated.AddComponent(buildingType) as IMultipleTypeBuilding<T>;
+        Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
         building.SetType(type);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
@@ -133,7 +121,7 @@ public class BuildingController : MonoBehaviour{
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Craftables);
         // Debug.Log("Set Craftable to " + placeable + " in BuildingController also " + (lastBuildingObjectCreated.GetComponent<Craftables>() == null));
-        lastBuildingObjectCreated.AddComponent<Craftables>().SetCraftable(placeable);
+        // lastBuildingObjectCreated.AddComponent<Craftables>().SetCraftable(placeable);
         lastBuildingObjectCreated.name = currentBuildingType.Name + "" + placeable;
     }
 
@@ -146,10 +134,10 @@ public class BuildingController : MonoBehaviour{
         };
         GameObject houseGameObject = new GameObject("House");
         houseGameObject.transform.parent = transform;
-        houseGameObject.AddComponent<House>().OnAwake();
-        houseGameObject.GetComponent<House>().Place(housePos);
-        houseGameObject.GetComponent<House>().ChangeTier(tier);
-        houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
+        // houseGameObject.AddComponent<House>().OnAwake();
+        // houseGameObject.GetComponent<House>().Place(housePos);
+        // houseGameObject.GetComponent<House>().ChangeTier(tier);
+        // houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
         //isUndoing = true; //hack to prevent the action from being added to the action log
     }
 
@@ -158,11 +146,11 @@ public class BuildingController : MonoBehaviour{
     /// </summary>
     public void DeleteAllBuildings(bool deleteHouse = false) {
         foreach (Building building in buildings) {
-            if (building is House && !deleteHouse) continue;
+            // if (building is House && !deleteHouse) continue;
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
             building.ForceDelete();
         }
-        buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
+        // buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
         GetNotificationManager().SendNotification("Deleted all buildings");
     }
 
@@ -252,7 +240,7 @@ public class BuildingController : MonoBehaviour{
     // public Actions GetCurrentAction(){ return currentAction; }
     //public FloorType GetCurrentFloorType(){ return currentFloorType; }
     // public HashSet<Floor> GetFloors(){ return floors; }
-    public void SetCurrentAction(Actions action){ Building.currentAction = action; }
+    public void SetCurrentAction(Actions action){ Building.CurrentAction = action; }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
     public void Save(){ Utility.BuildingManager.Save(); }

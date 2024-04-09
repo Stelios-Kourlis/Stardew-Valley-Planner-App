@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tree : MultipleTypeBuilding<Tree.Types>{
-    public override string TooltipMessage => $"{Type} Tree";
+public class WoodTree : Building, IMultipleTypeBuilding<WoodTree.Types>{//the name wood tree is a stupid name but Unity already has a class named Tree, oh well
+    
+
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
 
     public enum Types{
-        NO_TYPE,
         Oak,
         Maple,
         Pine,
@@ -26,11 +27,11 @@ public class Tree : MultipleTypeBuilding<Tree.Types>{
         PineGreenRain
     }
 
+    public override string TooltipMessage => $"{MultipleTypeBuildingComponent.Type} Tree";
     public override void OnAwake(){
-        baseHeight = 1;
-        if (CurrentType == Types.NO_TYPE) CurrentType = Types.Oak;
+        BaseHeight = 1;
+        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake();
-        defaultSprite = atlas.GetSprite("Oak");
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -39,7 +40,10 @@ public class Tree : MultipleTypeBuilding<Tree.Types>{
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         Place(new Vector3Int(x, y, 0));
-        Type = (Types)System.Enum.Parse(typeof(Types), data[0]);
-        UpdateTexture(atlas.GetSprite(Type.ToString()));
+        MultipleTypeBuildingComponent.SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
+    }
+
+    public GameObject[] CreateButtonsForAllTypes(){
+        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
 }

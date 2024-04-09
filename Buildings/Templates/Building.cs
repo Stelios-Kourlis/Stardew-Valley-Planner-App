@@ -1,58 +1,50 @@
-using System.Collections;
 using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System.Runtime.Remoting.Messaging;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
 using static Utility.BuildingManager;
 using System.Linq;
-using UnityEngine.Events;
-using System.Runtime.ConstrainedExecution;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-#pragma warning disable IDE1006 // Naming Styles
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
 public abstract class Building : TooltipableGameObject {
     //Set values for the colors of the building
-    protected readonly Color SEMI_TRANSPARENT = new Color(1,1,1,0.5f);
-    protected readonly Color SEMI_TRANSPARENT_INVALID = new Color(1,0.5f,0.5f,0.5f);
-    protected readonly Color OPAQUE = new Color(1,1,1,1);
+    protected readonly Color SEMI_TRANSPARENT = new(1,1,1,0.5f);
+    protected readonly Color SEMI_TRANSPARENT_INVALID = new(1,0.5f,0.5f,0.5f);
+    protected readonly Color OPAQUE = new(1,1,1,1);
 
     /// <summary> A unique ID that identifies this object, 2 building of the same type, on the same location will have the same UID</summary>
     public int UID {get; protected set;} = 0;
 
     ///<summary>The array containing the coordinates of each sprite tile</summary>
-    public Vector3Int[] spriteCoordinates { get; protected set;}
+    public Vector3Int[] SpriteCoordinates { get; protected set;}
      ///<summary>The coordinates of the base</summary>
-    public Vector3Int[] baseCoordinates { get; protected set;}
-    // /// <summary> The texture of the building</summary>
-    // public Texture2D insideAreaTexture {get; protected set;}
+    public Vector3Int[] BaseCoordinates { get; protected set;}
     ///<summary>The sprite of the building </summary>
     public Sprite sprite;
     ///<summary>The ways the user can interact with the building </summary>
-    public ButtonTypes[] buildingInteractions { get; protected set;} = new ButtonTypes[0];
-    public int baseHeight { get; protected set; } 
-    public int height {get { 
+    public ButtonTypes[] BuildingInteractions { get; protected set;} = new ButtonTypes[0];
+    public int BaseHeight { get; protected set; } 
+    public int Height {get { 
         Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
-        return (int) sprite.textureRect.height / 16;}}
-    public int width {get { 
+        return sprite != null ? (int) sprite.textureRect.height / 16 : 0;}}
+    public int Width {get { 
         Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
-        return (int) sprite.textureRect.width / 16;}}
+        return sprite != null ? (int) sprite.textureRect.width / 16 : 0;}}
     ///<summary>The tilemap this building is attached to</summary>
-    public Tilemap tilemap {get {return gameObject.GetComponent<Tilemap>();}}
+    public Tilemap Tilemap {get {return gameObject.GetComponent<Tilemap>();}}
     /// <summary> The parent of the buttons that are created for this building </summary>
     public GameObject buttonParent;
     protected bool hasBeenPlaced = false;
     private bool hasBeenPickedUp = false;
-    public static Actions currentAction {get; set;} = Actions.PLACE;
-    public delegate void BuildingPlacedDelegate();
-    public static event BuildingPlacedDelegate buildingWasPlaced;
+    public static Actions CurrentAction {get; set;} = Actions.PLACE;
     private Vector3Int mousePositionOfLastFrame;
-#pragma warning restore IDE1006 // Naming Styles
+    public delegate void BuildingPlacedDelegate();
+    public static event BuildingPlacedDelegate BuildingWasPlaced;
 
     /// <summary>
     /// Get the materials needed to build this building
@@ -68,37 +60,37 @@ public abstract class Building : TooltipableGameObject {
     public abstract void RecreateBuildingForData(int x, int y, params string[] data);
 
     protected void InvokeBuildingWasPlaced(){
-        buildingWasPlaced?.Invoke();
+        BuildingWasPlaced?.Invoke();
     }
 
     public override bool ShowTooltipCondition(){
         if (!hasBeenPlaced) return false;
         // Debug.Log("Has Been Placed " + hasBeenPlaced);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (baseCoordinates?.Contains(currentCell) ?? false) return true;
+        if (BaseCoordinates?.Contains(currentCell) ?? false) return true;
         else return false;
     }
 
     public override void OnAwake(){    
         AddTilemapToObject(gameObject);
-        if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{name}");
+        if (sprite == null) sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
         mousePositionOfLastFrame = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
     }
 
     public override void OnUpdate(){
         Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
-        if (buildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
+        if (BuildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
-        if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP){
+        if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP){
             GetInputHandler().SetCursor(InputHandler.CursorType.Place);
             PlacePreview(currentCell);
         }
-        else if (currentAction == Actions.EDIT){
+        else if (CurrentAction == Actions.EDIT){
             GetInputHandler().SetCursor(InputHandler.CursorType.Pickup);
             PickupPreview();
         }
-        else if (currentAction == Actions.DELETE){
+        else if (CurrentAction == Actions.DELETE){
             GetInputHandler().SetCursor(InputHandler.CursorType.Delete);
             DeletePreview();
         }
@@ -107,13 +99,13 @@ public abstract class Building : TooltipableGameObject {
         if (Input.GetKeyUp(KeyCode.Mouse0)){
             if (EventSystem.current.IsPointerOverGameObject()) return;
             
-            if (currentAction == Actions.PLACE || currentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
-            else if (currentAction == Actions.EDIT) PickupWrapper();
-            else if (currentAction == Actions.DELETE) DeleteWrapper();
+            if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
+            else if (CurrentAction == Actions.EDIT) PickupWrapper();
+            else if (CurrentAction == Actions.DELETE) DeleteWrapper();
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse1)){
-            if (baseCoordinates?.Contains(currentCell) ?? false) OnMouseRightClick();
+            if (BaseCoordinates?.Contains(currentCell) ?? false) OnMouseRightClick();
         }
     }
 
@@ -121,7 +113,7 @@ public abstract class Building : TooltipableGameObject {
         if (hasBeenPlaced) return;
         if (!CanBuildingBePlacedThere(position, this)) return;
         // Debug.Log($"{this} can be placed at {position}");
-        List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
+        List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width);
         if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
             GetNotificationManager().SendNotification($"Cannot place {GetType()} here");
             return;
@@ -131,13 +123,13 @@ public abstract class Building : TooltipableGameObject {
         GetBuildingController().buildings.Add(this);
         UID = (name + baseCoordinates[0].x + baseCoordinates[0].y).GetHashCode();
         GetBuildingController().AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
-        if (currentAction == Actions.PLACE) buildingWasPlaced?.Invoke();
+        if (CurrentAction == Actions.PLACE) BuildingWasPlaced?.Invoke();
     }
 
     private void PickupWrapper(){
         if (!hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (!baseCoordinates?.Contains(currentCell) ?? false) return;
+        if (!BaseCoordinates?.Contains(currentCell) ?? false) return;
         GetBuildingController().AddActionToLog(new UserAction(Actions.EDIT, UID, GetBuildingData()));
         Pickup();
     }
@@ -145,7 +137,7 @@ public abstract class Building : TooltipableGameObject {
     private void DeleteWrapper(){
         if (!hasBeenPlaced) return;
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (!baseCoordinates?.Contains(currentCell) ?? false) return;
+        if (!BaseCoordinates?.Contains(currentCell) ?? false) return;
         GetBuildingController().AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
         Delete();
     }
@@ -156,7 +148,7 @@ public abstract class Building : TooltipableGameObject {
             return;
         }
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (baseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        if (BaseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
@@ -167,11 +159,11 @@ public abstract class Building : TooltipableGameObject {
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -currentCell.y + 50;
 
         Vector3Int[] unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
-        Vector3Int[] buildingBaseCoordinates = GetAreaAroundPosition(currentCell, baseHeight, width).ToArray();
+        Vector3Int[] buildingBaseCoordinates = GetAreaAroundPosition(currentCell, BaseHeight, Width).ToArray();
         if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
-        Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(currentCell, height, width).ToArray();
+        Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(currentCell, Height, Width).ToArray();
         gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(sprite));
     }
 
@@ -181,7 +173,7 @@ public abstract class Building : TooltipableGameObject {
             return;
         }
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (baseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        if (BaseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
     }
     
@@ -200,24 +192,24 @@ public abstract class Building : TooltipableGameObject {
     /// </summary>
     /// <param name="position">The position you want to place the building</param>
     public virtual void Place(Vector3Int position){
-        List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, baseHeight, width);
-        List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, height, width);
+        List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width);
+        List<Vector3Int> spriteCoordinates = GetAreaAroundPosition(position, Height, Width);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
         gameObject.GetComponent<Tilemap>().color = OPAQUE;
         gameObject.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), SplitSprite(sprite));
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
 
-        this.baseCoordinates = baseCoordinates.ToArray();
-        this.spriteCoordinates = spriteCoordinates.ToArray();
-        if (buildingInteractions.Length != 0) GetButtonController().CreateButtonsForBuilding(this);
+        this.BaseCoordinates = baseCoordinates.ToArray();
+        this.SpriteCoordinates = spriteCoordinates.ToArray();
+        if (BuildingInteractions.Length != 0) GetButtonController().CreateButtonsForBuilding(this);
 
         hasBeenPlaced = true;
         
 
         if (hasBeenPickedUp){
             hasBeenPickedUp = false;
-            currentAction = Actions.EDIT;
+            CurrentAction = Actions.EDIT;
         }
 
         // if (this is TieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);//todo is this needed?
@@ -228,16 +220,16 @@ public abstract class Building : TooltipableGameObject {
     /// <summary>
     /// Update the sprite of the building
     /// </summary>
-    protected void UpdateTexture(Sprite newSprite){
+    public void UpdateTexture(Sprite newSprite){
         sprite = newSprite;
         if (!hasBeenPlaced) return;
         Tile[] buildingTiles = SplitSprite(sprite);
         // Debug.Log(this.gameObject == null);
-        this.gameObject?.GetComponent<Tilemap>().SetTiles(spriteCoordinates.ToArray(), buildingTiles);
+        this.gameObject?.GetComponent<Tilemap>().SetTiles(SpriteCoordinates.ToArray(), buildingTiles);
     }
 
     public bool VectorInBaseCoordinates(Vector3Int checkForMe) {
-        foreach (Vector3Int vector in baseCoordinates) if (checkForMe == vector) return true;
+        foreach (Vector3Int vector in BaseCoordinates) if (checkForMe == vector) return true;
         return false;
     }
 
@@ -246,15 +238,15 @@ public abstract class Building : TooltipableGameObject {
     /// </summary>
     protected virtual void Pickup(){
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if(!baseCoordinates.Contains(currentCell)) return;
+        if(!BaseCoordinates.Contains(currentCell)) return;
 
-        GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
-        baseCoordinates = null;
-        spriteCoordinates = null;
+        GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
+        BaseCoordinates = null;
+        SpriteCoordinates = null;
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
         hasBeenPlaced = false;
         hasBeenPickedUp = true;
-        currentAction = Actions.PLACE_PICKED_UP;
+        CurrentAction = Actions.PLACE_PICKED_UP;
 
     }
 
@@ -269,8 +261,8 @@ public abstract class Building : TooltipableGameObject {
     /// <summary>
     /// Force delete the building, meaning this deletes buildings that cant be deleted any other way (house, greenhouse)
     /// </summary>
-    public void ForceDelete(){
-        GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => baseCoordinates.Contains(x));
+    public virtual void ForceDelete(){
+        if (BaseCoordinates != null ) GetBuildingController().GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
         Destroy(buttonParent);
         Destroy(gameObject);
     }
@@ -280,11 +272,11 @@ public abstract class Building : TooltipableGameObject {
     /// </summary>
     /// <returns>a string starting with Type,base[0].x,base[0].y and followed by building specific data, fields seperated by | </returns>
     public virtual string GetBuildingData(){
-        return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}";
+        return $"{GetType()}|{BaseCoordinates[0].x}|{BaseCoordinates[0].y}";
     }
 
     protected virtual void OnMouseRightClick(){
-        if (buildingInteractions.Length != 0 && hasBeenPlaced){
+        if (BuildingInteractions.Length != 0 && hasBeenPlaced){
             buttonParent.SetActive(!buttonParent.activeSelf);
         }
     }
@@ -295,6 +287,7 @@ public abstract class Building : TooltipableGameObject {
     /// <returns>The game object of the button, with no parent, caller should use transform.SetParent()</returns>
     public virtual GameObject CreateButton(){
         GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+        button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
         button.name = $"{GetType()}Button";
         button.GetComponent<Image>().sprite = sprite;
 

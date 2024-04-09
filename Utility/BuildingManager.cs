@@ -44,31 +44,31 @@ namespace Utility{
         public static bool CanBuildingBePlacedThere(Vector3Int position, Building building){
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<Type> cantBePlacedOnGingerInslad = new HashSet<Type>{
-                typeof(Barn),
-                typeof(Cabin),
-                typeof(Coop),
-                typeof(FishPond),
-                typeof(GoldClock),
-                typeof(Greenhouse),
-                typeof(House),
-                typeof(JunimoHut),
-                typeof(Mill),
-                typeof(Obelisk),
-                typeof(Shed),
-                typeof(ShippingBin),
-                typeof(Silo),
-                typeof(SlimeHutch),
-                typeof(Stable),
-                typeof(Well),
+                // typeof(Barn),
+                // typeof(Cabin),
+                // typeof(Coop),
+                // typeof(FishPond),
+                // typeof(GoldClock),
+                // typeof(Greenhouse),
+                // typeof(House),
+                // typeof(JunimoHut),
+                // typeof(Mill),
+                // typeof(Obelisk),
+                // typeof(Shed),
+                // typeof(ShippingBin),
+                // typeof(Silo),
+                // typeof(SlimeHutch),
+                // typeof(Stable),
+                // typeof(Well),
             };
             if (mapType == MapController.MapTypes.GingerIsland && cantBePlacedOnGingerInslad.Contains(building.GetType())){
                 GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island");
                 return false;
             }
-            if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
-                GetNotificationManager().SendNotification("Can't place a crop there");
-                return false;
-            }
+            // if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
+            //     GetNotificationManager().SendNotification("Can't place a crop there");
+            //     return false;
+            // }
             return true;
         }
 
@@ -97,15 +97,15 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="isScarecrowDeluxe"> If the scarecrow is deluxe</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, bool isScarecrowDeluxe){
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
-            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                GetBuildingController().SetCurrentBuildingToScarecrow(isScarecrowDeluxe);
-                GetBuildingController().SetCurrentAction(Actions.PLACE); 
-                });
-            button.name = name;
-        }
+        // public static void CreateButton(string name, string imagePath, Transform transform, bool isScarecrowDeluxe){
+        //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+        //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+        //     button.GetComponent<Button>().onClick.AddListener(() => { 
+        //         GetBuildingController().SetCurrentBuildingToScarecrow(isScarecrowDeluxe);
+        //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
+        //         });
+        //     button.name = name;
+        // }
 
         /// <summary>
         /// Create a button to set the current building to floor and set the floor type
@@ -114,15 +114,15 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Floor.Types floorType){
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
-            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                GetBuildingController().SetCurrentBuildingToFloor(floorType);
-                GetBuildingController().SetCurrentAction(Actions.PLACE); 
-                });
-            button.name = name;
-        }
+        // public static void CreateButton(string name, string imagePath, Transform transform, Floor.Types floorType){
+        //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+        //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+        //     button.GetComponent<Button>().onClick.AddListener(() => { 
+        //         // GetBuildingController().SetCurrentBuildingToFloor(floorType);
+        //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
+        //         });
+        //     button.name = name;
+        // }
 
         /// <summary>
         /// Create a button to set the current building to fence and set the fence type
@@ -131,15 +131,15 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Fence.Types fenceType){
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
-            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                GetBuildingController().SetCurrentBuildingToFence(fenceType);
-                GetBuildingController().SetCurrentAction(Actions.PLACE); 
-                });
-            button.name = name;
-        }
+        // public static void CreateButton(string name, string imagePath, Transform transform, Fence.Types fenceType){
+        //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+        //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+        //     button.GetComponent<Button>().onClick.AddListener(() => { 
+        //         // GetBuildingController().SetCurrentBuildingToFence(fenceType);
+        //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
+        //         });
+        //     button.name = name;
+        // }
 
         /// <summary>
         /// Create a button to set the current building to cabin and set the cabin type
@@ -148,31 +148,31 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="floorType">The type of floor</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Cabin.CabinTypes cabinType){
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
-            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                GetBuildingController().SetCurrentBuildingToCabin(cabinType);
-                GetBuildingController().SetCurrentAction(Actions.PLACE); 
-                });
-            button.name = name;
-        }
-
-        public static void CreateButton(string name, string imagePath, Transform transform, Crop.Types cropType){
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
-            button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                GetBuildingController().SetCurrentBuildingToCrop(cropType);
-                GetBuildingController().SetCurrentAction(Actions.PLACE); 
-                });
-            button.name = name;
-        }
-
-        // public static void CreateButton2<T>(string name, string imagePath, Transform transform, MultipleTypeBuilding<T> building, T type) where T : struct{
+        // public static void CreateButton(string name, string imagePath, Transform transform, Cabin.Types cabinType){
         //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
         //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
         //     button.GetComponent<Button>().onClick.AddListener(() => { 
-        //         GetBuildingController().SetCurrentBuildingToMultipleTypeBuilding<T>(building, type);
+        //         GetBuildingController().SetCurrentBuildingToCabin(cabinType);
+        //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
+        //         });
+        //     button.name = name;
+        // }
+
+        // public static void CreateButton(string name, string imagePath, Transform transform, Crop.Types cropType){
+        //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+        //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+        //     button.GetComponent<Button>().onClick.AddListener(() => { 
+        //         GetBuildingController().SetCurrentBuildingToCrop(cropType);
+        //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
+        //         });
+        //     button.name = name;
+        // }
+
+        // public static void CreateButton2<T>(string name, string imagePath, Transform transform, T type) where T : struct{
+        //     GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
+        //     button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
+        //     button.GetComponent<Button>().onClick.AddListener(() => { 
+        //         // GetBuildingController().SetCurrentBuildingToMultipleTypeBuilding<T>(building, type);
         //         GetBuildingController().SetCurrentAction(Actions.PLACE); 
         //         });
         //     button.name = name;

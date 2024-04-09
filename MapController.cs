@@ -47,17 +47,17 @@ public class MapController : MonoBehaviour{
     public void Update(){
         if (Input.GetKeyUp(KeyCode.A)){
             if (addingInvalidTiles){
-                Building.currentAction = Actions.EDIT;
+                Building.CurrentAction = Actions.EDIT;
                 addingInvalidTiles = false;
                 addingPlantableTiles = true;
                 GetNotificationManager().SendNotification("Mode set to add plantable tiles");
             }else if (addingPlantableTiles){
-                Building.currentAction = Actions.PLACE;
+                Building.CurrentAction = Actions.PLACE;
                 addingPlantableTiles = false;
                 addingInvalidTiles = false;
                 GetNotificationManager().SendNotification("Mode Set to nothing");
             }else{
-                Building.currentAction = Actions.EDIT;
+                Building.CurrentAction = Actions.EDIT;
                 addingInvalidTiles = true;
                 addingPlantableTiles = false;
                 GetNotificationManager().SendNotification("Mode set to add invalid tiles");

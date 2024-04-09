@@ -11,12 +11,12 @@ namespace Utility{
         ///<param name="reverseLayerOrder">if true the building layers will be flipped y-wise, true by default</param>
         ///<returns>An array of Tiles, each tile is a 16x16 area of the sprite</returns>
         public static Tile[] SplitSprite(Building building, bool reverseLayerOrder = true) {
-            Tile[] tiles = new Tile[building.height * building.width];
+            Tile[] tiles = new Tile[building.Height * building.Width];
             int index = 0;
             Texture2D texture = building.sprite.texture;
             if (reverseLayerOrder) {
-                for (int yPivot = building.height - 1; yPivot >= 0; yPivot--) {
-                    for (int xPivot = 0; xPivot < building.width; xPivot++) {
+                for (int yPivot = building.Height - 1; yPivot >= 0; yPivot--) {
+                    for (int xPivot = 0; xPivot < building.Width; xPivot++) {
                         Sprite sprite = Sprite.Create(texture, new Rect(xPivot * 16, yPivot * 16, 16, 16), new Vector2(0.5f, 0.5f), 16);
                         Tile tile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
                         tile.sprite = sprite;
@@ -24,8 +24,8 @@ namespace Utility{
                     }
                 }
             } else {
-                for (int yPivot = 0; yPivot < building.height % 16; yPivot++) {
-                    for (int xPivot = 0; xPivot < building.width % 16; xPivot++) {
+                for (int yPivot = 0; yPivot < building.Height % 16; yPivot++) {
+                    for (int xPivot = 0; xPivot < building.Width % 16; xPivot++) {
                         Sprite sprite = Sprite.Create(texture, new Rect(xPivot * 16, yPivot * 16, 16, 16), new Vector2(0.5f, 0.5f), 16);
                         Tile tile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
                         tile.sprite = sprite;

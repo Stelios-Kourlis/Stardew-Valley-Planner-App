@@ -56,20 +56,24 @@ public class ButtonController : MonoBehaviour{
         var buildingType = typeof(Building);
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
 
+        Transform buildingPanelContent = GameObject.FindGameObjectWithTag("Panel").transform.GetChild(0).GetChild(0);
         foreach (var type in allTypes){//todo problem with silo
             if (type == typeof(House)) continue;
             if (type == typeof(Greenhouse)) continue;
-            Building buildingTemp = (Building) gameObject.AddComponent(type);
+            // Debug.Log(type);
+            GameObject temp = new GameObject();
+            Building buildingTemp = (Building) temp.AddComponent(type);
             GameObject button = buildingTemp.CreateButton();
-            Transform buildingPanelContent = GameObject.FindGameObjectWithTag("Panel").transform.GetChild(0).GetChild(0);
             button.transform.SetParent(buildingPanelContent);
-            StartCoroutine(RemoveComponentNextFrame(buildingTemp)); //Components cant be removed the same frame they are added
+            button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+            Destroy(temp);
+            // StartCoroutine(RemoveComponentNextFrame(buildingTemp)); //Components cant be removed the same frame they are added
         }
 
         //Placeables Buttons
         buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(1).GetChild(0);
-        CreateButton("Scarecrow", "Buildings/Scarecrow", buildingPanelTransform, false);
-        CreateButton("DeluxeScarecrow", "Buildings/DeluxeScarecrow",buildingPanelTransform, true);
+        // CreateButton("Scarecrow", "Buildings/Scarecrow", buildingPanelTransform, false);
+        // CreateButton("DeluxeScarecrow", "Buildings/DeluxeScarecrow",buildingPanelTransform, true);
         CreateButton("sprinkler", "Buildings/SprinklerT1", buildingPanelTransform, typeof(Sprinkler));
         CreateButton("Beehouse", "Buildings/Placeables/Beehouse", buildingPanelTransform, Craftables.Type.Beehouse);
         CreateButton("Bonemill", "Buildings/Placeables/Bonemill", buildingPanelTransform, Craftables.Type.BoneMill);
@@ -133,7 +137,7 @@ public class ButtonController : MonoBehaviour{
     // private 
 
     public void CreateButtonsForBuilding(Building building){
-        ButtonTypes[] buttonTypes = building.buildingInteractions;
+        ButtonTypes[] buttonTypes = building.BuildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return;
         Vector3 middleOfBuildingWorld = GetMiddleOfBuildingWorld(building);
@@ -157,7 +161,7 @@ public class ButtonController : MonoBehaviour{
         float buttonScale = 10f/GetCamera().GetComponent<Camera>().orthographicSize;
         GameObject buttonParent = building.buttonParent;
         for (int buttonIndex = 0; buttonIndex < buttonParent.transform.childCount; buttonIndex++){
-            buttonParent.transform.GetChild(buttonIndex).position = CalculatePositionOfButton(building.buildingInteractions.Length, buttonIndex+1, Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building)));
+            buttonParent.transform.GetChild(buttonIndex).position = CalculatePositionOfButton(building.BuildingInteractions.Length, buttonIndex+1, Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building)));
             buttonParent.transform.GetChild(buttonIndex).transform.localScale = new Vector3(buttonScale,buttonScale);
         } 
     }
@@ -187,22 +191,22 @@ public class ButtonController : MonoBehaviour{
         switch(type){
             case ButtonTypes.TIER_ONE:
                 button.onClick.AddListener(() => {
-                    if (building is TieredBuilding tieredBuilding){
-                        tieredBuilding.ChangeTier(1);
+                    if (building is ITieredBuilding tieredBuilding){
+                        tieredBuilding.SetTier(1);
                     }
                  });
                 break;
             case ButtonTypes.TIER_TWO:
                 button.onClick.AddListener(() => {
-                    if (building is TieredBuilding tieredBuilding){
-                        tieredBuilding.ChangeTier(2);
+                    if (building is ITieredBuilding tieredBuilding){
+                        tieredBuilding.SetTier(2);
                     }
                 });
                 break;
             case ButtonTypes.TIER_THREE:
                 button.onClick.AddListener(() => {
-                    if (building is TieredBuilding tieredBuilding){
-                        tieredBuilding.ChangeTier(3);
+                    if (building is ITieredBuilding tieredBuilding){
+                        tieredBuilding.SetTier(3);
                     }
                  });
                 break;
@@ -218,13 +222,13 @@ public class ButtonController : MonoBehaviour{
                     button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
                  });
                 break;
-            case ButtonTypes.CHANGE_FISH_POND_DECO:
-                button.onClick.AddListener(() => { 
-                    if (building is FishPond fishPond){
-                        fishPond.CycleFishPondDeco();
-                    }
-                 });
-                break;
+            // case ButtonTypes.CHANGE_FISH_POND_DECO:
+            //     button.onClick.AddListener(() => { 
+            //         if (building is FishPond fishPond){
+            //             fishPond.CycleFishPondDeco();
+            //         }
+            //      });
+            //     break;
             case ButtonTypes.ADD_ANIMAL:
                 button.onClick.AddListener(() => { 
                     bool isObjectActive =  button.transform.GetChild(0).gameObject.activeInHierarchy;
@@ -247,7 +251,7 @@ public class ButtonController : MonoBehaviour{
         //GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
         animalMenu.transform.SetParent(button.transform);
-        Vector3 animalMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
+        Vector3 animalMenuPositionWorld = new Vector3(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
         animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
         animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalMenu.SetActive(false);
@@ -257,7 +261,6 @@ public class ButtonController : MonoBehaviour{
             Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
             AddHoverEffect(addAnimalButton);
             addAnimalButton.onClick.AddListener(() => {
-                //Debug.Log($"Adding animal {addAnimalButton.gameObject.name} to {building.name}");
                 animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
             });
         }
@@ -266,7 +269,7 @@ public class ButtonController : MonoBehaviour{
         GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
         GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
         animalInBuilding.transform.SetParent(button.transform);
-        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
+        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
         animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
         animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalInBuilding.SetActive(false);
@@ -277,21 +280,19 @@ public class ButtonController : MonoBehaviour{
         GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         GameObject fishMenu = Instantiate(fishMenuPrefab);
         fishMenu.transform.SetParent(button.transform);
-        Vector3 fishMenuPositionWorld = new Vector3(building.tilemap.CellToWorld(building.baseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
+        Vector3 fishMenuPositionWorld = new Vector3(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
         fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
         fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         fishMenu.SetActive(false);
         GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
-        FishPond fishPond = building as FishPond;
+        //FishPond fishPond = building as FishPond;
         for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
             Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
             AddHoverEffect(fishButton);
             fishButton.onClick.AddListener(() => {
                 Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
-                fishPond.SetFishImage(fishType);
+                //fishPond.SetFishImage(fishType);
             });
-            // fishMenuContent.transform.GetChild(childIndex).GetComponent<FishImageRetriever>().SetBuilding(fishPond);
-            
         }
     }
 

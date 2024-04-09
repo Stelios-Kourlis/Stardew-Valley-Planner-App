@@ -16,9 +16,9 @@ public class Greenhouse : Building {
 
     public override void OnAwake(){
         name = GetType().Name;
-        baseHeight = 6;
+        BaseHeight = 6;
         // insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
-        buildingInteractions = new ButtonTypes[]{
+        BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
         base.OnAwake();
@@ -68,7 +68,7 @@ public class Greenhouse : Building {
         if (!hasBeenPlaced) return;
         base.PickupPreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (baseCoordinates.Contains(currentCell)) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        if (BaseCoordinates.Contains(currentCell)) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         else porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 

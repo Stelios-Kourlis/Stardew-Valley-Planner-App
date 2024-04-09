@@ -4,10 +4,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
 
-public class Obelisk : MultipleTypeBuilding<Obelisk.Types>{
+public class Obelisk : Building, IMultipleTypeBuilding<Obelisk.Types>{
+
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
 
     public enum Types{
-        NO_TYPE,
         WaterObelisk,
         DesertObelisk,
         IslandObelisk,
@@ -16,15 +17,14 @@ public class Obelisk : MultipleTypeBuilding<Obelisk.Types>{
     public override string TooltipMessage => "Right Click To Cycle Through Obelisks";
 
     public override void OnAwake(){
-        baseHeight = 3;
-        if (CurrentType == Types.NO_TYPE) CurrentType = Types.WaterObelisk;
+        BaseHeight = 3;
+        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake(); 
-        defaultSprite = atlas.GetSprite("WaterObelisk");
     }
     
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        return Type switch{
-            Types.WaterObelisk => new List<MaterialInfo>{
+        return MultipleTypeBuildingComponent.Type switch{
+            Types.WaterObelisk => new System.Collections.Generic.List<MaterialInfo>{
                 new MaterialInfo(500000, Materials.Coins),
                 new MaterialInfo(5, Materials.IridiumBar),
                 new MaterialInfo(10, Materials.Clam),
@@ -52,16 +52,20 @@ public class Obelisk : MultipleTypeBuilding<Obelisk.Types>{
     }
     
     protected override void OnMouseRightClick(){
-        CycleType();
+        MultipleTypeBuildingComponent.CycleType();
     }
     
     public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{(int) Type}";
+        return base.GetBuildingData() + $"|{(int) MultipleTypeBuildingComponent.Type}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         OnAwake();
         Place(new Vector3Int(x,y,0));
-        SetType((Types) int.Parse(data[0]));
+        MultipleTypeBuildingComponent.SetType((Types) int.Parse(data[0]));
+    }
+
+    public GameObject[] CreateButtonsForAllTypes(){
+        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
 }

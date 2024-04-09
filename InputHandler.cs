@@ -79,17 +79,17 @@ public class InputHandler : MonoBehaviour {
         if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) buildingController.Load();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Place)){
-            Building.currentAction = Actions.PLACE;
+            Building.CurrentAction = Actions.PLACE;
             GetNotificationManager().SendNotification("Set mode to placement");
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)){
-            Building.currentAction = Actions.EDIT;
+            Building.CurrentAction = Actions.EDIT;
             GetNotificationManager().SendNotification("Set mode to edit");
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Delete)){
-            Building.currentAction = Actions.DELETE;
+            Building.CurrentAction = Actions.DELETE;
             GetNotificationManager().SendNotification("Set mode to delete");
         }
 

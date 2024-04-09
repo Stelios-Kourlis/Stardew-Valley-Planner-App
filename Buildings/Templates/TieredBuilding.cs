@@ -2,23 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
+/// <summary>
+/// Methods to handle buildings with multiple tiers
+/// </summary>
+public class TieredBuilding{
+    /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
+    public int Tier {get; private set;}
+    private int MaxTier {get; set;}
+    private SpriteAtlas Atlas {get; set;}
+    private Building Building {get; set;}
 
-public abstract class TieredBuilding : Building{
-
-    public int Tier {get; protected set;}
-    public int MaxTier {get; protected set;}
-    protected SpriteAtlas atlas {get; private set;}
-
-    public override void OnAwake(){
-        base.OnAwake();
-        atlas = Resources.Load<SpriteAtlas>($"Buildings/{GetType()}Atlas");
-        Debug.Assert(atlas != null, $"Could not load atlas for {GetType()} ({GetType()}Atlas)");
-        name = GetType().Name;
-        if (Tier == 0) ChangeTier(1);
+    public TieredBuilding(Building building, int maxTier){
+        if (building == null) throw new System.Exception($"Building is null");
+        Building = building;
+        MaxTier = maxTier;
+        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType()}Atlas");
+        Debug.Assert(Atlas != null, $"Could not load atlas for {Building.GetType()} ({Building.GetType()}Atlas)");
+        Debug.Assert(MaxTier > 1, $"You forgot to set MaxTier for {Building.GetType()}, if max tier is 1, you can remove this component");
+        SetTier(1);
     }
-    public virtual void ChangeTier(int tier){
-        if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {GetType()} must be between 1 and {MaxTier} (got {tier})");
+
+    public virtual void SetTier(int tier){
+        if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
         Tier = tier;
-        UpdateTexture(atlas.GetSprite($"{GetType()}{tier}"));
+        Building.UpdateTexture(Atlas.GetSprite($"{Building.GetType()}{tier}"));
     }
 }

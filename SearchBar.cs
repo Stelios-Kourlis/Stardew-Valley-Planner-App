@@ -12,7 +12,7 @@ public class SearchBar : MonoBehaviour{
     GameObject contentGameObject;
     public void Awake(){
         if (gameObject.name == "Search") contentGameObject = transform.parent.GetChild(0).GetChild(0).gameObject;
-        else if (gameObject.name == "TypeSearchBar") contentGameObject = transform.parent.GetChild(0).GetChild(0).gameObject;
+        else if (gameObject.name == "TypeSearchBar") contentGameObject = transform.parent.parent.GetChild(0).GetChild(0).gameObject;
         InputField inputField;
         inputField = GetComponent<InputField>();
         inputField.onValueChanged.AddListener(OnValueChanged);
