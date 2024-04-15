@@ -36,6 +36,8 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
 
     public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
 
+    public Types Type => MultipleTypeBuildingComponent.Type;
+
     public override void OnAwake(){
         name = GetType().Name;
         BaseHeight = 1;
@@ -63,38 +65,38 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return MultipleTypeBuildingComponent.Type switch{
             Types.DeluxeScarecrow => new List<MaterialInfo>{//Deluxe scarecrow
-                new MaterialInfo(50, Materials.Wood),
-                new MaterialInfo(1, Materials.IridiumOre),
-                new MaterialInfo(40, Materials.Fiber)
+                new(50, Materials.Wood),
+                new(1, Materials.IridiumOre),
+                new(40, Materials.Fiber)
             },
             Types.Scarecrow => new List<MaterialInfo>{//Normal scarecrow
-                new MaterialInfo(50, Materials.Wood),
-                new MaterialInfo(1, Materials.Coal),
-                new MaterialInfo(40, Materials.Fiber)
+                new(50, Materials.Wood),
+                new(1, Materials.Coal),
+                new(40, Materials.Fiber)
             },
             Types.Rarecrow1 => new List<MaterialInfo>{//Rarecrows in order
-                new MaterialInfo("Purchase at the Stardew Valley Fair for 800 Tokens"),
+                new("Purchase at the Stardew Valley Fair for 800 Tokens"),
             },
             Types.Rarecrow2 => new List<MaterialInfo>{
-                new MaterialInfo("	Purchase at the Spirit's Eve festival for 5,000 Coins"),
+                new("	Purchase at the Spirit's Eve festival for 5,000 Coins"),
             },
             Types.Rarecrow3 => new List<MaterialInfo>{
-                new MaterialInfo("Purchase at the Casino for 10,000 Qi Coins"),
+                new("Purchase at the Casino for 10,000 Qi Coins"),
             },
             Types.Rarecrow4 => new List<MaterialInfo>{
-                new MaterialInfo("Purchase at the Traveling Cart randomly during fall or winter for 4,000 Coins, or purchase at the Festival of Ice for 5,000 Coins"),
+                new("Purchase at the Traveling Cart randomly during fall or winter for 4,000 Coins, or purchase at the Festival of Ice for 5,000 Coins"),
             },
             Types.Rarecrow5 => new List<MaterialInfo>{
-                new MaterialInfo("Purchase at the Flower Dance for 2,500 Coins"),
+                new("Purchase at the Flower Dance for 2,500 Coins"),
             },
             Types.Rarecrow6 => new List<MaterialInfo>{
-                new MaterialInfo("Purchase from the Dwarf for 2,500 Coins"),
+                new("Purchase from the Dwarf for 2,500 Coins"),
             },
             Types.Rarecrow7 => new List<MaterialInfo>{
-                new MaterialInfo("Donate 20 Artifacts (not counting Minerals) to the Museum. Can be purchased from the Night Market once the first one is earned"),
+                new("Donate 20 Artifacts (not counting Minerals) to the Museum. Can be purchased from the Night Market once the first one is earned"),
             },
             Types.Rarecrow8 => new List<MaterialInfo>{
-                new MaterialInfo("Donate 40 items to the Museum. Can be purchased from the Night Market once the first one is earned"),
+                new("Donate 40 items to the Museum. Can be purchased from the Night Market once the first one is earned"),
             },
             _ => throw new System.ArgumentException($"Invalid scarecrow type {MultipleTypeBuildingComponent.Type}")
         };
@@ -126,4 +128,10 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
     public GameObject[] CreateButtonsForAllTypes(){
         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
+
+    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+
+    public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
+    public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
+    public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
 }

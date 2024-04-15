@@ -15,10 +15,10 @@ public class Mill : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
-            new MaterialInfo(2500, Materials.Coins),
-            new MaterialInfo(50, Materials.Stone),
-            new MaterialInfo(150, Materials.Wood),
-            new MaterialInfo(4, Materials.Cloth)
+            new(2500, Materials.Coins),
+            new(50, Materials.Stone),
+            new(150, Materials.Wood),
+            new(4, Materials.Cloth)
         };
     }
 

@@ -16,36 +16,40 @@ public class Obelisk : Building, IMultipleTypeBuilding<Obelisk.Types>{
     }
     public override string TooltipMessage => "Right Click To Cycle Through Obelisks";
 
+    public Types Type => MultipleTypeBuildingComponent.Type;
+
     public override void OnAwake(){
         BaseHeight = 3;
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
+        // Debug.Log($"1: {sprite == null}");
         base.OnAwake(); 
+        // Debug.Log($"2: {sprite == null}");
     }
     
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return MultipleTypeBuildingComponent.Type switch{
             Types.WaterObelisk => new System.Collections.Generic.List<MaterialInfo>{
-                new MaterialInfo(500000, Materials.Coins),
-                new MaterialInfo(5, Materials.IridiumBar),
-                new MaterialInfo(10, Materials.Clam),
-                new MaterialInfo(10, Materials.Coral)
+                new(500000, Materials.Coins),
+                new(5, Materials.IridiumBar),
+                new(10, Materials.Clam),
+                new(10, Materials.Coral)
             },
             Types.DesertObelisk => new List<MaterialInfo>{
-                new MaterialInfo(1000000, Materials.Coins),
-                new MaterialInfo(20, Materials.IridiumBar),
-                new MaterialInfo(10, Materials.Coconut),
-                new MaterialInfo(10, Materials.CactusFruit)
+                new(1000000, Materials.Coins),
+                new(20, Materials.IridiumBar),
+                new(10, Materials.Coconut),
+                new(10, Materials.CactusFruit)
             },
             Types.IslandObelisk => new List<MaterialInfo>{
-                new MaterialInfo(1000000, Materials.Coins),
-                new MaterialInfo(10, Materials.IridiumBar),
-                new MaterialInfo(10, Materials.DragonTooth),
-                new MaterialInfo(10, Materials.Banana)
+                new(1000000, Materials.Coins),
+                new(10, Materials.IridiumBar),
+                new(10, Materials.DragonTooth),
+                new(10, Materials.Banana)
             },
             Types.EarthObelisk => new List<MaterialInfo>{
-                new MaterialInfo(500000, Materials.Coins),
-                new MaterialInfo(10, Materials.IridiumBar),
-                new MaterialInfo(10, Materials.EarthCrystal)
+                new(500000, Materials.Coins),
+                new(10, Materials.IridiumBar),
+                new(10, Materials.EarthCrystal)
             },
             _ => new List<MaterialInfo>()
         };
@@ -68,4 +72,8 @@ public class Obelisk : Building, IMultipleTypeBuilding<Obelisk.Types>{
     public GameObject[] CreateButtonsForAllTypes(){
         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
+
+    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+
+    public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
 }

@@ -1,19 +1,18 @@
-// using System;
-// using System.Collections;
-// using System.Collections.Generic;
-// using System.Data.Common;
-// using System.Linq;
-// using UnityEngine.UI;
-// using UnityEngine;
-// using UnityEngine.Tilemaps;
-// using static Utility.ClassManager;
-// using static Utility.SpriteManager;
-// using static Utility.TilemapManager;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
+using UnityEngine.UI;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+using static Utility.ClassManager;
+using static Utility.SpriteManager;
+using static Utility.TilemapManager;
 
-public class Floor/* : MultipleTypeBuilding<Floor.Types>*/{
+public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBuilding{
 
     public enum Types {
-        NO_TYPE,
         WOOD_FLOOR,
         RUSTIC_PLANK_FLOOR,
         STRAW_FLOOR,
@@ -29,143 +28,117 @@ public class Floor/* : MultipleTypeBuilding<Floor.Types>*/{
         CRYSTAL_PATH
     }
     
-//     public static event Action<Vector3Int> FloorWasPlaced;
-//     private static readonly List<Vector3Int> floors = new List<Vector3Int>();
-//     private new static Tilemap tilemap;
-//     public override string TooltipMessage => "";
+    public static event Action<Vector3Int> FloorWasPlaced;
+    public static List<Vector3Int> OtherFloors {get; private set;}
+    public override string TooltipMessage => "";
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
+    public ConnectingBuilding ConnectingBuildingComponent {get; private set;}
+    public Types Type {get; private set;}
+    public static Types CurrentType {get; private set;}
 
-//     public override void OnAwake(){
-//         baseHeight = 1;
-//         if (CurrentType == Types.NO_TYPE) CurrentType = Types.WOOD_FLOOR;
-//         base.OnAwake();
-//         defaultSprite = atlas.GetSprite($"WOOD_FLOOR0");
-//         FloorWasPlaced += AnotherFloorWasPlaced;
-//         sprite = atlas.GetSprite($"{Type}0");
-//         tilemap = GameObject.FindGameObjectWithTag("FloorTilemap").GetComponent<Tilemap>();
-//     }
+    public override void OnAwake(){
+        BaseHeight = 1;
+        base.OnAwake();
+        OtherFloors ??= new List<Vector3Int>();
+        FloorWasPlaced += AnotherFloorPlaced;
+        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
+        ConnectingBuildingComponent = new ConnectingBuilding();
+        SetType(CurrentType);
+    }
 
-//     public override void Place(Vector3Int position){
-//         base.Place(position);
-//         floors.Add(position);
-//         hasBeenPlaced = true;
-//         UpdateTexture(atlas.GetSprite($"{Type}{GetFloorFlagsSum(position)}"));
-//         Tile[] buildingTiles = SplitSprite(sprite);
-//         tilemap.SetTiles(spriteCoordinates.ToArray(), buildingTiles);
-//         FloorWasPlaced?.Invoke(position);
-//     }
+    protected override void PlacePreview(Vector3Int position){
+        base.PlacePreview(position);    
+        UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{Type}{ConnectingBuildingComponent.GetConnectingFlags(position, OtherFloors)}"));
+    }
 
-//     public override void Delete(){
-//         if(!hasBeenPlaced) return;
-//         floors.Remove(baseCoordinates[0]);
-//         tilemap.SetTile(baseCoordinates[0], null);
-//         GetBuildingController().GetBuildings().Remove(this);
-//         FloorWasPlaced -= AnotherFloorWasPlaced;
-//         FloorWasPlaced?.Invoke(baseCoordinates[0]);
-//         ForceDelete();
-//     }
+    public override void Place(Vector3Int position){
+        // Debug.Log("Floor was placed");
+        OtherFloors.Add(position);
+        base.Place(position);
+        FloorWasPlaced?.Invoke(position);
+    }
 
-//     protected override void PlacePreview(Vector3Int position){
-//         if (hasBeenPlaced) return;
-//         int height = GetFloorFlagsSum(position);
-//         Sprite floorSprite = atlas.GetSprite($"{Type}{height}");
-//         if (floors.Contains(position)) GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
-//         else GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
-//         GetComponent<Tilemap>().ClearAllTiles();
-//         GetComponent<Tilemap>().SetTile(position, SplitSprite(floorSprite)[0]);
-//     }
+    public override void Delete(){
+        OtherFloors.Remove(BaseCoordinates[0]);
+        FloorWasPlaced -= AnotherFloorPlaced;
+        FloorWasPlaced?.Invoke(BaseCoordinates[0]);
+        base.Delete();
+    }
 
-//     protected override void DeletePreview(){
-//         base.DeletePreview();
-//     }
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return MultipleTypeBuildingComponent.Type switch{
+            Types.WOOD_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.Wood)
+            },
+            Types.RUSTIC_PLANK_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.Wood)
+            },
+            Types.STRAW_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.Wood),
+                new(1, Materials.Fiber)
+            },
+            Types.WEATHERED_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.Wood)
+            },
+            Types.CRYSTAL_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.RefinedQuartz)
+            },
+            Types.STONE_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.Stone)
+            },
+            Types.STONE_WALKWAY_FLOOR => new List<MaterialInfo>(){
+                new(1, Materials.Stone)
+            },
+            Types.BRICK_FLOOR => new List<MaterialInfo>(){
+                new(2, Materials.Clay),
+                new(5, Materials.Stone)
+            },
+            Types.WOOD_PATH => new List<MaterialInfo>(){
+                new(1, Materials.Wood)
+            },
+            Types.GRAVEL_PATH => new List<MaterialInfo>(){
+                new(1, Materials.Stone)
+            },
+            Types.COBBLESTONE_PATH => new List<MaterialInfo>(){
+                new(1, Materials.Stone)
+            },
+            Types.STEPPING_STONE_PATH => new List<MaterialInfo>(){
+                new(1, Materials.Stone)
+            },
+            Types.CRYSTAL_PATH => new List<MaterialInfo>(){
+                new(1, Materials.RefinedQuartz)
+            },
+            _ => throw new Exception("Invalid Floor Type")
+        };
+    }
 
-//     private void AnotherFloorWasPlaced(Vector3Int position){
-//         if(!hasBeenPlaced) return;
-//         List<Vector3Int> neighbors = GetCrossAroundPosition(position).ToList();
-//         if (neighbors.Contains(baseCoordinates[0])) UpdateTexture(atlas.GetSprite($"{Type}{GetFloorFlagsSum(baseCoordinates[0])}"));
-//     }
+    public override string GetBuildingData(){
+        return $"{GetType()}|{BaseCoordinates[0].x}|{BaseCoordinates[0].y}|{MultipleTypeBuildingComponent.Type}";
+    }
 
-//     private int GetFloorFlagsSum(Vector3Int position){
-//         List<FloorFlag> flags = new List<FloorFlag>();
-//         Vector3Int[] neighbors = GetCrossAroundPosition(position).ToArray();
-//         if (floors.Contains(neighbors[0])) flags.Add(FloorFlag.LEFT_ATTACHED);
-//         if (floors.Contains(neighbors[1])) flags.Add(FloorFlag.RIGHT_ATTACHED);
-//         if (floors.Contains(neighbors[2])) flags.Add(FloorFlag.BOTTOM_ATTACHED);
-//         if (floors.Contains(neighbors[3])) flags.Add(FloorFlag.TOP_ATTACHED);
-//         return flags.Cast<int>().Sum();
-//     }
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Place(new Vector3Int(x,y,0));
+        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
+    }
 
-//     public override List<MaterialInfo> GetMaterialsNeeded(){
-//         return Type switch{
-//             Types.WOOD_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Wood)
-//             },
-//             Types.RUSTIC_PLANK_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Wood)
-//             },
-//             Types.STRAW_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Wood),
-//                 new MaterialInfo(1, Materials.Fiber)
-//             },
-//             Types.WEATHERED_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Wood)
-//             },
-//             Types.CRYSTAL_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.RefinedQuartz)
-//             },
-//             Types.STONE_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Stone)
-//             },
-//             Types.STONE_WALKWAY_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Stone)
-//             },
-//             Types.BRICK_FLOOR => new List<MaterialInfo>(){
-//                 new MaterialInfo(2, Materials.Clay),
-//                 new MaterialInfo(5, Materials.Stone)
-//             },
-//             Types.WOOD_PATH => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Wood)
-//             },
-//             Types.GRAVEL_PATH => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Stone)
-//             },
-//             Types.COBBLESTONE_PATH => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Stone)
-//             },
-//             Types.STEPPING_STONE_PATH => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.Stone)
-//             },
-//             Types.CRYSTAL_PATH => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.RefinedQuartz)
-//             },
-//             _ => throw new Exception("Invalid Floor Type")
-//         };
-//     }
+    private void AnotherFloorPlaced(Vector3Int position){
+        if (BaseCoordinates?.Contains(position) ?? true) return;
+        UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{Type}{ConnectingBuildingComponent.GetConnectingFlags(BaseCoordinates[0], OtherFloors)}"));
+    }
+    public void CycleType(){
+        int enumLength = Enum.GetValues(typeof(Types)).Length;
+        int intValue = (int) Type;
+        intValue = (intValue + 1) % enumLength;
+        SetType((Types)Enum.ToObject(typeof(Types), intValue));
+    } 
 
-//     public override string GetBuildingData(){
-//         return $"{GetType()}|{baseCoordinates[0].x}|{baseCoordinates[0].y}|{Type}";
-//     }
+    public void SetType(Types type){
+        CurrentType = type;
+        Type = type;
+        UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}0"));
+    }
 
-//     public override void RecreateBuildingForData(int x, int y, params string[] data){
-//         throw new NotImplementedException();//todo add
-//     }
+    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 
-//     public override GameObject[] CreateButtonsForAllTypes(){
-//         List<GameObject> buttons = new List<GameObject>();
-//         foreach (Types type in Enum.GetValues(typeof(Types))){
-//             if ((int)(object)type == 0) continue; // skip the first element (None)
-//             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-//             button.name = $"{type}Button";
-//             button.GetComponent<Image>().sprite = atlas.GetSprite($"{type}0");
-
-//             Type buildingType = GetType();
-//             BuildingController buildingController = GetBuildingController();
-//             button.GetComponent<Button>().onClick.AddListener(() => { 
-//                 Debug.Log($"Setting current building to {type}");
-//                 buildingController.SetCurrentBuildingToMultipleTypeBuilding<Types>(buildingType, type);
-//                 buildingController.SetCurrentAction(Actions.PLACE); 
-//                 });
-//             buttons.Add(button);
-//         }
-//         return buttons.ToArray();
-//     }
+    public int GetConnectingFlags(Vector3Int position, List<Vector3Int> otherBuildings) => ConnectingBuildingComponent.GetConnectingFlags(position, otherBuildings);
 }

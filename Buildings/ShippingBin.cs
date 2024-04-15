@@ -14,8 +14,8 @@ public class ShippingBin : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
-            new MaterialInfo(250, Materials.Coins),
-            new MaterialInfo(150, Materials.Wood)
+            new(250, Materials.Coins),
+            new(150, Materials.Wood)
         };
     }
 

@@ -18,7 +18,8 @@ public class SearchBar : MonoBehaviour{
         inputField.onValueChanged.AddListener(OnValueChanged);
         inputField.onEndEdit.AddListener(OnEndEdit);
         EventTrigger trigger = inputField.gameObject.AddComponent<EventTrigger>();
-        EventTrigger.Entry entry = new EventTrigger.Entry{
+        EventTrigger.Entry entry = new()
+        {
             eventID = EventTriggerType.PointerClick
         };
         entry.callback.AddListener((data) => { OnSelect(); });

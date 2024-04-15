@@ -12,10 +12,10 @@ public class Silo : Building {
     }
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
-            new MaterialInfo(100, Materials.Coins),
-            new MaterialInfo(100, Materials.Stone),
-            new MaterialInfo(10, Materials.Clay),
-            new MaterialInfo(5, Materials.CopperBar)
+            new(100, Materials.Coins),
+            new(100, Materials.Stone),
+            new(10, Materials.Clay),
+            new(5, Materials.CopperBar)
         };
     }
 

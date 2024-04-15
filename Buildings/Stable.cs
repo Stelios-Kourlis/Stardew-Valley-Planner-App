@@ -17,9 +17,9 @@ public class Stable : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
-            new MaterialInfo(10000, Materials.Coins),
-            new MaterialInfo(100, Materials.Hardwood),
-            new MaterialInfo(5, Materials.IronBar)
+            new(10000, Materials.Coins),
+            new(100, Materials.Hardwood),
+            new(5, Materials.IronBar)
         };
     }
 

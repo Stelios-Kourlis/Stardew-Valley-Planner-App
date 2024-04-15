@@ -58,6 +58,8 @@ public class Crop: Building, IMultipleTypeBuilding<Crop.Types>{
     
     public override string TooltipMessage => MultipleTypeBuildingComponent.Type.ToString();
 
+    public Types Type => MultipleTypeBuildingComponent.Type;
+
     public override void OnAwake(){
         BaseHeight = 1;
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
@@ -76,4 +78,8 @@ public class Crop: Building, IMultipleTypeBuilding<Crop.Types>{
     public GameObject[] CreateButtonsForAllTypes(){
         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
+
+    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+
+    public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
 }

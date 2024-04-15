@@ -105,7 +105,7 @@ public class MapController : MonoBehaviour{
         buildingController.GetUnavailableCoordinates().Clear();
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";
-        Vector3Int mapPos = new Vector3Int(-27, -36, 0);
+        Vector3Int mapPos = new(-27, -36, 0);
         Sprite mapTexture = atlas.GetSprite(map.name);
         Vector3Int[] spriteArrayCoordinates = GetAreaAroundPosition(mapPos, (int) mapTexture.textureRect.height / 16, (int) mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);

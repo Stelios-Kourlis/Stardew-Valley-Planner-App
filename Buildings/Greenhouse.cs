@@ -78,7 +78,7 @@ public class Greenhouse : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>{
-            new MaterialInfo("Complete the community center's pantry room.")
+            new("Complete the community center's pantry room.")
         };
     }
 

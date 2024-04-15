@@ -27,7 +27,7 @@ namespace Utility{
         public static List<Vector3Int> GetAreaAroundPosition(Vector3Int lowerLeftCorner, int height, int width, bool flipped = false) {
             if (lowerLeftCorner == null) throw new ArgumentNullException("Position cannot be null");
             if (height < 0 || width < 0) throw new ArgumentException($"Height and width must be positive, got {height} height and {width} width.");
-            List<Vector3Int> area = new List<Vector3Int>();
+            List<Vector3Int> area = new();
             if (!flipped){
                 for (int heightOffset = 0; heightOffset < height; heightOffset++) {
                     for (int widthOffset = 0; widthOffset < width; widthOffset++) {
@@ -49,10 +49,10 @@ namespace Utility{
         public static List<Vector3Int> GetCrossAroundPosition(Vector3Int position){
             return new List<Vector3Int>{
                 // position,
-                new Vector3Int(position.x - 1, position.y, position.z),
-                new Vector3Int(position.x + 1, position.y, position.z),
-                new Vector3Int(position.x, position.y - 1, position.z),
-                new Vector3Int(position.x, position.y + 1, position.z)
+                new(position.x - 1, position.y, position.z),
+                new(position.x + 1, position.y, position.z),
+                new(position.x, position.y - 1, position.z),
+                new(position.x, position.y + 1, position.z)
             };
         }
 
@@ -78,7 +78,7 @@ namespace Utility{
         // }
 
         public static List<Vector3Int> GetCircleAroundPosition(Vector3Int center, int radius)        {
-            List<Vector3Int> points = new List<Vector3Int>();
+            List<Vector3Int> points = new();
             for (int y = -radius; y <= radius; y++){
                 for (int x = -radius; x <= radius; x++){
                     if (Math.Abs(x) + Math.Abs(y) <= radius) points.Add(new Vector3Int(center.x + x, center.y + y, center.z));
@@ -88,8 +88,8 @@ namespace Utility{
         }
 
         public static List<Vector3Int> GetRangeOfScarecrow(Vector3Int center){
-            HashSet<Vector3Int> coordinates = new HashSet<Vector3Int>();
-            Vector3Int lowerLeft = new Vector3Int(center.x - 4, center.y - 8, center.z);
+            HashSet<Vector3Int> coordinates = new();
+            Vector3Int lowerLeft = new(center.x - 4, center.y - 8, center.z);
             coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 17, 9, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
             coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 15, 11, true));
@@ -105,8 +105,8 @@ namespace Utility{
         }
 
         public static List<Vector3Int> GetRangeOfDeluxeScarecrow(Vector3Int center){
-            HashSet<Vector3Int> coordinates = new HashSet<Vector3Int>();
-            Vector3Int lowerLeft = new Vector3Int(center.x - 5, center.y - 16, center.z);
+            HashSet<Vector3Int> coordinates = new();
+            Vector3Int lowerLeft = new(center.x - 5, center.y - 16, center.z);
             coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 33, 11, true));
             lowerLeft += new Vector3Int(-2, 1, 0);
             coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 31, 15, true));
@@ -136,7 +136,7 @@ namespace Utility{
         ///<param name="width">the width of the rectangle</param>
         ///<returns>An array of Vector3Int that containts every vector in the rectangle in correct order to parse in Tilemap.SetTiles()</returns>
         public static List<Vector3Int> GetPositionsOfBuilding(Vector3Int currentPos, int height, int width) {
-            List<Vector3Int> BoundsArray = new List<Vector3Int>();
+            List<Vector3Int> BoundsArray = new();
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
                     BoundsArray.Add(new Vector3Int(currentPos.x + j, currentPos.y - i + height - 1, currentPos.z));
@@ -166,7 +166,7 @@ namespace Utility{
         ///<param name="name">the name of the created object</param>
         ///<returns>True if there are no other tiles and within the rectangle, otherwise false</returns>
         public static GameObject CreateTilemapObject(Transform parent, int sortingOrder, String name = "Tilemap"){
-            GameObject tilemap = new GameObject(name);
+            GameObject tilemap = new(name);
             tilemap.transform.parent = parent.transform;
             tilemap.AddComponent<Tilemap>();
             tilemap.AddComponent<TilemapRenderer>();
@@ -183,11 +183,11 @@ namespace Utility{
         }
 
         public static HashSet<Vector3Int> GetAllCoordinatesInArea(Vector3Int point1, Vector3Int point2){
-            HashSet<Vector3Int> coordinates = new HashSet<Vector3Int>();
+            HashSet<Vector3Int> coordinates = new();
 
             // Determine the lower left and upper right corners
-            Vector3Int lowerLeft = new Vector3Int(Math.Min(point1.x, point2.x), Math.Min(point1.y, point2.y), 0);
-            Vector3Int upperRight = new Vector3Int(Math.Max(point1.x, point2.x), Math.Max(point1.y, point2.y), 0);
+            Vector3Int lowerLeft = new(Math.Min(point1.x, point2.x), Math.Min(point1.y, point2.y), 0);
+            Vector3Int upperRight = new(Math.Max(point1.x, point2.x), Math.Max(point1.y, point2.y), 0);
 
             for (int x = lowerLeft.x; x <= upperRight.x; x++){
                 for (int y = lowerLeft.y; y <= upperRight.y; y++){
@@ -204,10 +204,10 @@ namespace Utility{
         /// <returns>An array with 4 Vector3Ints for the 4 neightbours going {left, right, down, up}</returns>
         public static Vector3Int[] GetNeighboursOfPosition(Vector3Int position) {
             return new Vector3Int[4]{
-                new Vector3Int(position.x - 1, position.y, position.z),
-                new Vector3Int(position.x + 1, position.y, position.z),
-                new Vector3Int(position.x, position.y - 1, position.z),
-                new Vector3Int(position.x, position.y + 1, position.z),
+                new(position.x - 1, position.y, position.z),
+                new(position.x + 1, position.y, position.z),
+                new(position.x, position.y - 1, position.z),
+                new(position.x, position.y + 1, position.z),
             };
         }
 
@@ -218,17 +218,17 @@ namespace Utility{
         public static Vector3 GetMiddleOfBuildingWorld(Building building){
             int width = building.Width;
             int height = building.Height;
-            Vector3 result = new Vector3(-1,-1);
+            Vector3 result = new(-1,-1);
             if (width % 2 != 0){
-                Vector3Int leftMiddle = new Vector3Int(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2.0f), 0, 0);
-                Vector3Int rightMiddle = new Vector3Int(building.BaseCoordinates[0].x + Mathf.CeilToInt(width / 2.0f), 0, 0);
+                Vector3Int leftMiddle = new(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2.0f), 0, 0);
+                Vector3Int rightMiddle = new(building.BaseCoordinates[0].x + Mathf.CeilToInt(width / 2.0f), 0, 0);
                 Vector3 leftMiddleWorld = building.Tilemap.CellToWorld(leftMiddle);
                 Vector3 rightMiddleWorld = building.Tilemap.CellToWorld(rightMiddle);
                 result.x = (leftMiddleWorld.x + rightMiddleWorld.x) / 2;
             }else result.x = building.Tilemap.CellToWorld(new Vector3Int(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2),0,0)).x;
             if (height % 2 != 0){
-                Vector3Int downMiddle = new Vector3Int(0, building.BaseCoordinates[0].y + Mathf.FloorToInt(height / 2.0f), 0);
-                Vector3Int upMiddle = new Vector3Int(0, building.BaseCoordinates[0].y + Mathf.CeilToInt(height / 2.0f), 0);
+                Vector3Int downMiddle = new(0, building.BaseCoordinates[0].y + Mathf.FloorToInt(height / 2.0f), 0);
+                Vector3Int upMiddle = new(0, building.BaseCoordinates[0].y + Mathf.CeilToInt(height / 2.0f), 0);
                 Vector3 downMiddleWorld = building.Tilemap.CellToWorld(downMiddle);
                 Vector3 upMiddleWorld = building.Tilemap.CellToWorld(upMiddle);
                 result.y = (upMiddleWorld.y + downMiddleWorld.y) / 2;

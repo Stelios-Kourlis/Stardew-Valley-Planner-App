@@ -1,16 +1,16 @@
-// using System.Collections;
-// using System.Collections.Generic;
-// using System.Runtime.InteropServices;
-// using System.Runtime.Remoting.Messaging;
-// using UnityEngine;
-// using static Utility.ClassManager;
-// using UnityEngine.U2D;
-// using UnityEditor;
-// using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
+using UnityEngine;
+using static Utility.ClassManager;
+using UnityEngine.U2D;
+using UnityEditor;
+using System;
 
-public class Craftables/* : Building*/{
+public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRangeEffectBuilding{
 
-    public enum Type{
+    public enum Types{
         Beehouse,
         Keg,
         Cask,
@@ -35,182 +35,189 @@ public class Craftables/* : Building*/{
         SolarPanel,
         Hopper,
         BoneMill,
+        MushroomLog
 }
     
-//     private SpriteAtlas atlas;
-//     public Type? CraftableType {get; private set;} = null;
-//     private static int miniObeliskCount;
-//     public override string TooltipMessage => "";
+    public Types Type {get; private set;}
+    public Types CurrentType {get; private set;}
+    private static int miniObeliskCount;
+    public override string TooltipMessage => Type.ToString();
+    public MultipleTypeBuilding<Types> MultipleBuildingComponent {get; private set;}
+    public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
 
-//     public override void OnAwake(){
-//         baseHeight = 1;
-//         base.OnAwake();
-//         atlas = Resources.Load<SpriteAtlas>("Buildings/Placeables/PlaceablesAtlas");
-//         if (CraftableType == null) SetCraftable(Type.Beehouse);
-//     } 
+    public override void OnAwake(){
+        BaseHeight = 1;
+        miniObeliskCount = 0;
+        base.OnAwake();
+        MultipleBuildingComponent = new MultipleTypeBuilding<Types>(this);
+        // SetType(CurrentType);
+        // MultipleBuildingComponent.DefaultSprite = MultipleBuildingComponent.Atlas.GetSprite($"{Enum.GetValues(typeof(Types)).GetValue(0)}");
+        RangeEffectBuildingComponent = new RangeEffectBuilding(this);
+    } 
 
-//     public new void Update(){
-//         //Debug.Log($"Craftable Type is {CraftableType}");
-//         if (sprite == null){
-//             Debug.LogWarning("Sprite is null");
-//             SetCraftable((Type)CraftableType);
-//         }
-//         base.Update();
-//     }
+    protected override void PlacePreview(Vector3Int position){ //todo these 2 types have arange
+    base.PlacePreview(position);
+        // if (Type == Types.MushroomLog) ShowEffectRange(); //7x7, also add log sprite
+        // if (Type == Types.Beehouse) ShowEffectRange(); //look wiki
+    }
 
-//     public override void Place(Vector3Int position){
-//         if (CraftableType == Type.MiniObelisk){
-//             if (miniObeliskCount >= 2) {GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time"); return;}
-//             else miniObeliskCount++;
-//         }
-//         base.Place(position);
-//     }
+    public override void Place(Vector3Int position){
+        if (Type == Types.MiniObelisk){
+            if (miniObeliskCount >= 2) {GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time"); return;}
+            else miniObeliskCount++;
+        }
+        base.Place(position);
+    }
 
-//     public override void Delete(){
-//         if (CraftableType == Type.MiniObelisk) miniObeliskCount--;
-//         base.Delete();
-//     }
+    public override void Delete(){
+        if (Type == Types.MiniObelisk) miniObeliskCount--;
+        base.Delete();
+    }
 
-//     public void SetCraftable(Type craftable){
-//         CraftableType = craftable;
-//         UpdateTexture(atlas.GetSprite(craftable.ToString()));
-//     }
+    public void SetType(Types type) => MultipleBuildingComponent.SetType(type);
 
-//     public override List<MaterialInfo> GetMaterialsNeeded(){
-//         return CraftableType switch{
-//             Type.Beehouse => new List<MaterialInfo>(){
-//                 new MaterialInfo(40, Materials.Wood),
-//                 new MaterialInfo(8, Materials.Coal),
-//                 new MaterialInfo(1, Materials.IronBar),
-//                 new MaterialInfo(1, Materials.MapleSyrup)
-//             },
-//             Type.Keg => new List<MaterialInfo>(){
-//                 new MaterialInfo(30, Materials.Wood),
-//                 new MaterialInfo(1, Materials.CopperBar),
-//                 new MaterialInfo(1, Materials.IronBar),
-//                 new MaterialInfo(1, Materials.OakResin)
-//             },
-//             Type.Cask => new List<MaterialInfo>(){
-//                 new MaterialInfo(20, Materials.Wood),
-//                 new MaterialInfo(1, Materials.Hardwood),
-//             },
-//             Type.Furnace => new List<MaterialInfo>(){
-//                 new MaterialInfo(20, Materials.CopperBar),
-//                 new MaterialInfo(25, Materials.Stone),
-//             },
-//             Type.MayonnaiseMachine => new List<MaterialInfo>(){
-//                 new MaterialInfo(15, Materials.Wood),
-//                 new MaterialInfo(1, Materials.CopperBar),
-//                 new MaterialInfo(1, Materials.EarthCrystal),
-//                 new MaterialInfo(15, Materials.Stone)
-//             },
-//             Type.CheesePress => new List<MaterialInfo>(){
-//                 new MaterialInfo(45, Materials.Wood),
-//                 new MaterialInfo(45, Materials.Stone),
-//                 new MaterialInfo(10, Materials.Hardwood),
-//                 new MaterialInfo(1, Materials.CopperBar)
-//             },
-//             Type.SeedMaker => new List<MaterialInfo>(){
-//                 new MaterialInfo(25, Materials.Wood),
-//                 new MaterialInfo(10, Materials.Coal),
-//                 new MaterialInfo(1, Materials.GoldBar),
-//             },
-//             Type.Loom => new List<MaterialInfo>(){
-//                 new MaterialInfo(60, Materials.Wood),
-//                 new MaterialInfo(30, Materials.Fiber),
-//                 new MaterialInfo(1, Materials.PineTar),
-//             },
-//             Type.OilMaker => new List<MaterialInfo>(){
-//                 new MaterialInfo(20, Materials.Hardwood),
-//                 new MaterialInfo(1, Materials.GoldBar),
-//                 new MaterialInfo(50, Materials.Slime)
-//             },
-//             Type.RecyclingMachine => new List<MaterialInfo>(){
-//                 new MaterialInfo(25, Materials.Wood),
-//                 new MaterialInfo(25, Materials.Stone),
-//                 new MaterialInfo(1, Materials.IronBar),
-//             },
-//             Type.WormBin => new List<MaterialInfo>(){
-//                 new MaterialInfo(25, Materials.Hardwood),
-//                 new MaterialInfo(1, Materials.GoldBar),
-//                 new MaterialInfo(1, Materials.IronBar),
-//                 new MaterialInfo(50, Materials.Fiber)
-//             },
-//             Type.PreservesJar => new List<MaterialInfo>(){
-//                 new MaterialInfo(50, Materials.Wood),
-//                 new MaterialInfo(40, Materials.Stone),
-//                 new MaterialInfo(8, Materials.Coal),
-//             },
-//             Type.CharcoalKiln => new List<MaterialInfo>(){
-//                 new MaterialInfo(20, Materials.CopperBar),
-//                 new MaterialInfo(2, Materials.CopperBar),
-//             },
-//             Type.LightningRod => new List<MaterialInfo>(){
-//                 new MaterialInfo(1, Materials.IronBar),
-//                 new MaterialInfo(1, Materials.RefinedQuartz),
-//                 new MaterialInfo(1, Materials.BatWing),
-//             },
-//             Type.SlimeIncubator => new List<MaterialInfo>(){
-//                 new MaterialInfo(2, Materials.IridiumBar),
-//                 new MaterialInfo(100, Materials.Slime)
-//             },
-//             Type.SlimeEggPress => new List<MaterialInfo>(){
-//                 new MaterialInfo(25, Materials.Coal),
-//                 new MaterialInfo(1, Materials.FireQuartz),
-//                 new MaterialInfo(1, Materials.BatteryPack),
-//             },
-//             Type.Crystalarium => new List<MaterialInfo>(){
-//                 new MaterialInfo(99, Materials.Stone),
-//                 new MaterialInfo(2, Materials.IridiumBar),
-//                 new MaterialInfo(5, Materials.GoldBar),
-//                 new MaterialInfo(1, Materials.BatteryPack),
-//             },
-//             Type.MiniObelisk => new List<MaterialInfo>(){
-//                 new MaterialInfo(30, Materials.Hardwood),
-//                 new MaterialInfo(20, Materials.SolarEssence),
-//                 new MaterialInfo(3, Materials.GoldBar),
-//             },
-//             Type.FarmComputer => new List<MaterialInfo>(){
-//                 new MaterialInfo(50, Materials.DwarfGadget),
-//                 new MaterialInfo(1, Materials.BatteryPack),
-//                 new MaterialInfo(10, Materials.RefinedQuartz),
-//             },
-//             Type.OstrichIncubator => new List<MaterialInfo>(){
-//                 new MaterialInfo(50, Materials.BoneFragment),
-//                 new MaterialInfo(50, Materials.Hardwood),
-//                 new MaterialInfo(20, Materials.CinderShard),
-//             },
-//             Type.GeodeCrusher => new List<MaterialInfo>(){
-//                 new MaterialInfo(2, Materials.GoldBar),
-//                 new MaterialInfo(50, Materials.Stone),
-//                 new MaterialInfo(1, Materials.Diamond),
-//             },
-//             Type.SolarPanel => new List<MaterialInfo>(){
-//                 new MaterialInfo(5, Materials.GoldBar),
-//                 new MaterialInfo(5, Materials.IronBar),
-//                 new MaterialInfo(10, Materials.RefinedQuartz),
-//             },
-//             Type.Hopper => new List<MaterialInfo>(){
-//                 new MaterialInfo(10, Materials.Hardwood),
-//                 new MaterialInfo(1, Materials.IridiumBar),
-//                 new MaterialInfo(1, Materials.RadioactiveBar),
-//             },
-//             Type.BoneMill => new List<MaterialInfo>(){
-//                 new MaterialInfo(10, Materials.BoneFragment),
-//                 new MaterialInfo(3, Materials.Clay),
-//                 new MaterialInfo(20, Materials.Stone),
-//             },
-//             _ => throw new InvalidOperationException("Unexpected craftable type")
-//         };
-//     }
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return Type switch{
+            Types.Beehouse => new List<MaterialInfo>(){
+                new(40, Materials.Wood),
+                new(8, Materials.Coal),
+                new(1, Materials.IronBar),
+                new(1, Materials.MapleSyrup)
+            },
+            Types.Keg => new List<MaterialInfo>(){
+                new(30, Materials.Wood),
+                new(1, Materials.CopperBar),
+                new(1, Materials.IronBar),
+                new(1, Materials.OakResin)
+            },
+            Types.Cask => new List<MaterialInfo>(){
+                new(20, Materials.Wood),
+                new(1, Materials.Hardwood),
+            },
+            Types.Furnace => new List<MaterialInfo>(){
+                new(20, Materials.CopperBar),
+                new(25, Materials.Stone),
+            },
+            Types.MayonnaiseMachine => new List<MaterialInfo>(){
+                new(15, Materials.Wood),
+                new(1, Materials.CopperBar),
+                new(1, Materials.EarthCrystal),
+                new(15, Materials.Stone)
+            },
+            Types.CheesePress => new List<MaterialInfo>(){
+                new(45, Materials.Wood),
+                new(45, Materials.Stone),
+                new(10, Materials.Hardwood),
+                new(1, Materials.CopperBar)
+            },
+            Types.SeedMaker => new List<MaterialInfo>(){
+                new(25, Materials.Wood),
+                new(10, Materials.Coal),
+                new(1, Materials.GoldBar),
+            },
+            Types.Loom => new List<MaterialInfo>(){
+                new(60, Materials.Wood),
+                new(30, Materials.Fiber),
+                new(1, Materials.PineTar),
+            },
+            Types.OilMaker => new List<MaterialInfo>(){
+                new(20, Materials.Hardwood),
+                new(1, Materials.GoldBar),
+                new(50, Materials.Slime)
+            },
+            Types.RecyclingMachine => new List<MaterialInfo>(){
+                new(25, Materials.Wood),
+                new(25, Materials.Stone),
+                new(1, Materials.IronBar),
+            },
+            Types.WormBin => new List<MaterialInfo>(){
+                new(25, Materials.Hardwood),
+                new(1, Materials.GoldBar),
+                new(1, Materials.IronBar),
+                new(50, Materials.Fiber)
+            },
+            Types.PreservesJar => new List<MaterialInfo>(){
+                new(50, Materials.Wood),
+                new(40, Materials.Stone),
+                new(8, Materials.Coal),
+            },
+            Types.CharcoalKiln => new List<MaterialInfo>(){
+                new(20, Materials.CopperBar),
+                new(2, Materials.CopperBar),
+            },
+            Types.LightningRod => new List<MaterialInfo>(){
+                new(1, Materials.IronBar),
+                new(1, Materials.RefinedQuartz),
+                new(1, Materials.BatWing),
+            },
+            Types.SlimeIncubator => new List<MaterialInfo>(){
+                new(2, Materials.IridiumBar),
+                new(100, Materials.Slime)
+            },
+            Types.SlimeEggPress => new List<MaterialInfo>(){
+                new(25, Materials.Coal),
+                new(1, Materials.FireQuartz),
+                new(1, Materials.BatteryPack),
+            },
+            Types.Crystalarium => new List<MaterialInfo>(){
+                new(99, Materials.Stone),
+                new(2, Materials.IridiumBar),
+                new(5, Materials.GoldBar),
+                new(1, Materials.BatteryPack),
+            },
+            Types.MiniObelisk => new List<MaterialInfo>(){
+                new(30, Materials.Hardwood),
+                new(20, Materials.SolarEssence),
+                new(3, Materials.GoldBar),
+            },
+            Types.FarmComputer => new List<MaterialInfo>(){
+                new(50, Materials.DwarfGadget),
+                new(1, Materials.BatteryPack),
+                new(10, Materials.RefinedQuartz),
+            },
+            Types.OstrichIncubator => new List<MaterialInfo>(){
+                new(50, Materials.BoneFragment),
+                new(50, Materials.Hardwood),
+                new(20, Materials.CinderShard),
+            },
+            Types.GeodeCrusher => new List<MaterialInfo>(){
+                new(2, Materials.GoldBar),
+                new(50, Materials.Stone),
+                new(1, Materials.Diamond),
+            },
+            Types.SolarPanel => new List<MaterialInfo>(){
+                new(5, Materials.GoldBar),
+                new(5, Materials.IronBar),
+                new(10, Materials.RefinedQuartz),
+            },
+            Types.Hopper => new List<MaterialInfo>(){
+                new(10, Materials.Hardwood),
+                new(1, Materials.IridiumBar),
+                new(1, Materials.RadioactiveBar),
+            },
+            Types.BoneMill => new List<MaterialInfo>(){
+                new(10, Materials.BoneFragment),
+                new(3, Materials.Clay),
+                new(20, Materials.Stone),
+            },
+            _ => throw new InvalidOperationException("Unexpected craftable type")
+        };
+    }
 
-//     public override void RecreateBuildingForData(int x, int y, params string[] data){
-//         Place(new Vector3Int(x,y,0));
-//         CraftableType = (Type)int.Parse(data[4]);
-//     }
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        Place(new Vector3Int(x,y,0));
+        SetType((Types)int.Parse(data[4]));
+    }
 
-//     public override string GetBuildingData(){
-//         return base.GetBuildingData() + $"|{(int)CraftableType}";
-//     }
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{(int) Type}";
+    }
 
+    public void CycleType() => MultipleBuildingComponent.CycleType();
+
+    public GameObject[] CreateButtonsForAllTypes() => MultipleBuildingComponent.CreateButtonsForAllTypes();
+
+    public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
+
+    public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
 }

@@ -14,8 +14,8 @@ public class Well : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
     return new List<MaterialInfo>(){
-        new MaterialInfo(1000, Materials.Coins),
-        new MaterialInfo(75, Materials.Stone),
+        new(1000, Materials.Coins),
+        new(75, Materials.Stone),
         };
     }
 

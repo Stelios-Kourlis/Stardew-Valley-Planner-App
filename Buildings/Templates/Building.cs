@@ -9,6 +9,7 @@ using static Utility.BuildingManager;
 using System.Linq;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Diagnostics;
 
 ///<summary>Base class for representing a building, can be extended for specific buildings</summary>
 public abstract class Building : TooltipableGameObject {
@@ -30,10 +31,10 @@ public abstract class Building : TooltipableGameObject {
     public ButtonTypes[] BuildingInteractions { get; protected set;} = new ButtonTypes[0];
     public int BaseHeight { get; protected set; } 
     public int Height {get { 
-        Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
+        UnityEngine.Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
         return sprite != null ? (int) sprite.textureRect.height / 16 : 0;}}
     public int Width {get { 
-        Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
+        UnityEngine.Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
         return sprite != null ? (int) sprite.textureRect.width / 16 : 0;}}
     ///<summary>The tilemap this building is attached to</summary>
     public Tilemap Tilemap {get {return gameObject.GetComponent<Tilemap>();}}
@@ -79,13 +80,13 @@ public abstract class Building : TooltipableGameObject {
     }
 
     public override void OnUpdate(){
-        Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
+        UnityEngine.Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
         if (BuildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
         if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP){
             GetInputHandler().SetCursor(InputHandler.CursorType.Place);
-            PlacePreview(currentCell);
+            PlacePreviewWrapper(currentCell);
         }
         else if (CurrentAction == Actions.EDIT){
             GetInputHandler().SetCursor(InputHandler.CursorType.Pickup);
@@ -153,9 +154,15 @@ public abstract class Building : TooltipableGameObject {
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (!BaseCoordinates?.Contains(currentCell) ?? false) return;
         GetBuildingController().AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
+        GetBuildingController().buildingGameObjects.Remove(gameObject);
+        GetBuildingController().buildings.Remove(this);
         Delete();
     }
 
+    private void PlacePreviewWrapper(Vector3Int position){
+        if (hasBeenPlaced) return;
+        PlacePreview(position);
+    }
     protected virtual void PickupPreview(){
         if (!hasBeenPlaced){
             gameObject.GetComponent<Tilemap>().ClearAllTiles();
@@ -235,11 +242,12 @@ public abstract class Building : TooltipableGameObject {
     /// Update the sprite of the building
     /// </summary>
     public void UpdateTexture(Sprite newSprite){
+        UnityEngine.Debug.Assert(newSprite != null, $"UpdateTexture called for {GetType()} with null sprite/Called from: {new StackTrace()}");
         sprite = newSprite;
         if (!hasBeenPlaced) return;
         Tile[] buildingTiles = SplitSprite(sprite);
         // Debug.Log(this.gameObject == null);
-        this.gameObject?.GetComponent<Tilemap>().SetTiles(SpriteCoordinates.ToArray(), buildingTiles);
+        gameObject?.GetComponent<Tilemap>().SetTiles(SpriteCoordinates.ToArray(), buildingTiles);
     }
 
     public bool VectorInBaseCoordinates(Vector3Int checkForMe) {
@@ -266,6 +274,11 @@ public abstract class Building : TooltipableGameObject {
 
     /// <summary>
     /// Delete the building
+    /// If this is called then:
+    /// <code>
+    ///     hasBeenPlaced = true;
+    ///     The mouse is over this building
+    /// </code>
     /// </summary>
     public virtual void Delete() {
         if (!hasBeenPlaced) return;

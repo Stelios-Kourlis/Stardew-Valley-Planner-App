@@ -24,13 +24,13 @@ public class NotificationManager : MonoBehaviour{
     private readonly float TOOLTIP_DELAY_SECONDS = 0.75f;
     public bool IsShowingTooltip {get; private set;} = false;
 
-    private List<Notification> notifications = new List<Notification>();
+    private List<Notification> notifications = new();
 
     public void SendNotification(string message){
         GameObject notificationGameObject = Resources.Load("UI/Notification") as GameObject;
         notificationGameObject = Instantiate(notificationGameObject, GetCanvasGameObject().transform);
         notificationGameObject.transform.GetChild(0).GetComponent<Text>().text = message;
-        Notification notification = new Notification(notificationGameObject);
+        Notification notification = new(notificationGameObject);
         notifications.Insert(0, notification);
          notificationGameObject.GetComponent<Button>().onClick.AddListener(() => {
             Destroy(notificationGameObject);

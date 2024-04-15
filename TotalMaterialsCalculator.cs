@@ -14,7 +14,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
     // const int X_POSITION = -325;
     // const int STARTING_Y_POSITION = 230;
 
-    private readonly List<MaterialInfo> materialsNeeded = new List<MaterialInfo>();
+    private readonly List<MaterialInfo> materialsNeeded = new();
     private SpriteAtlas materialAtlas;
 
     public void Start(){
@@ -53,7 +53,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
         }
 
         foreach (MaterialInfo material in materialsNeeded){
-            GameObject entry = new GameObject($"{material}Entry");
+            GameObject entry = new($"{material}Entry");
             entry.transform.SetParent(scrollContent.transform);
             entry.AddComponent<RectTransform>().sizeDelta = new Vector2(WIDTH, HEIGHT);
             entry.transform.position = new Vector3(50, -50 + counter * HEIGHT , 0);
@@ -69,7 +69,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
 
     private void AddTextGameObject(MaterialInfo material, Transform parent){
         if (material.IsSpecial) throw new ArgumentException("Material is special, use CreateSpecialTextGameObject() instead.");
-        GameObject textGameObject = new GameObject(material.name.ToString());
+        GameObject textGameObject = new(material.name.ToString());
         textGameObject.AddComponent<Text>().text = $"{material.amount:N0}x {material.name}";
         textGameObject.GetComponent<Text>().fontSize = 50;
         textGameObject.GetComponent<Text>().color = Color.black;
@@ -81,7 +81,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
 
     private void AddSpecialTextGameObject(MaterialInfo material, Transform parent){
         if (!material.IsSpecial) throw new ArgumentException("Material is not special, use CreateTextGameObject() instead.");
-        GameObject textGameObject = new GameObject(material.howToGet);
+        GameObject textGameObject = new(material.howToGet);
         textGameObject.AddComponent<Text>().text = $"{material.amount:N0}x {material.howToGet}";
         textGameObject.GetComponent<Text>().fontSize = 50;
         textGameObject.GetComponent<Text>().color = Color.black;
@@ -94,7 +94,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
 
     private void AddImage(MaterialInfo material, Transform parent){
         if (material.IsSpecial) throw new ArgumentException("Special Material do not have images");
-        GameObject imageGameObject = new GameObject(material.name.ToString());
+        GameObject imageGameObject = new(material.name.ToString());
         Sprite sprite = materialAtlas.GetSprite(material.name.ToString());
         imageGameObject.AddComponent<Image>().sprite = sprite;
         imageGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(HEIGHT, HEIGHT);

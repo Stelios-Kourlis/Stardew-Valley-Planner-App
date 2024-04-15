@@ -24,10 +24,10 @@ public class JunimoHut : Building, IRangeEffectBuilding {//todo add range interf
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
     return new List<MaterialInfo>(){
-        new MaterialInfo(20000, Materials.Coins),
-        new MaterialInfo(200, Materials.Stone),
-        new MaterialInfo(9, Materials.Starfruit),
-        new MaterialInfo(100, Materials.Fiber)
+        new(20000, Materials.Coins),
+        new(200, Materials.Stone),
+        new(9, Materials.Starfruit),
+        new(100, Materials.Fiber)
     };
 }
 
@@ -55,4 +55,7 @@ public class JunimoHut : Building, IRangeEffectBuilding {//todo add range interf
         OnAwake();
         Place(new Vector3Int(x,y,0));
     }
+
+    public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
+    public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
 }

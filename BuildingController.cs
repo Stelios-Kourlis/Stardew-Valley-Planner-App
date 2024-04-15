@@ -12,24 +12,24 @@ using UnityEngine.UI;
 
 public class BuildingController : MonoBehaviour{
     /// <summary> A coordinate is unavailable if it is occupied by a building or if its out of bounds for the current map </summary>
-    private readonly HashSet<Vector3Int> unavailableCoordinates = new HashSet<Vector3Int>();
-    private readonly HashSet<Vector3Int> plantableCoordinates = new HashSet<Vector3Int>();
-    public readonly List<Building> buildings = new List<Building>();
+    private readonly HashSet<Vector3Int> unavailableCoordinates = new();
+    private readonly HashSet<Vector3Int> plantableCoordinates = new();
+    public readonly List<Building> buildings = new();
     /// <summary> actions the user has done, the first 2 elements always are Action, UID and then the building data  </summary>
-    private readonly Stack<UserAction> actionLog = new Stack<UserAction>();
+    private readonly Stack<UserAction> actionLog = new();
     /// <summary> actions the user has undone, the first 2 elements always are Action, UID and then the building data </summary>
-    private readonly Stack<UserAction> undoLog = new Stack<UserAction>();
+    private readonly Stack<UserAction> undoLog = new();
     public Type currentBuildingType;
     // private Actions currentAction;
     // private readonly HashSet<Floor> floors = new HashSet<Floor>();
     public bool IsLoadingSave {get; set;} = false;
     //private bool isUndoing = false;
 
-    public HashSet<GameObject> buildingGameObjects = new HashSet<GameObject>();
+    public HashSet<GameObject> buildingGameObjects = new();
     public GameObject lastBuildingObjectCreated {get; private set;}
 
     void Start(){
-        currentBuildingType = typeof(JunimoHut);
+        currentBuildingType = typeof(Floor);
         Building.BuildingWasPlaced += OnBuildingPlaced;
     }
 
@@ -116,7 +116,7 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
-    public void SetCurrentBuildingToPlaceable(Craftables.Type placeable){
+    public void SetCurrentBuildingToPlaceable(Craftables.Types placeable){
         Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
         if (component != null) Destroy(component);
         currentBuildingType = typeof(Craftables);
@@ -132,7 +132,7 @@ public class BuildingController : MonoBehaviour{
             MapController.MapTypes.Beach => new Vector3Int(33, 57, 0),
             _ => new Vector3Int(32, 12, 0),
         };
-        GameObject houseGameObject = new GameObject("House");
+        GameObject houseGameObject = new("House");
         houseGameObject.transform.parent = transform;
         // houseGameObject.AddComponent<House>().OnAwake();
         // houseGameObject.GetComponent<House>().Place(housePos);
@@ -214,7 +214,7 @@ public class BuildingController : MonoBehaviour{
         Type type = Type.GetType(data[0]);
         int x = int.Parse(data[1]);
         int y = int.Parse(data[2]);
-        GameObject go = new GameObject(type.Name);
+        GameObject go = new(type.Name);
         go.transform.parent = transform;
         Building building = go.AddComponent(type) as Building;
         building?.OnAwake();

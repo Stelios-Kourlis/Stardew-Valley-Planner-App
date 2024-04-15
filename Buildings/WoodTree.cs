@@ -28,6 +28,9 @@ public class WoodTree : Building, IMultipleTypeBuilding<WoodTree.Types>{//the na
     }
 
     public override string TooltipMessage => $"{MultipleTypeBuildingComponent.Type} Tree";
+
+    public Types Type => MultipleTypeBuildingComponent.Type;
+
     public override void OnAwake(){
         BaseHeight = 1;
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
@@ -46,4 +49,7 @@ public class WoodTree : Building, IMultipleTypeBuilding<WoodTree.Types>{//the na
     public GameObject[] CreateButtonsForAllTypes(){
         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
+
+    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+    public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
 }

@@ -1,120 +1,134 @@
-// using System;
-// using System.Collections;
-// using System.Collections.Generic;
-// using System.Linq;
-// using UnityEngine;
-// using UnityEngine.Tilemaps;
-// using UnityEngine.U2D;
-// using static Utility.ClassManager;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
+using UnityEngine.UI;
+using static Utility.ClassManager;
 
-public class Cabin/* : TieredBuilding*/ {//todo: add cabin types
+public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types> {
 
-    public enum Types{//add types
-        NO_TYPE,
+    public enum Types{//todo add types
         Wood,
         Plank,
-        Stone
+        Stone,
+        Beach,
+        Neighbor,
+        Rustic,
+        Trailer
+    }
+    private static bool[] cabinTypeIsPlaced = new bool[Enum.GetValues(typeof(Types)).Length];
+    private MultipleTypeBuilding<Types> multipleTypeBuildingComponent;
+    private TieredBuilding tieredBuildingComponent;
+
+    public override string TooltipMessage => "Right Click For More Options";
+
+    public int Tier => tieredBuildingComponent.Tier;
+
+    private SpriteAtlas Atlas => multipleTypeBuildingComponent != null ? multipleTypeBuildingComponent.Atlas : tieredBuildingComponent.Atlas;
+
+    public Types Type => multipleTypeBuildingComponent.Type;
+
+    public static Types CurrentType {get; private set;}
+
+    public override void OnAwake(){
+        BaseHeight = 3;
+        for (int i = 0; i < cabinTypeIsPlaced.Length; i++) cabinTypeIsPlaced[i] = false;
+        BuildingInteractions = new ButtonTypes[]{
+            ButtonTypes.TIER_ONE,
+            ButtonTypes.TIER_TWO,
+            ButtonTypes.TIER_THREE,
+            ButtonTypes.ENTER,
+            ButtonTypes.PAINT
+        };
+        multipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
+        multipleTypeBuildingComponent.DefaultSprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{Types.Wood}1");
+        SetType(CurrentType);
+        tieredBuildingComponent = new TieredBuilding(this, 4);
+        SetTier(1);
+        base.OnAwake();
+    } 
+
+    public override void Place(Vector3Int position){
+        if (cabinTypeIsPlaced[(int) Type]){
+            GetNotificationManager().SendNotification("You can only have one of each type of cabin");
+            return;
+        }
+        base.Place(position);
+        cabinTypeIsPlaced[(int) Type] = true;
     }
 
-//     private CabinTypes type = CabinTypes.Stone;
-//     private static bool WoodCabinHasBeenPlaced;
-//     private static bool PlankCabinHasBeenPlaced;
-//     public static bool StoneCabinHasBeenPlaced;
+    public override void Delete(){
+        cabinTypeIsPlaced[(int) Type] = false;
+        base.Delete();
+    }
 
-//     public override string TooltipMessage => "Right Click For More Options";
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        List<MaterialInfo> level1 = new() { new(100, Materials.Coins) };
+        return tieredBuildingComponent.Tier switch{
+            2 => new List<MaterialInfo>{
+                new(10_000, Materials.Coins),
+                new(450, Materials.Wood),
+            }.Union(level1).ToList(),
+            3 => new List<MaterialInfo>{
+                new(60_000, Materials.Coins),
+                new(450, Materials.Wood),
+                new(150, Materials.Hardwood),
+            }.Union(level1).ToList(),
+            4 => new List<MaterialInfo>{
+                new(160_000, Materials.Coins),
+                new(450, Materials.Wood),
+                new(150, Materials.Hardwood),
+            }.Union(level1).ToList(),
+            _ => throw new System.Exception("Invalid Cabin Tier")
+        };
+    }
 
-//     public override void OnAwake(){
-//         baseHeight = 3;
-//         buildingInteractions = new ButtonTypes[]{
-//             ButtonTypes.TIER_ONE,
-//             ButtonTypes.TIER_TWO,
-//             ButtonTypes.TIER_THREE,
-//             ButtonTypes.ENTER,
-//             ButtonTypes.PAINT
-//         };
-//         MaxTier = 3;
-//         base.OnAwake();
-//     }
+    public override string GetBuildingData(){
+        return base.GetBuildingData() + $"|{tieredBuildingComponent.Tier}|{multipleTypeBuildingComponent.Type}";
+    }
 
-//     public void CycleType(){
-//         type = type switch{
-//             CabinTypes.Wood => CabinTypes.Plank,
-//             CabinTypes.Plank => CabinTypes.Stone,
-//             CabinTypes.Stone => CabinTypes.Wood,
-//             _ => throw new System.Exception("Invalid Cabin Type")
-//         };
-//     }
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        tieredBuildingComponent.SetTier(int.Parse(data[0]));
+        multipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[1]));
+        Place(new Vector3Int(x,y,0));
+    }
 
-//     public void SetType(CabinTypes type){
-//         this.type = type;
-//     }   
+    public void SetTier(int tier){
+        tieredBuildingComponent.SetTier(tier);
+        Sprite sprite;
+        Types type = multipleTypeBuildingComponent?.Type ?? Types.Wood;
+        sprite = Atlas.GetSprite($"{type}{tier}");
+        UpdateTexture(sprite);
+    }
 
-//     public override void Place(Vector3Int position){
-//         if (type == CabinTypes.Wood){
-//             if (WoodCabinHasBeenPlaced) {GetNotificationManager().SendNotification("Wood Cabin Has Already Been Placed"); return;}
-//             WoodCabinHasBeenPlaced = true;
-//         }else if (type == CabinTypes.Plank){
-//             if (PlankCabinHasBeenPlaced) {GetNotificationManager().SendNotification("Plank Cabin Has Already Been Placed"); return;}
-//             PlankCabinHasBeenPlaced = true;
-//         }else if (type == CabinTypes.Stone){
-//             Debug.Log($"Had Stone Cabin Been Placed: {StoneCabinHasBeenPlaced}");
-//             if (StoneCabinHasBeenPlaced) {GetNotificationManager().SendNotification("Stone Cabin Has Already Been Placed"); return;}
-//             else{
-//                 StoneCabinHasBeenPlaced = true;
-//                 Debug.Log($"Placed Stone Cabin {StoneCabinHasBeenPlaced}");
-//             }
-//         }
-//         base.Place(position);
-//     }
+    public void CycleType() => multipleTypeBuildingComponent.CycleType();
 
-//     public override void Delete(){
-//         if (type == CabinTypes.Wood) WoodCabinHasBeenPlaced = false;
-//         else if (type == CabinTypes.Plank) PlankCabinHasBeenPlaced = false;
-//         else if (type == CabinTypes.Stone) StoneCabinHasBeenPlaced = false;
-//         base.Delete();
-//     }
+    public void SetType(Types type){
+        multipleTypeBuildingComponent.SetType(type);
+        Sprite sprite;
+        sprite = Atlas.GetSprite($"{type}{tieredBuildingComponent?.Tier ?? 1}");
+        UpdateTexture(sprite);
+    }
 
-//     public override List<MaterialInfo> GetMaterialsNeeded(){
-//         List<MaterialInfo> level1 = type switch{
-//             CabinTypes.Wood => new List<MaterialInfo>(){
-//                 new MaterialInfo(10, Materials.Wood),
-//             },
-//             CabinTypes.Plank => new List<MaterialInfo>(){
-//                 new MaterialInfo(5, Materials.Wood),
-//                 new MaterialInfo(10, Materials.Fiber)
+    public GameObject[] CreateButtonsForAllTypes(){
+        List<GameObject> buttons = new();
+        foreach (Types type in Enum.GetValues(typeof(Types))){
+            GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+            button.name = $"{type}Button";
+            button.GetComponent<Image>().sprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{type}1");
 
-//             },
-//             CabinTypes.Stone => new List<MaterialInfo>(){
-//                 new MaterialInfo(10, Materials.Stone),
-//             },
-//             _ => throw new System.Exception("Invalid Cabin Type")
-//         };
-//         return Tier switch{
-//             2 => new List<MaterialInfo>{
-//                 new MaterialInfo(10_000, Materials.Coins),
-//                 new MaterialInfo(450, Materials.Wood),
-//             }.Union(level1).ToList(),
-//             3 => new List<MaterialInfo>{
-//                 new MaterialInfo(60_000, Materials.Coins),
-//                 new MaterialInfo(450, Materials.Wood),
-//                 new MaterialInfo(150, Materials.Hardwood),
-//             }.Union(level1).ToList(),
-//             4 => new List<MaterialInfo>{
-//                 new MaterialInfo(160_000, Materials.Coins),
-//                 new MaterialInfo(450, Materials.Wood),
-//                 new MaterialInfo(150, Materials.Hardwood),
-//             }.Union(level1).ToList(),
-//             _ => throw new System.Exception("Invalid Cabin Tier")
-//         };
-//     }
+            Type buildingType = GetType();
+            BuildingController buildingController = GetBuildingController();
+            button.GetComponent<Button>().onClick.AddListener(() => { 
+                buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
+                buildingController.SetCurrentAction(Actions.PLACE); 
+                });
+            buttons.Add(button);
+        }
+        return buttons.ToArray();
+    }
 
-//     public override string GetBuildingData(){
-//         return base.GetBuildingData() + $"|{Tier}|{type}";
-//     }
-
-//     public override void RecreateBuildingForData(int x, int y, params string[] data){
-//         Tier = int.Parse(data[0]);
-//         type = (CabinTypes)Enum.Parse(typeof(CabinTypes), data[1]);
-//         Place(new Vector3Int(x,y,0));
-//     }
 }

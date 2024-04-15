@@ -22,10 +22,10 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
 
     public virtual bool ShowTooltipCondition(){
         GraphicRaycaster graphicRaycaster = GetComponent<GraphicRaycaster>();
-        PointerEventData pointerEventData = new PointerEventData(EventSystem.current){
+        PointerEventData pointerEventData = new(EventSystem.current){
             position = Input.mousePosition
             };
-        List<RaycastResult> results = new List<RaycastResult>();
+        List<RaycastResult> results = new();
         graphicRaycaster.Raycast(pointerEventData, results);
         return results.Exists(result => result.gameObject == gameObject);
     }

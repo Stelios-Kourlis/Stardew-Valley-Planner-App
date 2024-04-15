@@ -35,7 +35,7 @@ public class KeybindHandler : MonoBehaviour{
         }
     }
 
-    private static readonly Dictionary<Action, Keybind> keybinds = new Dictionary<Action, Keybind>();
+    private static readonly Dictionary<Action, Keybind> keybinds = new();
     
     public void Start(){
         LoadKeybinds();
@@ -52,7 +52,7 @@ public class KeybindHandler : MonoBehaviour{
                 SetUpFirstTimeKeybinds();
                 return;
             }
-            Keybind keybind = new Keybind((KeyCode)((bind >> 16) & 0xFFFF), (KeyCode)(bind & 0xFFFF));
+            Keybind keybind = new((KeyCode)((bind >> 16) & 0xFFFF), (KeyCode)(bind & 0xFFFF));
             keybinds.Add(action, keybind);
         }    
     }
@@ -121,7 +121,7 @@ public class KeybindHandler : MonoBehaviour{
                 if (Input.GetKeyDown(keyCode)){
                 string keyPressed = keyCode.ToString();
                 Debug.Log(keyPressed);
-                Keybind keybind = new Keybind(keyCode, optionalSecondButton);
+                Keybind keybind = new(keyCode, optionalSecondButton);
                 UpdateKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name), keybind);
                 string text = "";
                 if (keybind.optionalSecondButton != KeyCode.None){

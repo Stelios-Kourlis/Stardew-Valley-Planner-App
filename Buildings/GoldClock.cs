@@ -15,7 +15,7 @@ public class GoldClock : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo> {
-            new MaterialInfo(10_000_000, Materials.Coins)
+            new(10_000_000, Materials.Coins)
         };
     }
 

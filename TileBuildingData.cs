@@ -15,7 +15,7 @@ public class TileBuildingData : MonoBehaviour {
     ///Normal, Riverland, Forest, Hilltop, Wilderness, Four Corners, Beach. IS CASE SENSITIVE</param>
     ///<returns>True if there are no other tiles and within the rectangle, otherwise false</returns>
     public void AddInvalidTilesData(MapController.MapTypes farm) {
-        List<Vector3Int> tempList = new List<Vector3Int>();
+        List<Vector3Int> tempList = new();
         string path = "Maps/" + farm.ToString();
         TextAsset textAsset = Resources.Load<TextAsset>(path);
         string[] tiles = textAsset.text.Split('\n');
@@ -33,7 +33,7 @@ public class TileBuildingData : MonoBehaviour {
     }
 
     public void AddPlantableTilesData(MapController.MapTypes farm) {
-        List<Vector3Int> tempList = new List<Vector3Int>();
+        List<Vector3Int> tempList = new();
         string path = "Maps/" + farm.ToString() + "P";
         TextAsset textAsset = Resources.Load<TextAsset>(path);
         string[] tiles = textAsset.text.Split('\n');
@@ -54,7 +54,7 @@ public class TileBuildingData : MonoBehaviour {
         string[] names = { "Normal", "Riverland", "Forest", "Hilltop", "Wilderness", "Four Corners", "Beach", "GingerIsland" };
         foreach (string mapName in names) {
             string path = "Assets/Resources/Maps" + mapName + ".txt";
-            HashSet<Vector3Int> tiles = new HashSet<Vector3Int>();
+            HashSet<Vector3Int> tiles = new();
             TextReader reader = File.OpenText(path);
             string text;
             while ((text = reader.ReadLine()) != null) {
@@ -64,7 +64,7 @@ public class TileBuildingData : MonoBehaviour {
                 int z = int.Parse(nums[2]);
                 tiles.Add(new Vector3Int(x, y, z));
             }
-            StreamWriter writer = new StreamWriter(path, true);
+            StreamWriter writer = new(path, true);
             foreach (Vector3Int vec in tiles) {
                 writer.WriteLine(vec.x + " " + vec.y + " " + vec.z);
             }
@@ -73,7 +73,7 @@ public class TileBuildingData : MonoBehaviour {
 
         foreach (string mapName in names) {
             string path = "Assets/Resources/Maps" + mapName + "P.txt";
-            HashSet<Vector3Int> tiles = new HashSet<Vector3Int>();
+            HashSet<Vector3Int> tiles = new();
             TextReader reader = File.OpenText(path);
             string text;
             while ((text = reader.ReadLine()) != null) {
@@ -83,7 +83,7 @@ public class TileBuildingData : MonoBehaviour {
                 int z = int.Parse(nums[2]);
                 tiles.Add(new Vector3Int(x, y, z));
             }
-            StreamWriter writer = new StreamWriter(path, true);
+            StreamWriter writer = new(path, true);
             foreach (Vector3Int vec in tiles) {
                 writer.WriteLine(vec.x + " " + vec.y + " " + vec.z);
             }

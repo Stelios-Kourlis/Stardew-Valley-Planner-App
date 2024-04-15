@@ -15,9 +15,9 @@ namespace Utility{
     public static class BuildingManager{
 
         public static void Save() {
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new("Stardew Valley Planner Files", "svp")}, false);
             if (paths.Length > 0) {
-                using StreamWriter writer = new StreamWriter(paths[0]);
+                using StreamWriter writer = new(paths[0]);
                 foreach (Building building in GetBuildingController().GetBuildings()) {
                     writer.WriteLine(building.GetBuildingData());
                 }
@@ -25,10 +25,10 @@ namespace Utility{
         }
 
         public static void Load() {
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new ExtensionFilter("Stardew Valley Planner Files", "svp")}, false);
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new("Stardew Valley Planner Files", "svp")}, false);
             Type currentType = GetBuildingController().currentBuildingType;
             if (paths.Length > 0) {
-                using StreamReader reader = new StreamReader(paths[0]);
+                using StreamReader reader = new(paths[0]);
                 GetBuildingController().DeleteAllBuildings(true);
                 GetBuildingController().IsLoadingSave = true;
                 while (reader.Peek() >= 0){
@@ -43,7 +43,8 @@ namespace Utility{
 
         public static bool CanBuildingBePlacedThere(Vector3Int position, Building building){
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
-            HashSet<Type> cantBePlacedOnGingerInslad = new HashSet<Type>{
+            HashSet<Type> cantBePlacedOnGingerInslad = new()
+            {
                 // typeof(Barn),
                 // typeof(Cabin),
                 // typeof(Coop),
@@ -186,7 +187,7 @@ namespace Utility{
         /// <param name="imagePath">the path of the image for the button</param>
         /// <param name="transform">The transform of the parent object</param>
         /// <param name="craftableType">The type of craftable</param>
-        public static void CreateButton(string name, string imagePath, Transform transform, Craftables.Type craftableType){
+        public static void CreateButton(string name, string imagePath, Transform transform, Craftables.Types craftableType){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"), transform);
             button.GetComponent<Image>().sprite = Resources.Load<Sprite>(imagePath);
             button.GetComponent<Button>().onClick.AddListener(() => { 
@@ -199,13 +200,13 @@ namespace Utility{
 
         public static void AddHoverEffect(Button button){
             EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
-            EventTrigger.Entry pointerEnterEntry = new EventTrigger.Entry();
+            EventTrigger.Entry pointerEnterEntry = new();
             pointerEnterEntry.eventID = EventTriggerType.PointerEnter;
             pointerEnterEntry.callback.AddListener((eventData) => {
                 button.transform.localScale = new Vector3(1.2f, 1.2f);
             });
             eventTrigger.triggers.Add(pointerEnterEntry);
-            EventTrigger.Entry pointerExitEntry = new EventTrigger.Entry();
+            EventTrigger.Entry pointerExitEntry = new();
             pointerExitEntry.eventID = EventTriggerType.PointerExit;
             pointerExitEntry.callback.AddListener((eventData) => {
                 button.transform.localScale = new Vector3(1, 1);

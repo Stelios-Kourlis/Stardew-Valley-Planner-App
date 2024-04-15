@@ -7,24 +7,21 @@ using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-/// <summary>
-/// Buildings that have multiple types should extend this
-/// For Building with multiple tiers, use ITieredBuilding
-/// T should be an enum with the types of the building, first element should be a dummy element, second should be the type that will be on the button
-/// </summary>
-
 public class MultipleTypeBuilding<T> where T : Enum{
-    public T Type {get; private set;}
-    public static T CurrentType {get; private set;}
-    private SpriteAtlas Atlas {get; set;}
-    public Sprite DefaultSprite {get; private set;}
+    public T Type {get; set;}
+    public static T CurrentType {get; set;}
+    public SpriteAtlas Atlas {get; private set;}
+    public Sprite DefaultSprite {get; set;}
     public Building Building {get; private set;}
+    private readonly bool buildingHasOtherInterfaces;
 
     public MultipleTypeBuilding(Building building){
         if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
         Building = building;
-        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType().Name}sAtlas");
-        Debug.Assert(Atlas != null, $"Atlas \"{Building.GetType().Name}sAtlas\" was not found");
+        buildingHasOtherInterfaces = BuildingHasMoreThanOneBuildingInterface(Building, typeof(IMultipleTypeBuilding<>));
+        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType().Name}Atlas");
+        Debug.Assert(Atlas != null, $"Atlas \"{Building.GetType().Name}Atlas\" was not found");
+        if (buildingHasOtherInterfaces) return;
         SetType(CurrentType);
         DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(typeof(T)).GetValue(0)}");
     }
@@ -39,8 +36,10 @@ public class MultipleTypeBuilding<T> where T : Enum{
     public void SetType(T type){
         CurrentType = type;
         Type = type;
-        Building.UpdateTexture(Atlas.GetSprite($"{type}"));
-        Debug.Assert(Atlas.GetSprite($"{type}") != null, $"Sprite for {type} was not found in {Atlas.name}");
+        if (buildingHasOtherInterfaces) return;
+        Sprite sprite = Atlas.GetSprite($"{type}");
+        Debug.Assert(sprite != null, $"Sprite {type} was not found in {Building.GetType()}Atlas");
+        Building.UpdateTexture(sprite);
     }
 
     public GameObject CreateButton(){
@@ -56,7 +55,6 @@ public class MultipleTypeBuilding<T> where T : Enum{
     public virtual GameObject[] CreateButtonsForAllTypes(){
         List<GameObject> buttons = new();
         foreach (T type in Enum.GetValues(typeof(T))){
-            // if ((int)(object)type == 0) continue; // skip the first element (None)
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}Button";
             button.GetComponent<Image>().sprite = Atlas.GetSprite($"{type}");
@@ -70,10 +68,5 @@ public class MultipleTypeBuilding<T> where T : Enum{
             buttons.Add(button);
         }
         return buttons.ToArray();
-    }
-
-    public static explicit operator MultipleTypeBuilding<T>(Component v)
-    {
-        throw new NotImplementedException();
     }
 }

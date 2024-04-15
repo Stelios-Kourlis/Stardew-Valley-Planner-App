@@ -67,7 +67,7 @@ namespace Utility{
         public static Tile[] SplitSprite(Sprite sprite){
             // int height = sprite.texture.height;
             // int width = sprite.texture.width;
-            List<Tile> tiles = new List<Tile>();
+            List<Tile> tiles = new();
             Rect rect = sprite.textureRect;
             for (int y = (int)rect.y; y < rect.y + rect.height; y += 16) {
                 for (int x = (int)rect.x; x < rect.x + rect.width; x += 16) {
@@ -97,7 +97,7 @@ namespace Utility{
             // croppedTexture.SetPixels(pixels);
             // croppedTexture.Apply();
             Sprite sprite = Sprite.Create(texture, new Rect(topLeftCorner.x * 16, topLeftCorner.y * 16, width * 16, height * 16), new Vector2(0.5f, 0.5f), 16);
-            Texture2D croppedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+            Texture2D croppedTexture = new((int)sprite.rect.width, (int)sprite.rect.height);
             Color[] pixels = sprite.texture.GetPixels((int)sprite.textureRect.x, 
                                                 (int)sprite.textureRect.y, 
                                                 (int)sprite.textureRect.width, 

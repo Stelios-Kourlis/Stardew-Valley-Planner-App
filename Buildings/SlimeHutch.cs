@@ -18,10 +18,10 @@ public class SlimeHutch : Building {
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return new List<MaterialInfo>(){
-            new MaterialInfo(10000, Materials.Coins),
-            new MaterialInfo(500, Materials.Stone),
-            new MaterialInfo(10, Materials.RefinedQuartz),
-            new MaterialInfo(1, Materials.IridiumBar)
+            new(10000, Materials.Coins),
+            new(500, Materials.Stone),
+            new(10, Materials.RefinedQuartz),
+            new(1, Materials.IridiumBar)
         };
     }
 

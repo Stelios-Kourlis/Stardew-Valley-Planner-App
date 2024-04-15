@@ -61,7 +61,7 @@ public class ButtonController : MonoBehaviour{
             if (type == typeof(House)) continue;
             if (type == typeof(Greenhouse)) continue;
             // Debug.Log(type);
-            GameObject temp = new GameObject();
+            GameObject temp = new();
             Building buildingTemp = (Building) temp.AddComponent(type);
             GameObject button = buildingTemp.CreateButton();
             button.transform.SetParent(buildingPanelContent);
@@ -74,30 +74,30 @@ public class ButtonController : MonoBehaviour{
         buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(1).GetChild(0);
         // CreateButton("Scarecrow", "Buildings/Scarecrow", buildingPanelTransform, false);
         // CreateButton("DeluxeScarecrow", "Buildings/DeluxeScarecrow",buildingPanelTransform, true);
-        CreateButton("sprinkler", "Buildings/SprinklerT1", buildingPanelTransform, typeof(Sprinkler));
-        CreateButton("Beehouse", "Buildings/Placeables/Beehouse", buildingPanelTransform, Craftables.Type.Beehouse);
-        CreateButton("Bonemill", "Buildings/Placeables/Bonemill", buildingPanelTransform, Craftables.Type.BoneMill);
-        CreateButton("Cask", "Buildings/Placeables/Cask", buildingPanelTransform, Craftables.Type.Cask);
-        CreateButton("CharcoalKiln", "Buildings/Placeables/CharcoalKiln", buildingPanelTransform, Craftables.Type.CharcoalKiln);
-        CreateButton("CheesePress", "Buildings/Placeables/CheesePress", buildingPanelTransform, Craftables.Type.CheesePress);
-        CreateButton("Crystalarium", "Buildings/Placeables/Crystalarium", buildingPanelTransform, Craftables.Type.Crystalarium);
-        CreateButton("FarmComputer", "Buildings/Placeables/FarmComputer", buildingPanelTransform, Craftables.Type.FarmComputer);
-        CreateButton("Furnace", "Buildings/Placeables/Furnace", buildingPanelTransform, Craftables.Type.Furnace);
-        CreateButton("GeodeCrusher", "Buildings/Placeables/GeodeCrusher", buildingPanelTransform, Craftables.Type.GeodeCrusher);
-        CreateButton("Hopper", "Buildings/Placeables/Hopper", buildingPanelTransform, Craftables.Type.Hopper);
-        CreateButton("Keg", "Buildings/Placeables/Keg", buildingPanelTransform, Craftables.Type.Keg);
-        CreateButton("LightningRod", "Buildings/Placeables/LightningRod", buildingPanelTransform, Craftables.Type.LightningRod);
-        CreateButton("Loom", "Buildings/Placeables/Loom", buildingPanelTransform, Craftables.Type.Loom);
-        CreateButton("MayonnaiseMachine", "Buildings/Placeables/MayonnaiseMachine", buildingPanelTransform, Craftables.Type.MayonnaiseMachine);
-        CreateButton("MiniObelisk", "Buildings/Placeables/MiniObelisk", buildingPanelTransform, Craftables.Type.MiniObelisk);
-        CreateButton("OilMaker", "Buildings/Placeables/OilMaker", buildingPanelTransform, Craftables.Type.OilMaker);
-        CreateButton("PreservesJar", "Buildings/Placeables/PreservesJar", buildingPanelTransform, Craftables.Type.PreservesJar);
-        CreateButton("RecyclingMachine", "Buildings/Placeables/RecyclingMachine", buildingPanelTransform, Craftables.Type.RecyclingMachine);
-        CreateButton("SeedMaker", "Buildings/Placeables/SeedMaker", buildingPanelTransform, Craftables.Type.SeedMaker);
-        CreateButton("SlimeEggPress", "Buildings/Placeables/SlimeEggPress", buildingPanelTransform, Craftables.Type.SlimeEggPress);
-        CreateButton("SlimeIncubator", "Buildings/Placeables/SlimeIncubator", buildingPanelTransform, Craftables.Type.SlimeIncubator);
-        CreateButton("SolarPanel", "Buildings/Placeables/SolarPanel", buildingPanelTransform, Craftables.Type.SolarPanel);
-        CreateButton("WormBin", "Buildings/Placeables/WormBin", buildingPanelTransform, Craftables.Type.WormBin);
+        // CreateButton("sprinkler", "Buildings/SprinklerT1", buildingPanelTransform, typeof(Sprinkler));
+        // CreateButton("Beehouse", "Buildings/Placeables/Beehouse", buildingPanelTransform, Craftables.Types.Beehouse);
+        // CreateButton("Bonemill", "Buildings/Placeables/Bonemill", buildingPanelTransform, Craftables.Type.BoneMill);
+        // CreateButton("Cask", "Buildings/Placeables/Cask", buildingPanelTransform, Craftables.Type.Cask);
+        // CreateButton("CharcoalKiln", "Buildings/Placeables/CharcoalKiln", buildingPanelTransform, Craftables.Type.CharcoalKiln);
+        // CreateButton("CheesePress", "Buildings/Placeables/CheesePress", buildingPanelTransform, Craftables.Type.CheesePress);
+        // CreateButton("Crystalarium", "Buildings/Placeables/Crystalarium", buildingPanelTransform, Craftables.Type.Crystalarium);
+        // CreateButton("FarmComputer", "Buildings/Placeables/FarmComputer", buildingPanelTransform, Craftables.Type.FarmComputer);
+        // CreateButton("Furnace", "Buildings/Placeables/Furnace", buildingPanelTransform, Craftables.Type.Furnace);
+        // CreateButton("GeodeCrusher", "Buildings/Placeables/GeodeCrusher", buildingPanelTransform, Craftables.Types.GeodeCrusher);
+        // CreateButton("Hopper", "Buildings/Placeables/Hopper", buildingPanelTransform, Craftables.Types.Hopper);
+        // CreateButton("Keg", "Buildings/Placeables/Keg", buildingPanelTransform, Craftables.Types.Keg);
+        // CreateButton("LightningRod", "Buildings/Placeables/LightningRod", buildingPanelTransform, Craftables.Types.LightningRod);
+        // CreateButton("Loom", "Buildings/Placeables/Loom", buildingPanelTransform, Craftables.Types.Loom);
+        // CreateButton("MayonnaiseMachine", "Buildings/Placeables/MayonnaiseMachine", buildingPanelTransform, Craftables.Types.MayonnaiseMachine);
+        // CreateButton("MiniObelisk", "Buildings/Placeables/MiniObelisk", buildingPanelTransform, Craftables.Types.MiniObelisk);
+        // CreateButton("OilMaker", "Buildings/Placeables/OilMaker", buildingPanelTransform, Craftables.Types.OilMaker);
+        // CreateButton("PreservesJar", "Buildings/Placeables/PreservesJar", buildingPanelTransform, Craftables.Types.PreservesJar);
+        // CreateButton("RecyclingMachine", "Buildings/Placeables/RecyclingMachine", buildingPanelTransform, Craftables.Types.RecyclingMachine);
+        // CreateButton("SeedMaker", "Buildings/Placeables/SeedMaker", buildingPanelTransform, Craftables.Types.SeedMaker);
+        // CreateButton("SlimeEggPress", "Buildings/Placeables/SlimeEggPress", buildingPanelTransform, Craftables.Types.SlimeEggPress);
+        // CreateButton("SlimeIncubator", "Buildings/Placeables/SlimeIncubator", buildingPanelTransform, Craftables.Types.SlimeIncubator);
+        // CreateButton("SolarPanel", "Buildings/Placeables/SolarPanel", buildingPanelTransform, Craftables.Types.SolarPanel);
+        // CreateButton("WormBin", "Buildings/Placeables/WormBin", buildingPanelTransform, Craftables.Types.WormBin);
         GameObject.FindWithTag("Panel").transform.GetChild(1).gameObject.SetActive(false);
 
         //Action Buttons
@@ -142,7 +142,7 @@ public class ButtonController : MonoBehaviour{
         if (numberOfButtons == 0) return;
         Vector3 middleOfBuildingWorld = GetMiddleOfBuildingWorld(building);
         Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(middleOfBuildingWorld);
-        GameObject buttonParent = new GameObject(building.name+"buttons");
+        GameObject buttonParent = new(building.name+"buttons");
         buttonParent.transform.parent = GetCanvasGameObject().transform;
         buttonParent.SetActive(false);
         buttonParent.transform.SetAsFirstSibling();
@@ -167,12 +167,12 @@ public class ButtonController : MonoBehaviour{
     }
 
     private void CreateInteractionButton(ButtonTypes type, Vector3 buttonPositionScreen, GameObject buttonParent, Building building){
-        GameObject button = new GameObject(type.ToString());
+        GameObject button = new(type.ToString());
         button.transform.parent = buttonParent.transform;
         button.transform.position = buttonPositionScreen;
         button.AddComponent<Image>().sprite = Resources.Load<Sprite>("UI/"+type.ToString());
         if (type == ButtonTypes.PLACE_FISH){
-            GameObject fishIcon = new GameObject("FishIcon");
+            GameObject fishIcon = new("FishIcon");
             fishIcon.transform.parent = button.transform;
             fishIcon.transform.position = buttonPositionScreen;
             fishIcon.transform.localScale = new Vector3(0.4f,0.4f);
@@ -251,7 +251,7 @@ public class ButtonController : MonoBehaviour{
         //GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
         animalMenu.transform.SetParent(button.transform);
-        Vector3 animalMenuPositionWorld = new Vector3(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
+        Vector3 animalMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
         animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
         animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalMenu.SetActive(false);
@@ -269,7 +269,7 @@ public class ButtonController : MonoBehaviour{
         GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
         GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
         animalInBuilding.transform.SetParent(button.transform);
-        Vector3 animalInBuildingMenuPositionWorld = new Vector3(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
+        Vector3 animalInBuildingMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
         animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
         animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalInBuilding.SetActive(false);
@@ -280,7 +280,7 @@ public class ButtonController : MonoBehaviour{
         GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         GameObject fishMenu = Instantiate(fishMenuPrefab);
         fishMenu.transform.SetParent(button.transform);
-        Vector3 fishMenuPositionWorld = new Vector3(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
+        Vector3 fishMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
         fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
         fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         fishMenu.SetActive(false);
