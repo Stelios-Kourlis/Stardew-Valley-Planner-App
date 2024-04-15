@@ -9,12 +9,14 @@ using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-public class Barn : Building, ITieredBuilding/*, IAnimalHouse */{
+public class Barn : Building, ITieredBuilding, IAnimalHouse {
     public override string TooltipMessage => "Right Click For More Options";
     public AnimalHouse AnimalHouseComponent {get; private set;}
     public TieredBuilding TieredBuildingComponent {get; private set;}
 
     public int Tier => TieredBuildingComponent.Tier;
+
+    public List<Animals> AnimalsInBuilding => AnimalHouseComponent.AnimalsInBuilding;
 
     public override void OnAwake(){
         BaseHeight = 4;
@@ -116,6 +118,10 @@ public class Barn : Building, ITieredBuilding/*, IAnimalHouse */{
         Place(new Vector3Int(x,y,0));
         TieredBuildingComponent.SetTier(int.Parse(data[0]));
     }
+
+    public void AddAnimal(Animals animal) => AnimalHouseComponent.AddAnimal(animal);
+
+    public void RemoveAnimal(Animals animal) => AnimalHouseComponent.RemoveAnimal(animal);
 
     // public void AddAnimal(Animals animal){
     //     List<Animals> allowedAnimals = new List<Animals>{Animals.Cow, Animals.Ostrich};

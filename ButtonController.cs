@@ -187,7 +187,7 @@ public class ButtonController : MonoBehaviour{
 
     private void AddButtonListener(ButtonTypes type, Button button, Building building){
         if (type == ButtonTypes.PLACE_FISH) AddFishMenuObject(button, building);
-        if (type == ButtonTypes.ADD_ANIMAL) AddAnimalMenuObject(button, building);
+        // if (type == ButtonTypes.ADD_ANIMAL) AddAnimalMenuObject(button, building);
         switch(type){
             case ButtonTypes.TIER_ONE:
                 button.onClick.AddListener(() => {
@@ -222,18 +222,21 @@ public class ButtonController : MonoBehaviour{
                     button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
                  });
                 break;
-            // case ButtonTypes.CHANGE_FISH_POND_DECO:
-            //     button.onClick.AddListener(() => { 
-            //         if (building is FishPond fishPond){
-            //             fishPond.CycleFishPondDeco();
-            //         }
-            //      });
-            //     break;
+            case ButtonTypes.CHANGE_FISH_POND_DECO:
+                button.onClick.AddListener(() => { 
+                    if (building is FishPond fishPond){
+                        fishPond.CycleFishPondDeco();
+                    }
+                 });
+                break;
             case ButtonTypes.ADD_ANIMAL:
                 button.onClick.AddListener(() => { 
-                    bool isObjectActive =  button.transform.GetChild(0).gameObject.activeInHierarchy;
-                    button.transform.GetChild(0).gameObject.SetActive(!isObjectActive);
-                    button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
+                    if (building is IAnimalHouse animalBuilding){
+                        // animalBuilding;
+                    }
+                    // bool isObjectActive =  button.transform.GetChild(0).gameObject.activeInHierarchy;
+                    // button.transform.GetChild(0).gameObject.SetActive(!isObjectActive);
+                    // button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
                  });
                 break;
             default:

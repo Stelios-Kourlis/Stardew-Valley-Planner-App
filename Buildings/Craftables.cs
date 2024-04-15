@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using static Utility.ClassManager;
+using static Utility.TilemapManager;
 using UnityEngine.U2D;
 using UnityEditor;
 using System;
@@ -35,7 +36,16 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
         SolarPanel,
         Hopper,
         BoneMill,
-        MushroomLog
+        MushroomLog,
+        BaitMaker,
+        Dehydrator,
+        HeavyFurnace,
+        StatueOfBlessing,
+        DwarfStatue,
+        Anvil,
+        Forge,
+        FishSmoker,
+        DeluxeWormBin
 }
     
     public Types Type {get; private set;}
@@ -57,7 +67,7 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
 
     protected override void PlacePreview(Vector3Int position){ //todo these 2 types have arange
     base.PlacePreview(position);
-        // if (Type == Types.MushroomLog) ShowEffectRange(); //7x7, also add log sprite
+        if (Type == Types.MushroomLog) RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7, also add log sprite
         // if (Type == Types.Beehouse) ShowEffectRange(); //look wiki
     }
 

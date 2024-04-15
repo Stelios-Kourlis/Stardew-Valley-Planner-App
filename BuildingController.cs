@@ -134,11 +134,11 @@ public class BuildingController : MonoBehaviour{
         };
         GameObject houseGameObject = new("House");
         houseGameObject.transform.parent = transform;
-        // houseGameObject.AddComponent<House>().OnAwake();
-        // houseGameObject.GetComponent<House>().Place(housePos);
-        // houseGameObject.GetComponent<House>().ChangeTier(tier);
-        // houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
-        //isUndoing = true; //hack to prevent the action from being added to the action log
+        houseGameObject.AddComponent<House>().OnAwake();
+        houseGameObject.GetComponent<House>().Place(housePos);
+        houseGameObject.GetComponent<House>().SetTier(tier);
+        houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
+        // isUndoing = true; //hack to prevent the action from being added to the action log
     }
 
     /// <summary>

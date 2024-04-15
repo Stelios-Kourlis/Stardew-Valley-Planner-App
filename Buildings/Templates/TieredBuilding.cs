@@ -13,7 +13,7 @@ public class TieredBuilding{
     public int MaxTier {get; private set;}
     public SpriteAtlas Atlas {get; private set;}
     private Building Building {get; set;}
-    private bool buildingHasOtherInterfaces;
+    private readonly bool buildingHasOtherInterfaces;
 
     public TieredBuilding(Building building, int maxTier){
         if (building == null) throw new System.Exception($"Building is null");

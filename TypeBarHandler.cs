@@ -28,6 +28,7 @@ public class TypeBarHandler : MonoBehaviour {
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IMultipleTypeBuilding<>)));
         
         foreach (var type in allTypes){
+            if (type == typeof(Sprinkler)) continue;
             GameObject temp = new();
             dynamic buildingTemp = temp.AddComponent(type);
             GameObject[] buttons = buildingTemp.CreateButtonsForAllTypes();
