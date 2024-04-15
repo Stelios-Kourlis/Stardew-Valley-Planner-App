@@ -13,7 +13,6 @@ using UnityEngine.Tilemaps;
 public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBuilding{
 
     public enum Types{
-        NO_TYPE,
         Wood,
         Stone,
         Iron,
@@ -35,8 +34,8 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         ConnectingBuildingComponent = new ConnectingBuilding();
         MultipleTypeBuildingComponent.DefaultSprite = Atlas.GetSprite($"WoodFence0");
-        // FenceWasPlaced += AnotherFenceWasPlaced;
-        sprite = Atlas.GetSprite($"{MultipleTypeBuildingComponent.Type}Fence0");
+        SetType(CurrentType);
+        FenceWasPlaced += AnotherFenceWasPlaced;
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
