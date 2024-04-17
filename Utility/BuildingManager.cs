@@ -45,31 +45,31 @@ namespace Utility{
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<Type> cantBePlacedOnGingerInslad = new()
             {
-                // typeof(Barn),
-                // typeof(Cabin),
-                // typeof(Coop),
-                // typeof(FishPond),
-                // typeof(GoldClock),
-                // typeof(Greenhouse),
-                // typeof(House),
-                // typeof(JunimoHut),
-                // typeof(Mill),
-                // typeof(Obelisk),
-                // typeof(Shed),
-                // typeof(ShippingBin),
-                // typeof(Silo),
-                // typeof(SlimeHutch),
-                // typeof(Stable),
-                // typeof(Well),
+                typeof(Barn),
+                typeof(Cabin),
+                typeof(Coop),
+                typeof(FishPond),
+                typeof(GoldClock),
+                typeof(Greenhouse),
+                typeof(House),
+                typeof(JunimoHut),
+                typeof(Mill),
+                typeof(Obelisk),
+                typeof(Shed),
+                typeof(ShippingBin),
+                typeof(Silo),
+                typeof(SlimeHutch),
+                typeof(Stable),
+                typeof(Well),
             };
             if (mapType == MapController.MapTypes.GingerIsland && cantBePlacedOnGingerInslad.Contains(building.GetType())){
                 GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island");
                 return false;
             }
-            // if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
-            //     GetNotificationManager().SendNotification("Can't place a crop there");
-            //     return false;
-            // }
+            if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
+                GetNotificationManager().SendNotification("Can't place a crop there");
+                return false;
+            }
             return true;
         }
 

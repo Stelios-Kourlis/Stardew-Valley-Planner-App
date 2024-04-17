@@ -94,7 +94,7 @@ public class NotificationManager : MonoBehaviour{
         StartCoroutine(StartTooltipCountdownCoroutine(tooltipableScript));
     }
     private IEnumerator StartTooltipCountdownCoroutine(TooltipableGameObject tooltipableScript){
-        GameObject tooltipableGameObject = tooltipableScript.gameObject;
+        // GameObject tooltipableGameObject = tooltipableScript.gameObject;
         float counter = 0;
         while (counter < TOOLTIP_DELAY_SECONDS){
             counter += Time.deltaTime;

@@ -99,7 +99,7 @@ public abstract class Building : TooltipableGameObject {
 
        
         if (Input.GetKeyUp(KeyCode.Mouse0)){
-            if (EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current.IsPointerOverGameObject() && EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name != "TopRightButtons") return;
             
             if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
             else if (CurrentAction == Actions.EDIT) PickupWrapper();

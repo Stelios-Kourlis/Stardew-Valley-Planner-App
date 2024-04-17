@@ -37,7 +37,7 @@ public class Sprinkler : Building, ITieredBuilding, IMultipleTypeBuilding<Sprink
         Atlas.GetSprites(sprites);
 
         foreach (Sprite sprite in sprites){
-            Debug.Log(sprite.name);
+            // Debug.Log(sprite.name);
             if (sprite.name == $"{GetType()}{TieredBuildingComponent.Tier}{MultipleBuildingComponent?.Type ?? Types.Normal}") Debug.Log("MATCH");
         }
     }
@@ -45,8 +45,8 @@ public class Sprinkler : Building, ITieredBuilding, IMultipleTypeBuilding<Sprink
     public void SetTier(int tier){
         if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier for {GetType()} must be between 1 and 3 (got {tier})");
         Tier = tier;
-        Debug.Log($"{GetType()}{tier}{MultipleBuildingComponent?.Type ?? Types.Normal}");
-        Debug.Log(Atlas == null);
+        // Debug.Log($"{GetType()}{tier}{MultipleBuildingComponent?.Type ?? Types.Normal}");
+        // Debug.Log(Atlas == null);
         UpdateTexture(Atlas.GetSprite($"{GetType()}{tier}{MultipleBuildingComponent?.Type ?? Types.Normal}"));
     }
 
