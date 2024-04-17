@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class ToggleBuildingMenu : MonoBehaviour {
     private Button thisButton;
     private GameObject panel;
-    private float moveScale = 3f;
-    private Sprite[] arrowButtons = new Sprite[2];
+    private float moveScale = 6.75f; //todo update so it always goes to correct position?
+    private readonly Sprite[] arrowButtons = new Sprite[2];
     // Start is called before the first frame update
     void Start() {
         thisButton = gameObject.GetComponent<Button>();

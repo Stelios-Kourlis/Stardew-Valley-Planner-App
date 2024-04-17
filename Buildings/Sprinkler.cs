@@ -7,56 +7,45 @@ using UnityEngine.U2D;
 using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
+using UnityEngine.UI;
+using System.Linq;
 
-public class Sprinkler : Building, ITieredBuilding, IMultipleTypeBuilding<Sprinkler.Types>, IRangeEffectBuilding{//todo maybe switch addons and types so it displayer on type bar
+public class Sprinkler : Building, IMultipleTypeBuilding<Sprinkler.Types>, IRangeEffectBuilding{//todo maybe switch addons and types so it displayer on type bar
 
     public enum Types{
         Normal,
-        PressureNozzle,
-        Enricher
+        Quality,
+        Iridium,
+        // NormalPressureNozzle,
+        // QualityPressureNozzle,
+        // IridiumPressureNozzle,
+        // NormalEnricher,
+        // QualityEnricher,
+        // IridiumEnricher
     }
     public override string TooltipMessage => "Right Click For More Options";
     public MultipleTypeBuilding<Types> MultipleBuildingComponent {get; private set;}
-    public SpriteAtlas Atlas => MultipleBuildingComponent != null ? MultipleBuildingComponent.Atlas : TieredBuildingComponent.Atlas;
-    public TieredBuilding TieredBuildingComponent {get; private set;}
+    public SpriteAtlas Atlas => MultipleBuildingComponent.Atlas;
     public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
-    public int Tier {get; private set;}
-    public Types Type {get; private set;}
     public Types CurrentType {get; private set;}
+    public Types Type => MultipleBuildingComponent.Type;
+    private bool hasPressureNozzle;
+    private bool hasEnricher;
 
     public override void OnAwake(){
         BaseHeight = 1;
         base.OnAwake();
         MultipleBuildingComponent = new MultipleTypeBuilding<Types>(this);
-        SetType(CurrentType);
-        TieredBuildingComponent = new TieredBuilding(this, 3);
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
-        SetTier(1);
-
-        Sprite[] sprites = new Sprite[Atlas.spriteCount];
-        Atlas.GetSprites(sprites);
-
-        foreach (Sprite sprite in sprites){
-            // Debug.Log(sprite.name);
-            if (sprite.name == $"{GetType()}{TieredBuildingComponent.Tier}{MultipleBuildingComponent?.Type ?? Types.Normal}") Debug.Log("MATCH");
-        }
-    }
-
-    public void SetTier(int tier){
-        if (tier < 0 || tier > 3) throw new System.ArgumentException($"Tier for {GetType()} must be between 1 and 3 (got {tier})");
-        Tier = tier;
-        // Debug.Log($"{GetType()}{tier}{MultipleBuildingComponent?.Type ?? Types.Normal}");
-        // Debug.Log(Atlas == null);
-        UpdateTexture(Atlas.GetSprite($"{GetType()}{tier}{MultipleBuildingComponent?.Type ?? Types.Normal}"));
     }
 
         protected override void PlacePreview(Vector3Int position){
             base.PlacePreview(position);
-            Vector3Int[] coverageArea = Tier switch{
-                1 => GetCrossAroundPosition(position).ToArray(),
-                2 => GetAreaAroundPosition(position, 1).ToArray(),
-                3 => GetAreaAroundPosition(position, 2).ToArray(),
-                _ => throw new System.ArgumentException($"Invalid tier {Tier}")
+            Vector3Int[] coverageArea = MultipleBuildingComponent.Type switch{
+                Types.Normal => !hasPressureNozzle ? GetCrossAroundPosition(position).ToArray() : GetAreaAroundPosition(position, 1).ToArray(),
+                Types.Quality => !hasPressureNozzle ? GetAreaAroundPosition(position, 1).ToArray() : GetAreaAroundPosition(position, 2).ToArray(),
+                Types.Iridium => !hasPressureNozzle ? GetAreaAroundPosition(position, 2).ToArray() : GetAreaAroundPosition(position, 3).ToArray(),
+                _ => throw new System.ArgumentException($"Invalid type {MultipleBuildingComponent.Type}")
             };
             RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
         }
@@ -67,62 +56,69 @@ public class Sprinkler : Building, ITieredBuilding, IMultipleTypeBuilding<Sprink
         }
 
         public override List<MaterialInfo> GetMaterialsNeeded(){
-            return Tier switch{
-                1 => new List<MaterialInfo>{
+            return MultipleBuildingComponent.Type switch{
+                Types.Normal => new List<MaterialInfo>{
                     new(1, Materials.IronBar),
                     new(1, Materials.CopperBar),
                 },
-                2 => new List<MaterialInfo>{
+                Types.Quality => new List<MaterialInfo>{
                     new(1, Materials.GoldBar),
                     new(1, Materials.IronBar),
                     new(1, Materials.RefinedQuartz)
                 },
-                3 => new List<MaterialInfo>{
+                Types.Iridium => new List<MaterialInfo>{
                     new(1, Materials.IridiumBar),
                     new(1, Materials.GoldBar),
                     new(1, Materials.BatteryPack),
                 },
-                _ => throw new System.ArgumentException($"Invalid tier {Tier}")
+                _ => throw new System.ArgumentException($"Invalid type {MultipleBuildingComponent.Type}")
             };
         }
 
         public override string GetBuildingData(){
-            return base.GetBuildingData() + $"|{Tier}";
+            return base.GetBuildingData() + $"|{MultipleBuildingComponent.Type}";
         }
 
         public override void RecreateBuildingForData(int x, int y, params string[] data){
             OnAwake();
             Place(new Vector3Int(x,y,0));
-            SetTier(int.Parse(data[0]));
+            SetType((Types)Enum.Parse(typeof(Types), data[0]));
         }
 
         protected override void OnMouseRightClick(){
-            CycleType();
+            if (hasPressureNozzle){
+                hasPressureNozzle = false;
+                hasEnricher = true;
+                UpdateTexture(Atlas.GetSprite($"{Type}Enricher"));
+            }else if (hasEnricher){
+                hasEnricher = false;
+                UpdateTexture(Atlas.GetSprite($"{Type}"));
+            }else{
+                hasPressureNozzle = true;
+                UpdateTexture(Atlas.GetSprite($"{Type}PressureNozzle"));
+            }
+            OnMouseEnter();
         }
 
     public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
 
     public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
+    public void CycleType() => MultipleBuildingComponent.CycleType();
+    public void SetType(Types type) => MultipleBuildingComponent.SetType(type);
+    public GameObject[] CreateButtonsForAllTypes() => MultipleBuildingComponent.CreateButtonsForAllTypes();
 
-    public void CycleType(){
-        int enumLength = Enum.GetValues(typeof(Types)).Length;
-        int intValue = Convert.ToInt32(Type);
-        intValue = (intValue + 1) % enumLength;
-        SetType((Types)Enum.ToObject(typeof(Types), intValue));
+    protected override void OnMouseEnter(){
+        Vector3Int position = BaseCoordinates[0];
+        Vector3Int[] coverageArea = MultipleBuildingComponent.Type switch{
+            Types.Normal => !hasPressureNozzle ? GetCrossAroundPosition(position).ToArray() : GetAreaAroundPosition(position, 1).ToArray(),
+            Types.Quality => !hasPressureNozzle ? GetAreaAroundPosition(position, 1).ToArray() : GetAreaAroundPosition(position, 2).ToArray(),
+            Types.Iridium => !hasPressureNozzle ? GetAreaAroundPosition(position, 2).ToArray() : GetAreaAroundPosition(position, 3).ToArray(),
+            _ => throw new System.ArgumentException($"Invalid type {MultipleBuildingComponent.Type}")
+        };
+        RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
     }
 
-    public void SetType(Types type){
-        Type = type;
-        CurrentType = type;
-        sprite = Atlas.GetSprite($"{GetType()}{TieredBuildingComponent?.Tier ?? 1}{type}");
-        if (sprite == null){
-            Debug.Log($"{GetType()}{TieredBuildingComponent?.Tier ?? 1}{type} not found");
-            Debug.Log(Atlas == null);
-        }
-        UpdateTexture(sprite);
-    }
-
-    public GameObject[] CreateButtonsForAllTypes(){
-        return null;//todo should I choose from befire or click to cycle?
+    protected override void OnMouseExit(){
+        RangeEffectBuildingComponent.HideEffectRange();
     }
 }
