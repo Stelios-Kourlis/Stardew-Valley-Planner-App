@@ -69,9 +69,7 @@ public class Obelisk : Building, IMultipleTypeBuilding<Obelisk.Types>{
         MultipleTypeBuildingComponent.SetType((Types) int.Parse(data[0]));
     }
 
-    public GameObject[] CreateButtonsForAllTypes(){
-        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-    }
+    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 
     public void CycleType() => MultipleTypeBuildingComponent.CycleType();
 

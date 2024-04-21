@@ -29,7 +29,7 @@ public class BuildingController : MonoBehaviour{
     public GameObject lastBuildingObjectCreated {get; private set;}
 
     void Start(){
-        currentBuildingType = typeof(Floor);
+        currentBuildingType = typeof(Barn);
         Building.BuildingWasPlaced += OnBuildingPlaced;
     }
 
@@ -40,10 +40,6 @@ public class BuildingController : MonoBehaviour{
         else if (Building.CurrentAction == Actions.PLACE){
             if (lastBuildingObjectCreated == null) OnBuildingPlaced();
         }
-
-        // if (Input.GetKeyUp(KeyCode.Z)) Debug.Log(unavailableCoordinates.Count);
-
-        //foreach (Building building in buildings) if (building.buildingInteractions.Length != 0) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(building);
     }
 
     private void OnBuildingPlaced(){
@@ -55,74 +51,21 @@ public class BuildingController : MonoBehaviour{
         lastBuildingObjectCreated = go;
     }
 
-    public void SetCurrentBuildingType(Type newType, Action extraAction = null){
-        // Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        // if (component != null) Destroy(component);
+    public void SetCurrentBuildingType(Type newType){
         lastBuildingObjectCreated.GetComponent<Building>().ForceDelete();
         currentBuildingType = newType;
         lastBuildingObjectCreated.AddComponent(currentBuildingType);
-        lastBuildingObjectCreated.name = currentBuildingType.Name;
-        extraAction?.Invoke();
-    }
-
-    public void SetCurrentBuildingToScarecrow(bool IsDeluxe){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
-        currentBuildingType = typeof(Scarecrow);
-        // if (IsDeluxe) lastBuildingObjectCreated.AddComponent<Scarecrow>().SetDeluxe();
-        // else lastBuildingObjectCreated.AddComponent<Scarecrow>();
-        lastBuildingObjectCreated.name = currentBuildingType.Name;
-    }
-
-    public void SetCurrentBuildingToFloor(Floor.Types floorType){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
-        currentBuildingType = typeof(Floor);
-        // lastBuildingObjectCreated.AddComponent<Floor>().SetType(floorType);
-        lastBuildingObjectCreated.name = currentBuildingType.Name + floorType;
-    }
-
-    public void SetCurrentBuildingToFence(Fence.Types fenceType){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
-        currentBuildingType = typeof(Fence);
-        // lastBuildingObjectCreated.AddComponent<Fence>().SetType(fenceType);
-        lastBuildingObjectCreated.name = currentBuildingType.Name + fenceType;
-    }
-
-    public void SetCurrentBuildingToCabin(Cabin.Types cabinType){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
-        currentBuildingType = typeof(Cabin);
-        // lastBuildingObjectCreated.AddComponent<Cabin>().SetType(cabinType);
-        lastBuildingObjectCreated.name = currentBuildingType.Name;
-    }
-
-    public void SetCurrentBuildingToCrop(Crop.Types cropType){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
-        currentBuildingType = typeof(Crop);
-        // lastBuildingObjectCreated.AddComponent<Crop>().SetType(cropType);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
     }
 
     public void SetCurrentBuildingToMultipleTypeBuilding<T>(Type buildingType, T type) where T : Enum{
         Debug.Assert(type != null, $"Type is null in SetCurrentBuildingToMultipleTypeBuilding");
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
+        lastBuildingObjectCreated.GetComponent<Building>().ForceDelete();
+        currentBuildingType = buildingType;
         IMultipleTypeBuilding<T> building = lastBuildingObjectCreated.AddComponent(buildingType) as IMultipleTypeBuilding<T>;
         Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
         building.SetType(type);
         lastBuildingObjectCreated.name = currentBuildingType.Name;
-    }
-
-    public void SetCurrentBuildingToPlaceable(Craftables.Types placeable){
-        Component component = lastBuildingObjectCreated.GetComponent(currentBuildingType);
-        if (component != null) Destroy(component);
-        currentBuildingType = typeof(Craftables);
-        // Debug.Log("Set Craftable to " + placeable + " in BuildingController also " + (lastBuildingObjectCreated.GetComponent<Craftables>() == null));
-        // lastBuildingObjectCreated.AddComponent<Craftables>().SetCraftable(placeable);
-        lastBuildingObjectCreated.name = currentBuildingType.Name + "" + placeable;
     }
 
     public void PlaceHouse(int tier) {
@@ -155,9 +98,6 @@ public class BuildingController : MonoBehaviour{
     }
 
     public void AddActionToLog(UserAction action){
-        // if (actionLog.FirstOrDefault(item => item.UID == action.UID) != null){
-        //     Debug.LogWarning($"UID {action.UID} already exists in actionLog\n {action} shares UID with {actionLog.FirstOrDefault(item => item.UID == action.UID)}");
-        // }
         actionLog.Push(action);
         undoLog.Clear();
     }

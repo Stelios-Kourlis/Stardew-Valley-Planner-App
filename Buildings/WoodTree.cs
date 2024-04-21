@@ -46,9 +46,7 @@ public class WoodTree : Building, IMultipleTypeBuilding<WoodTree.Types>{//the na
         MultipleTypeBuildingComponent.SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
     }
 
-    public GameObject[] CreateButtonsForAllTypes(){
-        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-    }
+    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 
     public void CycleType() => MultipleTypeBuildingComponent.CycleType();
     public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);

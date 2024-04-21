@@ -45,7 +45,7 @@ public class MapController : MonoBehaviour{
     }
 
     public void Update(){
-        if (Input.GetKeyUp(KeyCode.A)){
+        if (Input.GetKeyUp(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)){
             if (addingInvalidTiles){
                 Building.CurrentAction = Actions.EDIT;
                 addingInvalidTiles = false;

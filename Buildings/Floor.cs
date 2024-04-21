@@ -142,7 +142,7 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBu
         List<GameObject> buttons = new();
         foreach (Types type in Enum.GetValues(typeof(Types))){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-            button.name = $"{type}Button";
+            button.name = $"{type}";
             button.GetComponent<Image>().sprite = MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}0");
 
             Type buildingType = GetType();

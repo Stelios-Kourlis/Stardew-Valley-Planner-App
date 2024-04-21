@@ -24,7 +24,7 @@ public class SettingsButton : MonoBehaviour {
         moveScale = -moveScale;
         if (settingsModal.transform.position.y == 540) GetInputHandler().IsSearching = true;
         else GetInputHandler().IsSearching = false;
-        Debug.Log(settingsModal.transform.position.y);
-        Debug.Log(GetInputHandler().IsSearching);
+        // Debug.Log(settingsModal.transform.position.y);
+        // Debug.Log(GetInputHandler().IsSearching);
     }
 }

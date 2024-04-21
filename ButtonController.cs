@@ -14,127 +14,45 @@ using System.Linq;
 public class ButtonController : MonoBehaviour{
 
     readonly float BUTTON_SIZE = 75;
+    private readonly Type[] typesThatShouldBeInCraftables = {typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop)};
     
     void Start(){
         //Tab Buttons
         GameObject panelGameObject = GameObject.FindWithTag("Panel");
+        GameObject content = panelGameObject.transform.GetChild(0).GetChild(0).gameObject;
         panelGameObject.transform.Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
-            panelGameObject.transform.Find("ScrollAreaBuildings").gameObject.SetActive(true);
-            panelGameObject.transform.Find("ScrollAreaPlaceables").gameObject.SetActive(false);
+            for(int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
+            AddBuildingButtonsForPanel(content.transform);
             panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
         });
+
+        
         panelGameObject.transform.Find("PlaceablesButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
-            panelGameObject.transform.Find("ScrollAreaBuildings").gameObject.SetActive(false);
-            panelGameObject.transform.Find("ScrollAreaPlaceables").gameObject.SetActive(true);
+            for(int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
+            AddCraftablesButtonsForPanel(content.transform);
             panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
         });
 
-        //Building Buttons
-        Transform buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(0).GetChild(0);
-        // CreateButton("logCabin", "Buildings/LogCabin1", buildingPanelTransform, Cabin.CabinTypes.Wood);
-        // CreateButton("stoneCabin", "Buildings/StoneCabin1", buildingPanelTransform, Cabin.CabinTypes.Stone);
-        // CreateButton("plankCabin", "Buildings/PlankCabin1", buildingPanelTransform, Cabin.CabinTypes.Plank);
-        // CreateButton("coop", "Buildings/Coop", buildingPanelTransform, typeof(Coop));
-        // CreateButton("barn", "Buildings/Barn", buildingPanelTransform, typeof(Barn));
-        // CreateButton("shed", "Buildings/Shed1", buildingPanelTransform, typeof(Shed));
-        // CreateButton("goldClock", "Buildings/GoldClock", buildingPanelTransform, typeof(GoldClock));
-        // CreateButton("silo", "Buildings/Silo", buildingPanelTransform, typeof(Silo));
-        // CreateButton("slimeHutch", "Buildings/SlimeHutch", buildingPanelTransform, typeof(SlimeHutch));
-        // CreateButton("shippingBin", "Buildings/ShippingBin", buildingPanelTransform, typeof(ShippingBin));
-        // CreateButton("well", "Buildings/Well", buildingPanelTransform, typeof(Well));
-        // CreateButton("earthObelisk", "Buildings/EarthObelisk", buildingPanelTransform, typeof(Obelisk));
-        // CreateButton("stable", "Buildings/Stable", buildingPanelTransform, typeof(Stable));
-        // CreateButton("junimoHunt", "Buildings/JunimoHut", buildingPanelTransform, typeof(JunimoHut));
-        // CreateButton("greenhouse", "Buildings/Greenhouse", buildingPanelTransform, typeof(Greenhouse));
-        // CreateButton("mill", "Buildings/Mill", buildingPanelTransform, typeof(Mill));
-        // CreateButton("fishPond", "Buildings/FishPond", buildingPanelTransform, typeof(FishPond));
-        // CreateButton("floor", "Buildings/WoodFloor", buildingPanelTransform, typeof(Floor));
-        // CreateButton("Fence", "Fences/WoodFence", buildingPanelTransform, typeof(Fence));
-        // CreateButton("Crop", "Buildings/Crop", buildingPanelTransform, typeof(Crop));
-
-        // Debug.Log("Getting all building types");
-        var buildingType = typeof(Building);
-        var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
-
-        Transform buildingPanelContent = GameObject.FindGameObjectWithTag("Panel").transform.GetChild(0).GetChild(0);
-        foreach (var type in allTypes){
-            if (type == typeof(House)) continue;
-            if (type == typeof(Greenhouse)) continue;
-            // Debug.Log(type);
+        panelGameObject.transform.Find("CropsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
+            for(int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             GameObject temp = new();
-            Building buildingTemp = (Building) temp.AddComponent(type);
-            GameObject button = buildingTemp.CreateButton();
-            button.transform.SetParent(buildingPanelContent);
-            button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+            GameObject[] buttons = temp.AddComponent<Crop>().CreateButtonsForAllTypes();
+            foreach (GameObject button in buttons){
+                    button.transform.SetParent(content.transform);
+                    button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+            }
             Destroy(temp);
-            // StartCoroutine(RemoveComponentNextFrame(buildingTemp)); //Components cant be removed the same frame they are added
-        }
+            panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
+        });
 
-        //Placeables Buttons
-        buildingPanelTransform = GameObject.FindWithTag("Panel").transform.GetChild(1).GetChild(0);
-        // CreateButton("Scarecrow", "Buildings/Scarecrow", buildingPanelTransform, false);
-        // CreateButton("DeluxeScarecrow", "Buildings/DeluxeScarecrow",buildingPanelTransform, true);
-        // CreateButton("sprinkler", "Buildings/SprinklerT1", buildingPanelTransform, typeof(Sprinkler));
-        // CreateButton("Beehouse", "Buildings/Placeables/Beehouse", buildingPanelTransform, Craftables.Types.Beehouse);
-        // CreateButton("Bonemill", "Buildings/Placeables/Bonemill", buildingPanelTransform, Craftables.Type.BoneMill);
-        // CreateButton("Cask", "Buildings/Placeables/Cask", buildingPanelTransform, Craftables.Type.Cask);
-        // CreateButton("CharcoalKiln", "Buildings/Placeables/CharcoalKiln", buildingPanelTransform, Craftables.Type.CharcoalKiln);
-        // CreateButton("CheesePress", "Buildings/Placeables/CheesePress", buildingPanelTransform, Craftables.Type.CheesePress);
-        // CreateButton("Crystalarium", "Buildings/Placeables/Crystalarium", buildingPanelTransform, Craftables.Type.Crystalarium);
-        // CreateButton("FarmComputer", "Buildings/Placeables/FarmComputer", buildingPanelTransform, Craftables.Type.FarmComputer);
-        // CreateButton("Furnace", "Buildings/Placeables/Furnace", buildingPanelTransform, Craftables.Type.Furnace);
-        // CreateButton("GeodeCrusher", "Buildings/Placeables/GeodeCrusher", buildingPanelTransform, Craftables.Types.GeodeCrusher);
-        // CreateButton("Hopper", "Buildings/Placeables/Hopper", buildingPanelTransform, Craftables.Types.Hopper);
-        // CreateButton("Keg", "Buildings/Placeables/Keg", buildingPanelTransform, Craftables.Types.Keg);
-        // CreateButton("LightningRod", "Buildings/Placeables/LightningRod", buildingPanelTransform, Craftables.Types.LightningRod);
-        // CreateButton("Loom", "Buildings/Placeables/Loom", buildingPanelTransform, Craftables.Types.Loom);
-        // CreateButton("MayonnaiseMachine", "Buildings/Placeables/MayonnaiseMachine", buildingPanelTransform, Craftables.Types.MayonnaiseMachine);
-        // CreateButton("MiniObelisk", "Buildings/Placeables/MiniObelisk", buildingPanelTransform, Craftables.Types.MiniObelisk);
-        // CreateButton("OilMaker", "Buildings/Placeables/OilMaker", buildingPanelTransform, Craftables.Types.OilMaker);
-        // CreateButton("PreservesJar", "Buildings/Placeables/PreservesJar", buildingPanelTransform, Craftables.Types.PreservesJar);
-        // CreateButton("RecyclingMachine", "Buildings/Placeables/RecyclingMachine", buildingPanelTransform, Craftables.Types.RecyclingMachine);
-        // CreateButton("SeedMaker", "Buildings/Placeables/SeedMaker", buildingPanelTransform, Craftables.Types.SeedMaker);
-        // CreateButton("SlimeEggPress", "Buildings/Placeables/SlimeEggPress", buildingPanelTransform, Craftables.Types.SlimeEggPress);
-        // CreateButton("SlimeIncubator", "Buildings/Placeables/SlimeIncubator", buildingPanelTransform, Craftables.Types.SlimeIncubator);
-        // CreateButton("SolarPanel", "Buildings/Placeables/SolarPanel", buildingPanelTransform, Craftables.Types.SolarPanel);
-        // CreateButton("WormBin", "Buildings/Placeables/WormBin", buildingPanelTransform, Craftables.Types.WormBin);
-        GameObject.FindWithTag("Panel").transform.GetChild(1).gameObject.SetActive(false);
+        AddBuildingButtonsForPanel(content.transform);
 
         //Action Buttons
         GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.PLACE); });
         GameObject.FindWithTag("DeleteButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.DELETE); });
         GameObject.FindWithTag("PickupButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.EDIT); });
-
-        //Floor Type Buttons
-        Transform floorBarTransform = GameObject.FindWithTag("FloorSelectBar").transform.GetChild(0).GetChild(0);
-        // CreateButton("WoodFloor", "Floors/WoodFloor", floorBarTransform, Floor.Types.WOOD_FLOOR);
-        // CreateButton("RusticPlankFloor", "Floors/RusticPlankFloor", floorBarTransform, Floor.Types.RUSTIC_PLANK_FLOOR);
-        // CreateButton("StrawFloor", "Floors/StrawFloor", floorBarTransform, Floor.Types.STRAW_FLOOR);
-        // CreateButton("WeatheredFloor", "Floors/WeatheredFloor", floorBarTransform, Floor.Types.WEATHERED_FLOOR);
-        // CreateButton("CrystalFloor", "Floors/CrystalFloor", floorBarTransform, Floor.Types.CRYSTAL_FLOOR);
-        // CreateButton("StoneFloor", "Floors/StoneFloor", floorBarTransform, Floor.Types.STONE_FLOOR);
-        // CreateButton("StoneWalkwayFloor", "Floors/StoneWalkwayFloor", floorBarTransform, Floor.Types.STONE_WALKWAY_FLOOR);
-        // CreateButton("BrickFloor", "Floors/BrickFloor", floorBarTransform, Floor.Types.BRICK_FLOOR);
-        // CreateButton("WoodPath", "Floors/WoodPath", floorBarTransform, Floor.Types.WOOD_PATH);
-        // CreateButton("GravelPath", "Floors/GravelPath", floorBarTransform, Floor.Types.GRAVEL_PATH);
-        // CreateButton("CobblestonePath", "Floors/CobblestonePath", floorBarTransform, Floor.Types.COBBLESTONE_PATH);
-        // CreateButton("SteppingStonePath", "Floors/SteppingStonePath", floorBarTransform, Floor.Types.STEPPING_STONE_PATH);
-        // CreateButton("CrystalPath", "Floors/CrystalPath", floorBarTransform, Floor.Types.CRYSTAL_PATH);
-        // CreateButton("WoodFence", "Fences/WoodFence", floorBarTransform, Fence.Types.Wood);
-        // CreateButton("HardwoodFence", "Fences/HardwoodFence", floorBarTransform, Fence.Types.Hardwood);
-        // CreateButton("IronFence", "Fences/IronFence", floorBarTransform, Fence.Types.Iron);
-        // CreateButton("StoneFence", "Fences/StoneFence", floorBarTransform, Fence.Types.Stone);
-        // CreateButton("Parsnip", "Fences/StoneFence", floorBarTransform, Crop.Types.Parsnip);
-        // CreateButton("Pumpkin", "Fences/StoneFence", floorBarTransform, Crop.Types.Pumpkin);
         
     }
-
-    private IEnumerator RemoveComponentNextFrame(Component component){
-        yield return null; // wait until the next frame
-        Destroy(component);
-    }
-
-    // private 
 
     public void CreateButtonsForBuilding(Building building){
         ButtonTypes[] buttonTypes = building.BuildingInteractions;
@@ -240,40 +158,46 @@ public class ButtonController : MonoBehaviour{
         }
     }
 
-    // private void AddAnimalMenuObject(Button button, Building building){
-    //     //Animal Add
-    //     GameObject animalMenuPrefab = building.GetType() switch{
-    //         Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
-    //         Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
-    //         _ => throw new ArgumentException("This should never happen")
-    //     };
-    //     //GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
-    //     GameObject animalMenu = Instantiate(animalMenuPrefab);
-    //     animalMenu.transform.SetParent(button.transform);
-    //     Vector3 animalMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
-    //     animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
-    //     animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-    //     animalMenu.SetActive(false);
-    //     GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
-    //     IAnimalHouse animalHouse = building as IAnimalHouse;
-    //     for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++){
-    //         Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-    //         AddHoverEffect(addAnimalButton);
-    //         addAnimalButton.onClick.AddListener(() => {
-    //             animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
-    //         });
-    //     }
+    private void AddBuildingButtonsForPanel(Transform BuildingContentTransform){
+        var buildingType = typeof(Building);
+        var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
+        foreach (var type in allTypes){
+            if (type == typeof(House)) continue; //these 2 should not be available to build
+            if (type == typeof(Greenhouse)) continue;
+            if (typesThatShouldBeInCraftables.Contains(type)) continue; //if its not any of these dont add it
+            GameObject temp = new();
+            Building buildingTemp = (Building) temp.AddComponent(type);
+            GameObject button = buildingTemp.CreateButton();
+            button.transform.SetParent(BuildingContentTransform);
+            button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+            Destroy(temp);
+        }
+    }
 
-    //     //Animal Remove
-    //     GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
-    //     GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
-    //     animalInBuilding.transform.SetParent(button.transform);
-    //     Vector3 animalInBuildingMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
-    //     animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
-    //     animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-    //     animalInBuilding.SetActive(false);
-        
-    // }
+    private void AddCraftablesButtonsForPanel(Transform BuildingContentTransform){
+        var buildingType = typeof(Building);
+        var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
+        foreach (var type in allTypes){
+            if (type == typeof(House)) continue; //these 2 should not be available to build
+            if (type == typeof(Greenhouse)) continue;
+            if (!typesThatShouldBeInCraftables.Contains(type)) continue; //only add craftables
+            if (type == typeof(Craftables)){
+                GameObject tempCraftables = new("CraftablesTypes");
+                GameObject[] buttons = tempCraftables.AddComponent<Craftables>().CreateButtonsForAllTypes();
+                foreach (GameObject craftableButton in buttons){
+                    craftableButton.transform.SetParent(BuildingContentTransform);
+                    craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+                }
+                Destroy(tempCraftables);
+            }
+            GameObject temp = new();
+            Building buildingTemp = (Building) temp.AddComponent(type);
+            GameObject button = buildingTemp.CreateButton();
+            button.transform.SetParent(BuildingContentTransform);
+            button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+            Destroy(temp);
+        }
+    }
 
     private void AddFishMenuObject(Button button, Building building){
         GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");

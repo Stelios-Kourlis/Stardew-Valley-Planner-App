@@ -56,7 +56,7 @@ public class MultipleTypeBuilding<T> where T : Enum{
         List<GameObject> buttons = new();
         foreach (T type in Enum.GetValues(typeof(T))){
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-            button.name = $"{type}Button";
+            button.name = $"{type}";
             button.GetComponent<Image>().sprite = Atlas.GetSprite($"{type}");
 
             Type buildingType = Building.GetType();

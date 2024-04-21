@@ -23,21 +23,8 @@ public class InputHandler : MonoBehaviour {
     BuildingController buildingController;
     //bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
-    // Tilemap buildingPreviewTilemap, buildingBasePreviewTilemap;
 
     void Start() {
-        // Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        // redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        // redTile.sprite = redTileSprite;
-
-        // Sprite greenTileSprite = Sprite.Create(Resources.Load("GreenTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        // greenTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        // greenTile.sprite = greenTileSprite;
-
-        // GameObject[] tilemaps = GameObject.FindGameObjectsWithTag("MouseTileMap");
-        // buildingPreviewTilemap = tilemaps[0].GetComponent<Tilemap>(); //the translucent version of the building
-        // buildingBasePreviewTilemap = tilemaps[1].GetComponent<Tilemap>(); //the red/green tiles representing the structure's base and follow the mouse
-
         buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
         SetCursor(CursorType.Default);
     }
@@ -71,8 +58,6 @@ public class InputHandler : MonoBehaviour {
             GetMapController().ToggleAllCoordinates();
             GetNotificationManager().SendNotification("Toggled coordinates visibility");
         }
-
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GameObject.FindGameObjectWithTag("SettingsButton").GetComponent<SettingsButton>().ToggleSettingsModal();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) buildingController.Save();
 

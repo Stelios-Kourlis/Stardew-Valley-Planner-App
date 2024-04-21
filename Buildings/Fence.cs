@@ -92,7 +92,7 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
         foreach (Types type in Enum.GetValues(typeof(Types))){
             if ((int)(object)type == 0) continue; // skip the first element (None)
             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-            button.name = $"{type}Button";
+            button.name = $"{type}";
             button.GetComponent<Image>().sprite = Atlas.GetSprite($"{type}Fence0");
 
             Type buildingType = GetType();
