@@ -22,9 +22,9 @@ public interface IMultipleTypeBuilding<T> where T : Enum{
 
 public interface IAnimalHouse{
     // AnimalHouse AnimalHouseComponent {get;}
-    List<Animals> AnimalsInBuilding {get;}
-    void AddAnimal(Animals animal);
-    void RemoveAnimal(Animals animal);
+    List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding {get;}
+    bool AddAnimal(Animals animal);
+    void ToggleAnimalMenu();
 }
 
 public interface IRangeEffectBuilding{

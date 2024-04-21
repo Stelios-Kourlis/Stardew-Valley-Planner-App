@@ -7,7 +7,7 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using System.Linq;
 
-public class JunimoHut : Building, IRangeEffectBuilding {//todo add range interface
+public class JunimoHut : Building, IRangeEffectBuilding {
 
     private Tile greenTile;
     public override string TooltipMessage => "";

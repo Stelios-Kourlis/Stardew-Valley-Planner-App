@@ -57,7 +57,7 @@ public class ButtonController : MonoBehaviour{
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
 
         Transform buildingPanelContent = GameObject.FindGameObjectWithTag("Panel").transform.GetChild(0).GetChild(0);
-        foreach (var type in allTypes){//todo problem with silo
+        foreach (var type in allTypes){
             if (type == typeof(House)) continue;
             if (type == typeof(Greenhouse)) continue;
             // Debug.Log(type);
@@ -232,11 +232,8 @@ public class ButtonController : MonoBehaviour{
             case ButtonTypes.ADD_ANIMAL:
                 button.onClick.AddListener(() => { 
                     if (building is IAnimalHouse animalBuilding){
-                        // animalBuilding;
+                        animalBuilding.ToggleAnimalMenu();
                     }
-                    // bool isObjectActive =  button.transform.GetChild(0).gameObject.activeInHierarchy;
-                    // button.transform.GetChild(0).gameObject.SetActive(!isObjectActive);
-                    // button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
                  });
                 break;
             default:
@@ -244,40 +241,40 @@ public class ButtonController : MonoBehaviour{
         }
     }
 
-    private void AddAnimalMenuObject(Button button, Building building){
-        //Animal Add
-        GameObject animalMenuPrefab = building.GetType() switch{
-            Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
-            Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
-            _ => throw new ArgumentException("This should never happen")
-        };
-        //GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
-        GameObject animalMenu = Instantiate(animalMenuPrefab);
-        animalMenu.transform.SetParent(button.transform);
-        Vector3 animalMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
-        animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
-        animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-        animalMenu.SetActive(false);
-        GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
-        IAnimalHouse animalHouse = building as IAnimalHouse;
-        for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++){
-            Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-            AddHoverEffect(addAnimalButton);
-            addAnimalButton.onClick.AddListener(() => {
-                animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
-            });
-        }
+    // private void AddAnimalMenuObject(Button button, Building building){
+    //     //Animal Add
+    //     GameObject animalMenuPrefab = building.GetType() switch{
+    //         Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
+    //         Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
+    //         _ => throw new ArgumentException("This should never happen")
+    //     };
+    //     //GameObject animalMenuPrefab = Resources.Load<GameObject>("UI/BarnAnimalMenu");
+    //     GameObject animalMenu = Instantiate(animalMenuPrefab);
+    //     animalMenu.transform.SetParent(button.transform);
+    //     Vector3 animalMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 4);
+    //     animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
+    //     animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+    //     animalMenu.SetActive(false);
+    //     GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
+    //     IAnimalHouse animalHouse = building as IAnimalHouse;
+    //     for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++){
+    //         Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+    //         AddHoverEffect(addAnimalButton);
+    //         addAnimalButton.onClick.AddListener(() => {
+    //             animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
+    //         });
+    //     }
 
-        //Animal Remove
-        GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
-        GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
-        animalInBuilding.transform.SetParent(button.transform);
-        Vector3 animalInBuildingMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
-        animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
-        animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-        animalInBuilding.SetActive(false);
+    //     //Animal Remove
+    //     GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
+    //     GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
+    //     animalInBuilding.transform.SetParent(button.transform);
+    //     Vector3 animalInBuildingMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y + 1);
+    //     animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
+    //     animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+    //     animalInBuilding.SetActive(false);
         
-    }
+    // }
 
     private void AddFishMenuObject(Button button, Building building){
         GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");

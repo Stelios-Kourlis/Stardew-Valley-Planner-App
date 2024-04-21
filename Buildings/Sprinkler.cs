@@ -10,7 +10,7 @@ using static Utility.SpriteManager;
 using UnityEngine.UI;
 using System.Linq;
 
-public class Sprinkler : Building, IMultipleTypeBuilding<Sprinkler.Types>, IRangeEffectBuilding{//todo maybe switch addons and types so it displayer on type bar
+public class Sprinkler : Building, IMultipleTypeBuilding<Sprinkler.Types>, IRangeEffectBuilding{
 
     public enum Types{
         Normal,

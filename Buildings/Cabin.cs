@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 
 public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types> {
 
-    public enum Types{//todo add types
+    public enum Types{
         Wood,
         Plank,
         Stone,

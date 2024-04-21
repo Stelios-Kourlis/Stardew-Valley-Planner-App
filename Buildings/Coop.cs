@@ -1,163 +1,147 @@
-// using System.Collections;
-// using System.Collections.Generic;
-// using System.Linq;
-// using UnityEngine;
-// using UnityEngine.Tilemaps;
-// using UnityEngine.U2D;
-// using UnityEngine.UI;
-// using static Utility.BuildingManager;
-// using static Utility.ClassManager;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+using UnityEngine.U2D;
+using UnityEngine.UI;
+using static Utility.BuildingManager;
+using static Utility.ClassManager;
 
-public class Coop /*: Building, ITieredBuilding, IAnimalHouse*/ {
-//     private SpriteAtlas animalAtlas;
-//     private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
-//     private List<KeyValuePair<Animals, GameObject>> animals = new List<KeyValuePair<Animals, GameObject>>();
-//     private int animalCapacity;
+public class Coop : Building, ITieredBuilding, IAnimalHouse {
+    public override string TooltipMessage => "Right Click For More Options";
+    public int Tier => TieredBuildingComponent.Tier;
+    public AnimalHouse AnimalHouseComponent {get; private set;}
+    public TieredBuilding TieredBuildingComponent {get; private set;}
 
-//     public override string TooltipMessage => "Right Click For More Options";
+    public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding => AnimalHouseComponent.AnimalsInBuilding;
+    public override void OnAwake(){
+        BaseHeight = 3;
+        BuildingInteractions = new ButtonTypes[]{
+            ButtonTypes.TIER_ONE,
+            ButtonTypes.TIER_TWO,
+            ButtonTypes.TIER_THREE,
+            ButtonTypes.ENTER,
+            ButtonTypes.PAINT,
+            ButtonTypes.ADD_ANIMAL
+        };
+        TieredBuildingComponent = new TieredBuilding(this, 3);
+        AnimalHouseComponent = new AnimalHouse(this);
+        SetTier(1);
+        base.OnAwake();
+    }
 
-//     // public int Tier {get; private set;}
-//     // public int MaxTier { get; private set;}
-//     // protected SpriteAtlas Atlas { get; private set;}
-//     int ITieredBuilding.Tier { get;  set;}
+    public override void Place(Vector3Int position){
+        base.Place(position);
+        AnimalHouseComponent.AddAnimalMenuObject();
+    }
 
-//     int ITieredBuilding.MaxTier => 3;
+    public void SetTier(int tier){
+        TieredBuildingComponent.SetTier(tier);
+        AnimalHouseComponent.UpdateMaxAnimalCapacity(tier);
 
-//     SpriteAtlas ITieredBuilding.Atlas { get; set;}
+        //Update Animals
+        List<KeyValuePair<Animals, GameObject>> animalsToRemove = new();
 
-//     public override void OnAwake(){
-//         baseHeight = 3;
-//         buildingInteractions = new ButtonTypes[]{
-//             ButtonTypes.TIER_ONE,
-//             ButtonTypes.TIER_TWO,
-//             ButtonTypes.TIER_THREE,
-//             ButtonTypes.ENTER,
-//             ButtonTypes.PAINT,
-//             ButtonTypes.ADD_ANIMAL
-//         };
-//         base.OnAwake();
-//         animalAtlas = Resources.Load("CoopAnimalsAtlas") as SpriteAtlas;
-//         animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
-//     }
+        string animalsRemoved = GetRemovedAnimals();
+        if (tier < 2) animalsToRemove.AddRange(AnimalsInBuilding.Where(animal => animal.Key == Animals.Duck || animal.Key == Animals.VoidChicken || animal.Key == Animals.Dinosaur || animal.Key == Animals.GoldenChicken));
+        if (tier < 3) animalsToRemove.AddRange(AnimalsInBuilding.Where(animal => animal.Key == Animals.Rabbit));
+        if (animalsToRemove.Count != 0 ) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}");
 
-//     public override void ChangeTier(int tier){
-//         ChangeTier(tier);
+        foreach (var pair in animalsToRemove){
+                Destroy(pair.Value);
+                AnimalsInBuilding.Remove(pair);
+            }
 
-//         //Update Animals
-//         animalCapacity = 4 * tier;
-//         List<KeyValuePair<Animals, GameObject>> animalsToRemove = new List<KeyValuePair<Animals, GameObject>>();
+        if (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}");
+        while (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity){
+            Destroy(AnimalsInBuilding.Last().Value);
+            AnimalsInBuilding.Remove(AnimalsInBuilding.Last());
+        }
+    }
 
-//         string animalsRemoved = GetRemovedAnimals();
-//         if (tier < 2) animalsToRemove.AddRange(animals.Where(animal => animal.Key == Animals.Duck || animal.Key == Animals.VoidChicken || animal.Key == Animals.Dinosaur || animal.Key == Animals.GoldenChicken));
-//         if (tier < 3) animalsToRemove.AddRange(animals.Where(animal => animal.Key == Animals.Rabbit));
-//         if (animalsToRemove.Count != 0 ) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}");
+    public void ToggleAnimalMenu() => AnimalHouseComponent.ToggleAnimalMenu();
 
-//         foreach (var pair in animalsToRemove){
-//                 Destroy(pair.Value);
-//                 animals.Remove(pair);
-//             }
+    private string GetRemovedAnimals(){
+        int rabbitCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.Rabbit);
+        string rabbitsRemoved = rabbitCount > 0 ? $"{rabbitCount} Rabbit" : "";
+        if (rabbitCount > 1) rabbitsRemoved += "s";
+        rabbitsRemoved += ",";
 
-//         if (animals.Count > animalCapacity) GetNotificationManager().SendNotification($"Removed {animals.Count - animalCapacity} animals that exceed the new capacity of {GetType()}");
-//         while (animals.Count > animalCapacity){
-//             Destroy(animals.Last().Value);
-//             animals.Remove(animals.Last());
-//         }
+        int duckCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.Duck);
+        string ducksRemoved = duckCount > 0 ? $"{duckCount} Duck" : "";
+        if (duckCount > 1) ducksRemoved += "s";
+        ducksRemoved += ",";
 
-//         if (buttonParent == null) return;
-//         buttonParent.transform.GetChild(5).GetChild(1).GetComponent<RectTransform>().sizeDelta = new Vector2(620, 100 * Tier + 100);
-//         buttonParent.transform.GetChild(5).GetChild(1).GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{animalCapacity}");
-//         buttonParent.transform.GetChild(5).GetChild(1).GetChild(0).GetComponent<RectTransform>().sizeDelta= new Vector2(580, 100 * Tier + 100 - 50);
-//     }
+        int voidChickenCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.VoidChicken);
+        string voidChickensRemoved = voidChickenCount > 0 ? $"{voidChickenCount} Void Chicken" : "";
+        if (voidChickenCount > 1) voidChickensRemoved += "s";
+        voidChickensRemoved += ",";
 
-//     private string GetRemovedAnimals(){
-//         int rabbitCount = animals.Count(animal => animal.Key == Animals.Rabbit);
-//         string rabbitsRemoved = rabbitCount > 0 ? $"{rabbitCount} Rabbit" : "";
-//         if (rabbitCount > 1) rabbitsRemoved += "s";
-//         rabbitsRemoved += ",";
+        int dinosaurCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.Dinosaur);
+        string dinosaursRemoved = dinosaurCount > 0 ? $"{dinosaurCount} Dinosaur" : "";
+        if (dinosaurCount > 1) dinosaursRemoved += "s";
+        dinosaursRemoved += ",";
 
-//         int duckCount = animals.Count(animal => animal.Key == Animals.Duck);
-//         string ducksRemoved = duckCount > 0 ? $"{duckCount} Duck" : "";
-//         if (duckCount > 1) ducksRemoved += "s";
-//         ducksRemoved += ",";
+        int goldenChickenCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.GoldenChicken);
+        string goldenChickensRemoved = goldenChickenCount > 0 ? $"{goldenChickenCount} Golden Chicken" : "";
+        if (goldenChickenCount > 1) goldenChickensRemoved += "s";
 
-//         int voidChickenCount = animals.Count(animal => animal.Key == Animals.VoidChicken);
-//         string voidChickensRemoved = voidChickenCount > 0 ? $"{voidChickenCount} Void Chicken" : "";
-//         if (voidChickenCount > 1) voidChickensRemoved += "s";
-//         voidChickensRemoved += ",";
+        return $"{rabbitsRemoved} {ducksRemoved} {voidChickensRemoved} {dinosaursRemoved} {goldenChickensRemoved}";
+    }
 
-//         int dinosaurCount = animals.Count(animal => animal.Key == Animals.Dinosaur);
-//         string dinosaursRemoved = dinosaurCount > 0 ? $"{dinosaurCount} Dinosaur" : "";
-//         if (dinosaurCount > 1) dinosaursRemoved += "s";
-//         dinosaursRemoved += ",";
+    public override List<MaterialInfo> GetMaterialsNeeded(){
+        return Tier switch{
+            1 => new List<MaterialInfo>{
+                new(4_000, Materials.Coins),
+                new(300, Materials.Wood),
+                new(100, Materials.Stone)
+            },
+            2 => new List<MaterialInfo>{
+                new(4_000 + 10_000, Materials.Coins),
+                new(300 + 400, Materials.Wood),
+                new(100 + 150, Materials.Stone)
+            },
+            3 => new List<MaterialInfo>{
+                new(4_000 + 10_000 + 20_000, Materials.Coins),
+                new(300 + 400 + 500, Materials.Wood),
+                new(100 + 150 + 200, Materials.Stone)
+            },
+            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
+        };
+    }
 
-//         int goldenChickenCount = animals.Count(animal => animal.Key == Animals.GoldenChicken);
-//         string goldenChickensRemoved = goldenChickenCount > 0 ? $"{goldenChickenCount} Golden Chicken" : "";
-//         if (goldenChickenCount > 1) goldenChickensRemoved += "s";
+    public override string GetBuildingData(){//todo animal data
+        return base.GetBuildingData() + $"|{Tier}";
+    }
 
-//         return $"{rabbitsRemoved} {ducksRemoved} {voidChickensRemoved} {dinosaursRemoved} {goldenChickensRemoved}";
-//     }
+    public override void RecreateBuildingForData(int x, int y, params string[] data){
+        OnAwake();
+        Place(new Vector3Int(x,y,0));
+        SetTier(int.Parse(data[0]));
+    }
 
-//     public override List<MaterialInfo> GetMaterialsNeeded(){
-//         return Tier switch{
-//             1 => new List<MaterialInfo>{
-//                 new MaterialInfo(4_000, Materials.Coins),
-//                 new MaterialInfo(300, Materials.Wood),
-//                 new MaterialInfo(100, Materials.Stone)
-//             },
-//             2 => new List<MaterialInfo>{
-//                 new MaterialInfo(4_000 + 10_000, Materials.Coins),
-//                 new MaterialInfo(300 + 400, Materials.Wood),
-//                 new MaterialInfo(100 + 150, Materials.Stone)
-//             },
-//             3 => new List<MaterialInfo>{
-//                 new MaterialInfo(4_000 + 10_000 + 20_000, Materials.Coins),
-//                 new MaterialInfo(300 + 400 + 500, Materials.Wood),
-//                 new MaterialInfo(100 + 150 + 200, Materials.Stone)
-//             },
-//             _ => throw new System.ArgumentException($"Invalid tier {Tier}")
-//         };
-//     }
+    public bool AddAnimal(Animals animal){
+        if (!AnimalHouseComponent.AddAnimal(animal)) return false;
+        List<Animals> allowedAnimals = new() { Animals.Chicken};
+        if (Tier >= 2) allowedAnimals.AddRange( new List<Animals>{Animals.Duck, Animals.VoidChicken, Animals.Dinosaur, Animals.GoldenChicken});
+        if (Tier == 3) allowedAnimals.Add(Animals.Rabbit);
+        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Animal {animal} is not allowed in a level {Tier} coop"); return false;}
+        AddAnimalButton(animal);
+        return true;
+    }
 
-//     public override string GetBuildingData(){
-//         return base.GetBuildingData() + $"|{Tier}";
-//     }
-
-//     public override void RecreateBuildingForData(int x, int y, params string[] data){
-//         OnAwake();
-//         Place(new Vector3Int(x,y,0));
-//         ChangeTier(int.Parse(data[0]));
-//     }
-
-//     public void AddAnimal(Animals animal){
-//         List<Animals> allowedAnimals = new List<Animals>{Animals.Chicken};
-//         if (Tier >= 2) allowedAnimals.AddRange( new List<Animals>{Animals.Duck, Animals.VoidChicken, Animals.Dinosaur, Animals.GoldenChicken});
-//         if (Tier == 3) allowedAnimals.Add(Animals.Rabbit);
-//         if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Animal {animal} is not allowed in a level {Tier} coop"); return;}
-//         if (animals.Count >= animalCapacity) {GetNotificationManager().SendNotification($"Coop is full ({animals.Count}/{animalCapacity}), cannot add {animal}"); return;}
-//         AddAnimalButton(animal);
-//     }
-
-//     private void AddAnimalButton(Animals animal){
-//         buttonParent.transform.GetChild(5);
-//         GameObject button = new GameObject(animal.ToString());
-//         animals.Add(new KeyValuePair<Animals, GameObject>(animal, button));
-//         button.transform.SetParent(buttonParent.transform.GetChild(5).GetChild(1).GetChild(0));
-//         button.AddComponent<Image>().sprite = animalAtlas.GetSprite(animal.ToString());
-//         button.AddComponent<Button>().onClick.AddListener(() => {
-//             animals.Remove(new KeyValuePair<Animals, GameObject>(animal, button));
-//             Destroy(button);
-//         });
-//         AddHoverEffect(button.GetComponent<Button>());
-//         button.transform.localScale = new Vector3(1, 1);
-//     }
-
-//     void ITieredBuilding.OnAwake()
-//     {
-//         throw new System.NotImplementedException();
-//     }
-
-//     void ITieredBuilding.ChangeTier(int tier)
-//     {
-//         throw new System.NotImplementedException();
-//     }
+    private void AddAnimalButton(Animals animal){
+        buttonParent.transform.GetChild(5);
+        GameObject button = new(animal.ToString());
+        AnimalsInBuilding.Add(new KeyValuePair<Animals, GameObject>(animal, button));
+        button.transform.SetParent(buttonParent.transform.GetChild(5).GetChild(1).GetChild(0));
+        button.AddComponent<Image>().sprite = AnimalHouseComponent.AnimalAtlas.GetSprite(animal.ToString());
+        button.AddComponent<Button>().onClick.AddListener(() => {
+            AnimalsInBuilding.Remove(new KeyValuePair<Animals, GameObject>(animal, button));
+            Destroy(button);
+        });
+        AddHoverEffect(button.GetComponent<Button>());
+        button.transform.localScale = new Vector3(1, 1);
+    }
 }
