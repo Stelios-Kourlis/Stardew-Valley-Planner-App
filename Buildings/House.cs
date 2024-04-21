@@ -50,14 +50,14 @@ public class House : Building, ITieredBuilding {
                 new(450, Materials.Wood),
             },
             3 => new List<MaterialInfo>{
-                new(60_000, Materials.Coins),
+                new(65_000, Materials.Coins),
                 new(450, Materials.Wood),
-                new(150, Materials.Hardwood),
+                new(100, Materials.Hardwood),
             },
             4 => new List<MaterialInfo>{
                 new(160_000, Materials.Coins),
                 new(450, Materials.Wood),
-                new(150, Materials.Hardwood),
+                new(100, Materials.Hardwood),
             },
             _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };

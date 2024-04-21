@@ -141,7 +141,7 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
                 new(1, Materials.IronBar),
             },
             Types.WormBin => new List<MaterialInfo>(){
-                new(25, Materials.Hardwood),
+                new(15, Materials.Hardwood),
                 new(1, Materials.GoldBar),
                 new(1, Materials.IronBar),
                 new(50, Materials.Fiber)
@@ -209,6 +209,56 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
                 new(10, Materials.BoneFragment),
                 new(3, Materials.Clay),
                 new(20, Materials.Stone),
+            },
+            Types.MushroomLog => new List<MaterialInfo>(){
+                new(10, Materials.Hardwood),
+                new(10, Materials.Moss),
+            },
+            Types.BaitMaker => new List<MaterialInfo>(){
+                new(3, Materials.IronBar),
+                new(3, Materials.Coral),
+                new(20, Materials.SeaUrchin),
+            },
+            Types.Dehydrator => new List<MaterialInfo>(){
+                new(30, Materials.Wood),
+                new(2, Materials.Clay),
+                new(1, Materials.FireQuartz),
+            },
+            Types.HeavyFurnace => new List<MaterialInfo>(){
+                new(2, Materials.IronBar),
+                new(50 + 25 + 25, Materials.Stone), //requires 2 furnaces 25 stone and 20 copper each
+                new(20 + 20, Materials.CopperOre)
+            },
+            Types.StatueOfBlessing => new List<MaterialInfo>(){
+                new(999, Materials.Sap),
+                new(999, Materials.Stone),
+                new(999, Materials.Fiber),
+                new(333, Materials.Moss)
+            },
+            Types.DwarfStatue => new List<MaterialInfo>(){
+                new(20, Materials.IridiumBar),
+            },
+            Types.Anvil => new List<MaterialInfo>(){
+                new(50, Materials.IronBar),
+            },
+            Types.Forge => new List<MaterialInfo>(){
+                new(10, Materials.IronBar),
+                new(5, Materials.DragonTooth),
+                new(10, Materials.GoldBar),
+                new(5, Materials.IridiumBar),
+            },
+            Types.FishSmoker => new List<MaterialInfo>(){
+                new(10, Materials.Hardwood),
+                new(1, Materials.SeaJelly),
+                new(1, Materials.CaveJelly),
+                new(1, Materials.RiverJelly),
+            },
+            Types.DeluxeWormBin => new List<MaterialInfo>(){
+                new(30, Materials.Moss),
+                new(15, Materials.Hardwood),
+                new(1, Materials.GoldBar),
+                new(1, Materials.IronBar),
+                new(50, Materials.Fiber),
             },
             _ => throw new InvalidOperationException("Unexpected craftable type")
         };

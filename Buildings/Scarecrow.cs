@@ -72,7 +72,7 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
             Types.Scarecrow => new List<MaterialInfo>{//Normal scarecrow
                 new(50, Materials.Wood),
                 new(1, Materials.Coal),
-                new(40, Materials.Fiber)
+                new(20, Materials.Fiber)
             },
             Types.Rarecrow1 => new List<MaterialInfo>{//Rarecrows in order
                 new("Purchase at the Stardew Valley Fair for 800 Tokens"),

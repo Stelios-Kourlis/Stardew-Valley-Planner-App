@@ -28,8 +28,9 @@ public class FishPond : Building{
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
         };
-        base.OnAwake();
         atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
+        sprite = atlas.GetSprite("FishPond");
+        base.OnAwake();
         fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");

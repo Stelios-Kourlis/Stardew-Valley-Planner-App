@@ -187,7 +187,6 @@ public class ButtonController : MonoBehaviour{
 
     private void AddButtonListener(ButtonTypes type, Button button, Building building){
         if (type == ButtonTypes.PLACE_FISH) AddFishMenuObject(button, building);
-        // if (type == ButtonTypes.ADD_ANIMAL) AddAnimalMenuObject(button, building);
         switch(type){
             case ButtonTypes.TIER_ONE:
                 button.onClick.AddListener(() => {

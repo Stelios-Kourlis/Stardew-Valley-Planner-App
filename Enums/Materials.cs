@@ -39,4 +39,11 @@ public enum Materials{
     CinderShard,
     Diamond,
     RadioactiveBar,
+    Moss,
+    SeaUrchin,
+    CopperOre,
+    Sap,
+    SeaJelly,
+    RiverJelly,
+    CaveJelly
 }
