@@ -185,12 +185,15 @@ public class BuildingController : MonoBehaviour{
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
     public void Save(){ Utility.BuildingManager.Save(); }
     public void Load(){ Utility.BuildingManager.Load(); }
+    public void SaveAndQuit(){ Save(); Quit(); }
     public void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<RectTransform>().localPosition = new Vector3(0, 1000, 0); }
     public void Quit() {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
-            Application.Quit();
-        #endif
+        GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
+        quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+        // #if UNITY_EDITOR
+        //     UnityEditor.EditorApplication.isPlaying = false;
+        // #else
+        //     Application.Quit();
+        // #endif
     }
 }

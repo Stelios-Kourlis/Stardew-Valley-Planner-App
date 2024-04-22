@@ -6,6 +6,6 @@ public enum Actions {
     PLACE, 
     DELETE, 
     EDIT, 
-    PLACE_PICKED_UP
-    //PLACE_FLOOR
+    PLACE_PICKED_UP,
+    DO_NOTHING
 }

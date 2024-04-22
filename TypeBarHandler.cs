@@ -15,7 +15,6 @@ public class TypeBarHandler : MonoBehaviour {
     private bool typeBarIsOpen = false;
     private bool typeBarisHidden;
     private bool searchBarIsHidden = true;
-    private bool searchBarButtonIsHidden = true;
     private readonly Sprite[] arrowButtons = new Sprite[2];
     private Type lastType;
     private Type currentBuildingType;
@@ -46,7 +45,6 @@ public class TypeBarHandler : MonoBehaviour {
             Destroy(temp);
             for(int i = 0; i<typeBarContent.childCount; i++) Destroy(typeBarContent.GetChild(i).gameObject);
             foreach (GameObject button in buttons){
-                button.name = $"{currentBuildingType}{button.name}";
                 button.transform.SetParent(typeBarContent);
                 button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             }
@@ -132,7 +130,6 @@ public class TypeBarHandler : MonoBehaviour {
             yield return null;
         }
         searchBarIsHidden = true;
-        searchBarButtonIsHidden = false;
         searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
     }
 
