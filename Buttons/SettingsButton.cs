@@ -6,25 +6,40 @@ using static Utility.ClassManager;
 
 public class SettingsButton : MonoBehaviour {
     private GameObject settingsModal;
-    private float moveScale = -10f;
-    void Start() {
+    public bool SettingsModalIsOpen {get; set;} = false;
+    private bool isMoving;
+    private readonly float moveScale = 1000f;
+    void Awake() {
         settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
+        // Debug.Log(settingsModal);
         settingsModal.transform.position = new Vector3(0 + 960, 1100 + 540, 0);
     }
 
     public void ToggleSettingsModal() {
-        StartCoroutine(OnClickCour());
+        if (isMoving) return;
+        if (SettingsModalIsOpen) StartCoroutine(CloseSettingsModal());
+        else StartCoroutine(OpenSettingsModal());
     }
 
-    IEnumerator OnClickCour() {
-        for (int i = 0; i < 110; i++) {
-            settingsModal.transform.position = new Vector3(settingsModal.transform.position.x, settingsModal.transform.position.y + moveScale, settingsModal.transform.position.z);
+    public IEnumerator OpenSettingsModal(){
+        if (settingsModal == null) settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
+        isMoving = true;
+        while (settingsModal.transform.position.y > Screen.height/2){
+            settingsModal.transform.position -= new Vector3(0, moveScale * Time.deltaTime, 0);
             yield return null;
         }
-        moveScale = -moveScale;
-        if (settingsModal.transform.position.y == 540) GetInputHandler().IsSearching = true;
-        else GetInputHandler().IsSearching = false;
-        // Debug.Log(settingsModal.transform.position.y);
-        // Debug.Log(GetInputHandler().IsSearching);
+        SettingsModalIsOpen = true;
+        isMoving = false;
+    }
+
+    public IEnumerator CloseSettingsModal(){
+        if (settingsModal == null) settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
+        isMoving = true;
+        while (settingsModal.transform.position.y < Screen.height + 500){
+            settingsModal.transform.position += new Vector3(0, moveScale * Time.deltaTime, 0);
+            yield return null;
+        }
+        SettingsModalIsOpen = false;
+        isMoving = false;
     }
 }
