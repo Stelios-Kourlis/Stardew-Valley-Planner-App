@@ -30,8 +30,9 @@ public class OnboradingFlow : MonoBehaviour{
     public void StartOnboardingFlow(){
         gameObject.SetActive(true);
         GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
-        Debug.Assert(settingsModal != null, "Settings Modal is null!");
-        StartCoroutine(settingsModal.GetComponent<SettingsModalController>().CloseSettingsModal());
+        GameObject buildingPanel = GameObject.FindGameObjectWithTag("Panel");
+        StartCoroutine(settingsModal.GetComponent<SettingsModalController>().ClosePanel());
+        StartCoroutine(buildingPanel.GetComponent<BuildingMenuController>().ClosePanel());
         Building.CurrentAction = Actions.DO_NOTHING;
         GetInputHandler().SetCursor(InputHandler.CursorType.Default);
 

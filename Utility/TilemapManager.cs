@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using SFB;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -232,10 +234,65 @@ namespace Utility{
                 Vector3 downMiddleWorld = building.Tilemap.CellToWorld(downMiddle);
                 Vector3 upMiddleWorld = building.Tilemap.CellToWorld(upMiddle);
                 result.y = (upMiddleWorld.y + downMiddleWorld.y) / 2;
-            }else result.y = building.Tilemap.CellToWorld(new Vector3Int(0, building.BaseCoordinates[0].y + height / 2, 0)).y;
+            } else result.y = building.Tilemap.CellToWorld(new Vector3Int(0, building.BaseCoordinates[0].y + height / 2, 0)).y;
                 
             
             return result;
+        }
+
+        public static void TakePictureOfMap(){//yes this is chatgpt's code
+            // Save the original camera settings
+            Vector3 originalPosition = Camera.main.transform.position;
+            float originalSize = Camera.main.orthographicSize;
+
+            // Get the bounds of the Tilemap
+            var mapTilemap = GameObject.FindGameObjectWithTag("CurrentMap").GetComponent<Tilemap>();
+            Bounds tilemapBounds = mapTilemap.localBounds;
+
+            // Calculate the new camera position and size
+            Vector3 newPosition = tilemapBounds.center;
+            float newWidth = tilemapBounds.size.x;
+            float newHeight = tilemapBounds.size.y;
+            float aspectRatio = Camera.main.aspect;
+
+            // Set the camera to cover the entire Tilemap
+            Camera.main.transform.position = new Vector3(newPosition.x, newPosition.y, originalPosition.z);
+            Camera.main.orthographicSize = (newWidth / aspectRatio > newHeight) ? newWidth / (2f * aspectRatio) : newHeight / 2f;
+
+            // Create a new render texture
+            RenderTexture renderTexture = new(Screen.width, Screen.height, 24);
+            Camera.main.targetTexture = renderTexture;
+
+            // Render the camera's view to the target texture
+            Camera.main.Render();
+
+            // Create a new texture and read the active RenderTexture into it
+            Texture2D texture = new(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            RenderTexture.active = renderTexture;
+            texture.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+            texture.Apply();
+
+            // Convert the texture to a byte array
+            byte[] bytes = texture.EncodeToPNG();
+
+            // Write the byte array to a file
+            string defaultScreenshotPath = PlayerPrefs.GetString("DefaultScreenshotPath", Application.dataPath);
+            var savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultScreenshotPath, "FarmScreenshot", "png");
+            if (savePath != ""){
+                string directoryPath = Path.GetDirectoryName(savePath);
+                PlayerPrefs.SetString("DefaultScreenshotPath", directoryPath);
+                File.WriteAllBytes(savePath, bytes);
+            }
+
+            // Reset the camera and render texture
+            Camera.main.targetTexture = null;
+            RenderTexture.active = null;
+
+            // Restore the original camera settings
+            Camera.main.transform.position = originalPosition;
+            Camera.main.orthographicSize = originalSize; 
+
+            
         }
 
     }

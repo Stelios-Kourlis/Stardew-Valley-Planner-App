@@ -53,7 +53,7 @@ public class MapController : MonoBehaviour{
         redTile = LoadTile("RedTile");
         greenTile = LoadTile("GreenTile");
 
-        tileMode = TileMode.addingInvalidTiles;
+        tileMode = TileMode.nothing;
     }
 
     public void Update(){//this is for adding invlid tiles and plantable tiles, should never be accesible to the user

@@ -183,9 +183,9 @@ public class BuildingController : MonoBehaviour{
     public void SetCurrentAction(Actions action){ Building.CurrentAction = action; }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
-    public void Save(){ Utility.BuildingManager.Save(); }
-    public void Load(){ Utility.BuildingManager.Load(); }
-    public void SaveAndQuit(){ Save(); Quit(); }
+    public bool Save(){ return Utility.BuildingManager.Save(); }
+    public bool Load(){ return Utility.BuildingManager.Load(); }
+    public void SaveAndQuit(){ if (Save()) Quit(); }//if the user saved then quit
     public void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<RectTransform>().localPosition = new Vector3(0, 1000, 0); }
     public void Quit() {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");

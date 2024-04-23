@@ -13,21 +13,36 @@ using static Utility.ClassManager;
 
 namespace Utility{
     public static class BuildingManager{
-
-        public static void Save() {
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new("Stardew Valley Planner Files", "svp")}, false);
-            if (paths.Length > 0) {
-                using StreamWriter writer = new(paths[0]);
+        
+        /// <summary>
+        /// Save the current state of the buildings to a file
+        /// </summary>
+        /// <returns>true, if the user saved, false if the user cancelled</returns>
+        public static bool Save() {
+            string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
+            string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "FarmScreenshot", "png");;
+            if (savePath != "") {
+                string directoryPath = Path.GetDirectoryName(savePath);
+                PlayerPrefs.SetString("DefaultScreenshotPath", directoryPath);
+                using StreamWriter writer = new(savePath);
                 foreach (Building building in GetBuildingController().GetBuildings()) {
                     writer.WriteLine(building.GetBuildingData());
                 }
             }
+            return savePath != "";
         }
 
-        public static void Load() {
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", "", new ExtensionFilter[]{new("Stardew Valley Planner Files", "svp")}, false);
+        /// <summary>
+        /// Load a farm from a file
+        /// </summary>
+        /// <returns>true, if the user chose a file, false if the user cancelled</returns>
+        public static bool Load() {
+            string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[]{new("Stardew Valley Planner Files", "svp")}, false);
             Type currentType = GetBuildingController().currentBuildingType;
             if (paths.Length > 0) {
+                string directoryPath = Path.GetDirectoryName(paths[0]);
+                PlayerPrefs.SetString("DefaultScreenshotPath", directoryPath);
                 using StreamReader reader = new(paths[0]);
                 GetBuildingController().DeleteAllBuildings(true);
                 GetBuildingController().IsLoadingSave = true;
@@ -38,7 +53,8 @@ namespace Utility{
                 }
                 GetBuildingController().IsLoadingSave = false;
             }
-            GetBuildingController().SetCurrentBuildingType(currentType);
+            GetBuildingController().SetCurrentBuildingType(currentType); 
+            return paths.Length > 0;
         }
 
         public static bool CanBuildingBePlacedThere(Vector3Int position, Building building){

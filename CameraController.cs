@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
-using static Utility.ClassManager;
+using Utility;
 
 public class CameraController : MonoBehaviour {
     private Camera mainCamera;
@@ -34,7 +32,6 @@ public class CameraController : MonoBehaviour {
     }
 
     private void ClampCameraToBounds() {
-        //UpdateCameraBounds();
         Vector3 cameraPosition = mainCamera.transform.position;
 
         float minX = tilemapBounds.min.x + Camera.main.orthographicSize * Camera.main.aspect;
@@ -54,7 +51,7 @@ public class CameraController : MonoBehaviour {
             isMouseDown = true;
             oldMousePosition = Input.mousePosition;
         } else if (Input.GetKeyUp(KeyCode.Mouse2)) {
-             isMouseDown = false;
+            isMouseDown = false;
         }
 
         if (isMouseDown) {
@@ -105,4 +102,8 @@ public class CameraController : MonoBehaviour {
     }
 
     public Vector3 GetPosition() { return mainCamera.transform.position; }
+
+    public void TakePictureOfMap(){
+        TilemapManager.TakePictureOfMap();
+    }
 }

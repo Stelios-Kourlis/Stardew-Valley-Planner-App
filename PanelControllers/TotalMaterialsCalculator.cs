@@ -11,8 +11,6 @@ public class TotalMaterialsCalculator : MonoBehaviour{
 
     const int HEIGHT = 50;
     const int WIDTH = 1200;
-    // const int X_POSITION = -325;
-    // const int STARTING_Y_POSITION = 230;
 
     private readonly List<MaterialInfo> materialsNeeded = new();
     private SpriteAtlas materialAtlas;
