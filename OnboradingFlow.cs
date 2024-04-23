@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utility.ClassManager;
 
 public class OnboradingFlow : MonoBehaviour{
 
@@ -27,9 +28,13 @@ public class OnboradingFlow : MonoBehaviour{
     }
 
     public void StartOnboardingFlow(){
-        StartCoroutine(GameObject.Find("settingsButton").GetComponent<SettingsButton>().CloseSettingsModal());
-        Building.CurrentAction = Actions.DO_NOTHING;
         gameObject.SetActive(true);
+        GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
+        Debug.Assert(settingsModal != null, "Settings Modal is null!");
+        StartCoroutine(settingsModal.GetComponent<SettingsModalController>().CloseSettingsModal());
+        Building.CurrentAction = Actions.DO_NOTHING;
+        GetInputHandler().SetCursor(InputHandler.CursorType.Default);
+
         introText.SetActive(true);
         actionText.SetActive(false);
         settingsAndMaterialsText.SetActive(false);

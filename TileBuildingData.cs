@@ -17,6 +17,7 @@ public class TileBuildingData : MonoBehaviour {
     public void AddInvalidTilesData(MapController.MapTypes farm) {
         List<Vector3Int> tempList = new();
         string path = "Maps/" + farm.ToString();
+        Debug.Log($"Loading Invalid Tiles Data For {path}");
         TextAsset textAsset = Resources.Load<TextAsset>(path);
         string[] tiles = textAsset.text.Split('\n');
         foreach (string tile in tiles) {
@@ -26,15 +27,16 @@ public class TileBuildingData : MonoBehaviour {
             int y = int.Parse(nums[1]);
             int z = int.Parse(nums[2]);
             tempList.Add(new Vector3Int(x, y, z));
-            // Debug.Log("Added " + x + " " + y + " " + z);
         }
         BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
+        buildingController.GetUnavailableCoordinates().Clear();
         foreach (Vector3Int vec in tempList) buildingController.GetUnavailableCoordinates().Add(vec);
     }
 
     public void AddPlantableTilesData(MapController.MapTypes farm) {
         List<Vector3Int> tempList = new();
         string path = "Maps/" + farm.ToString() + "P";
+        Debug.Log($"Loading Plantable Tiles Data For {path}");
         TextAsset textAsset = Resources.Load<TextAsset>(path);
         string[] tiles = textAsset.text.Split('\n');
         foreach (string tile in tiles) {
@@ -47,6 +49,7 @@ public class TileBuildingData : MonoBehaviour {
             // Debug.Log("Added " + x + " " + y + " " + z);
         }
         BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
+        buildingController.GetPlantableCoordinates().Clear();
         foreach (Vector3Int vec in tempList) buildingController.GetPlantableCoordinates().Add(vec);
     }
 

@@ -190,10 +190,13 @@ public class BuildingController : MonoBehaviour{
     public void Quit() {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
         quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-        // #if UNITY_EDITOR
-        //     UnityEditor.EditorApplication.isPlaying = false;
-        // #else
-        //     Application.Quit();
-        // #endif
+    }
+
+    public void QuitApp(){
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }
