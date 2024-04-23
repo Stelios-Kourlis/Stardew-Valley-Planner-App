@@ -96,6 +96,9 @@ public abstract class Building : TooltipableGameObject {
             GetInputHandler().SetCursor(InputHandler.CursorType.Delete);
             DeletePreview();
         }
+        else if (CurrentAction == Actions.DO_NOTHING){
+            HidePreview();
+        }
 
        
         if (Input.GetKeyUp(KeyCode.Mouse0)){
@@ -196,6 +199,10 @@ public abstract class Building : TooltipableGameObject {
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (BaseCoordinates.Contains(currentCell)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = OPAQUE;
+    }
+
+    public void HidePreview(){
+        if (!hasBeenPlaced) gameObject.GetComponent<Tilemap>().ClearAllTiles();
     }
     
     /// <summary>
