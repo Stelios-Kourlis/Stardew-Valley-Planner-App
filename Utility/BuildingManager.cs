@@ -90,7 +90,7 @@ namespace Utility{
         }
 
         public static bool LeftClickShouldRegister(){
-            if (EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name != "TopRightButtons") return true;
+            if (EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name == "TopRightButtons") return true;
             if (EventSystem.current.IsPointerOverGameObject()) return false;
             if (GetSettingsModalController().IsOpen) return false;
             return true;
