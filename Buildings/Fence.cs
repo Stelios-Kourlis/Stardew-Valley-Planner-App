@@ -100,7 +100,7 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 Debug.Log($"Setting current building to {type}");
                 buildingController.SetCurrentBuildingToMultipleTypeBuilding<Types>(buildingType, type);
-                buildingController.SetCurrentAction(Actions.PLACE); 
+                CurrentAction = Actions.PLACE; 
                 });
             buttons.Add(button);
         }

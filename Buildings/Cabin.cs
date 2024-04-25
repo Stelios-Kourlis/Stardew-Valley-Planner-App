@@ -124,7 +124,7 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
             BuildingController buildingController = GetBuildingController();
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
-                buildingController.SetCurrentAction(Actions.PLACE); 
+                CurrentAction = Actions.PLACE; 
                 });
             buttons.Add(button);
         }

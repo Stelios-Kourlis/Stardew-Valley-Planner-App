@@ -176,6 +176,7 @@ public class BuildingController : MonoBehaviour{
     // public Actions GetCurrentAction(){ return currentAction; }
     //public FloorType GetCurrentFloorType(){ return currentFloorType; }
     // public HashSet<Floor> GetFloors(){ return floors; }
+    [Obsolete("Use Building.CurrentAction instead")]
     public void SetCurrentAction(Actions action){ Building.CurrentAction = action; }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor

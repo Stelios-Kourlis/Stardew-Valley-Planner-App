@@ -149,7 +149,7 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBu
             BuildingController buildingController = GetBuildingController();
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
-                buildingController.SetCurrentAction(Actions.PLACE); 
+                CurrentAction = Actions.PLACE;
                 });
             buttons.Add(button);
         }

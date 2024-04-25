@@ -12,6 +12,7 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
     public abstract void OnAwake();
     public abstract void OnUpdate();
     public static Actions ActionBeforeEnteringSettings {get; private set;}
+    public GameObject TooltipGameObject {get; set;}
 
     public void Awake(){
         if (!TryGetComponent(out GraphicRaycaster _)) {gameObject.AddComponent<GraphicRaycaster>();}

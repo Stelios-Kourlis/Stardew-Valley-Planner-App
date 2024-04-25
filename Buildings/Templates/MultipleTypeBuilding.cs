@@ -63,7 +63,7 @@ public class MultipleTypeBuilding<T> where T : Enum{
             BuildingController buildingController = GetBuildingController();
             button.GetComponent<Button>().onClick.AddListener(() => { 
                 buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
-                buildingController.SetCurrentAction(Actions.PLACE); 
+                Building.CurrentAction = Actions.PLACE; 
                 });
             buttons.Add(button);
         }

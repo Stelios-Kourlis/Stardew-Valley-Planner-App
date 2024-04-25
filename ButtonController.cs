@@ -48,9 +48,9 @@ public class ButtonController : MonoBehaviour{
         AddBuildingButtonsForPanel(content.transform);
 
         //Action Buttons
-        GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.PLACE); });
-        GameObject.FindWithTag("DeleteButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.DELETE); });
-        GameObject.FindWithTag("PickupButton").GetComponent<Button>().onClick.AddListener(() => { GetBuildingController().SetCurrentAction(Actions.EDIT); });
+        GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { Building.CurrentAction =Actions.PLACE; });
+        GameObject.FindWithTag("DeleteButton").GetComponent<Button>().onClick.AddListener(() => { Building.CurrentAction =Actions.PLACE; });
+        GameObject.FindWithTag("PickupButton").GetComponent<Button>().onClick.AddListener(() => { Building.CurrentAction =Actions.PLACE; });
         
     }
 

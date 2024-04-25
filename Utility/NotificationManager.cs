@@ -62,18 +62,18 @@ public class NotificationManager : MonoBehaviour{
         OnNotificationChanged();
     }
 
-    public void ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject){
+    public GameObject ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject){
         GameObject tooltipGameObject = Resources.Load("UI/Tooltip") as GameObject;
         tooltipGameObject = Instantiate(tooltipGameObject, GetCanvasGameObject().transform);
         tooltipGameObject.transform.GetChild(0).GetComponent<Text>().text = tooltipableGameObject.TooltipMessage;
         tooltipGameObject.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
         StartCoroutine(MakeTooltipFollowCursor(tooltipableGameObject, tooltipGameObject));
+        return tooltipGameObject;
     }
 
     IEnumerator MakeTooltipFollowCursor(TooltipableGameObject tooltipedGameObjectscript, GameObject tooltip){
         while (true){
-
-            if (tooltipedGameObjectscript.ShowTooltipCondition()){
+            if (tooltipedGameObjectscript.ShowTooltipCondition() && tooltip != null){
                 tooltip.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
                 yield return null;
             }
@@ -104,7 +104,7 @@ public class NotificationManager : MonoBehaviour{
                 yield break;
             }
         }
-        if (tooltipableScript.ShowTooltipCondition()) ShowTooltipOnGameObject(tooltipableScript);
+        if (tooltipableScript.ShowTooltipCondition()) tooltipableScript.TooltipGameObject = ShowTooltipOnGameObject(tooltipableScript);
 
     }
 
