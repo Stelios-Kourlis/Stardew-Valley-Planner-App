@@ -1,5 +1,8 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using Utility;
@@ -16,12 +19,14 @@ public class CameraController : MonoBehaviour {
     private float storedScrollScale, storedMoveScale;
     private bool isMouseDown;
     private Vector3 oldMousePosition;
+    public float blurMultiplier;
     // Start is called before the first frame update
     void Start() {
         isMouseDown = false;
         mainCamera = gameObject.GetComponent<Camera>();
         oldMousePosition = Input.mousePosition;
         UpdateCameraBounds();
+        blurMultiplier = 5;
         //scrollScaleSlider.onValueChanged.AddListener(newScrollScale => { if (scrollScale != 0) scrollScale = newScrollScale; });
         //moveScaleSlider.onValueChanged.AddListener(newMoveScale => { if (moveScale != 0) moveScale = newMoveScale; });
     }
@@ -105,5 +110,25 @@ public class CameraController : MonoBehaviour {
 
     public void TakePictureOfMap(){
         TilemapManager.TakePictureOfMap();
+    }
+
+    /// <summary>
+    /// Add a blur effect to the camera, the blur intensity is determined by the targetPanel's distance from the endPosition
+    /// </summary>
+    /// <param name="targetPanel">The panel that you want the blur to adjust to</param>
+    public IEnumerator BlurBasedOnDistance(GameObject targetPanel, Vector3 blurFocusPosition){
+        PostProcessVolume volume = gameObject.GetComponent<PostProcessVolume>();
+        volume.profile.TryGetSettings(out DepthOfField depthOfField);
+        Vector3 cutOffPoint = new(targetPanel.transform.position.x, Screen.height + 500, 0 );
+        float maxDistance = Vector3.Distance(blurFocusPosition, cutOffPoint);
+
+        while (targetPanel.GetComponent<IToggleablePanel>().IsMoving){
+            float currentDistance = Vector3.Distance(targetPanel.transform.position, blurFocusPosition);
+            float normalizedDistance = Mathf.Clamp01(currentDistance / maxDistance);
+            float blurValue = Mathf.Lerp(0.1f, 5f, normalizedDistance);
+            // Debug.Log(blurValue);
+            depthOfField.focusDistance.value = blurValue;
+            yield return null;
+        }
     }
 }

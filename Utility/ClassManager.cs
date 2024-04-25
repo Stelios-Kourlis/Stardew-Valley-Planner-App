@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 
 namespace Utility{
     public static class ClassManager{
-        public static  BuildingController GetBuildingController(){ return GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>(); }
+        public static BuildingController GetBuildingController(){ return GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>(); }
 
         public static GameObject GetCamera(){ return GameObject.FindGameObjectWithTag("MainCamera"); }
 
@@ -22,6 +22,10 @@ namespace Utility{
         public static NotificationManager GetNotificationManager(){ return GameObject.FindWithTag("LogicComponent").GetComponent<NotificationManager>(); }
 
         public static InputHandler GetInputHandler(){ return GameObject.FindWithTag("LogicComponent").GetComponent<InputHandler>(); }
+
+        public static SettingsModalController GetSettingsModalController(){ return GameObject.FindWithTag("SettingsModal").GetComponent<SettingsModalController>(); }
+
+        public static TotalMaterialsCalculator GetTotalMaterialsCalculator(){ return GameObject.FindWithTag("TotalMaterialsNeededPanel").GetComponent<TotalMaterialsCalculator>(); }
 
         public static bool BuildingHasMoreThanOneBuildingInterface(Building building, Type type){
             List<Type> buildingInterfaces = new(){

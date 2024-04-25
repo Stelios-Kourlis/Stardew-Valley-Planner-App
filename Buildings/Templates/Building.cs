@@ -84,6 +84,7 @@ public abstract class Building : TooltipableGameObject {
         if (BuildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
+        UnityEngine.Debug.Log($"Current Action: {CurrentAction}");
         if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP){
             GetInputHandler().SetCursor(InputHandler.CursorType.Place);
             PlacePreviewWrapper(currentCell);
@@ -97,12 +98,13 @@ public abstract class Building : TooltipableGameObject {
             DeletePreview();
         }
         else if (CurrentAction == Actions.DO_NOTHING){
+            GetInputHandler().SetCursor(InputHandler.CursorType.Default);
             HidePreview();
         }
 
        
         if (Input.GetKeyUp(KeyCode.Mouse0)){
-            if (EventSystem.current.IsPointerOverGameObject() && EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name != "TopRightButtons") return;
+            if (!LeftClickShouldRegister()) return;
             
             if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
             else if (CurrentAction == Actions.EDIT) PickupWrapper();

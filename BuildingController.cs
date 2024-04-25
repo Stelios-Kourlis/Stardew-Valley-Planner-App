@@ -145,10 +145,6 @@ public class BuildingController : MonoBehaviour{
         }
     }
 
-    public void HideTotalMaterialsNeeded(){
-        GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel").GetComponent<RectTransform>().localPosition = new Vector3(0, 1000, 0);
-    }
-
     public void PlaceSavedBuilding(string buildingData){
         string[] data = buildingData.Split('|');
         Type type = Type.GetType(data[0]);
@@ -157,8 +153,8 @@ public class BuildingController : MonoBehaviour{
         GameObject go = new(type.Name);
         go.transform.parent = transform;
         Building building = go.AddComponent(type) as Building;
-        building?.OnAwake();
-        building?.RecreateBuildingForData(x, y, data.Skip(3).ToArray());
+        if (building != null) building.OnAwake();
+        if (building != null) building.RecreateBuildingForData(x, y, data.Skip(3).ToArray());
     }
 
     public void DeleteBuilding(int buildingUID){

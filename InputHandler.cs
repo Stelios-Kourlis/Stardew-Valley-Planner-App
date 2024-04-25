@@ -37,7 +37,7 @@ public class InputHandler : MonoBehaviour {
             quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GameObject.FindGameObjectWithTag("SettingsModal").GetComponent<SettingsModalController>().TogglePanel();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GetSettingsModalController().TogglePanel();
 
         if (IsSearching) return; //the 2 above should always be available, rest should be disabled when searching
 

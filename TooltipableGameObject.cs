@@ -7,16 +7,14 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.ClassManager; 
 
-public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandler{
+public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler{
     public abstract string TooltipMessage {get;}
     public abstract void OnAwake();
     public abstract void OnUpdate();
-    private GraphicRaycaster graphicRaycaster;
+    public static Actions ActionBeforeEnteringSettings {get; private set;}
 
     public void Awake(){
-        graphicRaycaster = GetComponent<GraphicRaycaster>();
-        if (graphicRaycaster == null){graphicRaycaster = gameObject.AddComponent<GraphicRaycaster>();}
-
+        if (!TryGetComponent(out GraphicRaycaster _)) {gameObject.AddComponent<GraphicRaycaster>();}
         OnAwake();
     }
 
@@ -36,7 +34,18 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
         GetNotificationManager().StartTooltipCountdown(this);
     }
     public void OnPointerEnter(PointerEventData eventData){
+        ActionBeforeEnteringSettings = Building.CurrentAction;
+        Building.CurrentAction = Actions.DO_NOTHING;
+        GetInputHandler().SetCursor(InputHandler.CursorType.Default);
+        if (GetBuildingController().lastBuildingObjectCreated != null) GetBuildingController().lastBuildingObjectCreated.GetComponent<Building>().HidePreview();
         StartTooltipCountdown();
+    }
+
+    public void OnPointerExit(PointerEventData eventData){
+        if (!(Building.CurrentAction == Actions.DO_NOTHING)) return;
+        if (GetSettingsModalController().IsOpen) return ;
+        if (GetTotalMaterialsCalculator().IsOpen) return ;
+        Building.CurrentAction = ActionBeforeEnteringSettings;
     }
 
     public void Update(){

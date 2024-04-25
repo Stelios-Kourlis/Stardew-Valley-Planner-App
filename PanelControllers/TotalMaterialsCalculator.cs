@@ -7,7 +7,7 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class TotalMaterialsCalculator : MonoBehaviour{
+public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
 
     const int HEIGHT = 50;
     const int WIDTH = 1200;
@@ -15,13 +15,17 @@ public class TotalMaterialsCalculator : MonoBehaviour{
     private readonly List<MaterialInfo> materialsNeeded = new();
     private SpriteAtlas materialAtlas;
 
+    public bool IsMoving {get; private set;}
+
+    public bool IsOpen {get; private set;}
+
     public void Start(){
         materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
+        gameObject.transform.position = new Vector3(Screen.width/2, Screen.height + 500, 0);
     }   
 
     public void SumTotalMaterialsNeeded(){
         materialsNeeded.Clear();
-
         foreach (Building building in GetBuildingController().GetBuildings()){
             foreach (MaterialInfo material in building.GetMaterialsNeeded()){
                 if (material.IsSpecial){
@@ -42,7 +46,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
 
     private void DisplayMaterials(){
         GameObject materialsNeededPanel = GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel");
-        materialsNeededPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+        // StartCoroutine(OpenPanel());
         GameObject scrollContent = materialsNeededPanel.transform.GetChild(1).GetChild(0).gameObject;
         int counter = 0;
 
@@ -62,7 +66,7 @@ public class TotalMaterialsCalculator : MonoBehaviour{
             else AddSpecialTextGameObject(material, entry.transform);
             counter++;
         }
-        materialsNeededPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+        // materialsNeededPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
     }
 
     private void AddTextGameObject(MaterialInfo material, Transform parent){
@@ -98,5 +102,54 @@ public class TotalMaterialsCalculator : MonoBehaviour{
         imageGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(HEIGHT, HEIGHT);
         imageGameObject.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f);
         imageGameObject.transform.SetParent(parent);
+    }
+
+    public void CallClosePanelCoroutine(){
+        StartCoroutine(ClosePanel());
+    }
+    public void TogglePanel(){
+        if (IsMoving) return;
+        if (IsOpen) StartCoroutine(ClosePanel());
+        else {
+            SumTotalMaterialsNeeded();
+            StartCoroutine(OpenPanel());
+        }
+    }
+
+    public IEnumerator OpenPanel(){
+        if (IsOpen) yield break;
+        IsMoving = true;
+        IsOpen = true;
+        IToggleablePanel.PanelsCurrentlyOpen++;
+        StartCoroutine(GetSettingsModalController().ClosePanel());
+        if (Building.CurrentAction != Actions.DO_NOTHING){
+            IToggleablePanel.ActionBeforeEnteringSettings = Building.CurrentAction;
+            Building.CurrentAction = Actions.DO_NOTHING;
+        }
+        GetInputHandler().SetCursor(InputHandler.CursorType.Default);
+        GetBuildingController().lastBuildingObjectCreated.GetComponent<Building>().HidePreview();
+        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width/2, Screen.height/2, 0)));// the close to 0,0 the more blur we want
+        while (gameObject.transform.position.y > Screen.height/2){
+            gameObject.transform.position -= new Vector3(0, IToggleablePanel.MOVE_SCALE * Time.deltaTime, 0);
+            yield return null;
+        }
+        gameObject.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
+        IsMoving = false;
+        
+    }
+
+    public IEnumerator ClosePanel(){
+        if (!IsOpen) yield break;
+        IsMoving = true;
+        IsOpen = false;
+        IToggleablePanel.PanelsCurrentlyOpen--;
+        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width/2, Screen.height/2, 0)));// the close to 0,0 the more blur we want
+        while (gameObject.transform.position.y < Screen.height + 500){
+            gameObject.transform.position += new Vector3(0, IToggleablePanel.MOVE_SCALE * Time.deltaTime, 0);
+            yield return null;
+        }
+        IsMoving = false;
+        gameObject.transform.position = new Vector3(Screen.width/2, Screen.height + 500, 0);
+        if (IToggleablePanel.PanelsCurrentlyOpen == 0) Building.CurrentAction = IToggleablePanel.ActionBeforeEnteringSettings;
     }
 }
