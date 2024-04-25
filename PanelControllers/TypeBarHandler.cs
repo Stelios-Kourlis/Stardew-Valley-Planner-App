@@ -93,7 +93,7 @@ public class TypeBarHandler : MonoBehaviour {
     }
 
     IEnumerator CloseBar() {
-        while (gameObject.transform.position.x < Screen.width + gameObject.GetComponent<RectTransform>().rect.width) {
+        while (gameObject.transform.position.x < Screen.width + gameObject.GetComponent<RectTransform>().rect.width + 400) {
             gameObject.transform.position = new Vector3(gameObject.transform.position.x + moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
             yield return null;
         }
@@ -122,7 +122,6 @@ public class TypeBarHandler : MonoBehaviour {
     }
 
     IEnumerator ShowSearchBarButton(){
-        Debug.Log("Opened Search Bar Button");
         Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
         Transform searchBarButton = searchBar.GetChild(0);
         while (searchBarButton.GetComponent<RectTransform>().position.x > Screen.width) {
@@ -130,11 +129,10 @@ public class TypeBarHandler : MonoBehaviour {
             yield return null;
         }
         searchBarIsHidden = true;
-        searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
+        // searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
     }
 
     IEnumerator HideSearchBar(){
-        Debug.Log("Hidden Search Bar");
         Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
         Transform searchBarButton = searchBar.GetChild(0);
         while (searchBarButton.GetComponent<RectTransform>().position.x < Screen.width) {
@@ -142,11 +140,10 @@ public class TypeBarHandler : MonoBehaviour {
             yield return null;
         }
         searchBarIsHidden = true;
-        searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
+        // searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
     }
 
     IEnumerator CloseSearchBar(){
-        Debug.Log("Closed Search Bar");
         Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
         while (searchBar.position.x < Screen.width + searchBar.GetComponent<RectTransform>().rect.width + 50) {
             searchBar.position = new Vector3(searchBar.position.x + moveScale, searchBar.position.y, searchBar.position.z);

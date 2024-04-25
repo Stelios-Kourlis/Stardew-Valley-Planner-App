@@ -9,6 +9,7 @@ using static Utility.TilemapManager;
 using UnityEngine.EventSystems;
 using System.Configuration;
 using System.Linq;
+using UnityEngine.U2D;
 
 
 public class ButtonController : MonoBehaviour{
@@ -94,7 +95,7 @@ public class ButtonController : MonoBehaviour{
             fishIcon.transform.parent = button.transform;
             fishIcon.transform.position = buttonPositionScreen;
             fishIcon.transform.localScale = new Vector3(0.4f,0.4f);
-            fishIcon.AddComponent<Image>().sprite = Resources.Load<Sprite>("Fish/NO_FISH");
+            fishIcon.AddComponent<Image>().sprite = Resources.Load<SpriteAtlas>("Fish/FishAtlas").GetSprite("NO_FISH_OLD");//i prefer the old
         }
         button.GetComponent<RectTransform>().sizeDelta = new Vector2(BUTTON_SIZE, BUTTON_SIZE);
         float buttonScale = 10f/GetCamera().GetComponent<Camera>().orthographicSize;
@@ -104,27 +105,20 @@ public class ButtonController : MonoBehaviour{
     }
 
     private void AddButtonListener(ButtonTypes type, Button button, Building building){
-        if (type == ButtonTypes.PLACE_FISH) AddFishMenuObject(button, building);
         switch(type){
             case ButtonTypes.TIER_ONE:
                 button.onClick.AddListener(() => {
-                    if (building is ITieredBuilding tieredBuilding){
-                        tieredBuilding.SetTier(1);
-                    }
+                    if (building is ITieredBuilding tieredBuilding) tieredBuilding.SetTier(1);
                  });
                 break;
             case ButtonTypes.TIER_TWO:
                 button.onClick.AddListener(() => {
-                    if (building is ITieredBuilding tieredBuilding){
-                        tieredBuilding.SetTier(2);
-                    }
+                    if (building is ITieredBuilding tieredBuilding) tieredBuilding.SetTier(2);
                 });
                 break;
             case ButtonTypes.TIER_THREE:
                 button.onClick.AddListener(() => {
-                    if (building is ITieredBuilding tieredBuilding){
-                        tieredBuilding.SetTier(3);
-                    }
+                    if (building is ITieredBuilding tieredBuilding) tieredBuilding.SetTier(3);
                  });
                 break;
             case ButtonTypes.ENTER:
@@ -134,9 +128,11 @@ public class ButtonController : MonoBehaviour{
                 button.onClick.AddListener(() => { /* Add valid statement here */ });//todo add building painting support
                 break;
             case ButtonTypes.PLACE_FISH:
+                if (building is FishPond fishPond) fishPond.CreateFishMenu();
+                else throw new ArgumentException("Building MUST be fish pond to have this button type");
                 button.onClick.AddListener(() => { 
-                    bool isObjectActive =  button.transform.GetChild(1).gameObject.activeInHierarchy;
-                    button.transform.GetChild(1).gameObject.SetActive(!isObjectActive);
+                    GameObject fishMenu = button.transform.GetChild(1).gameObject;
+                    fishMenu.SetActive(!fishMenu.activeInHierarchy);
                  });
                 break;
             case ButtonTypes.CHANGE_FISH_POND_DECO:
@@ -199,25 +195,25 @@ public class ButtonController : MonoBehaviour{
         }
     }
 
-    private void AddFishMenuObject(Button button, Building building){
-        GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
-        GameObject fishMenu = Instantiate(fishMenuPrefab);
-        fishMenu.transform.SetParent(button.transform);
-        Vector3 fishMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
-        fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
-        fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-        fishMenu.SetActive(false);
-        GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
-        //FishPond fishPond = building as FishPond;
-        for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
-            Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-            AddHoverEffect(fishButton);
-            fishButton.onClick.AddListener(() => {
-                Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
-                //fishPond.SetFishImage(fishType);
-            });
-        }
-    }
+    // private void AddFishMenuObject(Button button, Building building){
+    //     GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
+    //     GameObject fishMenu = Instantiate(fishMenuPrefab);
+    //     fishMenu.transform.SetParent(button.transform);
+    //     Vector3 fishMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
+    //     fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
+    //     fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+    //     fishMenu.SetActive(false);
+    //     GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
+    //     //FishPond fishPond = building as FishPond;
+    //     for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
+    //         Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+    //         AddHoverEffect(fishButton);
+    //         fishButton.onClick.AddListener(() => {
+    //             Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
+    //             // fishPond.SetFishImage(fishType);
+    //         });
+    //     }
+    // }
 
     private Vector3 CalculatePositionOfButton(int numberOfButtons, int buttonNumber, Vector3 middleOfBuildingScreen){
         

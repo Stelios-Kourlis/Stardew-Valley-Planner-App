@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
+using static Utility.BuildingManager;
 using System.Linq;
 
 
@@ -132,6 +133,26 @@ public class FishPond : Building{
         fish = fishType;
     }
 
+    public void CreateFishMenu(){
+        GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
+        GameObject fishMenu = Instantiate(fishMenuPrefab);
+        fishMenu.transform.SetParent(buttonParent.transform.GetChild(0));
+        Vector3 fishMenuPositionWorld = new(Tilemap.CellToWorld(BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(this).y);
+        fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
+        fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        fishMenu.SetActive(false);
+        GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
+        for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
+            Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+            AddHoverEffect(fishButton);
+            fishButton.onClick.AddListener(() => {
+                Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
+                SetFishImage(fishType);
+                Debug.Log($"Set fish to {fishType}");
+            });
+        }
+    }
+
     public void UpdateFishImage(){
         SetFishImage(fish);
     }
@@ -151,5 +172,21 @@ public class FishPond : Building{
         Place(new Vector3Int(x,y,0));
         SetFishImage((Fish) int.Parse(data[1]) );
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{data[0]}")));
+    }
+
+    public override GameObject CreateButton(){
+        GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+        button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+        button.name = $"{GetType()}Button";
+        button.GetComponent<Image>().sprite = atlas.GetSprite("FishPondImage");
+
+        Type buildingType = GetType();
+        BuildingController buildingController = GetBuildingController();
+        button.GetComponent<Button>().onClick.AddListener(() => { 
+                // Debug.Log($"Setting current building to {buildingType}");
+                buildingController.SetCurrentBuildingType(buildingType);
+                Building.CurrentAction = Actions.PLACE; 
+                });
+        return button;
     }
 }

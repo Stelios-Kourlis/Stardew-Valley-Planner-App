@@ -241,10 +241,6 @@ public abstract class Building : TooltipableGameObject {
             hasBeenPickedUp = false;
             CurrentAction = Actions.EDIT;
         }
-
-        // if (this is TieredBuilding tieredBuilding) tieredBuilding.ChangeTier(tieredBuilding.Tier);//todo is this needed?
-
-        // Debug.Log($"UID: {UID}");
     }
 
     /// <summary>
