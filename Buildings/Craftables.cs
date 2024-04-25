@@ -48,8 +48,8 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
         DeluxeWormBin
 }
     
-    public Types Type {get; private set;}
-    public Types CurrentType {get; private set;}
+    public Types Type => MultipleBuildingComponent.Type;
+    public Types CurrentType => MultipleBuildingComponent.Type;
     private static int miniObeliskCount;
     public override string TooltipMessage => Type.ToString();
     public MultipleTypeBuilding<Types> MultipleBuildingComponent {get; private set;}
@@ -60,15 +60,13 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
         miniObeliskCount = 0;
         base.OnAwake();
         MultipleBuildingComponent = new MultipleTypeBuilding<Types>(this);
-        // SetType(CurrentType);
-        // MultipleBuildingComponent.DefaultSprite = MultipleBuildingComponent.Atlas.GetSprite($"{Enum.GetValues(typeof(Types)).GetValue(0)}");
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     } 
 
     protected override void PlacePreview(Vector3Int position){ //todo these 2 types have a range
-    base.PlacePreview(position);
-        if (Type == Types.MushroomLog) RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7, also add log sprite
-        // if (Type == Types.Beehouse) ShowEffectRange(); //look wiki
+        base.PlacePreview(position);
+        if (Type == Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7
+        if (Type == Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(position).ToArray()); //look wiki
     }
 
     public override void Place(Vector3Int position){
@@ -77,6 +75,7 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
             else miniObeliskCount++;
         }
         base.Place(position);
+        HideEffectRange();
     }
 
     public override void Delete(){
@@ -271,6 +270,15 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
 
     public override string GetBuildingData(){
         return base.GetBuildingData() + $"|{(int) Type}";
+    }
+
+    protected override void OnMouseEnter(){
+        if (Type == Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(BaseCoordinates[0], 3).ToArray());
+        if (Type == Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(BaseCoordinates[0]).ToArray());
+    }
+
+    protected override void OnMouseExit(){
+        RangeEffectBuildingComponent.HideEffectRange();
     }
 
     public void CycleType() => MultipleBuildingComponent.CycleType();

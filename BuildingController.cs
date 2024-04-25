@@ -87,7 +87,6 @@ public class BuildingController : MonoBehaviour{
     /// Deletes all buildings except the house
     /// </summary>
     public void DeleteAllBuildings(bool deleteHouse = false) {
-        Debug.Log($"Deletings all ({buildings.Count}) buildings");
         foreach (Building building in buildings) {
             if (building == null) continue;
             if (building.gameObject == null) continue;

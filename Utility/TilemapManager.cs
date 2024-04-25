@@ -115,6 +115,19 @@ namespace Utility{
             return coordinates.ToList();
         }
 
+        public static List<Vector3Int> GetRangeOfBeehouse(Vector3Int beehousePosition){
+            List<Vector3Int> coordinates = new();
+            for (int x = -5; x <= 5; x++){
+                for (int y = -5; y <= 5; y++){
+                    if (Math.Abs(x) + Math.Abs(y) <= 5) {
+                        Vector3Int vec = new(beehousePosition.x + x, beehousePosition.y + y, beehousePosition.z);
+                        coordinates.Add(vec);
+                    }
+                }
+            }
+            return coordinates;
+        }
+
         [Obsolete("getPositionsOfBuilding is deprecated, use getAreaArroundPosition with flipped = true instead.")]
         ///<summary>Given the bottom left Vector3Int, calculate the vectors3Ints for the building</summary>
         ///<param name="currentPos">the vector containing the bottom left coordinates of the rectangle</param>
