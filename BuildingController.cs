@@ -91,7 +91,6 @@ public class BuildingController : MonoBehaviour{
             if (building == null) continue;
             if (building.gameObject == null) continue;
             if (building is House && !deleteHouse) continue;
-            Debug.Log($"Deleting {building}");
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
             building.ForceDelete();
         }

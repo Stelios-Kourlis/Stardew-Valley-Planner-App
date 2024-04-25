@@ -20,10 +20,10 @@ namespace Utility{
         /// <returns>true, if the user saved, false if the user cancelled</returns>
         public static bool Save() {
             string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
-            string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "FarmScreenshot", "png");;
+            string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp");;
             if (savePath != "") {
                 string directoryPath = Path.GetDirectoryName(savePath);
-                PlayerPrefs.SetString("DefaultScreenshotPath", directoryPath);
+                PlayerPrefs.SetString("DefaultSavePath", directoryPath);
                 using StreamWriter writer = new(savePath);
                 foreach (Building building in GetBuildingController().GetBuildings()) {
                     writer.WriteLine(building.GetBuildingData());
@@ -42,7 +42,7 @@ namespace Utility{
             Type currentType = GetBuildingController().currentBuildingType;
             if (paths.Length > 0) {
                 string directoryPath = Path.GetDirectoryName(paths[0]);
-                PlayerPrefs.SetString("DefaultScreenshotPath", directoryPath);
+                PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
                 using StreamReader reader = new(paths[0]);
                 GetBuildingController().DeleteAllBuildings(true);
                 GetBuildingController().IsLoadingSave = true;

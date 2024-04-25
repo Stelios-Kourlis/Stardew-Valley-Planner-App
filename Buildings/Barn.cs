@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,13 +110,17 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
     }
 
     public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{TieredBuildingComponent.Tier}";//todo add animals
+        string animals = "";
+        foreach (Animals animal in AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int) animal}";
+        return base.GetBuildingData() + $"|{Tier}|{AnimalsInBuilding.Count}{animals}";
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
         OnAwake();
         Place(new Vector3Int(x,y,0));
         TieredBuildingComponent.SetTier(int.Parse(data[0]));
+        int animalCount = int.Parse(data[1]);
+        for (int i = 0; i < animalCount; i++) AddAnimal((Animals) Enum.Parse(typeof(Animals),data[i + 2]));
     }
 
     public bool AddAnimal(Animals animal){
