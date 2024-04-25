@@ -36,12 +36,10 @@ public class MapController : MonoBehaviour{
     Tile greenTile;
     private bool unavailableCoordinatesAreVisible = false;
     private bool plantableCoordinatesAreVisible = false;
-    // private bool addingInvalidTiles = false;
-    // private bool addingPlantableTiles = false;
     private Actions currentAction;
     private TileMode tileMode;
     private Vector3Int startTile;
-    // Start is called before the first frame update
+    
     void Start(){
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
         SetMap(MapTypes.Normal);
@@ -57,15 +55,22 @@ public class MapController : MonoBehaviour{
     }
 
     public void Update(){//this is for adding invlid tiles and plantable tiles, should never be accesible to the user
-        if (Input.GetKeyUp(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)){
+        if (Input.GetKeyDown(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)){
             #if UNITY_EDITOR
                 tileMode = (TileMode)(((int) tileMode + 1) % 5);
                 GetNotificationManager().SendNotification($"Mode set to {tileMode}");
-                if (tileMode == TileMode.nothing) Building.CurrentAction = currentAction;
+                if (tileMode == TileMode.nothing){
+                    unavailableCoordinatesAreVisible = true;
+                    plantableCoordinatesAreVisible = true;
+                    ToggleAllCoordinates();
+                    Building.CurrentAction = currentAction;
+                }
                 else{
+                    unavailableCoordinatesAreVisible = false;
+                    plantableCoordinatesAreVisible = false;
+                    ToggleAllCoordinates();
                     currentAction = Building.CurrentAction;
                     Building.CurrentAction = Actions.DO_NOTHING;
-                    GetInputHandler().SetCursor(InputHandler.CursorType.Default);
                 }
             #endif
         }
@@ -129,7 +134,7 @@ public class MapController : MonoBehaviour{
     public void SetMap(MapTypes mapType) {
         CurrentMapType = mapType;
         BuildingController buildingController = GetBuildingController();
-        buildingController.DeleteAllBuildings();
+        buildingController.DeleteAllBuildings(true);
         buildingController.GetUnavailableCoordinates().Clear();
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";

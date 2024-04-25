@@ -72,24 +72,27 @@ public class BuildingController : MonoBehaviour{
         MapController mapController = GetMapController();
         Vector3Int housePos = mapController.GetCurrentMapType() switch{
             MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-            MapController.MapTypes.Beach => new Vector3Int(33, 57, 0),
+            MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
             _ => new Vector3Int(32, 12, 0),
         };
         GameObject houseGameObject = new("House");
         houseGameObject.transform.parent = transform;
         houseGameObject.AddComponent<House>().OnAwake();
-        houseGameObject.GetComponent<House>().Place(housePos);
+        houseGameObject.GetComponent<House>().PlaceWrapper(housePos);
         houseGameObject.GetComponent<House>().SetTier(tier);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1,1,1,1);
-        // isUndoing = true; //hack to prevent the action from being added to the action log
     }
 
     /// <summary>
     /// Deletes all buildings except the house
     /// </summary>
     public void DeleteAllBuildings(bool deleteHouse = false) {
+        Debug.Log($"Deletings all ({buildings.Count}) buildings");
         foreach (Building building in buildings) {
-            // if (building is House && !deleteHouse) continue;
+            if (building == null) continue;
+            if (building.gameObject == null) continue;
+            if (building is House && !deleteHouse) continue;
+            Debug.Log($"Deleting {building}");
             unavailableCoordinates.RemoveWhere(vec => building.VectorInBaseCoordinates(vec));
             building.ForceDelete();
         }

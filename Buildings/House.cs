@@ -68,7 +68,6 @@ public class House : Building, ITieredBuilding {
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){
-        // Debug.Log($"Recreating house at {x},{y}");
         OnAwake();
         Place(new Vector3Int(x,y,0));
         SetTier(int.Parse(data[0]));

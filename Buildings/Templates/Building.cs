@@ -129,7 +129,7 @@ public abstract class Building : TooltipableGameObject {
         }
     }
 
-    private void PlaceWrapper(Vector3Int position){
+    public void PlaceWrapper(Vector3Int position){
         if (hasBeenPlaced) return;
         if (!CanBuildingBePlacedThere(position, this)) return;
         // Debug.Log($"{this} can be placed at {position}");
