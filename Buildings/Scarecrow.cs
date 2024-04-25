@@ -11,7 +11,7 @@ using static Utility.TilemapManager;
 using System.Runtime.Remoting.Messaging;
 using System;
 
-public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRangeEffectBuilding{//todo range is bugged when switching scarecrow type
+public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRangeEffectBuilding{
 
     public enum Types{
         Scarecrow,

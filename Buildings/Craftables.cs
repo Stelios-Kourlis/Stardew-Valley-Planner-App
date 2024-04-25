@@ -63,7 +63,7 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     } 
 
-    protected override void PlacePreview(Vector3Int position){ //todo these 2 types have a range
+    protected override void PlacePreview(Vector3Int position){
         base.PlacePreview(position);
         if (Type == Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7
         if (Type == Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(position).ToArray()); //look wiki

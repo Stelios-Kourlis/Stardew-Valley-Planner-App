@@ -67,7 +67,9 @@ public class Crop: Building, IMultipleTypeBuilding<Crop.Types>{
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        throw new System.NotImplementedException();//todo add materials
+        return new List<MaterialInfo>{
+            new($"{Type} Seeds"),
+        };
     }
 
     public override void RecreateBuildingForData(int x, int y, params string[] data){

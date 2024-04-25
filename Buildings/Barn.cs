@@ -76,34 +76,34 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
-        int animalCost = 0;
+        List<MaterialInfo> animalCost = new();
         foreach (var animal in AnimalHouseComponent.AnimalsInBuilding.Select(pair => pair.Key)){
-            animalCost += animal switch{
-                Animals.Cow => 1_500,
-                // Animals.Ostrich => Egg,//todo Add ostrich egg
-                Animals.Goat => 4_000,
-                Animals.Sheep => 8_000,
-                Animals.Pig => 16_000,
+            MaterialInfo cost = animal switch{
+                Animals.Cow => new(1_500, Materials.Coins),
+                Animals.Ostrich => new("Ostrich Egg"),
+                Animals.Goat => new(4_000, Materials.Coins),
+                Animals.Sheep => new(8_000, Materials.Coins),
+                Animals.Pig => new(16_000, Materials.Coins),
                 _ => throw new System.ArgumentException($"Invalid animal {animal}")
             };
-            
+            animalCost.Add(cost);
         }
         return Tier switch{
             1 => new List<MaterialInfo>{
-                new(6_000 + animalCost, Materials.Coins),
+                new(6_000, Materials.Coins),
                 new(350, Materials.Wood),
                 new(150, Materials.Stone)
-            },
+            }.Union(animalCost).ToList(),
             2 => new List<MaterialInfo>{
-                new(6_000 + 12_000 + animalCost, Materials.Coins),
+                new(6_000 + 12_000, Materials.Coins),
                 new(350 + 450, Materials.Wood),
                 new(150 + 200, Materials.Stone)
-            },
+            }.Union(animalCost).ToList(),
             3 => new List<MaterialInfo>{
-                new(6_000 + 12_000 + 25_000 + animalCost, Materials.Coins),
+                new(6_000 + 12_000 + 25_000, Materials.Coins),
                 new(350 + 450 + 550, Materials.Wood),
                 new(150 + 200 + 300, Materials.Stone)
-            },
+            }.Union(animalCost).ToList(),
             _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };
     }
