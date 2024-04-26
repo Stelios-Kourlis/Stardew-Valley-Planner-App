@@ -33,14 +33,34 @@ public class KeybindHandler : MonoBehaviour{
         public int ToInt(){
             return ((int)keybind << 16) | (int)optionalSecondButton;
         }
+
+        public override bool Equals(object obj){
+            return obj is Keybind keybind &&
+                   this.keybind == keybind.keybind &&
+                   optionalSecondButton == keybind.optionalSecondButton;
+        }
+
+        public override int GetHashCode(){
+            return HashCode.Combine(keybind, optionalSecondButton);
+        }
+
+        public override string ToString(){
+            string text = "";
+            if (optionalSecondButton != KeyCode.None) text = optionalSecondButton.ToString() + " - ";
+            text += keybind;
+            return text;
+        }
     }
 
     private static readonly Dictionary<Action, Keybind> keybinds = new();
     
     public void Start(){
+        Keybind one = new(KeyCode.A, KeyCode.LeftCommand);
+        Keybind two = new(KeyCode.A, KeyCode.LeftCommand);
+        Debug.Log(one.Equals(two));
         LoadKeybinds();
         if (GetComponent<Button>() != null) SetUpButton();
-        GetComponent<Button>()?.onClick.AddListener(SetKeybindFromButton);
+        if (GetComponent<Button>() != null) GetComponent<Button>().onClick.AddListener(SetKeybindFromButton);
     }
 
     private void LoadKeybinds(){
@@ -61,10 +81,16 @@ public class KeybindHandler : MonoBehaviour{
         return keybinds[action];
     }
 
-    public void UpdateKeybind(Action action, Keybind bind){
+    public bool UpdateKeybind(Action action, Keybind bind){
+        foreach (var keybind in keybinds.Values){
+            Debug.Log($"Checking {bind} against {keybind}");
+            if (keybind.Equals(bind)) return false;
+        }
+        Debug.Log("Updating keybind (was not in use)");
         keybinds[action] = bind;
         PlayerPrefs.SetInt(action.ToString(), bind.ToInt());
         PlayerPrefs.Save();
+        return true;
     }
 
     private void SetUpFirstTimeKeybinds(){
@@ -102,6 +128,7 @@ public class KeybindHandler : MonoBehaviour{
     IEnumerator GetButtonsCoroutine(){
         Button button = GetComponent<Button>();
         Text buttonText = button.GetComponentInChildren<Text>();
+        string text = buttonText.text;
         buttonText.text = "Press any key to rebind";
         while (true){
             buttonText.text = "Press any key to rebind";
@@ -120,10 +147,17 @@ public class KeybindHandler : MonoBehaviour{
                 if (modifierButtons.Contains(keyCode) || keyCode == KeyCode.Mouse0) continue;
                 if (Input.GetKeyDown(keyCode)){
                 string keyPressed = keyCode.ToString();
-                Debug.Log(keyPressed);
+                // Debug.Log(keyPressed);
                 Keybind keybind = new(keyCode, optionalSecondButton);
-                UpdateKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name), keybind);
-                string text = "";
+                if (!UpdateKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name), keybind)){
+                    GetNotificationManager().SendNotification("Keybind already in use");
+                    keybind = GetKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name));
+                    // string textTemp = "";
+                    // if (keybind.optionalSecondButton != KeyCode.None) textTemp = keybind.optionalSecondButton.ToString() + " - ";
+                    buttonText.text = text;
+                    yield break;
+                }
+                text = "";
                 if (keybind.optionalSecondButton != KeyCode.None){
                     text = keybind.optionalSecondButton.ToString() + " - ";
                 }

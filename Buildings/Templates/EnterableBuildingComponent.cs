@@ -29,7 +29,7 @@ public class EnterableBuildingComponent{
         Vector3Int interiorPosition = new(middleBuildingX - entranceOffsetPerBuilding[building.GetType()], building.BaseCoordinates[0].y, 0);
         InteriorAreaCoordinates = GetAreaAroundPosition(interiorPosition, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
         BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
-        BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = building.gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
+        BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = building.gameObject.GetComponent<TilemapRenderer>().sortingOrder + 50;
         BuildingInterior.transform.SetParent(building.transform);
         HideBuildingInterior();
     }

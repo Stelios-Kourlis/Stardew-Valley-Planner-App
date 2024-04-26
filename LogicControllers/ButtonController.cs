@@ -139,7 +139,7 @@ public class ButtonController : MonoBehaviour{
                         editButton.SetActive(!editButton.activeInHierarchy);
                         
                     }
-                    else GetNotificationManager().SendNotification($"{building.GetType()} is WIP");
+                    else GetNotificationManager().SendNotification("WIP");
                     });
                 break;
             case ButtonTypes.PAINT:
