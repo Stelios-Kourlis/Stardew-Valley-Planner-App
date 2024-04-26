@@ -176,8 +176,6 @@ namespace Utility{
         public static GameObject AddTilemapToObject(GameObject obj){
             if (obj.GetComponent<Tilemap>() == null) obj.AddComponent<Tilemap>();
             if (obj.GetComponent<TilemapRenderer>() == null)obj.AddComponent<TilemapRenderer>();
-            // obj.AddComponent<Tilemap>();
-            // obj.AddComponent<TilemapRenderer>();
             return obj;
         }
 

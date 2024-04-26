@@ -122,10 +122,12 @@ public class ButtonController : MonoBehaviour{
                  });
                 break;
             case ButtonTypes.ENTER:
-                button.onClick.AddListener(() => { /* Add valid statement here */ });//todo add building insides
+                button.onClick.AddListener(() => { 
+                    if (building is IEnterableBuilding enterableBuilding) enterableBuilding.ToggleBuildingInterior();  
+                    });
                 break;
             case ButtonTypes.PAINT:
-                button.onClick.AddListener(() => { /* Add valid statement here */ });//todo add building painting support
+                button.onClick.AddListener(() => { GetNotificationManager().SendNotification("Not Implemented yet"); });//todo add building painting support
                 break;
             case ButtonTypes.PLACE_FISH:
                 if (building is FishPond fishPond) fishPond.CreateFishMenu();

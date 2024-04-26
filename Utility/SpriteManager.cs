@@ -92,10 +92,6 @@ namespace Utility{
         ///<summary>Get a part of a 16x16 sprite</summary>
         public static Texture2D GetPartOfSprite(Vector2Int topLeftCorner, int height, Texture2D texture) {
             int width = texture.width / 16;
-            // Color[] pixels = texture.GetPixels(topLeftCorner.x * 16, topLeftCorner.y * 16, width * 16, height * 16);
-            // Texture2D croppedTexture = new(width * 16, height * 16);
-            // croppedTexture.SetPixels(pixels);
-            // croppedTexture.Apply();
             Sprite sprite = Sprite.Create(texture, new Rect(topLeftCorner.x * 16, topLeftCorner.y * 16, width * 16, height * 16), new Vector2(0.5f, 0.5f), 16);
             Texture2D croppedTexture = new((int)sprite.rect.width, (int)sprite.rect.height);
             Color[] pixels = sprite.texture.GetPixels((int)sprite.textureRect.x, 

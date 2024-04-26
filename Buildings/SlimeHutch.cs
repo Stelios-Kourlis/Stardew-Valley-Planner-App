@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class SlimeHutch : Building {
+public class SlimeHutch : Building, IEnterableBuilding {
     public override string TooltipMessage => "Right Click For More Options";
+    public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
 
     public override void OnAwake(){
         name = GetType().Name;
@@ -13,7 +14,13 @@ public class SlimeHutch : Building {
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
+        EnterableBuildingComponent = new EnterableBuildingComponent(this);
         base.OnAwake();
+    }
+
+    public override void Place(Vector3Int position){
+        base.Place(position);   
+        EnterableBuildingComponent.AddBuildingInterior();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -29,4 +36,12 @@ public class SlimeHutch : Building {
         OnAwake();
         Place(new Vector3Int(x,y,0));
     }
+
+    public void ShowBuildingInterior() => EnterableBuildingComponent.ShowBuildingInterior();
+
+    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
+
+    public void HideBuildingInterior() => EnterableBuildingComponent.HideBuildingInterior();
+
+    public void ToggleBuildingInterior() => EnterableBuildingComponent.ToggleBuildingInterior();
 }

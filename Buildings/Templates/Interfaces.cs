@@ -3,11 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IBuilding{
-    Vector3Int[] SpriteCoordinates {get;}
-    Vector3Int[] BaseCoordinates {get;}
-}
-
 public interface ITieredBuilding{
     int Tier {get;}
     void SetTier(int tier);
@@ -21,7 +16,6 @@ public interface IMultipleTypeBuilding<T> where T : Enum{
 }
 
 public interface IAnimalHouse{
-    // AnimalHouse AnimalHouseComponent {get;}
     List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding {get;}
     bool AddAnimal(Animals animal);
     void ToggleAnimalMenu();
@@ -32,6 +26,13 @@ public interface IRangeEffectBuilding{
     void HideEffectRange();
 }
 
-partial interface IConnectingBuilding{
+public interface IConnectingBuilding{
     int GetConnectingFlags(Vector3Int position, List<Vector3Int> otherBuildings);
+}
+
+public interface IEnterableBuilding{
+    void ToggleBuildingInterior();
+    void ShowBuildingInterior();
+    void EditBuildingInterior();
+    void HideBuildingInterior();
 }
