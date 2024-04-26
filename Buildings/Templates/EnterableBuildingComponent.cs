@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 using static Utility.ClassManager;
+using UnityEngine.UI;
 
 public class EnterableBuildingComponent{
     public GameObject BuildingInterior {get; private set;}
@@ -13,6 +14,8 @@ public class EnterableBuildingComponent{
     readonly Building building;
     private bool isActive;
     public Vector3Int[] InteriorAreaCoordinates {get; private set;}
+    private float cameraSizeBeforeLock;
+    private Vector3 cameraPositionBeforeLock;
     private readonly Dictionary<Type, int> entranceOffsetPerBuilding; //this is so the entrace tile of the interior can match the outside entrace
 
     public EnterableBuildingComponent(Building building){
@@ -62,12 +65,16 @@ public class EnterableBuildingComponent{
             if (building.transform.parent.GetChild(i).gameObject == building.gameObject) continue;
             building.transform.parent.GetChild(i).gameObject.SetActive(false);
         }
+        cameraPositionBeforeLock = GetCamera().transform.position;
+        cameraSizeBeforeLock = GetCamera().GetComponent<Camera>().orthographicSize;
         GetCamera().GetComponent<CameraController>().ToggleCameraLock();
         GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(InteriorAreaCoordinates[0].x + interriorSprite.rect.width / 32, InteriorAreaCoordinates[0].y + interriorSprite.rect.height / 32 ,0));
+        GetCamera().GetComponent<CameraController>().SetSize(10);
         GameObject enterButton = building.buttonParent.transform.Find("ENTER").gameObject;
         GameObject editButton = enterButton.transform.GetChild(0).gameObject;
         enterButton.transform.position = new Vector3(-400, -400, 0);
         editButton.transform.position = new Vector3(Screen.width - editButton.GetComponent<RectTransform>().rect.width / 2 - 50 , editButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
+        editButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "EXIT";
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = 0;
         building.gameObject.GetComponent<TilemapRenderer>().sortingOrder = -1;
     }
@@ -81,9 +88,13 @@ public class EnterableBuildingComponent{
             building.transform.parent.GetChild(i).gameObject.SetActive(true);
         }
         GetCamera().GetComponent<CameraController>().ToggleCameraLock();
+        GetCamera().GetComponent<CameraController>().SetPosition(cameraPositionBeforeLock);
+        GetCamera().GetComponent<CameraController>().SetSize(cameraSizeBeforeLock);
         GameObject enterButton = building.buttonParent.transform.Find("ENTER").gameObject;
         GameObject editButton = enterButton.transform.GetChild(0).gameObject;
+        //todo depending on camera orth. size it ends up in diffrent positions
         editButton.transform.position = enterButton.transform.position + new Vector3(editButton.GetComponent<RectTransform>().rect.width,0,0);
+        editButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "EDIT";
         building.gameObject.GetComponent<TilemapRenderer>().sortingOrder = building.BaseCoordinates[0].y;
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = building.gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
         

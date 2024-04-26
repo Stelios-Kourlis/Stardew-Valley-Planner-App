@@ -12,7 +12,8 @@ public class KeybindHandler : MonoBehaviour{
         Edit,
         Delete,
         DeleteAll,
-        ToggleAvailableTiles,
+        ToggleUnavailableTiles,
+        TogglePlantableTiles,
         Settings,
         Quit,
         Save,
@@ -91,7 +92,8 @@ public class KeybindHandler : MonoBehaviour{
         UpdateKeybind(Action.Edit, new Keybind(KeyCode.E));
         UpdateKeybind(Action.Delete, new Keybind(KeyCode.D));
         UpdateKeybind(Action.DeleteAll, new Keybind(KeyCode.D, KeyCode.LeftControl));
-        UpdateKeybind(Action.ToggleAvailableTiles, new Keybind(KeyCode.I));
+        UpdateKeybind(Action.ToggleUnavailableTiles, new Keybind(KeyCode.I));
+        UpdateKeybind(Action.TogglePlantableTiles, new Keybind(KeyCode.I, KeyCode.LeftControl));
         UpdateKeybind(Action.Settings, new Keybind(KeyCode.Escape));
         UpdateKeybind(Action.Quit, new Keybind(KeyCode.Q));
         UpdateKeybind(Action.Save, new Keybind(KeyCode.S));

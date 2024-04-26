@@ -20,7 +20,7 @@ public class CameraController : MonoBehaviour {
     private bool isMouseDown;
     private Vector3 oldMousePosition;
     public float blurMultiplier;
-    // Start is called before the first frame update
+
     void Start() {
         isMouseDown = false;
         mainCamera = gameObject.GetComponent<Camera>();
@@ -65,7 +65,7 @@ public class CameraController : MonoBehaviour {
             mouseDelta.z = 0f;
 
             // Move the camera based on the mouse movement
-            Vector3 movement = new Vector3(mouseDelta.x, mouseDelta.y, 0f) * moveScale * Time.deltaTime;
+            Vector3 movement = moveScale * Time.deltaTime * new Vector3(mouseDelta.x, mouseDelta.y, 0f);
             transform.Translate(movement, Space.World);
 
             // Update the last mouse position
@@ -104,6 +104,10 @@ public class CameraController : MonoBehaviour {
 
     public void SetPosition(Vector3 position) {
         mainCamera.transform.position = new Vector3(position.x, position.y, mainCamera.transform.position.z);
+    }
+
+    public void SetSize(float size){
+        mainCamera.orthographicSize = size;
     }
 
     public Vector3 GetPosition() { return mainCamera.transform.position; }

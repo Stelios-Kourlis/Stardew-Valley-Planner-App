@@ -54,9 +54,14 @@ public class InputHandler : MonoBehaviour {
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Redo)) buildingController.RedoLastUndo();
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleAvailableTiles)){
-            GetMapController().ToggleAllCoordinates();
-            GetNotificationManager().SendNotification("Toggled coordinates visibility");
+        if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)){
+            GetMapController().ToggleMapUnavailableCoordinates();
+            GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility");
+        }
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)){
+            GetMapController().ToggleMapPlantableCoordinates();
+            GetNotificationManager().SendNotification("Toggled plantable coordinates visibility");
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) buildingController.Save();
@@ -81,7 +86,7 @@ public class InputHandler : MonoBehaviour {
         if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
     }
 
-    public bool KeybindsForActionArePressed(KeybindHandler.Action action){
+    public bool KeybindsForActionArePressed(KeybindHandler.Action action){//todo add priority, if you press Ctrl + D, it should not trigger D as well
         KeybindHandler.Keybind keybind = KeybindHandler.GetKeybind(action);
         bool isPrimaryPressed = Input.GetKeyUp(keybind.keybind);
         bool isSecondaryPressed = keybind.optionalSecondButton == KeyCode.None || Input.GetKey(keybind.optionalSecondButton);
