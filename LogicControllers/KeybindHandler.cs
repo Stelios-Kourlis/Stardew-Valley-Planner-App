@@ -55,9 +55,6 @@ public class KeybindHandler : MonoBehaviour{
     private static readonly Dictionary<Action, Keybind> keybinds = new();
     
     public void Start(){
-        Keybind one = new(KeyCode.A, KeyCode.LeftCommand);
-        Keybind two = new(KeyCode.A, KeyCode.LeftCommand);
-        Debug.Log(one.Equals(two));
         LoadKeybinds();
         if (GetComponent<Button>() != null) SetUpButton();
         if (GetComponent<Button>() != null) GetComponent<Button>().onClick.AddListener(SetKeybindFromButton);
@@ -82,11 +79,7 @@ public class KeybindHandler : MonoBehaviour{
     }
 
     public bool UpdateKeybind(Action action, Keybind bind){
-        foreach (var keybind in keybinds.Values){
-            Debug.Log($"Checking {bind} against {keybind}");
-            if (keybind.Equals(bind)) return false;
-        }
-        Debug.Log("Updating keybind (was not in use)");
+        foreach (var keybind in keybinds.Values) if (keybind.Equals(bind)) return false;
         keybinds[action] = bind;
         PlayerPrefs.SetInt(action.ToString(), bind.ToInt());
         PlayerPrefs.Save();
@@ -146,24 +139,21 @@ public class KeybindHandler : MonoBehaviour{
             foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode))){
                 if (modifierButtons.Contains(keyCode) || keyCode == KeyCode.Mouse0) continue;
                 if (Input.GetKeyDown(keyCode)){
-                string keyPressed = keyCode.ToString();
-                // Debug.Log(keyPressed);
-                Keybind keybind = new(keyCode, optionalSecondButton);
-                if (!UpdateKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name), keybind)){
-                    GetNotificationManager().SendNotification("Keybind already in use");
-                    keybind = GetKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name));
-                    // string textTemp = "";
-                    // if (keybind.optionalSecondButton != KeyCode.None) textTemp = keybind.optionalSecondButton.ToString() + " - ";
-                    buttonText.text = text;
+                    string keyPressed = keyCode.ToString();
+                    // Debug.Log(keyPressed);
+                    Keybind keybind = new(keyCode, optionalSecondButton);
+                    if (!UpdateKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name), keybind)){
+                        GetNotificationManager().SendNotification("Keybind already in use");
+                        buttonText.text = text;
+                        yield break;
+                    }
+                    text = "";
+                    if (keybind.optionalSecondButton != KeyCode.None) text = keybind.optionalSecondButton.ToString() + " - ";
+                    buttonText.text = text + keyPressed;
+                    while (Input.GetKey(keyCode)) yield return null;
+                    yield return null;
+                    GetInputHandler().IsSearching = false;
                     yield break;
-                }
-                text = "";
-                if (keybind.optionalSecondButton != KeyCode.None){
-                    text = keybind.optionalSecondButton.ToString() + " - ";
-                }
-                buttonText.text = text + keyPressed;
-                GetInputHandler().IsSearching = false;
-                yield break;
                 }
             }
             yield return null;
