@@ -103,7 +103,7 @@ public class CameraController : MonoBehaviour {
     }
 
     public void SetPosition(Vector3 position) {
-        mainCamera.transform.position = position;
+        mainCamera.transform.position = new Vector3(position.x, position.y, mainCamera.transform.position.z);
     }
 
     public Vector3 GetPosition() { return mainCamera.transform.position; }

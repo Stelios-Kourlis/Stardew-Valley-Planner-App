@@ -77,6 +77,7 @@ public class ButtonController : MonoBehaviour{
     }
 
     public void UpdateButtonPositionsAndScaleForBuilding(Building building){
+        if (GetBuildingController().isInsideBuilding.Key) return;
         float buttonScale = 10f/GetCamera().GetComponent<Camera>().orthographicSize;
         GameObject buttonParent = building.buttonParent;
         for (int buttonIndex = 0; buttonIndex < buttonParent.transform.childCount; buttonIndex++){
@@ -92,10 +93,19 @@ public class ButtonController : MonoBehaviour{
         button.AddComponent<Image>().sprite = Resources.Load<Sprite>("UI/"+type.ToString());
         if (type == ButtonTypes.PLACE_FISH){
             GameObject fishIcon = new("FishIcon");
-            fishIcon.transform.parent = button.transform;
+            fishIcon.transform.SetParent(button.transform);
             fishIcon.transform.position = buttonPositionScreen;
             fishIcon.transform.localScale = new Vector3(0.4f,0.4f);
             fishIcon.AddComponent<Image>().sprite = Resources.Load<SpriteAtlas>("Fish/FishAtlas").GetSprite("NO_FISH_OLD");//i prefer the old
+        } else if (type == ButtonTypes.ENTER){
+            GameObject editButtonPrefab = Resources.Load<GameObject>("UI/EditButton");
+            GameObject editButton = Instantiate(editButtonPrefab);
+            editButton.transform.SetParent(button.transform);
+            editButton.transform.position = buttonPositionScreen + new Vector3(editButton.GetComponent<RectTransform>().rect.width,0,0);
+            editButton.GetComponent<Button>().onClick.AddListener(() => { 
+                if (building is IEnterableBuilding enterableBuilding) enterableBuilding.ToggleEditBuildingInterior(); 
+                });
+            editButton.SetActive(false);
         }
         button.GetComponent<RectTransform>().sizeDelta = new Vector2(BUTTON_SIZE, BUTTON_SIZE);
         float buttonScale = 10f/GetCamera().GetComponent<Camera>().orthographicSize;
@@ -123,6 +133,9 @@ public class ButtonController : MonoBehaviour{
                 break;
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => { 
+                    GameObject editButton = button.gameObject.transform.GetChild(0).gameObject;
+                    // button.gameObject.transform.position = Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building));
+                    editButton.SetActive(!editButton.activeInHierarchy);
                     if (building is IEnterableBuilding enterableBuilding) enterableBuilding.ToggleBuildingInterior();  
                     });
                 break;
@@ -196,26 +209,6 @@ public class ButtonController : MonoBehaviour{
             Destroy(temp);
         }
     }
-
-    // private void AddFishMenuObject(Button button, Building building){
-    //     GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
-    //     GameObject fishMenu = Instantiate(fishMenuPrefab);
-    //     fishMenu.transform.SetParent(button.transform);
-    //     Vector3 fishMenuPositionWorld = new(building.Tilemap.CellToWorld(building.BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(building).y);
-    //     fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
-    //     fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
-    //     fishMenu.SetActive(false);
-    //     GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
-    //     //FishPond fishPond = building as FishPond;
-    //     for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
-    //         Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-    //         AddHoverEffect(fishButton);
-    //         fishButton.onClick.AddListener(() => {
-    //             Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
-    //             // fishPond.SetFishImage(fishType);
-    //         });
-    //     }
-    // }
 
     private Vector3 CalculatePositionOfButton(int numberOfButtons, int buttonNumber, Vector3 middleOfBuildingScreen){
         

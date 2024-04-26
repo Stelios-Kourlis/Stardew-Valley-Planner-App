@@ -59,7 +59,7 @@ namespace Utility{
 
         public static bool CanBuildingBePlacedThere(Vector3Int position, Building building){
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
-            HashSet<Type> cantBePlacedOnGingerInslad = new()
+            HashSet<Type> actualBuildings = new()
             {
                 typeof(Barn),
                 typeof(Cabin),
@@ -77,14 +77,25 @@ namespace Utility{
                 typeof(SlimeHutch),
                 typeof(Stable),
                 typeof(Well),
+                typeof(PetBowl)
             };
-            if (mapType == MapController.MapTypes.GingerIsland && cantBePlacedOnGingerInslad.Contains(building.GetType())){
+            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())){
                 GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island");
                 return false;
             }
             if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
                 GetNotificationManager().SendNotification("Can't place a crop there");
                 return false;
+            }
+            if (GetBuildingController().isInsideBuilding.Key){
+                if (actualBuildings.Contains(building.GetType())){
+                    GetNotificationManager().SendNotification("Can't place a building inside another building");
+                    return false;
+                }
+                if (building.GetType() == typeof(Crop) || building.GetType() == typeof(WoodTree)){
+                    GetNotificationManager().SendNotification("Can't place a crops and trees inside a building");
+                    return false;
+                }
             }
             return true;
         }

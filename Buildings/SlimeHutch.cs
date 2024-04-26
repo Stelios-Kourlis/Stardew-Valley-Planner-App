@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -7,10 +8,13 @@ public class SlimeHutch : Building, IEnterableBuilding {
     public override string TooltipMessage => "Right Click For More Options";
     public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
 
+    public Vector3Int[] InteriorUnavailableCoordinates {get; private set;}
+
+    public Vector3Int[] InteriorPlantableCoordinates {get; private set;}
+
     public override void OnAwake(){
         name = GetType().Name;
         BaseHeight = 4;
-        // insideAreaTexture = Resources.Load("BuildingInsides/Barn1") as Texture2D;
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
@@ -21,6 +25,28 @@ public class SlimeHutch : Building, IEnterableBuilding {
     public override void Place(Vector3Int position){
         base.Place(position);   
         EnterableBuildingComponent.AddBuildingInterior();
+        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent.InteriorAreaCoordinates[0];
+        HashSet<Vector3Int> interiorUnavailableCoordinates = new();
+        for (int i = 0; i < 18; i++){//front and back walls
+            if (i != 8) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 1, 0));
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 0, 0));
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 10, 0));
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 11, 0));
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 12, 0));
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 13, 0));
+        }
+        for (int i = 0; i < 14; i++){//side walls
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(0, i, 0));
+            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(17, i, 0));
+        }//slime hutch extra
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 2, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 4, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 5, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 6, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 7, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 9, 0));
+
+        InteriorUnavailableCoordinates = interiorUnavailableCoordinates.ToArray();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
@@ -44,4 +70,8 @@ public class SlimeHutch : Building, IEnterableBuilding {
     public void HideBuildingInterior() => EnterableBuildingComponent.HideBuildingInterior();
 
     public void ToggleBuildingInterior() => EnterableBuildingComponent.ToggleBuildingInterior();
+
+    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
+    
+    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
 }

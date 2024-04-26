@@ -292,6 +292,10 @@ namespace Utility{
             
         }
 
+        // public static void SetBuildingInteriorAsMainTilemap(Transform buildingInteriorTilemap){
+        //     GetBuildingController().isInsideBuilding = new KeyValuePair<bool, Transform>(true, buildingInteriorTilemap);
+        // }
+
     }
 }
 

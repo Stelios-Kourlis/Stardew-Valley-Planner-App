@@ -20,10 +20,8 @@ public class BuildingController : MonoBehaviour{
     /// <summary> actions the user has undone, the first 2 elements always are Action, UID and then the building data </summary>
     private readonly Stack<UserAction> undoLog = new();
     public Type currentBuildingType;
-    // private Actions currentAction;
-    // private readonly HashSet<Floor> floors = new HashSet<Floor>();
     public bool IsLoadingSave {get; set;} = false;
-    //private bool isUndoing = false;
+    public KeyValuePair<bool, Transform> isInsideBuilding = new(false, null);
 
     public HashSet<GameObject> buildingGameObjects = new();
     public GameObject lastBuildingObjectCreated {get; private set;}
@@ -46,7 +44,8 @@ public class BuildingController : MonoBehaviour{
         if (IsLoadingSave) return;
         // Debug.Log("Building Placed");
         GameObject go = new(currentBuildingType.Name);
-        go.transform.parent = transform;
+        if (!isInsideBuilding.Key) go.transform.SetParent(transform);
+        else go.transform.SetParent(isInsideBuilding.Value);
         go.AddComponent(currentBuildingType);
         lastBuildingObjectCreated = go;
     }
