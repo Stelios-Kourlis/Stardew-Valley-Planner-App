@@ -133,10 +133,13 @@ public class ButtonController : MonoBehaviour{
                 break;
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => { 
-                    GameObject editButton = button.gameObject.transform.GetChild(0).gameObject;
-                    // button.gameObject.transform.position = Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building));
-                    editButton.SetActive(!editButton.activeInHierarchy);
-                    if (building is IEnterableBuilding enterableBuilding) enterableBuilding.ToggleBuildingInterior();  
+                    if (building is IEnterableBuilding enterableBuilding){
+                        enterableBuilding.ToggleBuildingInterior();  
+                        GameObject editButton = button.gameObject.transform.GetChild(0).gameObject;
+                        editButton.SetActive(!editButton.activeInHierarchy);
+                        
+                    }
+                    else GetNotificationManager().SendNotification($"{building.GetType()} is WIP");
                     });
                 break;
             case ButtonTypes.PAINT:

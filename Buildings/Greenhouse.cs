@@ -8,11 +8,16 @@ using static Utility.ClassManager;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-public class Greenhouse : Building {
+public class Greenhouse : Building, IEnterableBuilding {
 
     private GameObject porchTilemapObject;
     private Sprite porchSprite;
     public override string TooltipMessage => "Right Click For More Options";
+    public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
+
+    public Vector3Int[] InteriorUnavailableCoordinates {get; private set;}
+
+    public Vector3Int[] InteriorPlantableCoordinates {get; private set;}
 
     public override void OnAwake(){
         name = GetType().Name;
@@ -21,6 +26,7 @@ public class Greenhouse : Building {
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
+        EnterableBuildingComponent = new EnterableBuildingComponent(this);
         base.OnAwake();
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
@@ -36,6 +42,16 @@ public class Greenhouse : Building {
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
         porchTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
+        EnterableBuildingComponent.AddBuildingInterior();
+        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent.InteriorAreaCoordinates[0];
+        HashSet<Vector3Int> interiorUnavailableCoordinates = new();
+        for (int i = 0; i<20; i++){
+            if (i != 10) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 0, 0));
+            if (i <= 4 || i >= 16) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 0, 0));
+        }
+        
+
+        InteriorUnavailableCoordinates = interiorUnavailableCoordinates.ToArray();
     }
 
     protected override void Pickup(){
@@ -86,4 +102,16 @@ public class Greenhouse : Building {
     {
         throw new System.NotImplementedException();
     }
+
+    public void ToggleBuildingInterior() => EnterableBuildingComponent.ToggleBuildingInterior();
+
+    public void ShowBuildingInterior() => EnterableBuildingComponent.ShowBuildingInterior();
+
+    public void HideBuildingInterior() => EnterableBuildingComponent.HideBuildingInterior();
+
+    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
+
+    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
+
+    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
 }

@@ -11,8 +11,8 @@ public class OnboradingFlow : MonoBehaviour{
     private GameObject settingsAndMaterialsText;
     private GameObject buildingText;
     private GameObject generalTipText;
-    Transform parentOfActionButtons;
-    Transform parentOfArrowButton;
+    Transform parentOfActionButtons = null;
+    Transform parentOfArrowButton = null;
     void Start(){
         introText = gameObject.transform.GetChild(1).gameObject;
         actionText = gameObject.transform.GetChild(2).gameObject;
@@ -33,6 +33,7 @@ public class OnboradingFlow : MonoBehaviour{
         GameObject buildingPanel = GameObject.FindGameObjectWithTag("Panel");
         StartCoroutine(settingsModal.GetComponent<SettingsModalController>().ClosePanel());
         StartCoroutine(buildingPanel.GetComponent<BuildingMenuController>().ClosePanel());
+        IToggleablePanel.PanelsCurrentlyOpen++;
         Building.CurrentAction = Actions.DO_NOTHING;
         GetInputHandler().SetCursor(InputHandler.CursorType.Default);
 
@@ -96,6 +97,25 @@ public class OnboradingFlow : MonoBehaviour{
     }
 
     public void EndOnboardingFlow(){
+        if (parentOfActionButtons != null){
+            GameObject placeButton = GameObject.FindWithTag("PlaceButton");
+            GameObject editButton = GameObject.FindWithTag("PickupButton");
+            GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
+            placeButton.transform.SetParent(parentOfActionButtons);
+            editButton.transform.SetParent(parentOfActionButtons);
+            deleteButton.transform.SetParent(parentOfActionButtons);
+            GameObject settingsButton = GameObject.Find("settingsButton");
+            GameObject materialsButton = GameObject.Find("ShowTotalMaterials");
+            settingsButton.transform.SetParent(parentOfActionButtons);
+            materialsButton.transform.SetParent(parentOfActionButtons);
+        }
+        if (parentOfArrowButton != null){
+            GameObject arrowButton = GameObject.Find("ArrowButton");
+            arrowButton.transform.SetParent(parentOfArrowButton);
+        }
+
+        IToggleablePanel.PanelsCurrentlyOpen--;
+
         GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
         settingsModal.SetActive(true);
         Building.CurrentAction = Actions.PLACE;
