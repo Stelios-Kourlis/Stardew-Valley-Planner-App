@@ -88,6 +88,11 @@ public class InputHandler : MonoBehaviour {
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action){//todo add priority, if you press Ctrl + D, it should not trigger D as well
         KeybindHandler.Keybind keybind = KeybindHandler.GetKeybind(action);
+        foreach (KeybindHandler.Action possibleAction in Enum.GetValues(typeof(KeybindHandler.Action))){
+            if (possibleAction == action) continue;
+            KeybindHandler.Keybind keybindForAction = KeybindHandler.GetKeybind(possibleAction);
+            if (keybindForAction.keybind == keybind.keybind && keybindForAction.optionalSecondButton != KeyCode.None && Input.GetKey(keybindForAction.optionalSecondButton)) return false;
+        }
         bool isPrimaryPressed = Input.GetKeyUp(keybind.keybind);
         bool isSecondaryPressed = keybind.optionalSecondButton == KeyCode.None || Input.GetKey(keybind.optionalSecondButton);
         return isPrimaryPressed && isSecondaryPressed;
