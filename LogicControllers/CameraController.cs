@@ -27,6 +27,10 @@ public class CameraController : MonoBehaviour {
         oldMousePosition = Input.mousePosition;
         UpdateCameraBounds();
         blurMultiplier = 5;
+
+        if (PlayerPrefs.GetInt("FullScreen", 1) == 1) Screen.fullScreen = true;
+        else Screen.fullScreen = false;
+        Debug.Log(PlayerPrefs.GetInt("FullScreen", 1));
         //scrollScaleSlider.onValueChanged.AddListener(newScrollScale => { if (scrollScale != 0) scrollScale = newScrollScale; });
         //moveScaleSlider.onValueChanged.AddListener(newMoveScale => { if (moveScale != 0) moveScale = newMoveScale; });
     }
@@ -134,5 +138,11 @@ public class CameraController : MonoBehaviour {
             depthOfField.focusDistance.value = blurValue;
             yield return null;
         }
+    }
+
+    public void ToggleFullscren(){
+        Debug.Log("Toggling Fullscreen");
+        Screen.fullScreen = !Screen.fullScreen;
+        PlayerPrefs.SetInt("FullScreen", Screen.fullScreen ? 1 : 0);
     }
 }
