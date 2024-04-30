@@ -136,20 +136,20 @@ public abstract class Building : TooltipableGameObject {
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width);
         if (!GetBuildingController().isInsideBuilding.Key){
             if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
-                GetNotificationManager().SendNotification($"Cannot place {GetType()} here");
+                GetNotificationManager().SendNotification($"Cannot place {GetType()} here", NotificationManager.Icons.ErrorIcon);
                 return;
             }
         }else{
             Vector3Int[] interiorUnavailableCoordinates = GetBuildingController().isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>().InteriorUnavailableCoordinates;
             if (interiorUnavailableCoordinates.Contains(position)){
-                GetNotificationManager().SendNotification($"Cannot place {GetType()} here");
+                GetNotificationManager().SendNotification($"Cannot place {GetType()} here", NotificationManager.Icons.ErrorIcon);
                 return;
             }
             if (position.x < interiorUnavailableCoordinates.Min(vec => vec.x) ||
                 position.x > interiorUnavailableCoordinates.Max(vec => vec.x) || 
                 position.y < interiorUnavailableCoordinates.Min(vec => vec.y) ||
                 position.y > interiorUnavailableCoordinates.Max(vec => vec.y)){
-                    GetNotificationManager().SendNotification($"Cannot place {GetType()} outside of building interior");
+                    GetNotificationManager().SendNotification($"Cannot place {GetType()} outside of building interior", NotificationManager.Icons.ErrorIcon);
                 return;
                 }
         }

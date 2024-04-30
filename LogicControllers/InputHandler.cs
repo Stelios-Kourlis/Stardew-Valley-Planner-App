@@ -56,12 +56,12 @@ public class InputHandler : MonoBehaviour {
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)){
             GetMapController().ToggleMapUnavailableCoordinates();
-            GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility");
+            GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)){
             GetMapController().ToggleMapPlantableCoordinates();
-            GetNotificationManager().SendNotification("Toggled plantable coordinates visibility");
+            GetNotificationManager().SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) buildingController.Save();
@@ -70,23 +70,23 @@ public class InputHandler : MonoBehaviour {
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Place)){
             Building.CurrentAction = Actions.PLACE;
-            GetNotificationManager().SendNotification("Set mode to placement");
+            GetNotificationManager().SendNotification("Set mode to placement", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)){
             Building.CurrentAction = Actions.EDIT;
-            GetNotificationManager().SendNotification("Set mode to edit");
+            GetNotificationManager().SendNotification("Set mode to edit", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Delete)){
             Building.CurrentAction = Actions.DELETE;
-            GetNotificationManager().SendNotification("Set mode to delete");
+            GetNotificationManager().SendNotification("Set mode to delete", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
     }
 
-    public bool KeybindsForActionArePressed(KeybindHandler.Action action){//todo add priority, if you press Ctrl + D, it should not trigger D as well
+    public bool KeybindsForActionArePressed(KeybindHandler.Action action){
         KeybindHandler.Keybind keybind = KeybindHandler.GetKeybind(action);
         foreach (KeybindHandler.Action possibleAction in Enum.GetValues(typeof(KeybindHandler.Action))){
             if (possibleAction == action) continue;

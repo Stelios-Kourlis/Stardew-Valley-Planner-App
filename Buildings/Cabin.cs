@@ -53,7 +53,7 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
 
     public override void Place(Vector3Int position){
         if (cabinTypeIsPlaced[(int) Type]){
-            GetNotificationManager().SendNotification("You can only have one of each type of cabin");
+            GetNotificationManager().SendNotification("You can only have one of each type of cabin", NotificationManager.Icons.ErrorIcon);
             return;
         }
         base.Place(position);

@@ -30,7 +30,6 @@ public class CameraController : MonoBehaviour {
 
         if (PlayerPrefs.GetInt("FullScreen", 1) == 1) Screen.fullScreen = true;
         else Screen.fullScreen = false;
-        Debug.Log(PlayerPrefs.GetInt("FullScreen", 1));
         //scrollScaleSlider.onValueChanged.AddListener(newScrollScale => { if (scrollScale != 0) scrollScale = newScrollScale; });
         //moveScaleSlider.onValueChanged.AddListener(newMoveScale => { if (moveScale != 0) moveScale = newMoveScale; });
     }

@@ -58,7 +58,7 @@ public class MapController : MonoBehaviour{
         if (Input.GetKeyDown(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)){
             #if UNITY_EDITOR
                 tileMode = (TileMode)(((int) tileMode + 1) % 5);
-                GetNotificationManager().SendNotification($"Mode set to {tileMode}");
+                GetNotificationManager().SendNotification($"Mode set to {tileMode}", NotificationManager.Icons.InfoIcon);
                 if (tileMode == TileMode.nothing){
                     unavailableCoordinatesAreVisible = true;
                     plantableCoordinatesAreVisible = true;

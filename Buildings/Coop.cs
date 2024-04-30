@@ -47,14 +47,14 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
         string animalsRemoved = GetRemovedAnimals();
         if (tier < 2) animalsToRemove.AddRange(AnimalsInBuilding.Where(animal => animal.Key == Animals.Duck || animal.Key == Animals.VoidChicken || animal.Key == Animals.Dinosaur || animal.Key == Animals.GoldenChicken));
         if (tier < 3) animalsToRemove.AddRange(AnimalsInBuilding.Where(animal => animal.Key == Animals.Rabbit));
-        if (animalsToRemove.Count != 0 ) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}");
+        if (animalsToRemove.Count != 0 ) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}", NotificationManager.Icons.InfoIcon);
 
         foreach (var pair in animalsToRemove){
                 Destroy(pair.Value);
                 AnimalsInBuilding.Remove(pair);
             }
 
-        if (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}");
+        if (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}", NotificationManager.Icons.InfoIcon);
         while (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity){
             Destroy(AnimalsInBuilding.Last().Value);
             AnimalsInBuilding.Remove(AnimalsInBuilding.Last());
@@ -131,7 +131,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
         List<Animals> allowedAnimals = new() { Animals.Chicken};
         if (Tier >= 2) allowedAnimals.AddRange( new List<Animals>{Animals.Duck, Animals.VoidChicken, Animals.Dinosaur, Animals.GoldenChicken});
         if (Tier == 3) allowedAnimals.Add(Animals.Rabbit);
-        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Animal {animal} is not allowed in a level {Tier} coop"); return false;}
+        if (!allowedAnimals.Contains(animal)) {GetNotificationManager().SendNotification($"Animal {animal} is not allowed in a level {Tier} coop", NotificationManager.Icons.ErrorIcon); return false;}
         AddAnimalButton(animal);
         return true;
     }

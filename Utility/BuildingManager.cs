@@ -80,20 +80,20 @@ namespace Utility{
                 typeof(PetBowl)
             };
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())){
-                GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island");
+                GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island", NotificationManager.Icons.ErrorIcon);
                 return false;
             }
             if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
-                GetNotificationManager().SendNotification("Can't place a crop there");
+                GetNotificationManager().SendNotification("Can't place a crop there", NotificationManager.Icons.ErrorIcon);
                 return false;
             }
             if (GetBuildingController().isInsideBuilding.Key){
                 if (actualBuildings.Contains(building.GetType())){
-                    GetNotificationManager().SendNotification("Can't place a building inside another building");
+                    GetNotificationManager().SendNotification("Can't place a building inside another building", NotificationManager.Icons.ErrorIcon);
                     return false;
                 }
                 if (building.GetType() == typeof(Crop) || building.GetType() == typeof(WoodTree)){
-                    GetNotificationManager().SendNotification("Can't place a crops and trees inside a building");
+                    GetNotificationManager().SendNotification("Can't place a crops and trees inside a building", NotificationManager.Icons.ErrorIcon);
                     return false;
                 }
             }

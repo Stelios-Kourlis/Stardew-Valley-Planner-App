@@ -28,7 +28,7 @@ public class AnimalHouse{
 
     public bool AddAnimal(Animals animal){
         if (AnimalsInBuilding.Count >= MaxAnimalCapacity){
-            GetNotificationManager().SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}");
+            GetNotificationManager().SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
             return false;
         }
         // AnimalsInBuilding.Add(animal);

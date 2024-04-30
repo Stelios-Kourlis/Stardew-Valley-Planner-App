@@ -71,7 +71,7 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
 
     public override void Place(Vector3Int position){
         if (Type == Types.MiniObelisk){
-            if (miniObeliskCount >= 2) {GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time"); return;}
+            if (miniObeliskCount >= 2) {GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time", NotificationManager.Icons.ErrorIcon); return;}
             else miniObeliskCount++;
         }
         base.Place(position);

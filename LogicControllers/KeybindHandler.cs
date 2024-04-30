@@ -145,7 +145,7 @@ public class KeybindHandler : MonoBehaviour{
                     // Debug.Log(keyPressed);
                     Keybind keybind = new(keyCode, optionalSecondButton);
                     if (!UpdateKeybind((Action)Enum.Parse(typeof(Action), gameObject.transform.parent.name), keybind)){
-                        GetNotificationManager().SendNotification("Keybind already in use");
+                        GetNotificationManager().SendNotification("Keybind already in use", NotificationManager.Icons.ErrorIcon);
                         buttonText.text = text;
                         yield break;
                     }

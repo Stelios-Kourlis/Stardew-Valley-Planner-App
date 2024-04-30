@@ -139,11 +139,11 @@ public class ButtonController : MonoBehaviour{
                         editButton.SetActive(!editButton.activeInHierarchy);
                         
                     }
-                    else GetNotificationManager().SendNotification("WIP");
+                    else GetNotificationManager().SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
                     });
                 break;
             case ButtonTypes.PAINT:
-                button.onClick.AddListener(() => { GetNotificationManager().SendNotification("Not Implemented yet"); });//todo add building painting support
+                button.onClick.AddListener(() => { GetNotificationManager().SendNotification("Not Implemented yet", NotificationManager.Icons.ErrorIcon); });//todo add building painting support
                 break;
             case ButtonTypes.PLACE_FISH:
                 if (building is FishPond fishPond) fishPond.CreateFishMenu();

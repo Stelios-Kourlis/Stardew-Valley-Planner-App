@@ -4,10 +4,11 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Playables;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class NotificationManager : MonoBehaviour{
+public class NotificationManager : MonoBehaviour{//todo add notification icons
 
     private class Notification{
         public readonly GameObject notificationGameObject;
@@ -19,17 +20,26 @@ public class NotificationManager : MonoBehaviour{
         }
     }
 
+    public enum Icons{
+        ErrorIcon,
+        SaveIcon,
+        CheckIcon,
+        InfoIcon
+    }
+
     private readonly int MAX_POSSIBLE_NOTIFICATIONS = 5;
     private readonly float NOTIFICATION_LIFETIME_SECONDS = 5;
     private readonly float TOOLTIP_DELAY_SECONDS = 0.75f;
     public bool IsShowingTooltip {get; private set;} = false;
 
-    private List<Notification> notifications = new();
+    private readonly List<Notification> notifications = new();
 
-    public void SendNotification(string message){
+    public void SendNotification(string message, Icons icon){
         GameObject notificationGameObject = Resources.Load("UI/Notification") as GameObject;
         notificationGameObject = Instantiate(notificationGameObject, GetCanvasGameObject().transform);
         notificationGameObject.transform.GetChild(0).GetComponent<Text>().text = message;
+        SpriteAtlas spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
+        notificationGameObject.transform.GetChild(1).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
         Notification notification = new(notificationGameObject);
         notifications.Insert(0, notification);
          notificationGameObject.GetComponent<Button>().onClick.AddListener(() => {
