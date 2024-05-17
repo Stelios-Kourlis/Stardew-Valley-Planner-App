@@ -6,12 +6,11 @@ using UnityEngine.U2D;
 
 public class Shed : Building, ITieredBuilding {
     public TieredBuilding TieredBuildingComponent {get; private set;}
-    public override string TooltipMessage => "Right Click For More Options";
 
     public int Tier => TieredBuildingComponent.Tier;
 
     public override void OnAwake(){
-        // TieredBuildingComponent = gameObject.AddComponent<TieredBuilding>();
+        buildingName = "Shed";
         TieredBuildingComponent = new TieredBuilding(this, 2);
         BaseHeight = 3;
         BuildingInteractions = new ButtonTypes[]{

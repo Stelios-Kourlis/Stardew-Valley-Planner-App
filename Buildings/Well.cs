@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Well : Building {
-    public override string TooltipMessage => "";
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Well";
         BaseHeight = 3;
         base.OnAwake();
     }

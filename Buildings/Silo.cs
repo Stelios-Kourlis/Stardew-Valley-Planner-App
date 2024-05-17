@@ -4,9 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Silo : Building {
-    public override string TooltipMessage => "";
 
     public override void OnAwake(){
+        buildingName = "Silo";
         BaseHeight = 3;
         base.OnAwake();
     }

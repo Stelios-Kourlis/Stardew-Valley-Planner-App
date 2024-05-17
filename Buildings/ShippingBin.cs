@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class ShippingBin : Building {
-    public override string TooltipMessage => "";
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Shipping Bin";
         BaseHeight = 1;
         base.OnAwake();
     }

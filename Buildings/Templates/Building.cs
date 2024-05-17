@@ -20,6 +20,7 @@ public abstract class Building : TooltipableGameObject {
 
     /// <summary> A unique ID that identifies this object, 2 building of the same type, on the same location will have the same UID</summary>
     public int UID {get; protected set;} = 0;
+    public string buildingName;
 
     ///<summary>The array containing the coordinates of each sprite tile</summary>
     public Vector3Int[] SpriteCoordinates { get; protected set;}
@@ -47,6 +48,17 @@ public abstract class Building : TooltipableGameObject {
     private Vector3Int mousePositionOfLastFrame;
     public delegate void BuildingPlacedDelegate();
     public static event BuildingPlacedDelegate BuildingWasPlaced;
+    public override string TooltipMessage {
+        get {
+            if (!hasBeenPlaced) return "";
+            string message = "";
+            if (this is IMultipleTypeBuilding<Enum> multipleTypeBuilding) message += $"{multipleTypeBuilding.Type} ";
+            message += $"{buildingName} ";
+            if (this is ITieredBuilding tieredBuilding) message += $"(Tier {tieredBuilding.Tier})";
+            if (BuildingInteractions.Length != 0) message += "\nRight Click For More Options";
+            return message;
+        }
+    }
 
     /// <summary>
     /// Get the materials needed to build this building
@@ -151,7 +163,7 @@ public abstract class Building : TooltipableGameObject {
                 position.y > interiorUnavailableCoordinates.Max(vec => vec.y)){
                     GetNotificationManager().SendNotification($"Cannot place {GetType()} outside of building interior", NotificationManager.Icons.ErrorIcon);
                 return;
-                }
+            }
         }
         Place(position);
         GetBuildingController().buildingGameObjects.Add(gameObject);

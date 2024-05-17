@@ -9,17 +9,17 @@ public class Obelisk : Building, IMultipleTypeBuilding<Obelisk.Types>{
     public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
 
     public enum Types{
-        WaterObelisk,
-        DesertObelisk,
-        IslandObelisk,
-        EarthObelisk
+        Water,
+        Desert,
+        Island,
+        Earth
     }
-    public override string TooltipMessage => "Right Click To Cycle Through Obelisks";
 
     public Types Type => MultipleTypeBuildingComponent.Type;
 
     public override void OnAwake(){
         BaseHeight = 3;
+        buildingName = "Obelisk";
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         // Debug.Log($"1: {sprite == null}");
         base.OnAwake(); 
@@ -28,25 +28,25 @@ public class Obelisk : Building, IMultipleTypeBuilding<Obelisk.Types>{
     
     public override List<MaterialInfo> GetMaterialsNeeded(){
         return MultipleTypeBuildingComponent.Type switch{
-            Types.WaterObelisk => new System.Collections.Generic.List<MaterialInfo>{
+            Types.Water => new System.Collections.Generic.List<MaterialInfo>{
                 new(500000, Materials.Coins),
                 new(5, Materials.IridiumBar),
                 new(10, Materials.Clam),
                 new(10, Materials.Coral)
             },
-            Types.DesertObelisk => new List<MaterialInfo>{
+            Types.Desert => new List<MaterialInfo>{
                 new(1000000, Materials.Coins),
                 new(20, Materials.IridiumBar),
                 new(10, Materials.Coconut),
                 new(10, Materials.CactusFruit)
             },
-            Types.IslandObelisk => new List<MaterialInfo>{
+            Types.Island => new List<MaterialInfo>{
                 new(1000000, Materials.Coins),
                 new(10, Materials.IridiumBar),
                 new(10, Materials.DragonTooth),
                 new(10, Materials.Banana)
             },
-            Types.EarthObelisk => new List<MaterialInfo>{
+            Types.Earth => new List<MaterialInfo>{
                 new(500000, Materials.Coins),
                 new(10, Materials.IridiumBar),
                 new(10, Materials.EarthCrystal)

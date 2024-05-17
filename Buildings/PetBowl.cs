@@ -8,7 +8,6 @@ public class PetBowl : Building, IMultipleTypeBuilding<PetBowl.Types>{
         StonePetBowl,
         HayPetBowl
     }
-    public override string TooltipMessage => $"{Type}";
 
     public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; set; }
 
@@ -16,6 +15,7 @@ public class PetBowl : Building, IMultipleTypeBuilding<PetBowl.Types>{
 
     public override void OnAwake(){
         BaseHeight = 2;
+        buildingName = "Pet Bowl";
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake();
     }

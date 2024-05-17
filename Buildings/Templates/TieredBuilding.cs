@@ -9,7 +9,7 @@ using static Utility.ClassManager;
 /// </summary>
 public class TieredBuilding{
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
-    public int Tier {get; set;}
+    public int Tier {get; set;} = 1;
     public int MaxTier {get; private set;}
     public SpriteAtlas Atlas {get; private set;}
     private Building Building {get; set;}

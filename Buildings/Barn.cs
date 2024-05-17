@@ -11,7 +11,6 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
 public class Barn : Building, ITieredBuilding, IAnimalHouse {
-    public override string TooltipMessage => "Right Click For More Options";
     public AnimalHouse AnimalHouseComponent {get; private set;}
     public TieredBuilding TieredBuildingComponent {get; private set;}
     public int Tier => TieredBuildingComponent.Tier;
@@ -20,6 +19,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse {
 
     public override void OnAwake(){
         BaseHeight = 4;
+        buildingName = "Barn";
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,

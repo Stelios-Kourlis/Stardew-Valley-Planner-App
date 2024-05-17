@@ -4,11 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Mill : Building {
-        
-    public override string TooltipMessage => "Right Click For More Options";
     
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Mill";
         BaseHeight = 2;
         base.OnAwake();
     }

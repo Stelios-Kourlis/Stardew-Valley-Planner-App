@@ -133,12 +133,7 @@ public class ButtonController : MonoBehaviour{
                 break;
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => { 
-                    if (building is IEnterableBuilding enterableBuilding){
-                        enterableBuilding.ToggleBuildingInterior();  
-                        GameObject editButton = button.gameObject.transform.GetChild(0).gameObject;
-                        editButton.SetActive(!editButton.activeInHierarchy);
-                        
-                    }
+                    if (building is IEnterableBuilding enterableBuilding) enterableBuilding.ToggleEditBuildingInterior();  
                     else GetNotificationManager().SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
                     });
                 break;

@@ -55,8 +55,7 @@ public class Crop: Building, IMultipleTypeBuilding<Crop.Types>{
         SweetGemBerry,
         TeaLeaves
     }
-    
-    public override string TooltipMessage => MultipleTypeBuildingComponent.Type.ToString();
+
 
     public Types Type => MultipleTypeBuildingComponent.Type;
 

@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class SlimeHutch : Building, IEnterableBuilding {
-    public override string TooltipMessage => "Right Click For More Options";
     public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
 
     public Vector3Int[] InteriorUnavailableCoordinates {get; private set;}
@@ -13,7 +12,7 @@ public class SlimeHutch : Building, IEnterableBuilding {
     public Vector3Int[] InteriorPlantableCoordinates {get; private set;}
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Slime Hutch";
         BaseHeight = 4;
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
@@ -63,13 +62,7 @@ public class SlimeHutch : Building, IEnterableBuilding {
         Place(new Vector3Int(x,y,0));
     }
 
-    public void ShowBuildingInterior() => EnterableBuildingComponent.ShowBuildingInterior();
-
     public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
-
-    public void HideBuildingInterior() => EnterableBuildingComponent.HideBuildingInterior();
-
-    public void ToggleBuildingInterior() => EnterableBuildingComponent.ToggleBuildingInterior();
 
     public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
     

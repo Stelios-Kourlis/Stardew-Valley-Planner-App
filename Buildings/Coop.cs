@@ -10,7 +10,6 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
 public class Coop : Building, ITieredBuilding, IAnimalHouse {
-    public override string TooltipMessage => "Right Click For More Options";
     public int Tier => TieredBuildingComponent.Tier;
     public AnimalHouse AnimalHouseComponent {get; private set;}
     public TieredBuilding TieredBuildingComponent {get; private set;}
@@ -18,6 +17,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
     public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding => AnimalHouseComponent.AnimalsInBuilding;
     public override void OnAwake(){
         BaseHeight = 3;
+        buildingName = "Coop";
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,

@@ -27,7 +27,7 @@ public class BuildingController : MonoBehaviour{
     public GameObject lastBuildingObjectCreated {get; private set;}
 
     void Start(){
-        currentBuildingType = typeof(SlimeHutch);
+        currentBuildingType = typeof(Greenhouse);
         Building.BuildingWasPlaced += OnBuildingPlaced;
     }
 

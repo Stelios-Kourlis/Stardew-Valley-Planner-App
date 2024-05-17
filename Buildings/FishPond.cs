@@ -20,10 +20,9 @@ public class FishPond : Building{
     private GameObject decoTilemapObject;
     private int decoIndex = 0;
     private GameObject waterTilemapObject;
-    public override string TooltipMessage => "Right Click For More Options";
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Fish Pond";
         BaseHeight = 5;
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.PLACE_FISH,

@@ -6,9 +6,8 @@ using static Utility.TilemapManager;
 
 public class GoldClock : Building {
 
-    public override string TooltipMessage => "";
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Gold Clock";
         BaseHeight = 2;
         base.OnAwake();
     }

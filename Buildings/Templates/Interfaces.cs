@@ -33,9 +33,6 @@ public interface IConnectingBuilding{
 public interface IEnterableBuilding{
     Vector3Int[] InteriorUnavailableCoordinates {get;}
     Vector3Int[] InteriorPlantableCoordinates {get;}
-    void ToggleBuildingInterior();
-    void ShowBuildingInterior();
-    void HideBuildingInterior();
     void ToggleEditBuildingInterior();
     void EditBuildingInterior();
     void ExitBuildingInteriorEditing();

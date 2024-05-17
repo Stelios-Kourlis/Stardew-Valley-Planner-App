@@ -19,11 +19,9 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
         Rustic,
         Trailer
     }
-    private static bool[] cabinTypeIsPlaced = new bool[Enum.GetValues(typeof(Types)).Length];
+    private static readonly bool[] cabinTypeIsPlaced = new bool[Enum.GetValues(typeof(Types)).Length];
     private MultipleTypeBuilding<Types> multipleTypeBuildingComponent;
     private TieredBuilding tieredBuildingComponent;
-
-    public override string TooltipMessage => "Right Click For More Options";
 
     public int Tier => tieredBuildingComponent.Tier;
 
@@ -35,6 +33,7 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
 
     public override void OnAwake(){
         BaseHeight = 3;
+        buildingName = "Cabin";
         for (int i = 0; i < cabinTypeIsPlaced.Length; i++) cabinTypeIsPlaced[i] = false;
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -45,8 +44,9 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
         };
         multipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         multipleTypeBuildingComponent.DefaultSprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{Types.Wood}1");
-        SetType(CurrentType);
+       
         tieredBuildingComponent = new TieredBuilding(this, 4);
+        SetType(CurrentType);
         SetTier(1);
         base.OnAwake();
     } 

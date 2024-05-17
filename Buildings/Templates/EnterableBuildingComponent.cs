@@ -22,7 +22,8 @@ public class EnterableBuildingComponent{
         this.building = building;
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{building.name}");
         entranceOffsetPerBuilding = new Dictionary<Type, int>(){
-            {typeof(SlimeHutch), 8}
+            {typeof(SlimeHutch), 8},
+            {typeof(Greenhouse), 10}
         };
     }
 
@@ -34,22 +35,10 @@ public class EnterableBuildingComponent{
         BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
         BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = building.gameObject.GetComponent<TilemapRenderer>().sortingOrder + 50;
         BuildingInterior.transform.SetParent(building.transform);
-        HideBuildingInterior();
-    }
-
-    public void ToggleBuildingInterior(){
-        if (isActive) HideBuildingInterior();
-        else ShowBuildingInterior();
-    }
-
-    public void HideBuildingInterior(){
         BuildingInterior.SetActive(false);
-        isActive = false;
-    }
-
-    public void ShowBuildingInterior(){
-        BuildingInterior.SetActive(true);
-        isActive = true;
+        GameObject enterButton = building.buttonParent.transform.Find("ENTER").gameObject;
+        GameObject editButton = enterButton.transform.GetChild(0).gameObject;
+        editButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "EXIT";
     }
 
     public void ToggleEditBuildingInterior(){
@@ -58,7 +47,8 @@ public class EnterableBuildingComponent{
     }
 
     public void EditBuildingInterior(){
-        building.transform.parent.GetChild(0).gameObject.SetActive(false);
+        BuildingInterior.SetActive(true);
+        building.transform.parent.GetChild(0).gameObject.SetActive(false);//map background
         GetBuildingController().isInsideBuilding = new KeyValuePair<bool, Transform>(true, BuildingInterior.transform);
         GetBuildingController().lastBuildingObjectCreated.transform.SetParent(BuildingInterior.transform);
         for (int i = 3; i < building.transform.parent.childCount; i++){
@@ -74,13 +64,16 @@ public class EnterableBuildingComponent{
         GameObject editButton = enterButton.transform.GetChild(0).gameObject;
         enterButton.transform.position = new Vector3(-400, -400, 0);
         editButton.transform.position = new Vector3(Screen.width - editButton.GetComponent<RectTransform>().rect.width / 2 - 50 , editButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
-        editButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "EXIT";
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = 0;
         building.gameObject.GetComponent<TilemapRenderer>().sortingOrder = -1;
+        Debug.Log(editButton.activeInHierarchy);
+        editButton.SetActive(true);
+        Debug.Log(editButton.activeInHierarchy);
     }
 
     public void ExitBuildingInteriorEditing(){
-        building.transform.parent.GetChild(0).gameObject.SetActive(true);
+        BuildingInterior.SetActive(false);
+        building.transform.parent.GetChild(0).gameObject.SetActive(true);//map background
         GetBuildingController().isInsideBuilding = new KeyValuePair<bool, Transform>(false, null);
         GetBuildingController().lastBuildingObjectCreated.transform.SetParent(building.transform.parent);
         for (int i = 3; i < building.transform.parent.childCount; i++){
@@ -92,10 +85,7 @@ public class EnterableBuildingComponent{
         GetCamera().GetComponent<CameraController>().SetSize(cameraSizeBeforeLock);
         GameObject enterButton = building.buttonParent.transform.Find("ENTER").gameObject;
         GameObject editButton = enterButton.transform.GetChild(0).gameObject;
-        //todo depending on camera orth. size it ends up in diffrent positions
-        editButton.transform.position = enterButton.transform.position + new Vector3(editButton.GetComponent<RectTransform>().rect.width,0,0);
-        editButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "EDIT";
-        building.gameObject.GetComponent<TilemapRenderer>().sortingOrder = building.BaseCoordinates[0].y;
+        editButton.SetActive(false);
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = building.gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
         
     }

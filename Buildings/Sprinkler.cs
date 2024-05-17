@@ -16,14 +16,7 @@ public class Sprinkler : Building, IMultipleTypeBuilding<Sprinkler.Types>, IRang
         Normal,
         Quality,
         Iridium,
-        // NormalPressureNozzle,
-        // QualityPressureNozzle,
-        // IridiumPressureNozzle,
-        // NormalEnricher,
-        // QualityEnricher,
-        // IridiumEnricher
     }
-    public override string TooltipMessage => "Right Click For More Options";
     public MultipleTypeBuilding<Types> MultipleBuildingComponent {get; private set;}
     public SpriteAtlas Atlas => MultipleBuildingComponent.Atlas;
     public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
@@ -34,6 +27,7 @@ public class Sprinkler : Building, IMultipleTypeBuilding<Sprinkler.Types>, IRang
 
     public override void OnAwake(){
         BaseHeight = 1;
+        buildingName = "Sprinkler";
         base.OnAwake();
         MultipleBuildingComponent = new MultipleTypeBuilding<Types>(this);
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);

@@ -27,11 +27,10 @@ public class WoodTree : Building, IMultipleTypeBuilding<WoodTree.Types>{//the na
         PineGreenRain
     }
 
-    public override string TooltipMessage => $"{MultipleTypeBuildingComponent.Type} Tree";
-
     public Types Type => MultipleTypeBuildingComponent.Type;
 
     public override void OnAwake(){
+        buildingName = "Tree";
         BaseHeight = 1;
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake();

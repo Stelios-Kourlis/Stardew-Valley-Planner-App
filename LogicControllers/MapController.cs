@@ -169,6 +169,7 @@ public class MapController : MonoBehaviour{
     }
 
     public void ToggleMapUnavailableCoordinates(){
+        if (GetBuildingController().isInsideBuilding.Key){ToggleMapUnavailableCoordinatesForBuildingInside(); return;}
         HashSet<Vector3Int> unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates();
         Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
         unavailableCoordinatesTilemap.ClearAllTiles();
@@ -176,6 +177,19 @@ public class MapController : MonoBehaviour{
             foreach (Vector3Int coordinate in unavailableCoordinates) unavailableCoordinatesTilemap.SetTile(coordinate, null);
         }else{
             foreach (Vector3Int coordinate in unavailableCoordinates) unavailableCoordinatesTilemap.SetTile(coordinate, redTile);
+        }
+        unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
+    }
+
+    private void ToggleMapUnavailableCoordinatesForBuildingInside(){
+        Vector3Int[] interiorUnavailableCoordinates = GetBuildingController().isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>().InteriorUnavailableCoordinates;
+        Vector3Int upperLeftScreenCorner = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(new Vector3(0, Screen.height, 0)));
+        Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
+        unavailableCoordinatesTilemap.ClearAllTiles();
+        if (unavailableCoordinatesAreVisible){
+            foreach (Vector3Int coordinate in interiorUnavailableCoordinates) unavailableCoordinatesTilemap.SetTile(coordinate, null);
+        }else{
+            foreach (Vector3Int coordinate in interiorUnavailableCoordinates) unavailableCoordinatesTilemap.SetTile(coordinate, redTile);
         }
         unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
     }

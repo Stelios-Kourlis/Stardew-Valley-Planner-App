@@ -5,12 +5,12 @@ using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
 public class House : Building, ITieredBuilding {
-    public override string TooltipMessage => "Right Click For More Options";
     public TieredBuilding TieredBuildingComponent {get; private set;}
     public int Tier => TieredBuildingComponent.Tier;
 
     public override void OnAwake(){
         BaseHeight = 6;
+        buildingName = "House";
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,

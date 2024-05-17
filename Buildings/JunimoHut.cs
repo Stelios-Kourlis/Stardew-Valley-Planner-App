@@ -1,25 +1,18 @@
-using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using static Utility.ClassManager;
 using static Utility.TilemapManager;
-using static Utility.SpriteManager;
-using System.Linq;
 
 public class JunimoHut : Building, IRangeEffectBuilding {
 
-    private Tile greenTile;
-    public override string TooltipMessage => "";
 
     public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Junimo Hut";
         BaseHeight = 2;
         base.OnAwake();
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
-        greenTile = LoadTile("GreenTile");
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){

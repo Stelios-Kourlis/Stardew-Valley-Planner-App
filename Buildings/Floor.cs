@@ -39,6 +39,7 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBu
     public override void OnAwake(){
         BaseHeight = 1;
         base.OnAwake();
+        buildingName = "Floor";
         OtherFloors ??= new List<Vector3Int>();
         FloorWasPlaced += AnotherFloorPlaced;
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);

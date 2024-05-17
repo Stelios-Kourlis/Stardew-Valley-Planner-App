@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Stable : Building {
-    public override string TooltipMessage => "";
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Stable";
         BaseHeight = 2;
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.PAINT

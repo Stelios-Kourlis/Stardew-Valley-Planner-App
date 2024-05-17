@@ -39,7 +39,7 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
     public Types Type => MultipleTypeBuildingComponent.Type;
 
     public override void OnAwake(){
-        name = GetType().Name;
+        buildingName = "Scarecrow";
         BaseHeight = 1;
         base.OnAwake();
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
