@@ -32,8 +32,6 @@ namespace Utility{
                 typeof(IMultipleTypeBuilding<>),
                 typeof(IConnectingBuilding),
                 typeof(ITieredBuilding),
-                // typeof(IAnimalHouse),
-                // typeof(IRangeEffectBuilding),
                 };
             List<Type> interfaces = new();
             foreach (Type itype in building.GetType().GetInterfaces().ToList()){

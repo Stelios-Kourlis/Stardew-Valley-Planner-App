@@ -111,14 +111,13 @@ public class TypeBarHandler : MonoBehaviour {
     }
 
     IEnumerator OpenSearchBar(){
-        Debug.Log("Opened Search Bar");
         Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
         while (searchBar.position.x > Screen.width - 10) {
             searchBar.position = new Vector3(searchBar.position.x - moveScale, searchBar.position.y, searchBar.position.z);
             yield return null;
         }
         searchBarIsHidden = false;
-        searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[1];
+        // searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[1];
     }
 
     IEnumerator ShowSearchBarButton(){

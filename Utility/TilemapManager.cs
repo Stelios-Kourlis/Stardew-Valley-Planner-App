@@ -128,36 +128,22 @@ namespace Utility{
             return coordinates;
         }
 
-        [Obsolete("getPositionsOfBuilding is deprecated, use getAreaArroundPosition with flipped = true instead.")]
-        ///<summary>Given the bottom left Vector3Int, calculate the vectors3Ints for the building</summary>
-        ///<param name="currentPos">the vector containing the bottom left coordinates of the rectangle</param>
-        ///<param name="height">the height of the rectangle</param>
-        ///<param name="width">the width of the rectangle</param>
-        ///<returns>An array of Vector3Int that containts every vector in the rectangle in correct order to parse in Tilemap.SetTiles()</returns>
-        public static List<Vector3Int> GetPositionsOfBuilding(Vector3Int currentPos, int height, int width) {
-            List<Vector3Int> BoundsArray = new();
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    BoundsArray.Add(new Vector3Int(currentPos.x + j, currentPos.y - i + height - 1, currentPos.z));
-                }
-            }
-            return BoundsArray;
-        }
 
-        ///<summary>Find if a any tile of a rectangle is ovverlapping with invalidTiles in the specified area</summary>
-        ///<param name="position">the vector containing the bottom left coordinates of the rectangle</param>
-        ///<param name="height">the height of the rectangle</param>
-        ///<param name="width">the width of the rectangle</param>
-        ///<param name="invalidTiles">the list that checks for overlapping</param>
-        ///<returns>True if there are no other tiles and within the rectangle, otherwise false</returns>
-        public static bool AreaIsNotObscured(Vector3Int position, int height, int width, HashSet<Vector3Int> invalidTiles) {
-            List<Vector3Int> tilesToCheck = GetAreaAroundPosition(position, height, width);
-            foreach (Vector3Int vector in tilesToCheck) {
-                if (invalidTiles.Contains(vector)) {
-                    return false;
-                }
-            }
-            return true;
+        /// <summary>
+        /// Given the unavailable coordinates of an interiror, add all the ones out of bounds
+        /// </summary>
+        /// <param name="actualUnavailableCoordinates"></param>
+        /// <returns></returns>
+        public static List<Vector3Int> GetAllInteriorUnavailableCoordinates(Vector3Int[] actualUnavailableCoordinates){
+            Vector3Int bottomLeftVec = GetMapController().gameObject.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0)));
+            Vector3Int topRightVec = GetMapController().gameObject.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)));
+            Vector3Int[] allCordinatesOnScreen = GetAllCoordinatesInArea(bottomLeftVec, topRightVec).ToArray();
+            int minX = actualUnavailableCoordinates.Min(vec => vec.x);
+            int minY = actualUnavailableCoordinates.Min(vec => vec.y);
+            int maxX = actualUnavailableCoordinates.Max(vec => vec.x);
+            int maxY = actualUnavailableCoordinates.Max(vec => vec.y);
+            foreach (Vector3Int vec in allCordinatesOnScreen) if (vec.x < minX || vec.x > maxX || vec.y < minY || vec.y > maxY) actualUnavailableCoordinates = actualUnavailableCoordinates.Append(vec).ToArray();
+            return actualUnavailableCoordinates.ToList();
         }
 
         ///<summary>Create a Game Object with a Tilemap and a Tilemap Renderer components attached</summary>

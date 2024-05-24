@@ -110,6 +110,7 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
         multipleTypeBuildingComponent.SetType(type);
         Sprite sprite;
         sprite = Atlas.GetSprite($"{type}{tieredBuildingComponent?.Tier ?? 1}");
+        Debug.Log($"Set type to {type}");
         UpdateTexture(sprite);
     }
 
@@ -119,7 +120,6 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}Button";
             button.GetComponent<Image>().sprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{type}1");
-
             Type buildingType = GetType();
             BuildingController buildingController = GetBuildingController();
             button.GetComponent<Button>().onClick.AddListener(() => { 

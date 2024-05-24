@@ -10,6 +10,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.ClassManager;
+using static Utility.TilemapManager;
 
 namespace Utility{
     public static class BuildingManager{
@@ -57,7 +58,24 @@ namespace Utility{
             return paths.Length > 0;
         }
 
-        public static bool CanBuildingBePlacedThere(Vector3Int position, Building building){
+        public static bool BuildingCanBePlacedAtPosition(Vector3Int position, Building building, bool sendNotification = false){
+            if (building.hasBeenPlaced) return false;
+            Vector3Int[] unavailableCoordinates, plantableCoordinates;
+            if (GetBuildingController().isInsideBuilding.Key){
+                IEnterableBuilding enterableBuilding = GetBuildingController().isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>();
+                unavailableCoordinates = enterableBuilding.InteriorUnavailableCoordinates;
+                plantableCoordinates = enterableBuilding.InteriorPlantableCoordinates;
+            } else{
+                unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
+                plantableCoordinates = GetBuildingController().GetPlantableCoordinates().ToArray();
+            }
+
+            List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);
+            if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0){
+                if (sendNotification) GetNotificationManager().SendNotification($"Can't place {building.buildingName} there", NotificationManager.Icons.ErrorIcon);
+                return false;
+            }
+
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<Type> actualBuildings = new()
             {
@@ -80,20 +98,18 @@ namespace Utility{
                 typeof(PetBowl)
             };
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())){
-                GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island", NotificationManager.Icons.ErrorIcon);
+                if (sendNotification) GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island", NotificationManager.Icons.ErrorIcon);
                 return false;
             }
-            if (building.GetType() == typeof(Crop) && !GetBuildingController().GetPlantableCoordinates().Contains(position)){
-                GetNotificationManager().SendNotification("Can't place a crop there", NotificationManager.Icons.ErrorIcon);
+
+            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)){
+                if (sendNotification) GetNotificationManager().SendNotification("Can't place a crop there", NotificationManager.Icons.ErrorIcon);
                 return false;
             }
+
             if (GetBuildingController().isInsideBuilding.Key){
                 if (actualBuildings.Contains(building.GetType())){
-                    GetNotificationManager().SendNotification("Can't place a building inside another building", NotificationManager.Icons.ErrorIcon);
-                    return false;
-                }
-                if (building.GetType() == typeof(Crop) || building.GetType() == typeof(WoodTree)){
-                    GetNotificationManager().SendNotification("Can't place a crops and trees inside a building", NotificationManager.Icons.ErrorIcon);
+                    if (sendNotification) GetNotificationManager().SendNotification("Can't place a building inside another building", NotificationManager.Icons.ErrorIcon);
                     return false;
                 }
             }

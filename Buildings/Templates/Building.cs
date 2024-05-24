@@ -41,13 +41,14 @@ public abstract class Building : TooltipableGameObject {
     public Tilemap Tilemap {get {return gameObject.GetComponent<Tilemap>();}}
     /// <summary> The parent of the buttons that are created for this building </summary>
     public GameObject buttonParent;
-    protected bool hasBeenPlaced = false;
+    public bool hasBeenPlaced {get; protected set;} = false;
     private bool hasBeenPickedUp = false;
     private bool isMouseOverBuilding = false;
     public static Actions CurrentAction {get; set;} = Actions.PLACE;
     private Vector3Int mousePositionOfLastFrame;
     public delegate void BuildingPlacedDelegate();
     public static event BuildingPlacedDelegate BuildingWasPlaced;
+    private Vector3Int currentCell;
     public override string TooltipMessage {
         get {
             if (!hasBeenPlaced) return "";
@@ -79,8 +80,7 @@ public abstract class Building : TooltipableGameObject {
 
     public override bool ShowTooltipCondition(){
         if (!hasBeenPlaced) return false;
-        // Debug.Log("Has Been Placed " + hasBeenPlaced);
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (BaseCoordinates?.Contains(currentCell) ?? false) return true;
         else return false;
     }
@@ -94,7 +94,8 @@ public abstract class Building : TooltipableGameObject {
     public override void OnUpdate(){
         UnityEngine.Debug.Assert(sprite != null, $"Sprite is null for {GetType()}");
         if (BuildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        mousePositionOfLastFrame = currentCell;
+        currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         if (currentCell == mousePositionOfLastFrame) return;
         // UnityEngine.Debug.Log($"Current Action: {CurrentAction}");
         if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP){
@@ -142,29 +143,8 @@ public abstract class Building : TooltipableGameObject {
     }
 
     public void PlaceWrapper(Vector3Int position){
-        if (hasBeenPlaced) return;
-        if (!CanBuildingBePlacedThere(position, this)) return;
-        // Debug.Log($"{this} can be placed at {position}");
+        if (!BuildingCanBePlacedAtPosition(position, this, true)) return;
         List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width);
-        if (!GetBuildingController().isInsideBuilding.Key){
-            if (GetBuildingController().GetUnavailableCoordinates().Intersect(baseCoordinates).Count() != 0){
-                GetNotificationManager().SendNotification($"Cannot place {GetType()} here", NotificationManager.Icons.ErrorIcon);
-                return;
-            }
-        }else{
-            Vector3Int[] interiorUnavailableCoordinates = GetBuildingController().isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>().InteriorUnavailableCoordinates;
-            if (interiorUnavailableCoordinates.Contains(position)){
-                GetNotificationManager().SendNotification($"Cannot place {GetType()} here", NotificationManager.Icons.ErrorIcon);
-                return;
-            }
-            if (position.x < interiorUnavailableCoordinates.Min(vec => vec.x) ||
-                position.x > interiorUnavailableCoordinates.Max(vec => vec.x) || 
-                position.y < interiorUnavailableCoordinates.Min(vec => vec.y) ||
-                position.y > interiorUnavailableCoordinates.Max(vec => vec.y)){
-                    GetNotificationManager().SendNotification($"Cannot place {GetType()} outside of building interior", NotificationManager.Icons.ErrorIcon);
-                return;
-            }
-        }
         Place(position);
         GetBuildingController().buildingGameObjects.Add(gameObject);
         GetBuildingController().buildings.Add(this);
@@ -206,17 +186,13 @@ public abstract class Building : TooltipableGameObject {
     }
 
     protected virtual void PlacePreview(Vector3Int position){
-        if (hasBeenPlaced) return;
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
-        gameObject.GetComponent<TilemapRenderer>().sortingOrder = -currentCell.y + 50;
+        gameObject.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
 
-        Vector3Int[] unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
-        Vector3Int[] buildingBaseCoordinates = GetAreaAroundPosition(currentCell, BaseHeight, Width).ToArray();
-        if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        if (!BuildingCanBePlacedAtPosition(position, this)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
-        Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(currentCell, Height, Width).ToArray();
+        Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(position, Height, Width).ToArray();
         gameObject.GetComponent<Tilemap>().SetTiles(mouseoverEffectArea, SplitSprite(sprite));
     }
 

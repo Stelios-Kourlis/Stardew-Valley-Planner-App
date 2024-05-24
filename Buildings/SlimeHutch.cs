@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static Utility.TilemapManager;
 
 public class SlimeHutch : Building, IEnterableBuilding {
     public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
@@ -45,7 +46,7 @@ public class SlimeHutch : Building, IEnterableBuilding {
         interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 7, 0));
         interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 9, 0));
 
-        InteriorUnavailableCoordinates = interiorUnavailableCoordinates.ToArray();
+        InteriorUnavailableCoordinates = GetAllInteriorUnavailableCoordinates(interiorUnavailableCoordinates.ToArray()).ToArray();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded(){
