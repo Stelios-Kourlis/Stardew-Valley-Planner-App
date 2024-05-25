@@ -110,7 +110,6 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
         multipleTypeBuildingComponent.SetType(type);
         Sprite sprite;
         sprite = Atlas.GetSprite($"{type}{tieredBuildingComponent?.Tier ?? 1}");
-        Debug.Log($"Set type to {type}");
         UpdateTexture(sprite);
     }
 

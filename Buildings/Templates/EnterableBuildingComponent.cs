@@ -8,17 +8,16 @@ using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using UnityEngine.UI;
 
-public class EnterableBuildingComponent{
+public class EnterableBuilding{
     public GameObject BuildingInterior {get; private set;}
-    Sprite interriorSprite;
+    public Sprite interriorSprite;
     readonly Building building;
-    private bool isActive;
     public Vector3Int[] InteriorAreaCoordinates {get; private set;}
     private float cameraSizeBeforeLock;
     private Vector3 cameraPositionBeforeLock;
     private readonly Dictionary<Type, int> entranceOffsetPerBuilding; //this is so the entrace tile of the interior can match the outside entrace
 
-    public EnterableBuildingComponent(Building building){
+    public EnterableBuilding(Building building){
         this.building = building;
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{building.name}");
         entranceOffsetPerBuilding = new Dictionary<Type, int>(){

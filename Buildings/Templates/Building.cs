@@ -96,27 +96,28 @@ public abstract class Building : TooltipableGameObject {
         if (BuildingInteractions.Length != 0 && hasBeenPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(this);
         mousePositionOfLastFrame = currentCell;
         currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (currentCell == mousePositionOfLastFrame) return;
+        // if (currentCell == mousePositionOfLastFrame) return;
         // UnityEngine.Debug.Log($"Current Action: {CurrentAction}");
-        if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP){
-            GetInputHandler().SetCursor(InputHandler.CursorType.Place);
-            PlacePreviewWrapper(currentCell);
+        if (!(currentCell == mousePositionOfLastFrame)){
+            if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP){
+                GetInputHandler().SetCursor(InputHandler.CursorType.Place);
+                PlacePreviewWrapper(currentCell);
+            }
+            else if (CurrentAction == Actions.EDIT){
+                GetInputHandler().SetCursor(InputHandler.CursorType.Pickup);
+                PickupPreview();
+            }
+            else if (CurrentAction == Actions.DELETE){
+                GetInputHandler().SetCursor(InputHandler.CursorType.Delete);
+                DeletePreview();
+            }
+            else if (CurrentAction == Actions.DO_NOTHING){
+                GetInputHandler().SetCursor(InputHandler.CursorType.Default);
+                HidePreview();
+            }
         }
-        else if (CurrentAction == Actions.EDIT){
-            GetInputHandler().SetCursor(InputHandler.CursorType.Pickup);
-            PickupPreview();
-        }
-        else if (CurrentAction == Actions.DELETE){
-            GetInputHandler().SetCursor(InputHandler.CursorType.Delete);
-            DeletePreview();
-        }
-        else if (CurrentAction == Actions.DO_NOTHING){
-            GetInputHandler().SetCursor(InputHandler.CursorType.Default);
-            HidePreview();
-        }
-
-       
-        if (Input.GetKeyUp(KeyCode.Mouse0)){
+        
+        if (Input.GetKeyDown(KeyCode.Mouse0)){
             if (!LeftClickShouldRegister()) return;
             
             if (CurrentAction == Actions.PLACE || CurrentAction == Actions.PLACE_PICKED_UP) PlaceWrapper(currentCell);
@@ -124,7 +125,7 @@ public abstract class Building : TooltipableGameObject {
             else if (CurrentAction == Actions.DELETE) DeleteWrapper();
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse1)){
+        if (Input.GetKeyDown(KeyCode.Mouse1)){
             if (BaseCoordinates?.Contains(currentCell) ?? false) OnMouseRightClick();
         }
 
@@ -189,7 +190,7 @@ public abstract class Building : TooltipableGameObject {
         gameObject.GetComponent<Tilemap>().color = new Color(1,1,1,0.5f);
         gameObject.GetComponent<TilemapRenderer>().sortingOrder = -position.y + 50;
 
-        if (!BuildingCanBePlacedAtPosition(position, this)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        if (!BuildingCanBePlacedAtPosition(position, this, false)) gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else gameObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         gameObject.GetComponent<Tilemap>().ClearAllTiles();
         Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(position, Height, Width).ToArray();
@@ -233,13 +234,12 @@ public abstract class Building : TooltipableGameObject {
 
         GetBuildingController().GetUnavailableCoordinates().UnionWith(baseCoordinates);
 
-        this.BaseCoordinates = baseCoordinates.ToArray();
-        this.SpriteCoordinates = spriteCoordinates.ToArray();
+        BaseCoordinates = baseCoordinates.ToArray();
+        SpriteCoordinates = spriteCoordinates.ToArray();
         if (BuildingInteractions.Length != 0) GetButtonController().CreateButtonsForBuilding(this);
 
         hasBeenPlaced = true;
         
-
         if (hasBeenPickedUp){
             hasBeenPickedUp = false;
             CurrentAction = Actions.EDIT;

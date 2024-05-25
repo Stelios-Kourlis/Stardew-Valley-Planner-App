@@ -59,7 +59,7 @@ namespace Utility{
         }
 
         public static bool BuildingCanBePlacedAtPosition(Vector3Int position, Building building, bool sendNotification = false){
-            if (building.hasBeenPlaced) return false;
+            if (building.hasBeenPlaced) { /*GetNotificationManager().SendNotification($"{building.buildingName} has been placed", NotificationManager.Icons.ErrorIcon);*/ return false;}
             Vector3Int[] unavailableCoordinates, plantableCoordinates;
             if (GetBuildingController().isInsideBuilding.Key){
                 IEnterableBuilding enterableBuilding = GetBuildingController().isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>();

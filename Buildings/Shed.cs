@@ -4,14 +4,21 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
-public class Shed : Building, ITieredBuilding {
+public class Shed : Building, ITieredBuilding, IEnterableBuilding {
     public TieredBuilding TieredBuildingComponent {get; private set;}
+    public EnterableBuilding EnterableBuildingComponent {get; private set;}
 
     public int Tier => TieredBuildingComponent.Tier;
+    public Vector3Int[] InteriorUnavailableCoordinates {get; private set;}
+
+    public Vector3Int[] InteriorPlantableCoordinates {get; private set;}
 
     public override void OnAwake(){
         buildingName = "Shed";
         TieredBuildingComponent = new TieredBuilding(this, 2);
+        EnterableBuildingComponent = new EnterableBuilding(this){
+            interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{buildingName}{Tier}")
+        };
         BaseHeight = 3;
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
@@ -48,4 +55,10 @@ public class Shed : Building, ITieredBuilding {
     }
 
     public void SetTier(int tier) => TieredBuildingComponent.SetTier(tier);
+
+    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
+
+    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
+
+    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
 }

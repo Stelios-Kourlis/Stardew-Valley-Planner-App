@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class NewBehaviourScript : MonoBehaviour{
-    private readonly string currentVersion = "Beta-0.6";
+    private readonly string currentVersion = "Beta-0.8";
     private GameObject currentVerGameObject;
     private GameObject newestVerGameObject;
     private GameObject updateAvailableGameObject;

@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 
 public class SlimeHutch : Building, IEnterableBuilding {
-    public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
+    public EnterableBuilding EnterableBuildingComponent {get; private set;}
 
     public Vector3Int[] InteriorUnavailableCoordinates {get; private set;}
 
@@ -18,7 +18,7 @@ public class SlimeHutch : Building, IEnterableBuilding {
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-        EnterableBuildingComponent = new EnterableBuildingComponent(this);
+        EnterableBuildingComponent = new EnterableBuilding(this);
         base.OnAwake();
     }
 

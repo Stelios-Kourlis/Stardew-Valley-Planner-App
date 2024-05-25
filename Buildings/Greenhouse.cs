@@ -12,7 +12,7 @@ public class Greenhouse : Building, IEnterableBuilding {
 
     private GameObject porchTilemapObject;
     private Sprite porchSprite;
-    public EnterableBuildingComponent EnterableBuildingComponent {get; private set;}
+    public EnterableBuilding EnterableBuildingComponent {get; private set;}
 
     public Vector3Int[] InteriorUnavailableCoordinates {get; private set;}
 
@@ -25,7 +25,7 @@ public class Greenhouse : Building, IEnterableBuilding {
         BuildingInteractions = new ButtonTypes[]{
             ButtonTypes.ENTER
         };
-        EnterableBuildingComponent = new EnterableBuildingComponent(this);
+        EnterableBuildingComponent = new EnterableBuilding(this);
         base.OnAwake();
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
@@ -73,7 +73,6 @@ public class Greenhouse : Building, IEnterableBuilding {
     }
 
     protected override void PlacePreview(Vector3Int position){
-        if (hasBeenPlaced) return;
         base.PlacePreview(position);
         Vector3Int porchBottomRight = position + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
         Vector3Int[] porchCoordinates = GetAreaAroundPosition(porchBottomRight, 2, 3).ToArray();
@@ -87,7 +86,8 @@ public class Greenhouse : Building, IEnterableBuilding {
     protected override void DeletePreview(){
         base.DeletePreview();
         Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (BaseCoordinates.Contains(currentCell)) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
+        Debug.Log(currentCell);
+        if (BaseCoordinates?.Contains(currentCell) ?? false) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
