@@ -11,9 +11,9 @@ using static Utility.TilemapManager;
 using System.Runtime.Remoting.Messaging;
 using System;
 
-public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRangeEffectBuilding{
+public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRangeEffectBuilding, IExtraActionBuilding {
 
-    public enum Types{
+    public enum Types {
         Scarecrow,
         Rarecrow1,
         Rarecrow2,
@@ -25,45 +25,43 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
         Rarecrow8,
         DeluxeScarecrow
     }
-    private bool IsDeluxe {get; set;} = false;
+    private bool IsDeluxe { get; set; } = false;
 
-    public override string TooltipMessage{get{
-        if (!IsDeluxe) return "Right Click To Cycle Scarecrow Type";
-        else return "";
-    }}
+    public override string TooltipMessage {
+        get {
+            if (!IsDeluxe) return "Right Click To Cycle Scarecrow Type";
+            else return "";
+        }
+    }
 
-    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; private set; }
 
-    public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
+    public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
 
     public Types Type => MultipleTypeBuildingComponent.Type;
 
-    public override void OnAwake(){
-        buildingName = "Scarecrow";
+    public override void OnAwake() {
+        BuildingName = "Scarecrow";
         BaseHeight = 1;
         base.OnAwake();
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     }
 
-    protected override void PlacePreview(Vector3Int position){
-        if (hasBeenPlaced) return;
-        // GetComponent<Tilemap>();
-        base.PlacePreview(position);
-        Vector3Int[] coverageArea = MultipleTypeBuildingComponent.Type switch{
+    public void PerformExtraActionsOnPlacePreview(Vector3Int position) {
+        Vector3Int[] coverageArea = MultipleTypeBuildingComponent.Type switch {
             Types.DeluxeScarecrow => GetRangeOfDeluxeScarecrow(position).ToArray(),
             _ => GetRangeOfScarecrow(position).ToArray()
         };
         RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
     }
 
-    public override void Place(Vector3Int position){
-        base.Place(position);
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
         RangeEffectBuildingComponent.HideEffectRange();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
-        return MultipleTypeBuildingComponent.Type switch{
+    public override List<MaterialInfo> GetMaterialsNeeded() {
+        return MultipleTypeBuildingComponent.Type switch {
             Types.DeluxeScarecrow => new List<MaterialInfo>{//Deluxe scarecrow
                 new(50, Materials.Wood),
                 new(1, Materials.IridiumOre),
@@ -102,30 +100,24 @@ public class Scarecrow : Building, IMultipleTypeBuilding<Scarecrow.Types>, IRang
         };
     }
 
-    public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{MultipleTypeBuildingComponent.Type}";
+    public string AddToBuildingData() {
+        return $"{MultipleTypeBuildingComponent.Type}";
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        OnAwake();
-        Place(new Vector3Int(x,y,0));
-        MultipleTypeBuildingComponent.SetType((Types) int.Parse(data[0]));
+    public void LoadExtraBuildingData(string[] data) {
+        MultipleTypeBuildingComponent.SetType((Types)int.Parse(data[0]));
     }
 
-    protected override void OnMouseRightClick(){
-        MultipleTypeBuildingComponent.CycleType();
-    }
-
-    protected override void OnMouseEnter(){
+    protected void OnMouseEnter() { //todo Add this
         Vector3Int lowerLeftCorner = BaseCoordinates[0];
-        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x-7, lowerLeftCorner.y-8, 0), 17, 17).ToArray());
+        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
     }
 
-    protected override void OnMouseExit(){
+    protected void OnMouseExit() { //todo Add this
         RangeEffectBuildingComponent.HideEffectRange();
     }
 
-    public GameObject[] CreateButtonsForAllTypes(){
+    public GameObject[] CreateButtonsForAllTypes() {
         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
 

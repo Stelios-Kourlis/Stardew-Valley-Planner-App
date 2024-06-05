@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 
-public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBuilding{
+public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBuilding {
 
     public enum Types {
         WOOD_FLOOR,
@@ -27,19 +27,19 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBu
         STEPPING_STONE_PATH,
         CRYSTAL_PATH
     }
-    
-    public static event Action<Vector3Int> FloorWasPlaced;
-    public static List<Vector3Int> OtherFloors {get; private set;}
-    public override string TooltipMessage => "";
-    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
-    public ConnectingBuilding ConnectingBuildingComponent {get; private set;}
-    public Types Type {get; private set;}
-    public static Types CurrentType {get; private set;}
 
-    public override void OnAwake(){
+    public static event Action<Vector3Int> FloorWasPlaced;
+    public static List<Vector3Int> OtherFloors { get; private set; }
+    public override string TooltipMessage => "";
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; private set; }
+    public ConnectingBuilding ConnectingBuildingComponent { get; private set; }
+    public Types Type { get; private set; }
+    public static Types CurrentType { get; private set; }
+
+    public override void OnAwake() {
         BaseHeight = 1;
         base.OnAwake();
-        buildingName = "Floor";
+        BuildingName = "Floor";
         OtherFloors ??= new List<Vector3Int>();
         FloorWasPlaced += AnotherFloorPlaced;
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
@@ -47,27 +47,23 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBu
         SetType(CurrentType);
     }
 
-    protected override void PlacePreview(Vector3Int position){
-        base.PlacePreview(position);    
+    protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{Type}{ConnectingBuildingComponent.GetConnectingFlags(position, OtherFloors)}"));
     }
 
-    public override void Place(Vector3Int position){
-        // Debug.Log("Floor was placed");
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
         OtherFloors.Add(position);
-        base.Place(position);
         FloorWasPlaced?.Invoke(position);
     }
 
-    public override void Delete(){
+    public void PerformExtraActionsOnDelete() {
         OtherFloors.Remove(BaseCoordinates[0]);
         FloorWasPlaced -= AnotherFloorPlaced;
         FloorWasPlaced?.Invoke(BaseCoordinates[0]);
-        base.Delete();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
-        return MultipleTypeBuildingComponent.Type switch{
+    public override List<MaterialInfo> GetMaterialsNeeded() {
+        return MultipleTypeBuildingComponent.Type switch {
             Types.WOOD_FLOOR => new List<MaterialInfo>(){
                 new(1, Materials.Wood)
             },
@@ -113,45 +109,43 @@ public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBu
         };
     }
 
-    public override string GetBuildingData(){
-        return $"{GetType()}|{BaseCoordinates[0].x}|{BaseCoordinates[0].y}|{MultipleTypeBuildingComponent.Type}";
+    public string AddToBuildingData() {
+        return $"{MultipleTypeBuildingComponent.Type}";
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Place(new Vector3Int(x,y,0));
+    public void LoadExtraBuildingData(string[] data) {
         MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
     }
 
-    private void AnotherFloorPlaced(Vector3Int position){
+    private void AnotherFloorPlaced(Vector3Int position) {
         if (BaseCoordinates?.Contains(position) ?? true) return;
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{Type}{ConnectingBuildingComponent.GetConnectingFlags(BaseCoordinates[0], OtherFloors)}"));
     }
-    public void CycleType(){
+    public void CycleType() {
         int enumLength = Enum.GetValues(typeof(Types)).Length;
-        int intValue = (int) Type;
+        int intValue = (int)Type;
         intValue = (intValue + 1) % enumLength;
         SetType((Types)Enum.ToObject(typeof(Types), intValue));
-    } 
+    }
 
-    public void SetType(Types type){
+    public void SetType(Types type) {
         CurrentType = type;
         Type = type;
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}0"));
     }
 
-    public GameObject[] CreateButtonsForAllTypes(){
+    public GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
-        foreach (Types type in Enum.GetValues(typeof(Types))){
+        foreach (Types type in Enum.GetValues(typeof(Types))) {
             GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}";
             button.GetComponent<Image>().sprite = MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}0");
 
             Type buildingType = GetType();
-            BuildingController buildingController = GetBuildingController();
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
-                CurrentAction = Actions.PLACE;
-                });
+            button.GetComponent<Button>().onClick.AddListener(() => {
+                BuildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
+                BuildingController.SetCurrentAction(Actions.PLACE);
+            });
             buttons.Add(button);
         }
         return buttons.ToArray();

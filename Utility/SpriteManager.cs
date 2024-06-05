@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace Utility{
-    public static class SpriteManager{
+namespace Utility {
+    public static class SpriteManager {
         ///<summary>Split a sprite of a building in 16x16 tiles</summary>
         ///<param name="building">the building whose sprite you want to slice</param>
         ///<param name="reverseLayerOrder">if true the building layers will be flipped y-wise, true by default</param>
@@ -13,7 +13,7 @@ namespace Utility{
         public static Tile[] SplitSprite(Building building, bool reverseLayerOrder = true) {
             Tile[] tiles = new Tile[building.Height * building.Width];
             int index = 0;
-            Texture2D texture = building.sprite.texture;
+            Texture2D texture = building.Sprite.texture;
             if (reverseLayerOrder) {
                 for (int yPivot = building.Height - 1; yPivot >= 0; yPivot--) {
                     for (int xPivot = 0; xPivot < building.Width; xPivot++) {
@@ -23,7 +23,8 @@ namespace Utility{
                         tiles[index++] = tile;
                     }
                 }
-            } else {
+            }
+            else {
                 for (int yPivot = 0; yPivot < building.Height % 16; yPivot++) {
                     for (int xPivot = 0; xPivot < building.Width % 16; xPivot++) {
                         Sprite sprite = Sprite.Create(texture, new Rect(xPivot * 16, yPivot * 16, 16, 16), new Vector2(0.5f, 0.5f), 16);
@@ -51,7 +52,8 @@ namespace Utility{
                         tiles[index++] = tile;
                     }
                 }
-            } else {
+            }
+            else {
                 for (int yPivot = 0; yPivot < height % 16; yPivot++) {
                     for (int xPivot = 0; xPivot < width % 16; xPivot++) {
                         Sprite sprite = Sprite.Create(texture, new Rect(xPivot * 16, yPivot * 16, 16, 16), new Vector2(0.5f, 0.5f), 16);
@@ -64,7 +66,7 @@ namespace Utility{
             return tiles;
         }
 
-        public static Tile[] SplitSprite(Sprite sprite){
+        public static Tile[] SplitSprite(Sprite sprite) {
             // int height = sprite.texture.height;
             // int width = sprite.texture.width;
             List<Tile> tiles = new();
@@ -94,13 +96,13 @@ namespace Utility{
             int width = texture.width / 16;
             Sprite sprite = Sprite.Create(texture, new Rect(topLeftCorner.x * 16, topLeftCorner.y * 16, width * 16, height * 16), new Vector2(0.5f, 0.5f), 16);
             Texture2D croppedTexture = new((int)sprite.rect.width, (int)sprite.rect.height);
-            Color[] pixels = sprite.texture.GetPixels((int)sprite.textureRect.x, 
-                                                (int)sprite.textureRect.y, 
-                                                (int)sprite.textureRect.width, 
+            Color[] pixels = sprite.texture.GetPixels((int)sprite.textureRect.x,
+                                                (int)sprite.textureRect.y,
+                                                (int)sprite.textureRect.width,
                                                 (int)sprite.textureRect.height);
             croppedTexture.SetPixels(pixels);
             croppedTexture.Apply();
-            return croppedTexture;  
+            return croppedTexture;
         }
     }
 

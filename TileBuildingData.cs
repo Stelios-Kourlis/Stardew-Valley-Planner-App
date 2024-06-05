@@ -28,9 +28,8 @@ public class TileBuildingData : MonoBehaviour {
             int z = int.Parse(nums[2]);
             tempList.Add(new Vector3Int(x, y, z));
         }
-        BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-        buildingController.GetUnavailableCoordinates().Clear();
-        foreach (Vector3Int vec in tempList) buildingController.GetUnavailableCoordinates().Add(vec);
+        BuildingController.GetUnavailableCoordinates().Clear();
+        foreach (Vector3Int vec in tempList) BuildingController.GetUnavailableCoordinates().Add(vec);
     }
 
     public void AddPlantableTilesData(MapController.MapTypes farm) {
@@ -48,9 +47,8 @@ public class TileBuildingData : MonoBehaviour {
             tempList.Add(new Vector3Int(x, y, z));
             // Debug.Log("Added " + x + " " + y + " " + z);
         }
-        BuildingController buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
-        buildingController.GetPlantableCoordinates().Clear();
-        foreach (Vector3Int vec in tempList) buildingController.GetPlantableCoordinates().Add(vec);
+        BuildingController.GetPlantableCoordinates().Clear();
+        foreach (Vector3Int vec in tempList) BuildingController.GetPlantableCoordinates().Add(vec);
     }
 
     public void RemoveAllDuplicates() {

@@ -7,26 +7,27 @@ using System.Reflection;
 using SFB;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 using static Utility.TilemapManager;
 
-namespace Utility{
-    public static class BuildingManager{
-        
+namespace Utility {
+    public static class BuildingManager {
+
         /// <summary>
         /// Save the current state of the buildings to a file
         /// </summary>
         /// <returns>true, if the user saved, false if the user cancelled</returns>
         public static bool Save() {
             string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
-            string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp");;
+            string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp"); ;
             if (savePath != "") {
                 string directoryPath = Path.GetDirectoryName(savePath);
                 PlayerPrefs.SetString("DefaultSavePath", directoryPath);
                 using StreamWriter writer = new(savePath);
-                foreach (Building building in GetBuildingController().GetBuildings()) {
+                foreach (Building building in BuildingController.GetBuildings()) {
                     writer.WriteLine(building.GetBuildingData());
                 }
             }
@@ -39,46 +40,71 @@ namespace Utility{
         /// <returns>true, if the user chose a file, false if the user cancelled</returns>
         public static bool Load() {
             string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[]{new("Stardew Valley Planner Files", "svp")}, false);
-            Type currentType = GetBuildingController().currentBuildingType;
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
+            Type currentType = BuildingController.currentBuildingType;
             if (paths.Length > 0) {
                 string directoryPath = Path.GetDirectoryName(paths[0]);
                 PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
                 using StreamReader reader = new(paths[0]);
-                GetBuildingController().DeleteAllBuildings(true);
-                GetBuildingController().IsLoadingSave = true;
-                while (reader.Peek() >= 0){
+                BuildingController.DeleteAllBuildings(true);
+                BuildingController.IsLoadingSave = true;
+                while (reader.Peek() >= 0) {
                     string line = reader.ReadLine();
                     if (line.Equals("")) continue;
-                    GetBuildingController().PlaceSavedBuilding(line);
+                    BuildingController.PlaceSavedBuilding(line);
                 }
-                GetBuildingController().IsLoadingSave = false;
+                BuildingController.IsLoadingSave = false;
             }
-            GetBuildingController().SetCurrentBuildingType(currentType); 
+            BuildingController.SetCurrentBuildingType(currentType);
             return paths.Length > 0;
         }
 
-        public static bool BuildingCanBePlacedAtPosition(Vector3Int position, Building building, bool sendNotification = false){
-            if (building.hasBeenPlaced) { /*GetNotificationManager().SendNotification($"{building.buildingName} has been placed", NotificationManager.Icons.ErrorIcon);*/ return false;}
+        public static bool LoadThenSwitchSceneToFarm() {
+            string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
+            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
+            if (paths.Length <= 0) return false;
+            SceneManager.LoadScene("App");
+            Type currentType = BuildingController.currentBuildingType;
+            string directoryPath = Path.GetDirectoryName(paths[0]);
+            PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
+            using StreamReader reader = new(paths[0]);
+            BuildingController.DeleteAllBuildings(true);
+            BuildingController.IsLoadingSave = true;
+            while (reader.Peek() >= 0) {
+                string line = reader.ReadLine();
+                if (line.Equals("")) continue;
+                BuildingController.PlaceSavedBuilding(line);
+            }
+            BuildingController.IsLoadingSave = false;
+            BuildingController.SetCurrentBuildingType(currentType);
+            return paths.Length > 0;
+        }
+
+
+        /// <summary>
+        /// Check if a building can be placed at a certain position
+        /// <param name="position"> The lower left corner of the building position </param>
+        /// <param name="building"> The building you want to place </param>
+        /// </summary>
+        /// <returns> If the position is unavailable return (false, reason), with reason being a string with the issue, else returns (true, null)</returns>
+        public static (bool, string) BuildingCanBePlacedAtPosition(Vector3Int position, Building building) {
+            if (building.IsPlaced) return (false, "Building has already been placed");
             Vector3Int[] unavailableCoordinates, plantableCoordinates;
-            if (GetBuildingController().isInsideBuilding.Key){
-                IEnterableBuilding enterableBuilding = GetBuildingController().isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>();
+            if (BuildingController.isInsideBuilding.Key) {
+                IEnterableBuilding enterableBuilding = BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>();
                 unavailableCoordinates = enterableBuilding.InteriorUnavailableCoordinates;
                 plantableCoordinates = enterableBuilding.InteriorPlantableCoordinates;
-            } else{
-                unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
-                plantableCoordinates = GetBuildingController().GetPlantableCoordinates().ToArray();
+            }
+            else {
+                unavailableCoordinates = BuildingController.GetUnavailableCoordinates().ToArray();
+                plantableCoordinates = BuildingController.GetPlantableCoordinates().ToArray();
             }
 
             List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);
-            if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0){
-                if (sendNotification) GetNotificationManager().SendNotification($"Can't place {building.buildingName} there", NotificationManager.Icons.ErrorIcon);
-                return false;
-            }
+            if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
-            HashSet<Type> actualBuildings = new()
-            {
+            HashSet<Type> actualBuildings = new(){
                 typeof(Barn),
                 typeof(Cabin),
                 typeof(Coop),
@@ -97,33 +123,38 @@ namespace Utility{
                 typeof(Well),
                 typeof(PetBowl)
             };
-            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())){
-                if (sendNotification) GetNotificationManager().SendNotification($"{building.GetType()} can't be placed on Ginger Island", NotificationManager.Icons.ErrorIcon);
-                return false;
-            }
+            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
-            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)){
-                if (sendNotification) GetNotificationManager().SendNotification("Can't place a crop there", NotificationManager.Icons.ErrorIcon);
-                return false;
-            }
+            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there");
 
-            if (GetBuildingController().isInsideBuilding.Key){
-                if (actualBuildings.Contains(building.GetType())){
-                    if (sendNotification) GetNotificationManager().SendNotification("Can't place a building inside another building", NotificationManager.Icons.ErrorIcon);
-                    return false;
-                }
-            }
-            return true;
+            if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
+            return (true, null);
         }
 
-        public static bool LeftClickShouldRegister(){
+        public static bool LeftClickShouldRegister() {
             if (EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name == "TopRightButtons") return true;
             if (EventSystem.current.IsPointerOverGameObject()) return false;
             if (GetSettingsModalController().IsOpen) return false;
             return true;
         }
-        
-        public static void AddHoverEffect(Button button){
+
+        public static void PlayParticleEffect(Building building, bool isPlace = false) {
+            GameObject ParticleSystem = GetParticleSystem();
+            ParticleSystem.transform.position = GetMiddleOfBuildingWorld(building);
+            var particleSystem = ParticleSystem.GetComponent<ParticleSystem>();
+            var shape = particleSystem.shape;
+            shape.scale = new Vector3(building.Width, building.BaseHeight, building.BaseHeight);
+            var emission = particleSystem.emission;
+            var newBurst = emission.GetBurst(0);
+            //put some extra particles in place just because
+            (float, float) particleAmount = (building.Width * building.BaseHeight, building.Width * building.BaseHeight * 1.5f);
+            if (isPlace) particleAmount = (particleAmount.Item1 * 1.5f, particleAmount.Item2 * 1.5f);
+            newBurst.count = new ParticleSystem.MinMaxCurve(particleAmount.Item1, particleAmount.Item2);
+            emission.SetBurst(0, newBurst);
+            particleSystem.Play();
+        }
+
+        public static void AddHoverEffect(Button button) {
             EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
             EventTrigger.Entry pointerEnterEntry = new();
             pointerEnterEntry.eventID = EventTriggerType.PointerEnter;
@@ -137,6 +168,6 @@ namespace Utility{
                 button.transform.localScale = new Vector3(1, 1);
             });
             eventTrigger.triggers.Add(pointerExitEntry);
-    }
+        }
     }
 }

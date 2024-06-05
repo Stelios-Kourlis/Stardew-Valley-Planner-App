@@ -7,7 +7,7 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
+public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
 
     const int HEIGHT = 50;
     const int WIDTH = 1200;
@@ -15,26 +15,26 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
     private readonly List<MaterialInfo> materialsNeeded = new();
     private SpriteAtlas materialAtlas;
 
-    public bool IsMoving {get; private set;}
+    public bool IsMoving { get; private set; }
 
-    public bool IsOpen {get; private set;}
+    public bool IsOpen { get; private set; }
 
-    public void Start(){
+    public void Start() {
         materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
-        gameObject.transform.position = new Vector3(Screen.width/2, Screen.height + 500, 0);
-    }   
+        gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height + 500, 0);
+    }
 
-    public void SumTotalMaterialsNeeded(){
+    public void SumTotalMaterialsNeeded() {
         materialsNeeded.Clear();
-        foreach (Building building in GetBuildingController().GetBuildings()){
-            foreach (MaterialInfo material in building.GetMaterialsNeeded()){
-                if (material.IsSpecial){
+        foreach (Building building in BuildingController.GetBuildings()) {
+            foreach (MaterialInfo material in building.GetMaterialsNeeded()) {
+                if (material.IsSpecial) {
                     MaterialInfo specialMaterial = materialsNeeded.FirstOrDefault(item => item.howToGet == material.howToGet);
                     if (specialMaterial != null) specialMaterial.amount += material.amount;
                     else materialsNeeded.Add(material);
                     continue;
                 }
-                else{
+                else {
                     MaterialInfo materialInfo = materialsNeeded.FirstOrDefault(item => item.name == material.name);
                     if (materialInfo != null) materialInfo.amount += material.amount;
                     else materialsNeeded.Add(material);
@@ -44,22 +44,22 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
         DisplayMaterials();
     }
 
-    private void DisplayMaterials(){
+    private void DisplayMaterials() {
         GameObject materialsNeededPanel = GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel");
         // StartCoroutine(OpenPanel());
         GameObject scrollContent = materialsNeededPanel.transform.GetChild(1).GetChild(0).gameObject;
         int counter = 0;
 
-        for (int childIndex = 0; childIndex < scrollContent.transform.childCount; childIndex++){
+        for (int childIndex = 0; childIndex < scrollContent.transform.childCount; childIndex++) {
             Destroy(scrollContent.transform.GetChild(childIndex).gameObject);
         }
 
-        foreach (MaterialInfo material in materialsNeeded){
+        foreach (MaterialInfo material in materialsNeeded) {
             GameObject entry = new($"{material}Entry");
             entry.transform.SetParent(scrollContent.transform);
             entry.AddComponent<RectTransform>().sizeDelta = new Vector2(WIDTH, HEIGHT);
-            entry.transform.position = new Vector3(50, -50 + counter * HEIGHT , 0);
-            if (!material.IsSpecial){
+            entry.transform.position = new Vector3(50, -50 + counter * HEIGHT, 0);
+            if (!material.IsSpecial) {
                 AddTextGameObject(material, entry.transform);
                 AddImage(material, entry.transform);
             }
@@ -69,7 +69,7 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
         // materialsNeededPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
     }
 
-    private void AddTextGameObject(MaterialInfo material, Transform parent){
+    private void AddTextGameObject(MaterialInfo material, Transform parent) {
         if (material.IsSpecial) throw new ArgumentException("Material is special, use CreateSpecialTextGameObject() instead.");
         GameObject textGameObject = new(material.name.ToString());
         textGameObject.AddComponent<Text>().text = $"{material.amount:N0}x {material.name}";
@@ -81,7 +81,7 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
         textGameObject.transform.SetParent(parent);
     }
 
-    private void AddSpecialTextGameObject(MaterialInfo material, Transform parent){
+    private void AddSpecialTextGameObject(MaterialInfo material, Transform parent) {
         if (!material.IsSpecial) throw new ArgumentException("Material is not special, use CreateTextGameObject() instead.");
         GameObject textGameObject = new(material.howToGet);
         textGameObject.AddComponent<Text>().text = $"{material.amount:N0}x {material.howToGet}";
@@ -94,7 +94,7 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
         textGameObject.transform.SetParent(parent);
     }
 
-    private void AddImage(MaterialInfo material, Transform parent){
+    private void AddImage(MaterialInfo material, Transform parent) {
         if (material.IsSpecial) throw new ArgumentException("Special Material do not have images");
         GameObject imageGameObject = new(material.name.ToString());
         Sprite sprite = materialAtlas.GetSprite(material.name.ToString());
@@ -104,10 +104,10 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
         imageGameObject.transform.SetParent(parent);
     }
 
-    public void CallClosePanelCoroutine(){
+    public void CallClosePanelCoroutine() {
         StartCoroutine(ClosePanel());
     }
-    public void TogglePanel(){
+    public void TogglePanel() {
         if (IsMoving) return;
         if (IsOpen) StartCoroutine(ClosePanel());
         else {
@@ -116,40 +116,40 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel{
         }
     }
 
-    public IEnumerator OpenPanel(){
+    public IEnumerator OpenPanel() {
         if (IsOpen) yield break;
         IsMoving = true;
         IsOpen = true;
         IToggleablePanel.PanelsCurrentlyOpen++;
         StartCoroutine(GetSettingsModalController().ClosePanel());
-        if (Building.CurrentAction != Actions.DO_NOTHING){
-            IToggleablePanel.ActionBeforeEnteringSettings = Building.CurrentAction;
-            Building.CurrentAction = Actions.DO_NOTHING;
+        if (BuildingController.CurrentAction != Actions.DO_NOTHING) {
+            IToggleablePanel.ActionBeforeEnteringSettings = BuildingController.CurrentAction;
+            BuildingController.SetCurrentAction(Actions.DO_NOTHING);
         }
         GetInputHandler().SetCursor(InputHandler.CursorType.Default);
-        GetBuildingController().lastBuildingObjectCreated.GetComponent<Building>().HidePreview();
-        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width/2, Screen.height/2, 0)));// the close to 0,0 the more blur we want
-        while (gameObject.transform.position.y > Screen.height/2){
+        // BuildingController.LastBuildingObjectCreated.GetComponent<Building>().HidePreview();
+        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width / 2, Screen.height / 2, 0)));// the close to 0,0 the more blur we want
+        while (gameObject.transform.position.y > Screen.height / 2) {
             gameObject.transform.position -= new Vector3(0, IToggleablePanel.MOVE_SCALE * Time.deltaTime, 0);
             yield return null;
         }
-        gameObject.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
+        gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height / 2, 0);
         IsMoving = false;
-        
+
     }
 
-    public IEnumerator ClosePanel(){
+    public IEnumerator ClosePanel() {
         if (!IsOpen) yield break;
         IsMoving = true;
         IsOpen = false;
         IToggleablePanel.PanelsCurrentlyOpen--;
-        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width/2, Screen.height/2, 0)));// the close to 0,0 the more blur we want
-        while (gameObject.transform.position.y < Screen.height + 500){
+        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width / 2, Screen.height / 2, 0)));// the close to 0,0 the more blur we want
+        while (gameObject.transform.position.y < Screen.height + 500) {
             gameObject.transform.position += new Vector3(0, IToggleablePanel.MOVE_SCALE * Time.deltaTime, 0);
             yield return null;
         }
         IsMoving = false;
-        gameObject.transform.position = new Vector3(Screen.width/2, Screen.height + 500, 0);
-        if (IToggleablePanel.PanelsCurrentlyOpen == 0) Building.CurrentAction = IToggleablePanel.ActionBeforeEnteringSettings;
+        gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height + 500, 0);
+        if (IToggleablePanel.PanelsCurrentlyOpen == 0) BuildingController.SetCurrentAction(IToggleablePanel.ActionBeforeEnteringSettings);
     }
 }

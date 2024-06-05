@@ -9,8 +9,8 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-namespace Utility{
-    public static class TilemapManager{
+namespace Utility {
+    public static class TilemapManager {
         ///<summary>Get all Vector3Int representing tiles in an area</summary>
         ///<param name="position">the vector containing the bottom left coordinates of the rectangle</param>
         ///<param name="height">the height of the rectangle, must be positive</param>
@@ -31,25 +31,26 @@ namespace Utility{
             if (lowerLeftCorner == null) throw new ArgumentNullException("Position cannot be null");
             if (height < 0 || width < 0) throw new ArgumentException($"Height and width must be positive, got {height} height and {width} width.");
             List<Vector3Int> area = new();
-            if (!flipped){
+            if (!flipped) {
                 for (int heightOffset = 0; heightOffset < height; heightOffset++) {
                     for (int widthOffset = 0; widthOffset < width; widthOffset++) {
                         area.Add(new Vector3Int(lowerLeftCorner.x + widthOffset, lowerLeftCorner.y + heightOffset, lowerLeftCorner.z));
                     }
                 }
-            }else{
+            }
+            else {
                 for (int i = 0; i < height; i++) {
                     for (int j = 0; j < width; j++) {
                         area.Add(new Vector3Int(lowerLeftCorner.x + j, lowerLeftCorner.y - i + height - 1, lowerLeftCorner.z));
+                    }
                 }
-            }
             }
             return area;
         }
 
         ///<summary>Get all Vector3Int representing a cross around the given position, used to get the sprinkler tier 1 area of effect,
         ///List is on order {left, right, down, up}</summary>
-        public static List<Vector3Int> GetCrossAroundPosition(Vector3Int position){
+        public static List<Vector3Int> GetCrossAroundPosition(Vector3Int position) {
             return new List<Vector3Int>{
                 // position,
                 new(position.x - 1, position.y, position.z),
@@ -59,21 +60,21 @@ namespace Utility{
             };
         }
 
-        public static List<Vector3Int> GetAreaAroundPosition(Vector3Int middlePosition, int radius){
+        public static List<Vector3Int> GetAreaAroundPosition(Vector3Int middlePosition, int radius) {
             return GetAreaAroundPosition(new Vector3Int(middlePosition.x - radius, middlePosition.y - radius, middlePosition.z), radius * 2 + 1, radius * 2 + 1);
         }
 
-        public static List<Vector3Int> GetCircleAroundPosition(Vector3Int center, int radius)        {
+        public static List<Vector3Int> GetCircleAroundPosition(Vector3Int center, int radius) {
             List<Vector3Int> points = new();
-            for (int y = -radius; y <= radius; y++){
-                for (int x = -radius; x <= radius; x++){
+            for (int y = -radius; y <= radius; y++) {
+                for (int x = -radius; x <= radius; x++) {
                     if (Math.Abs(x) + Math.Abs(y) <= radius) points.Add(new Vector3Int(center.x + x, center.y + y, center.z));
                 }
             }
             return points;
         }
 
-        public static List<Vector3Int> GetRangeOfScarecrow(Vector3Int center){
+        public static List<Vector3Int> GetRangeOfScarecrow(Vector3Int center) {
             HashSet<Vector3Int> coordinates = new();
             Vector3Int lowerLeft = new(center.x - 4, center.y - 8, center.z);
             coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 17, 9, true));
@@ -90,7 +91,7 @@ namespace Utility{
             return coordinates.ToList();
         }
 
-        public static List<Vector3Int> GetRangeOfDeluxeScarecrow(Vector3Int center){
+        public static List<Vector3Int> GetRangeOfDeluxeScarecrow(Vector3Int center) {
             HashSet<Vector3Int> coordinates = new();
             Vector3Int lowerLeft = new(center.x - 5, center.y - 16, center.z);
             coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 33, 11, true));
@@ -115,10 +116,10 @@ namespace Utility{
             return coordinates.ToList();
         }
 
-        public static List<Vector3Int> GetRangeOfBeehouse(Vector3Int beehousePosition){
+        public static List<Vector3Int> GetRangeOfBeehouse(Vector3Int beehousePosition) {
             List<Vector3Int> coordinates = new();
-            for (int x = -5; x <= 5; x++){
-                for (int y = -5; y <= 5; y++){
+            for (int x = -5; x <= 5; x++) {
+                for (int y = -5; y <= 5; y++) {
                     if (Math.Abs(x) + Math.Abs(y) <= 5) {
                         Vector3Int vec = new(beehousePosition.x + x, beehousePosition.y + y, beehousePosition.z);
                         coordinates.Add(vec);
@@ -134,7 +135,7 @@ namespace Utility{
         /// </summary>
         /// <param name="actualUnavailableCoordinates"></param>
         /// <returns></returns>
-        public static List<Vector3Int> GetAllInteriorUnavailableCoordinates(Vector3Int[] actualUnavailableCoordinates){
+        public static List<Vector3Int> GetAllInteriorUnavailableCoordinates(Vector3Int[] actualUnavailableCoordinates) {
             Vector3Int bottomLeftVec = GetMapController().gameObject.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(new Vector3(0, 0, 0)));
             Vector3Int topRightVec = GetMapController().gameObject.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)));
             Vector3Int[] allCordinatesOnScreen = GetAllCoordinatesInArea(bottomLeftVec, topRightVec).ToArray();
@@ -150,7 +151,7 @@ namespace Utility{
         ///<param name="parent">the transform of the game object you want to be the parent of the created tilemap game object</param>
         ///<param name="name">the name of the created object</param>
         ///<returns>True if there are no other tiles and within the rectangle, otherwise false</returns>
-        public static GameObject CreateTilemapObject(Transform parent, int sortingOrder, String name = "Tilemap"){
+        public static GameObject CreateTilemapObject(Transform parent, int sortingOrder, String name = "Tilemap") {
             GameObject tilemap = new(name);
             tilemap.transform.parent = parent.transform;
             tilemap.AddComponent<Tilemap>();
@@ -159,21 +160,21 @@ namespace Utility{
             return tilemap;
         }
 
-        public static GameObject AddTilemapToObject(GameObject obj){
+        public static GameObject AddTilemapToObject(GameObject obj) {
             if (obj.GetComponent<Tilemap>() == null) obj.AddComponent<Tilemap>();
-            if (obj.GetComponent<TilemapRenderer>() == null)obj.AddComponent<TilemapRenderer>();
+            if (obj.GetComponent<TilemapRenderer>() == null) obj.AddComponent<TilemapRenderer>();
             return obj;
         }
 
-        public static HashSet<Vector3Int> GetAllCoordinatesInArea(Vector3Int point1, Vector3Int point2){
+        public static HashSet<Vector3Int> GetAllCoordinatesInArea(Vector3Int point1, Vector3Int point2) {
             HashSet<Vector3Int> coordinates = new();
 
             // Determine the lower left and upper right corners
             Vector3Int lowerLeft = new(Math.Min(point1.x, point2.x), Math.Min(point1.y, point2.y), 0);
             Vector3Int upperRight = new(Math.Max(point1.x, point2.x), Math.Max(point1.y, point2.y), 0);
 
-            for (int x = lowerLeft.x; x <= upperRight.x; x++){
-                for (int y = lowerLeft.y; y <= upperRight.y; y++){
+            for (int x = lowerLeft.x; x <= upperRight.x; x++) {
+                for (int y = lowerLeft.y; y <= upperRight.y; y++) {
                     coordinates.Add(new Vector3Int(x, y, 0));
                 }
             }
@@ -198,32 +199,34 @@ namespace Utility{
         /// Get the middle coordinate of a building in world coordinates
         /// </summary>
         /// <param name="building">The building</param>
-        public static Vector3 GetMiddleOfBuildingWorld(Building building){
+        public static Vector3 GetMiddleOfBuildingWorld(IBuilding building) {
             int width = building.Width;
             int height = building.Height;
-            Vector3 result = new(-1,-1);
-            if (width % 2 != 0){
+            Vector3 result = new(-1, -1);
+            if (width % 2 != 0) {
                 Vector3Int leftMiddle = new(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2.0f), 0, 0);
                 Vector3Int rightMiddle = new(building.BaseCoordinates[0].x + Mathf.CeilToInt(width / 2.0f), 0, 0);
                 Vector3 leftMiddleWorld = building.Tilemap.CellToWorld(leftMiddle);
                 Vector3 rightMiddleWorld = building.Tilemap.CellToWorld(rightMiddle);
                 result.x = (leftMiddleWorld.x + rightMiddleWorld.x) / 2;
-            }else result.x = building.Tilemap.CellToWorld(new Vector3Int(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2),0,0)).x;
-            if (height % 2 != 0){
+            }
+            else result.x = building.Tilemap.CellToWorld(new Vector3Int(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2), 0, 0)).x;
+            if (height % 2 != 0) {
                 Vector3Int downMiddle = new(0, building.BaseCoordinates[0].y + Mathf.FloorToInt(height / 2.0f), 0);
                 Vector3Int upMiddle = new(0, building.BaseCoordinates[0].y + Mathf.CeilToInt(height / 2.0f), 0);
                 Vector3 downMiddleWorld = building.Tilemap.CellToWorld(downMiddle);
                 Vector3 upMiddleWorld = building.Tilemap.CellToWorld(upMiddle);
                 result.y = (upMiddleWorld.y + downMiddleWorld.y) / 2;
-            } else result.y = building.Tilemap.CellToWorld(new Vector3Int(0, building.BaseCoordinates[0].y + height / 2, 0)).y;
-                
-            
+            }
+            else result.y = building.Tilemap.CellToWorld(new Vector3Int(0, building.BaseCoordinates[0].y + height / 2, 0)).y;
+
+
             return result;
         }
 
-        public static void TakePictureOfMap(){
+        public static void TakePictureOfMap() {
             // Building.CurrentAction = Actions.EDIT;
-            GetBuildingController().lastBuildingObjectCreated.GetComponent<Building>().HidePreview();
+            BuildingController.LastBuildingObjectCreated.SetActive(false); //todo do this by disablijg the go
             // Save the original camera settings
             Vector3 originalPosition = Camera.main.transform.position;
             float originalSize = Camera.main.orthographicSize;
@@ -261,7 +264,7 @@ namespace Utility{
             // Write the byte array to a file
             string defaultScreenshotPath = PlayerPrefs.GetString("DefaultScreenshotPath", Application.dataPath);
             var savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultScreenshotPath, "FarmScreenshot", "png");
-            if (savePath != ""){
+            if (savePath != "") {
                 string directoryPath = Path.GetDirectoryName(savePath);
                 PlayerPrefs.SetString("DefaultScreenshotPath", directoryPath);
                 File.WriteAllBytes(savePath, bytes);
@@ -273,14 +276,14 @@ namespace Utility{
 
             // Restore the original camera settings
             Camera.main.transform.position = originalPosition;
-            Camera.main.orthographicSize = originalSize; 
+            Camera.main.orthographicSize = originalSize;
 
-            
+
         }
 
-        // public static void SetBuildingInteriorAsMainTilemap(Transform buildingInteriorTilemap){
-        //     GetBuildingController().isInsideBuilding = new KeyValuePair<bool, Transform>(true, buildingInteriorTilemap);
-        // }
+        public static Vector3Int GetMousePositionInTilemap() {
+            return GetGridTilemap().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        }
 
     }
 }

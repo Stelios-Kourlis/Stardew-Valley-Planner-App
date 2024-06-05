@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Utility.ClassManager;
 
-public class OnboradingFlow : MonoBehaviour{
+public class OnboradingFlow : MonoBehaviour {
 
     private readonly float SCALE_CHANGE_RATE = 2.5f;
     private GameObject introText;
@@ -13,7 +13,7 @@ public class OnboradingFlow : MonoBehaviour{
     private GameObject generalTipText;
     Transform parentOfActionButtons = null;
     Transform parentOfArrowButton = null;
-    void Start(){
+    void Start() {
         introText = gameObject.transform.GetChild(1).gameObject;
         actionText = gameObject.transform.GetChild(2).gameObject;
         settingsAndMaterialsText = gameObject.transform.GetChild(3).gameObject;
@@ -23,18 +23,18 @@ public class OnboradingFlow : MonoBehaviour{
         else gameObject.SetActive(false);
     }
 
-    void Update(){
+    void Update() {
         if (Input.GetKeyDown(KeyCode.J)) StartCoroutine(PopEffect(GameObject.FindWithTag("PlaceButton")));
     }
 
-    public void StartOnboardingFlow(){
+    public void StartOnboardingFlow() {
         gameObject.SetActive(true);
         GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
         GameObject buildingPanel = GameObject.FindGameObjectWithTag("Panel");
         StartCoroutine(settingsModal.GetComponent<SettingsModalController>().ClosePanel());
         StartCoroutine(buildingPanel.GetComponent<BuildingMenuController>().ClosePanel());
         IToggleablePanel.PanelsCurrentlyOpen++;
-        Building.CurrentAction = Actions.DO_NOTHING;
+        BuildingController.SetCurrentAction(Actions.DO_NOTHING);
         GetInputHandler().SetCursor(InputHandler.CursorType.Default);
 
         introText.SetActive(true);
@@ -44,7 +44,7 @@ public class OnboradingFlow : MonoBehaviour{
         generalTipText.SetActive(false);
     }
 
-    public void ShowHowToChangeAction(){
+    public void ShowHowToChangeAction() {
         GameObject placeButton = GameObject.FindWithTag("PlaceButton");
         GameObject editButton = GameObject.FindWithTag("PickupButton");
         GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
@@ -59,7 +59,7 @@ public class OnboradingFlow : MonoBehaviour{
         StartCoroutine(PopEffect(deleteButton));
     }
 
-    public void ShowSettingAndMaterials(){
+    public void ShowSettingAndMaterials() {
         GameObject placeButton = GameObject.FindWithTag("PlaceButton");
         GameObject editButton = GameObject.FindWithTag("PickupButton");
         GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
@@ -76,7 +76,7 @@ public class OnboradingFlow : MonoBehaviour{
         StartCoroutine(PopEffect(materialsButton));
     }
 
-    public void ShowHowToChangeBuilding(){
+    public void ShowHowToChangeBuilding() {
         GameObject settingsButton = GameObject.Find("settingsButton");
         GameObject materialsButton = GameObject.Find("ShowTotalMaterials");
         settingsButton.transform.SetParent(parentOfActionButtons);
@@ -89,15 +89,15 @@ public class OnboradingFlow : MonoBehaviour{
         StartCoroutine(PopEffect(arrowButton));
     }
 
-    public void ShowGeneralTip(){
+    public void ShowGeneralTip() {
         GameObject arrowButton = GameObject.Find("ArrowButton");
         arrowButton.transform.SetParent(parentOfArrowButton);
         buildingText.SetActive(false);
         generalTipText.SetActive(true);
     }
 
-    public void EndOnboardingFlow(){
-        if (parentOfActionButtons != null){
+    public void EndOnboardingFlow() {
+        if (parentOfActionButtons != null) {
             GameObject placeButton = GameObject.FindWithTag("PlaceButton");
             GameObject editButton = GameObject.FindWithTag("PickupButton");
             GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
@@ -109,7 +109,7 @@ public class OnboradingFlow : MonoBehaviour{
             settingsButton.transform.SetParent(parentOfActionButtons);
             materialsButton.transform.SetParent(parentOfActionButtons);
         }
-        if (parentOfArrowButton != null){
+        if (parentOfArrowButton != null) {
             GameObject arrowButton = GameObject.Find("ArrowButton");
             arrowButton.transform.SetParent(parentOfArrowButton);
         }
@@ -118,18 +118,18 @@ public class OnboradingFlow : MonoBehaviour{
 
         GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
         settingsModal.SetActive(true);
-        Building.CurrentAction = Actions.PLACE;
+        BuildingController.SetCurrentAction(Actions.PLACE);
         gameObject.SetActive(false);
         PlayerPrefs.SetInt("HasDoneIntro", 1);
-        
+
     }
 
-    public IEnumerator PopEffect(GameObject gameObj){
-        while(gameObj.transform.localScale.x < 1.5){
+    public IEnumerator PopEffect(GameObject gameObj) {
+        while (gameObj.transform.localScale.x < 1.5) {
             gameObj.transform.localScale += new Vector3(SCALE_CHANGE_RATE * Time.deltaTime, SCALE_CHANGE_RATE * Time.deltaTime);
             yield return null;
         }
-        while(gameObj.transform.localScale.x > 1){
+        while (gameObj.transform.localScale.x > 1) {
             gameObj.transform.localScale -= new Vector3(SCALE_CHANGE_RATE * Time.deltaTime, SCALE_CHANGE_RATE * Time.deltaTime);
             yield return null;
         }

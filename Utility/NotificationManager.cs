@@ -8,19 +8,19 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class NotificationManager : MonoBehaviour{//todo add notification icons
+public class NotificationManager : MonoBehaviour {
 
-    private class Notification{
+    private class Notification {
         public readonly GameObject notificationGameObject;
         public readonly float durationAliveSeconds;
 
-        public Notification(GameObject notificationGameObject){
+        public Notification(GameObject notificationGameObject) {
             this.notificationGameObject = notificationGameObject;
             durationAliveSeconds = 0;
         }
     }
 
-    public enum Icons{
+    public enum Icons {
         ErrorIcon,
         SaveIcon,
         CheckIcon,
@@ -30,19 +30,26 @@ public class NotificationManager : MonoBehaviour{//todo add notification icons
     private readonly int MAX_POSSIBLE_NOTIFICATIONS = 5;
     private readonly float NOTIFICATION_LIFETIME_SECONDS = 5;
     private readonly float TOOLTIP_DELAY_SECONDS = 0.75f;
-    public bool IsShowingTooltip {get; private set;} = false;
+    public bool IsShowingTooltip { get; private set; } = false;
 
     private readonly List<Notification> notifications = new();
 
-    public void SendNotification(string message, Icons icon){
+    public void SendNotification(string message, Icons icon) {
         GameObject notificationGameObject = Resources.Load("UI/Notification") as GameObject;
         notificationGameObject = Instantiate(notificationGameObject, GetCanvasGameObject().transform);
-        notificationGameObject.transform.GetChild(0).GetComponent<Text>().text = message;
+        Text textComponent = notificationGameObject.transform.GetChild(0).GetComponent<Text>();
+        textComponent.text = message;
+        float height = textComponent.GetComponent<RectTransform>().sizeDelta.y switch {
+            30 => 60,
+            60 => 80,
+            _ => 0
+        };
+        notificationGameObject.GetComponent<SpriteRenderer>().size = new Vector2(600, height);
         SpriteAtlas spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
-        notificationGameObject.transform.GetChild(1).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
+        notificationGameObject.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
         Notification notification = new(notificationGameObject);
         notifications.Insert(0, notification);
-         notificationGameObject.GetComponent<Button>().onClick.AddListener(() => {
+        notificationGameObject.GetComponent<Button>().onClick.AddListener(() => {
             Destroy(notificationGameObject);
             notifications.Remove(notification);
             OnNotificationChanged();
@@ -51,28 +58,28 @@ public class NotificationManager : MonoBehaviour{//todo add notification icons
         StartCoroutine(StartLimetimeCountdown(notification));
     }
 
-    private void OnNotificationChanged(){
-        if (notifications.Count > MAX_POSSIBLE_NOTIFICATIONS){
+    private void OnNotificationChanged() {
+        if (notifications.Count > MAX_POSSIBLE_NOTIFICATIONS) {
             Destroy(notifications.Last().notificationGameObject);
             notifications.Remove(notifications.Last());
         }
-        foreach (Notification notification in notifications){
+        foreach (Notification notification in notifications) {
             GameObject notificationGameObject = notification.notificationGameObject;
             int index = notifications.IndexOf(notification);
             // Debug.LogWarning(-Screen.width/2);
-            notificationGameObject.GetComponent<RectTransform>().localPosition = new Vector3(-Screen.width/2, notificationGameObject.GetComponent<RectTransform>().sizeDelta.y * index - Screen.height/2, 0);
+            notificationGameObject.GetComponent<RectTransform>().localPosition = new Vector3(-Screen.width / 2, notificationGameObject.GetComponent<RectTransform>().sizeDelta.y * index - Screen.height / 2, 0);
             // Debug.LogWarning(notificationGameObject.GetComponent<RectTransform>().localPosition);
         }
     }
 
-    IEnumerator StartLimetimeCountdown(Notification notification){
+    IEnumerator StartLimetimeCountdown(Notification notification) {
         yield return new WaitForSeconds(NOTIFICATION_LIFETIME_SECONDS);
         Destroy(notification.notificationGameObject);
-        notifications.Remove(notification);;
+        notifications.Remove(notification); ;
         OnNotificationChanged();
     }
 
-    public GameObject ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject){
+    public GameObject ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject) {
         GameObject tooltipGameObject = Resources.Load("UI/Tooltip") as GameObject;
         tooltipGameObject = Instantiate(tooltipGameObject, GetCanvasGameObject().transform);
         tooltipGameObject.transform.GetChild(0).GetComponent<Text>().text = tooltipableGameObject.TooltipMessage;
@@ -81,35 +88,35 @@ public class NotificationManager : MonoBehaviour{//todo add notification icons
         return tooltipGameObject;
     }
 
-    IEnumerator MakeTooltipFollowCursor(TooltipableGameObject tooltipedGameObjectscript, GameObject tooltip){
-        while (true){
-            if (tooltipedGameObjectscript.ShowTooltipCondition() && tooltip != null){
+    IEnumerator MakeTooltipFollowCursor(TooltipableGameObject tooltipedGameObjectscript, GameObject tooltip) {
+        while (true) {
+            if (tooltipedGameObjectscript.ShowTooltipCondition() && tooltip != null) {
                 tooltip.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
                 yield return null;
             }
-            else{
+            else {
                 IsShowingTooltip = false;
                 Destroy(tooltip);
                 yield break;
             }
-            
+
         }
     }
 
-    public void StartTooltipCountdown(TooltipableGameObject tooltipableScript){
+    public void StartTooltipCountdown(TooltipableGameObject tooltipableScript) {
         if (IsShowingTooltip) return;
         if (tooltipableScript.TooltipMessage == "") return;
         // Debug.Log($"isShowingTooltip: {IsShowingTooltip}, TooltipMessage: {tooltipableScript.TooltipMessage}, can start");
         IsShowingTooltip = true;
         StartCoroutine(StartTooltipCountdownCoroutine(tooltipableScript));
     }
-    private IEnumerator StartTooltipCountdownCoroutine(TooltipableGameObject tooltipableScript){
+    private IEnumerator StartTooltipCountdownCoroutine(TooltipableGameObject tooltipableScript) {
         // GameObject tooltipableGameObject = tooltipableScript.gameObject;
         float counter = 0;
-        while (counter < TOOLTIP_DELAY_SECONDS){
+        while (counter < TOOLTIP_DELAY_SECONDS) {
             counter += Time.deltaTime;
             if (tooltipableScript.ShowTooltipCondition()) yield return null;
-            else{
+            else {
                 IsShowingTooltip = false;
                 yield break;
             }

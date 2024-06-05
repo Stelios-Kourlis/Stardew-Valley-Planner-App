@@ -19,20 +19,17 @@ public class InputHandler : MonoBehaviour {
         Pickup
     }
 
-    public bool IsSearching {get; set;} = false;
-    BuildingController buildingController;
+    public bool IsSearching { get; set; } = false;
     //bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
 
     void Start() {
-        buildingController = GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>();
         SetCursor(CursorType.Default);
     }
 
-    void Update(){
-        //Debug.Log(buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition)));
-        
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)){
+    void Update() {
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)) {
             GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
             quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
         }
@@ -43,52 +40,82 @@ public class InputHandler : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
             //mouseIsHeld = true; 
-            mousePositionWhenHoldStarted = buildingController.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            mousePositionWhenHoldStarted = GetMousePositionInTilemap();
         }
 
-        if (Input.GetKeyUp(KeyCode.Mouse0)){
-            //mouseIsHeld = false;
+        Vector3Int mousePosition = GetMousePositionInTilemap();
+        Building building;
+
+        if (Input.GetKeyUp(KeyCode.Mouse0)) {
+            switch (BuildingController.CurrentAction) {
+                case Actions.PLACE:
+                    BuildingController.LastBuildingCreated.PlaceBuilding(mousePosition);
+                    break;
+                case Actions.EDIT:
+                    building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                    if (building != null) building.PickupBuilding();
+                    break;
+                case Actions.DELETE:
+                    building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                    if (building != null) building.DeleteBuilding();
+                    break;
+            }
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Undo)) buildingController.UndoLastAction();
+        switch (BuildingController.CurrentAction) {
+            case Actions.PLACE:
+                building = BuildingController.buildings.FirstOrDefault(building => !building.IsPlaced);
+                if (building != null) building.PlaceBuildingPreview(mousePosition);
+                break;
+            case Actions.EDIT:
+                building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && building.IsPlaced);
+                if (building != null) building.PickupBuildingPreview();
+                break;
+            case Actions.DELETE:
+                building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && building.IsPlaced);
+                if (building != null) building.DeleteBuildingPreview();
+                break;
+        }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Redo)) buildingController.RedoLastUndo();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Undo)) BuildingController.UndoLastAction();
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)){
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Redo)) BuildingController.RedoLastUndo();
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)) {
             GetMapController().ToggleMapUnavailableCoordinates();
             GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)){
+        if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)) {
             GetMapController().ToggleMapPlantableCoordinates();
             GetNotificationManager().SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) buildingController.Save();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) BuildingController.Save();
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) buildingController.Load();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) BuildingController.Load();
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Place)){
-            Building.CurrentAction = Actions.PLACE;
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Place)) {
+            BuildingController.SetCurrentAction(Actions.PLACE);
             GetNotificationManager().SendNotification("Set mode to placement", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)){
-            Building.CurrentAction = Actions.EDIT;
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)) {
+            BuildingController.SetCurrentAction(Actions.EDIT);
             GetNotificationManager().SendNotification("Set mode to edit", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Delete)){
-            Building.CurrentAction = Actions.DELETE;
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Delete)) {
+            BuildingController.SetCurrentAction(Actions.DELETE);
             GetNotificationManager().SendNotification("Set mode to delete", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
     }
 
-    public bool KeybindsForActionArePressed(KeybindHandler.Action action){
+    public bool KeybindsForActionArePressed(KeybindHandler.Action action) {
         KeybindHandler.Keybind keybind = KeybindHandler.GetKeybind(action);
-        foreach (KeybindHandler.Action possibleAction in Enum.GetValues(typeof(KeybindHandler.Action))){
+        foreach (KeybindHandler.Action possibleAction in Enum.GetValues(typeof(KeybindHandler.Action))) {
             if (possibleAction == action) continue;
             KeybindHandler.Keybind keybindForAction = KeybindHandler.GetKeybind(possibleAction);
             if (keybindForAction.keybind == keybind.keybind && keybindForAction.optionalSecondButton != KeyCode.None && Input.GetKey(keybindForAction.optionalSecondButton)) return false;
@@ -98,8 +125,8 @@ public class InputHandler : MonoBehaviour {
         return isPrimaryPressed && isSecondaryPressed;
     }
 
-    public void SetCursor(CursorType type){
-        switch (type){
+    public void SetCursor(CursorType type) {
+        switch (type) {
             case CursorType.Default:
                 Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
                 break;

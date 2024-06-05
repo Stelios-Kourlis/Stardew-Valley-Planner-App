@@ -8,9 +8,9 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types> {
+public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types>, IInteractableBuilding, IExtraActionBuilding {
 
-    public enum Types{
+    public enum Types {
         Wood,
         Plank,
         Stone,
@@ -22,6 +22,7 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
     private static readonly bool[] cabinTypeIsPlaced = new bool[Enum.GetValues(typeof(Types)).Length];
     private MultipleTypeBuilding<Types> multipleTypeBuildingComponent;
     private TieredBuilding tieredBuildingComponent;
+    private InteractableBuildingComponent interactableBuildingComponent;
 
     public int Tier => tieredBuildingComponent.Tier;
 
@@ -29,45 +30,48 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
 
     public Types Type => multipleTypeBuildingComponent.Type;
 
-    public static Types CurrentType {get; private set;}
+    public static Types CurrentType { get; private set; }
 
-    public override void OnAwake(){
+    public ButtonTypes[] BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
+
+    public GameObject ButtonParentGameObject => interactableBuildingComponent.ButtonParentGameObject;
+
+    public int MaxTier => tieredBuildingComponent.MaxTier;
+
+    public override void OnAwake() {
         BaseHeight = 3;
-        buildingName = "Cabin";
+        BuildingName = "Cabin";
         for (int i = 0; i < cabinTypeIsPlaced.Length; i++) cabinTypeIsPlaced[i] = false;
-        BuildingInteractions = new ButtonTypes[]{
+        interactableBuildingComponent = new InteractableBuildingComponent(this, new ButtonTypes[]{
             ButtonTypes.TIER_ONE,
             ButtonTypes.TIER_TWO,
             ButtonTypes.TIER_THREE,
             ButtonTypes.ENTER,
             ButtonTypes.PAINT
-        };
+        });
         multipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         multipleTypeBuildingComponent.DefaultSprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{Types.Wood}1");
-       
         tieredBuildingComponent = new TieredBuilding(this, 4);
         SetType(CurrentType);
         SetTier(1);
         base.OnAwake();
-    } 
+    }
 
-    public override void Place(Vector3Int position){
-        if (cabinTypeIsPlaced[(int) Type]){
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
+        if (cabinTypeIsPlaced[(int)Type]) {//this check is not enforced
             GetNotificationManager().SendNotification("You can only have one of each type of cabin", NotificationManager.Icons.ErrorIcon);
             return;
         }
-        base.Place(position);
-        cabinTypeIsPlaced[(int) Type] = true;
+        cabinTypeIsPlaced[(int)Type] = true;
     }
 
-    public override void Delete(){
-        cabinTypeIsPlaced[(int) Type] = false;
-        base.Delete();
+    public void PerformExtraActionsOnDelete() {
+        cabinTypeIsPlaced[(int)Type] = false;
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded() {
         List<MaterialInfo> level1 = new() { new(100, Materials.Coins) };
-        return tieredBuildingComponent.Tier switch{
+        return tieredBuildingComponent.Tier switch {
             2 => new List<MaterialInfo>{
                 new(10_000, Materials.Coins),
                 new(450, Materials.Wood),
@@ -86,17 +90,16 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
         };
     }
 
-    public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{tieredBuildingComponent.Tier}|{multipleTypeBuildingComponent.Type}";
+    public string AddToBuildingData() {
+        return $"{tieredBuildingComponent.Tier}|{multipleTypeBuildingComponent.Type}";
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
+    public void LoadExtraBuildingData(string[] data) {
         tieredBuildingComponent.SetTier(int.Parse(data[0]));
         multipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[1]));
-        Place(new Vector3Int(x,y,0));
     }
 
-    public void SetTier(int tier){
+    public void SetTier(int tier) {
         tieredBuildingComponent.SetTier(tier);
         Sprite sprite;
         Types type = multipleTypeBuildingComponent?.Type ?? Types.Wood;
@@ -106,25 +109,24 @@ public class Cabin :Building, ITieredBuilding, IMultipleTypeBuilding<Cabin.Types
 
     public void CycleType() => multipleTypeBuildingComponent.CycleType();
 
-    public void SetType(Types type){
+    public void SetType(Types type) {
         multipleTypeBuildingComponent.SetType(type);
         Sprite sprite;
         sprite = Atlas.GetSprite($"{type}{tieredBuildingComponent?.Tier ?? 1}");
         UpdateTexture(sprite);
     }
 
-    public GameObject[] CreateButtonsForAllTypes(){
+    public GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
-        foreach (Types type in Enum.GetValues(typeof(Types))){
+        foreach (Types type in Enum.GetValues(typeof(Types))) {
             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}Button";
             button.GetComponent<Image>().sprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{type}1");
             Type buildingType = GetType();
-            BuildingController buildingController = GetBuildingController();
-            button.GetComponent<Button>().onClick.AddListener(() => { 
-                buildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
-                CurrentAction = Actions.PLACE; 
-                });
+            button.GetComponent<Button>().onClick.AddListener(() => {
+                BuildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
+                BuildingController.SetCurrentAction(Actions.PLACE);
+            });
             buttons.Add(button);
         }
         return buttons.ToArray();

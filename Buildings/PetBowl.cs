@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PetBowl : Building, IMultipleTypeBuilding<PetBowl.Types>{
-    public enum Types{
+public class PetBowl : Building, IMultipleTypeBuilding<PetBowl.Types>, IExtraActionBuilding {
+    public enum Types {
         PetBowl,
         StonePetBowl,
         HayPetBowl
@@ -13,26 +13,25 @@ public class PetBowl : Building, IMultipleTypeBuilding<PetBowl.Types>{
 
     public Types Type => MultipleTypeBuildingComponent.Type;
 
-    public override void OnAwake(){
+    public override void OnAwake() {
         BaseHeight = 2;
-        buildingName = "Pet Bowl";
+        BuildingName = "Pet Bowl";
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded() {
         return new(){
             new(5_000, Materials.Coins),
             new(25, Materials.Hardwood)
         };
     }
 
-    public override string GetBuildingData(){
+    public string AddToBuildingData() {
         return $"{base.GetBuildingData()}|{Type}";
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Place(new Vector3Int(x, y, 0));
+    public void LoadExtraBuildingData(string[] data) {
         SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
     }
 

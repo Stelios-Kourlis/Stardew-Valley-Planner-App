@@ -7,15 +7,15 @@ using static Utility.ClassManager;
 /// <summary>
 /// Methods to handle buildings with multiple tiers
 /// </summary>
-public class TieredBuilding{
+public class TieredBuilding {
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
-    public int Tier {get; set;} = 1;
-    public int MaxTier {get; private set;}
-    public SpriteAtlas Atlas {get; private set;}
-    private Building Building {get; set;}
+    public int Tier { get; set; } = 1;
+    public int MaxTier { get; private set; }
+    public SpriteAtlas Atlas { get; private set; }
+    private Building Building { get; set; }
     private readonly bool buildingHasOtherInterfaces;
 
-    public TieredBuilding(Building building, int maxTier){
+    public TieredBuilding(Building building, int maxTier) {
         if (building == null) throw new System.Exception($"Building is null");
         Building = building;
         buildingHasOtherInterfaces = BuildingHasMoreThanOneBuildingInterface(Building, typeof(ITieredBuilding));
@@ -27,7 +27,7 @@ public class TieredBuilding{
         SetTier(1);
     }
 
-    public virtual void SetTier(int tier){
+    public virtual void SetTier(int tier) {
         if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
         Tier = tier;
         if (buildingHasOtherInterfaces) return;

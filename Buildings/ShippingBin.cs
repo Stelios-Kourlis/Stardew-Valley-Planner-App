@@ -5,21 +5,16 @@ using UnityEngine.Tilemaps;
 
 public class ShippingBin : Building {
 
-    public override void OnAwake(){
-        buildingName = "Shipping Bin";
+    public override void OnAwake() {
+        BuildingName = "Shipping Bin";
         BaseHeight = 1;
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded() {
         return new List<MaterialInfo>(){
             new(250, Materials.Coins),
             new(150, Materials.Wood)
         };
-    }
-
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        OnAwake();
-        Place(new Vector3Int(x,y,0));
     }
 }

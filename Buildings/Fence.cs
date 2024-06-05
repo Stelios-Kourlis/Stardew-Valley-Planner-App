@@ -10,9 +10,9 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using UnityEngine.Tilemaps;
 
-public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBuilding{
+public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBuilding {
 
-    public enum Types{
+    public enum Types {
         Wood,
         Stone,
         Iron,
@@ -20,15 +20,15 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
     }
 
     public override string TooltipMessage => "";
-    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent {get; private set;}
-    public ConnectingBuilding ConnectingBuildingComponent {get; private set;}
+    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; private set; }
+    public ConnectingBuilding ConnectingBuildingComponent { get; private set; }
     public SpriteAtlas Atlas => MultipleTypeBuildingComponent.Atlas;
-    public Types CurrentType {get; private set;}
-    public Types Type {get; private set;}
+    public Types CurrentType { get; private set; }
+    public Types Type { get; private set; }
     public static event Action<Vector3Int> FenceWasPlaced;
     private static readonly List<Vector3Int> otherFences = new();
 
-    public override void OnAwake(){
+    public override void OnAwake() {
         BaseHeight = 1;
         base.OnAwake();
         MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
@@ -38,8 +38,8 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
         FenceWasPlaced += AnotherFenceWasPlaced;
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
-        return MultipleTypeBuildingComponent.Type switch{
+    public override List<MaterialInfo> GetMaterialsNeeded() {
+        return MultipleTypeBuildingComponent.Type switch {
             Types.Wood => new List<MaterialInfo>(){
                 new(2, Materials.Wood)
             },
@@ -56,52 +56,47 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
         };
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Place(new Vector3Int(x,y,0));
+    public void LoadExtraBuildingData(string[] data) {
         SetType((Types)Enum.Parse(typeof(Types), data[0]));
         UpdateTexture(Atlas.GetSprite($"{Type}Fence0"));
     }
 
 
 
-    public override void Place(Vector3Int position){
-        base.Place(position);
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
         otherFences.Add(position);
         FenceWasPlaced?.Invoke(position);
     }
 
-    protected override void PlacePreview(Vector3Int position){
-        base.PlacePreview(position);    
+    protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{Type}{ConnectingBuildingComponent.GetConnectingFlagsNoTop(position, otherFences)}"));
     }
 
-    public override void Delete(){
+    public void PerformExtraActionsOnDelete() {
         otherFences.Remove(BaseCoordinates[0]);
         FenceWasPlaced -= AnotherFenceWasPlaced;
         FenceWasPlaced?.Invoke(BaseCoordinates[0]);
-        base.Delete();
     }
 
-    private void AnotherFenceWasPlaced(Vector3Int position){
+    private void AnotherFenceWasPlaced(Vector3Int position) {
         if (BaseCoordinates?.Contains(position) ?? true) return;
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{Type}{ConnectingBuildingComponent.GetConnectingFlags(BaseCoordinates[0], otherFences)}"));
     }
 
-    public GameObject[] CreateButtonsForAllTypes(){
+    public GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
-        foreach (Types type in Enum.GetValues(typeof(Types))){
+        foreach (Types type in Enum.GetValues(typeof(Types))) {
             if ((int)(object)type == 0) continue; // skip the first element (None)
             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}";
             button.GetComponent<Image>().sprite = Atlas.GetSprite($"{type}Fence0");
 
             Type buildingType = GetType();
-            BuildingController buildingController = GetBuildingController();
-            button.GetComponent<Button>().onClick.AddListener(() => { 
+            button.GetComponent<Button>().onClick.AddListener(() => {
                 Debug.Log($"Setting current building to {type}");
-                buildingController.SetCurrentBuildingToMultipleTypeBuilding<Types>(buildingType, type);
-                CurrentAction = Actions.PLACE; 
-                });
+                BuildingController.SetCurrentBuildingToMultipleTypeBuilding<Types>(buildingType, type);
+                BuildingController.SetCurrentAction(Actions.PLACE);
+            });
             buttons.Add(button);
         }
         return buttons.ToArray();
@@ -109,14 +104,14 @@ public class Fence : Building, IMultipleTypeBuilding<Fence.Types>, IConnectingBu
 
     public int GetConnectingFlags(Vector3Int position, List<Vector3Int> otherBuildings) => ConnectingBuildingComponent.GetConnectingFlags(position, otherBuildings);
 
-    public void CycleType(){
+    public void CycleType() {
         int enumLength = Enum.GetValues(typeof(Types)).Length;
-        int intValue = (int) Type;
+        int intValue = (int)Type;
         intValue = (intValue + 1) % enumLength;
         SetType((Types)Enum.ToObject(typeof(Types), intValue));
     }
 
-    public void SetType(Types type){
+    public void SetType(Types type) {
         CurrentType = type;
         Type = type;
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}Fence0"));

@@ -9,9 +9,9 @@ using UnityEngine.U2D;
 using UnityEditor;
 using System;
 
-public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRangeEffectBuilding{
+public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRangeEffectBuilding, IExtraActionBuilding {
 
-    public enum Types{
+    public enum Types {
         Beehouse,
         Keg,
         Cask,
@@ -46,47 +46,44 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
         Forge,
         FishSmoker,
         DeluxeWormBin
-}
-    
+    }
+
     public Types Type => MultipleBuildingComponent.Type;
     public Types CurrentType => MultipleBuildingComponent.Type;
     private static int miniObeliskCount;
     public override string TooltipMessage => Type.ToString();
-    public MultipleTypeBuilding<Types> MultipleBuildingComponent {get; private set;}
-    public RangeEffectBuilding RangeEffectBuildingComponent {get; private set;}
+    public MultipleTypeBuilding<Types> MultipleBuildingComponent { get; private set; }
+    public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
 
-    public override void OnAwake(){
+    public override void OnAwake() {
         BaseHeight = 1;
         miniObeliskCount = 0;
         base.OnAwake();
         MultipleBuildingComponent = new MultipleTypeBuilding<Types>(this);
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
-    } 
+    }
 
-    protected override void PlacePreview(Vector3Int position){
-        base.PlacePreview(position);
+    protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         if (Type == Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7
         if (Type == Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(position).ToArray()); //look wiki
     }
 
-    public override void Place(Vector3Int position){
-        if (Type == Types.MiniObelisk){
-            if (miniObeliskCount >= 2) {GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time", NotificationManager.Icons.ErrorIcon); return;}
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
+        if (Type == Types.MiniObelisk) {
+            if (miniObeliskCount >= 2) { GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time", NotificationManager.Icons.ErrorIcon); return; }
             else miniObeliskCount++;
         }
-        base.Place(position);
         HideEffectRange();
     }
 
-    public override void Delete(){
+    public void PerformExtraActionsOnDelete() {
         if (Type == Types.MiniObelisk) miniObeliskCount--;
-        base.Delete();
     }
 
     public void SetType(Types type) => MultipleBuildingComponent.SetType(type);
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
-        return Type switch{
+    public override List<MaterialInfo> GetMaterialsNeeded() {
+        return Type switch {
             Types.Beehouse => new List<MaterialInfo>(){
                 new(40, Materials.Wood),
                 new(8, Materials.Coal),
@@ -263,23 +260,22 @@ public class Craftables : Building, IMultipleTypeBuilding<Craftables.Types>, IRa
         };
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        Place(new Vector3Int(x,y,0));
-        SetType((Types)int.Parse(data[4]));
+    public void LoadExtraBuildingData(string[] data) {
+        SetType((Types)int.Parse(data[0]));
     }
 
-    public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{(int) Type}";
+    public string AddToBuildingData() {
+        return $"{(int)Type}";
     }
 
-    protected override void OnMouseEnter(){
-        if (Type == Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(BaseCoordinates[0], 3).ToArray());
-        if (Type == Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(BaseCoordinates[0]).ToArray());
-    }
+    // protected override void OnMouseEnter() { //todo Add mouse enter/leave
+    //     if (Type == Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(BaseCoordinates[0], 3).ToArray());
+    //     if (Type == Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(BaseCoordinates[0]).ToArray());
+    // }
 
-    protected override void OnMouseExit(){
-        RangeEffectBuildingComponent.HideEffectRange();
-    }
+    // protected override void OnMouseExit() {
+    //     RangeEffectBuildingComponent.HideEffectRange();
+    // }
 
     public void CycleType() => MultipleBuildingComponent.CycleType();
 

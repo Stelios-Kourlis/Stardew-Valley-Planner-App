@@ -12,31 +12,36 @@ using static Utility.BuildingManager;
 using System.Linq;
 
 
-public class FishPond : Building{
+public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
+    private InteractableBuildingComponent interactableBuildingComponent;
     private SpriteAtlas atlas;
     private SpriteAtlas fishAtlas;
     public Fish fish;
-    private Vector3Int[] decoCoordinates; 
+    private Vector3Int[] decoCoordinates;
     private GameObject decoTilemapObject;
     private int decoIndex = 0;
     private GameObject waterTilemapObject;
 
-    public override void OnAwake(){
-        buildingName = "Fish Pond";
+    public ButtonTypes[] BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
+
+    public GameObject ButtonParentGameObject => interactableBuildingComponent.ButtonParentGameObject;
+
+    public override void OnAwake() {
+        BuildingName = "Fish Pond";
         BaseHeight = 5;
-        BuildingInteractions = new ButtonTypes[]{
+        interactableBuildingComponent = new InteractableBuildingComponent(this, new ButtonTypes[]{
             ButtonTypes.PLACE_FISH,
             ButtonTypes.CHANGE_FISH_POND_DECO
-        };
+        });
         atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
-        sprite = atlas.GetSprite("FishPond");
+        Sprite = atlas.GetSprite("FishPond");
         base.OnAwake();
         fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded(){
+    public override List<MaterialInfo> GetMaterialsNeeded() {
         return new List<MaterialInfo> {
             new(5_000, Materials.Coins),
             new(200, Materials.Wood),
@@ -45,8 +50,7 @@ public class FishPond : Building{
         };
     }
 
-    public override void Place(Vector3Int position){
-        base.Place(position);
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
         Vector3Int topRightCorner = position + new Vector3Int(0, 4, 0);
         decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
@@ -59,21 +63,16 @@ public class FishPond : Building{
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
 
-    private new void Pickup(){
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if(!BaseCoordinates.Contains(currentCell)) return;
-        base.Pickup();
+    private void PerformExtraActionsOnPickup() {
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 
-    protected override void PlacePreview(Vector3Int position){
-        if (hasBeenPlaced) return;
-        base.PlacePreview(position);
+    protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         Vector3Int topRightCorner = position + new Vector3Int(0, 4, 0);
         decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
-        Vector3Int[] unavailableCoordinates = GetBuildingController().GetUnavailableCoordinates().ToArray();
+        Vector3Int[] unavailableCoordinates = BuildingController.GetUnavailableCoordinates().ToArray();
         Vector3Int[] buildingBaseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width).ToArray();
         if (unavailableCoordinates.Intersect(buildingBaseCoordinates).Count() != 0) decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         else decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
@@ -86,29 +85,25 @@ public class FishPond : Building{
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
 
-    protected override void PickupPreview(){
-        if (!hasBeenPlaced) return;
-        base.PickupPreview();
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (BaseCoordinates.Contains(currentCell)){
+    protected void PerformExtraActionsOnPickupPreview() {
+        Vector3Int currentCell = GetMousePositionInTilemap();
+        if (BaseCoordinates.Contains(currentCell)) {
             decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
             waterTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
         }
-        else{
+        else {
             decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
             waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         }
     }
 
-    protected override void DeletePreview(){
-        if (!hasBeenPlaced) return;
-        base.DeletePreview();
-        Vector3Int currentCell = GetBuildingController().GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        if (BaseCoordinates.Contains(currentCell)){
+    protected void PerformExtraActionsOnDeletePreview() {
+        Vector3Int currentCell = GetMousePositionInTilemap();
+        if (BaseCoordinates.Contains(currentCell)) {
             decoTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
             waterTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
         }
-        else{
+        else {
             decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
             waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         }
@@ -118,10 +113,9 @@ public class FishPond : Building{
     ///Set the fish image and the pond color to a fish of your choosing
     /// </summary>
     /// <param name="fishType"> The fish</param>
-    public void SetFishImage(Fish fishType){
-        buttonParent.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
-        Color color = fishType switch
-        { // RGB 0-255 dont work so these are the values normalized to 0-1
+    public void SetFishImage(Fish fishType) {
+        ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
+        Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),
             Fish.SuperCucumber => new Color(0.4117647f, 0.3294118f, 0.7490196f, 1),
             Fish.Slimejack => new Color(0.08886068f, 0.7490196f, 0.003921576f, 1),
@@ -132,16 +126,16 @@ public class FishPond : Building{
         fish = fishType;
     }
 
-    public void CreateFishMenu(){
+    public void CreateFishMenu() {
         GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         GameObject fishMenu = Instantiate(fishMenuPrefab);
-        fishMenu.transform.SetParent(buttonParent.transform.GetChild(0));
-        Vector3 fishMenuPositionWorld = new(Tilemap.CellToWorld(BaseCoordinates[0] + new Vector3Int(1,0,0)).x, GetMiddleOfBuildingWorld(this).y);
+        fishMenu.transform.SetParent(ButtonParentGameObject.transform.GetChild(0));
+        Vector3 fishMenuPositionWorld = new(Tilemap.CellToWorld(BaseCoordinates[0] + new Vector3Int(1, 0, 0)).x, GetMiddleOfBuildingWorld(this).y);
         fishMenu.transform.position = Camera.main.WorldToScreenPoint(fishMenuPositionWorld);
         fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         fishMenu.SetActive(false);
         GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
-        for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++){
+        for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++) {
             Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
             AddHoverEffect(fishButton);
             fishButton.onClick.AddListener(() => {
@@ -152,40 +146,37 @@ public class FishPond : Building{
         }
     }
 
-    public void UpdateFishImage(){
+    public void UpdateFishImage() {
         SetFishImage(fish);
     }
 
-    public void CycleFishPondDeco(){
+    public void CycleFishPondDeco() {
         decoIndex++;
         if (decoIndex > 3) decoIndex = 0;
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
     }
 
-    public override string GetBuildingData(){
-        return base.GetBuildingData() + $"|{decoIndex}|{(int)fish}";
+    public string AddToBuildingData() {
+        return $"{decoIndex}|{(int)fish}";
     }
 
-    public override void RecreateBuildingForData(int x, int y, params string[] data){
-        OnAwake();
-        Place(new Vector3Int(x,y,0));
-        SetFishImage((Fish) int.Parse(data[1]) );
+    public void LoadExtraBuildingData(string[] data) {
+        SetFishImage((Fish)int.Parse(data[1]));
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{data[0]}")));
     }
 
-    public override GameObject CreateButton(){
+    public override GameObject CreateBuildingButton() {
         GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-        button.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+        button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         button.name = $"{GetType()}Button";
         button.GetComponent<Image>().sprite = atlas.GetSprite("FishPondImage");
 
         Type buildingType = GetType();
-        BuildingController buildingController = GetBuildingController();
-        button.GetComponent<Button>().onClick.AddListener(() => { 
-                // Debug.Log($"Setting current building to {buildingType}");
-                buildingController.SetCurrentBuildingType(buildingType);
-                Building.CurrentAction = Actions.PLACE; 
-                });
+        button.GetComponent<Button>().onClick.AddListener(() => {
+            // Debug.Log($"Setting current building to {buildingType}");
+            BuildingController.SetCurrentBuildingType(buildingType);
+            BuildingController.SetCurrentAction(Actions.PLACE);
+        });
         return button;
     }
 }

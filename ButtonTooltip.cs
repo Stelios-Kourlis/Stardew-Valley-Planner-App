@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ButtonTooltip : TooltipableGameObject{
+public class ButtonTooltip : TooltipableGameObject {
 
-    public override string TooltipMessage {get{
-            return gameObject.name switch{
+    public override string TooltipMessage {
+        get {
+            return gameObject.name switch {
                 "settingsButton" => "Open The Setting Menu",
                 "PickupButton" => "Pickup Buildings",
                 "PlaceButton" => "Place Buildings",
@@ -19,7 +20,7 @@ public class ButtonTooltip : TooltipableGameObject{
         }
     }
 
-    public override void OnAwake(){}
+    public override void OnAwake() { }
 
-    public override void OnUpdate(){}
+    public override void OnUpdate() { }
 }
