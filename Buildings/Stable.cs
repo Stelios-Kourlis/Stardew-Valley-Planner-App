@@ -13,9 +13,7 @@ public class Stable : Building, IInteractableBuilding {
     public override void OnAwake() {
         BuildingName = "Stable";
         BaseHeight = 2;
-        interactableBuildingComponent = new InteractableBuildingComponent(this, new ButtonTypes[]{
-            ButtonTypes.PAINT
-        });
+        // interactableBuildingComponent = new InteractableBuildingComponent(this);
         base.OnAwake();
     }
 

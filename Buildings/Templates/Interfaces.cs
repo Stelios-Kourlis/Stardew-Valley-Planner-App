@@ -30,6 +30,7 @@ public interface IBuilding {
     bool LoadBuildingFromData(string[] data);
     void UpdateTexture(Sprite sprite);
     GameObject CreateBuildingButton();
+    Action BuildingPlaced { get; set; }
 }
 
 /// <summary> This is implemented if a building needs to do extra actions on Place,Edit,Delete </summary>
@@ -56,7 +57,7 @@ public interface IInteractableBuilding : IBuilding, IExtraActionBuilding {
     void OnMouseExit() { return; }
 }
 
-public interface ITieredBuilding : IBuilding, IExtraActionBuilding, IInteractableBuilding {
+public interface ITieredBuilding : IInteractableBuilding {
     int Tier { get; }
     int MaxTier { get; }
     void SetTier(int tier);
@@ -69,7 +70,7 @@ public interface IMultipleTypeBuilding<T> : IBuilding where T : Enum {
     GameObject[] CreateButtonsForAllTypes();
 }
 
-public interface IAnimalHouse : IBuilding, IInteractableBuilding {
+public interface IAnimalHouse : IInteractableBuilding {
     List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding { get; }
     bool AddAnimal(Animals animal);
     void ToggleAnimalMenu();
@@ -84,7 +85,7 @@ public interface IConnectingBuilding : IBuilding {
     int GetConnectingFlags(Vector3Int position, List<Vector3Int> otherBuildings);
 }
 
-public interface IEnterableBuilding : IBuilding, IInteractableBuilding {
+public interface IEnterableBuilding : IInteractableBuilding {
     Vector3Int[] InteriorUnavailableCoordinates { get; }
     Vector3Int[] InteriorPlantableCoordinates { get; }
     void ToggleEditBuildingInterior();

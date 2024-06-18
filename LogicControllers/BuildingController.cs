@@ -27,19 +27,7 @@ public static class BuildingController {
     public static HashSet<GameObject> buildingGameObjects = new();
     public static GameObject LastBuildingObjectCreated { get; private set; }
     public static Building LastBuildingCreated => LastBuildingObjectCreated.GetComponent<Building>();
-
-    // void Start() {
-    //     currentBuildingType = typeof(Shed);
-    // }
-
-    // void Update() {
-    //     if (CurrentAction == Actions.EDIT) {
-    //         if (lastBuildingObjectCreated != null) Destroy(lastBuildingObjectCreated);
-    //     }
-    //     else if (CurrentAction == Actions.PLACE) {
-    //         if (lastBuildingObjectCreated == null) OnBuildingPlaced();
-    //     }
-    // }
+    public static Building CurrentBuildingBeingPlaced { get; set; }
 
     public static void OnBuildingPlaced() {
         if (IsLoadingSave) return;
@@ -48,6 +36,7 @@ public static class BuildingController {
         else newBuildingObject.transform.SetParent(isInsideBuilding.Value);
         newBuildingObject.AddComponent(currentBuildingType);
         LastBuildingObjectCreated = newBuildingObject;
+        CurrentBuildingBeingPlaced = newBuildingObject.GetComponent<Building>();
     }
 
     public static void SetCurrentBuildingType(Type newType) {
@@ -55,6 +44,7 @@ public static class BuildingController {
         currentBuildingType = newType;
         LastBuildingObjectCreated.AddComponent(currentBuildingType);
         LastBuildingObjectCreated.name = currentBuildingType.Name;
+        CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
     }
 
     public static void SetCurrentBuildingToMultipleTypeBuilding<T>(Type buildingType, T type) where T : Enum {
@@ -76,8 +66,8 @@ public static class BuildingController {
         };
         GameObject houseGameObject = new("House");
         houseGameObject.transform.parent = GetGridTilemap().transform;
-        houseGameObject.AddComponent<House>().OnAwake();
-        houseGameObject.GetComponent<House>().PlaceBuilding(housePos);
+        // houseGameObject.AddComponent<Tilemap>();
+        houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
         houseGameObject.GetComponent<House>().SetTier(tier);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
     }
@@ -89,7 +79,7 @@ public static class BuildingController {
         foreach (Building building in buildings) {
             if (building == null) continue;
             if (building.gameObject == null) continue;
-            if (building is House && !deleteHouse) continue;
+            // if (building is House && !deleteHouse) continue;
             unavailableCoordinates.RemoveWhere(vec => building.BaseCoordinates.Contains(vec));
             building.DeleteBuilding();
         }

@@ -29,10 +29,7 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
     public override void OnAwake() {
         BuildingName = "Fish Pond";
         BaseHeight = 5;
-        interactableBuildingComponent = new InteractableBuildingComponent(this, new ButtonTypes[]{
-            ButtonTypes.PLACE_FISH,
-            ButtonTypes.CHANGE_FISH_POND_DECO
-        });
+        // interactableBuildingComponent = new InteractableBuildingComponent(this);
         atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
         Sprite = atlas.GetSprite("FishPond");
         base.OnAwake();

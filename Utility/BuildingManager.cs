@@ -105,13 +105,13 @@ namespace Utility {
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<Type> actualBuildings = new(){
-                typeof(Barn),
-                typeof(Cabin),
-                typeof(Coop),
+                // typeof(Barn),
+                // typeof(Cabin),
+                // typeof(Coop),
                 typeof(FishPond),
                 typeof(GoldClock),
                 typeof(Greenhouse),
-                typeof(House),
+                // typeof(House),
                 typeof(JunimoHut),
                 typeof(Mill),
                 typeof(Obelisk),

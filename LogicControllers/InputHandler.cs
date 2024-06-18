@@ -36,7 +36,7 @@ public class InputHandler : MonoBehaviour {
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GetSettingsModalController().TogglePanel();
 
-        if (IsSearching) return; //the 2 above should always be available, rest should be disabled when searching
+        // if (IsSearching) return; //the 2 above should always be available, rest should be disabled when searching
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
             //mouseIsHeld = true; 
@@ -49,7 +49,7 @@ public class InputHandler : MonoBehaviour {
         if (Input.GetKeyUp(KeyCode.Mouse0)) {
             switch (BuildingController.CurrentAction) {
                 case Actions.PLACE:
-                    BuildingController.LastBuildingCreated.PlaceBuilding(mousePosition);
+                    BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
                     break;
                 case Actions.EDIT:
                     building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
@@ -62,18 +62,23 @@ public class InputHandler : MonoBehaviour {
             }
         }
 
+        if (Input.GetKeyUp(KeyCode.Mouse1)) {
+            building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+            if (building is IInteractableBuilding interactableBuilding) interactableBuilding.OnMouseRightClick();
+        }
+
         switch (BuildingController.CurrentAction) {
             case Actions.PLACE:
-                building = BuildingController.buildings.FirstOrDefault(building => !building.IsPlaced);
+                building = BuildingController.LastBuildingCreated;
                 if (building != null) building.PlaceBuildingPreview(mousePosition);
                 break;
             case Actions.EDIT:
-                building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && building.IsPlaced);
-                if (building != null) building.PickupBuildingPreview();
+                BuildingController.LastBuildingCreated.HidePreview();
+                foreach (Building buildingToPickup in BuildingController.buildings) buildingToPickup.PickupBuildingPreview();
                 break;
             case Actions.DELETE:
-                building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && building.IsPlaced);
-                if (building != null) building.DeleteBuildingPreview();
+                BuildingController.LastBuildingCreated.HidePreview();
+                foreach (Building buildingToDelete in BuildingController.buildings) buildingToDelete.DeleteBuildingPreview();
                 break;
         }
 

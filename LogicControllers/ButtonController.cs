@@ -16,8 +16,11 @@ public class ButtonController : MonoBehaviour {
 
     readonly float BUTTON_SIZE = 75;
     private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
+    private GameObject buttonPrefab;
 
     void Start() {
+        buttonPrefab = Resources.Load<GameObject>("UI/Button");
+
         //Tab Buttons
         GameObject panelGameObject = GameObject.FindWithTag("Panel");
         GameObject content = panelGameObject.transform.GetChild(0).GetChild(0).gameObject;
@@ -55,24 +58,33 @@ public class ButtonController : MonoBehaviour {
 
     }
 
+
+    /// <summary>
+    /// Create the buttons for a building
+    /// </summary>
+    /// <returns>The parent game object of the buttons</returns>
     public GameObject CreateButtonsForBuilding(IInteractableBuilding building) {
+        // Debug.Log("Creating buttons for building " + building.BuildingName);
         ButtonTypes[] buttonTypes = building.BuildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return null;
-        Vector3 middleOfBuildingWorld = GetMiddleOfBuildingWorld(building);
-        Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(middleOfBuildingWorld);
+
+        //Create parent object for buttons
         GameObject buttonParent = new(building.BuildingName + "buttons");
         buttonParent.transform.parent = GetCanvasGameObject().transform;
         buttonParent.SetActive(false);
         buttonParent.transform.SetAsFirstSibling();
-        // building.ButtonParentGameObject = buttonParent;
 
+        //Create a button for each interaction
         int buttonNumber = 1;
+        Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building));
         foreach (ButtonTypes buttonType in buttonTypes) {
             Vector3 buttonPositionScreen = CalculatePositionOfButton(numberOfButtons, buttonNumber, middleOfBuildingScreen);
-            CreateInteractionButton(buttonType, middleOfBuildingScreen, buttonParent, building);
+            GameObject button = CreateInteractionButton(buttonType, building);
+            button.transform.SetParent(buttonParent.transform);
             buttonNumber++;
         }
+        // UpdateButtonPositionsAndScaleForBuilding(building);
         return buttonParent;
     }
 
@@ -86,33 +98,22 @@ public class ButtonController : MonoBehaviour {
         }
     }
 
-    private void CreateInteractionButton(ButtonTypes type, Vector3 buttonPositionScreen, GameObject buttonParent, IInteractableBuilding building) {
-        GameObject button = new(type.ToString());
-        button.transform.parent = buttonParent.transform;
-        button.transform.position = buttonPositionScreen;
-        button.AddComponent<Image>().sprite = Resources.Load<Sprite>("UI/" + type.ToString());
-        if (type == ButtonTypes.PLACE_FISH) {
+    private GameObject CreateInteractionButton(ButtonTypes type, IInteractableBuilding building) {
+        GameObject button = Instantiate(buttonPrefab);
+        button.GetComponent<Image>().sprite = Resources.Load<Sprite>($"UI/{type}");
+        // button.transform.position = buttonPositionScreen;
+
+        if (type == ButtonTypes.PLACE_FISH) { // Add the fish icon to the button
             GameObject fishIcon = new("FishIcon");
             fishIcon.transform.SetParent(button.transform);
-            fishIcon.transform.position = buttonPositionScreen;
+            fishIcon.transform.position = new Vector3(0, 0, 0);
             fishIcon.transform.localScale = new Vector3(0.4f, 0.4f);
             fishIcon.AddComponent<Image>().sprite = Resources.Load<SpriteAtlas>("Fish/FishAtlas").GetSprite("NO_FISH_OLD");//i prefer the old
         }
-        else if (type == ButtonTypes.ENTER) {
-            GameObject editButtonPrefab = Resources.Load<GameObject>("UI/EditButton");
-            GameObject editButton = Instantiate(editButtonPrefab);
-            editButton.transform.SetParent(button.transform);
-            editButton.transform.position = buttonPositionScreen + new Vector3(editButton.GetComponent<RectTransform>().rect.width, 0, 0);
-            editButton.GetComponent<Button>().onClick.AddListener(() => {
-                if (building is IEnterableBuilding enterableBuilding) enterableBuilding.ToggleEditBuildingInterior();
-            });
-            editButton.SetActive(false);
-        }
+
         button.GetComponent<RectTransform>().sizeDelta = new Vector2(BUTTON_SIZE, BUTTON_SIZE);
-        float buttonScale = 10f / GetCamera().GetComponent<Camera>().orthographicSize;
-        button.transform.localScale = new Vector3(buttonScale, buttonScale);
-        Button buttonComponent = button.AddComponent<Button>();
-        AddButtonListener(type, buttonComponent, building);
+        AddButtonListener(type, button.GetComponent<Button>(), building);
+        return button;
     }
 
     private void AddButtonListener(ButtonTypes type, Button button, IInteractableBuilding building) {
@@ -171,7 +172,7 @@ public class ButtonController : MonoBehaviour {
         var buildingType = typeof(Building);
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
         foreach (var type in allTypes) {
-            if (type == typeof(House)) continue; //these 2 should not be available to build
+            // if (type == typeof(House)) continue; //these 2 should not be available to build
             if (type == typeof(Greenhouse)) continue;
             if (typesThatShouldBeInCraftables.Contains(type)) continue; //if its not any of these dont add it
             GameObject temp = new();
@@ -190,7 +191,7 @@ public class ButtonController : MonoBehaviour {
         var buildingType = typeof(Building);
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
         foreach (var type in allTypes) {
-            if (type == typeof(House)) continue; //these 2 should not be available to build
+            // if (type == typeof(House)) continue; //these 2 should not be available to build
             if (type == typeof(Greenhouse)) continue;
             if (!typesThatShouldBeInCraftables.Contains(type)) continue; //only add craftables
             if (type == typeof(Craftables)) {

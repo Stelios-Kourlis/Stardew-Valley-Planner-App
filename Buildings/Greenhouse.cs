@@ -12,7 +12,7 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
 
     private GameObject porchTilemapObject;
     private Sprite porchSprite;
-    public EnterableBuilding EnterableBuildingComponent { get; private set; }
+    public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
 
     public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
@@ -27,8 +27,8 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
         BuildingName = "Greenhouse";
         BaseHeight = 6;
         // insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
-        InteractableBuildingComponent = new InteractableBuildingComponent(this, new ButtonTypes[] { ButtonTypes.ENTER });
-        EnterableBuildingComponent = new EnterableBuilding(this);
+        // InteractableBuildingComponent = new InteractableBuildingComponent(this);
+        // EnterableBuildingComponent = new EnterableBuildingComponent(this);
         base.OnAwake();
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");

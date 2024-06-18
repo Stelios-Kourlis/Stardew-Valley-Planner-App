@@ -4,33 +4,34 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
-public class House : Building, ITieredBuilding {
-    public TieredBuilding TieredBuildingComponent { get; private set; }
-    public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
+public class House : Building, ITieredBuilding, IEnterableBuilding {
+    public TieredBuildingComponent TieredBuildingComponent { get; private set; }
+    public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public int Tier => TieredBuildingComponent.Tier;
 
-    public ButtonTypes[] BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
+    public ButtonTypes[] BuildingInteractions => new ButtonTypes[] { ButtonTypes.TIER_ONE, ButtonTypes.TIER_TWO, ButtonTypes.TIER_THREE, ButtonTypes.ENTER };
 
-    public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
+    public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
-    public int MaxTier => TieredBuildingComponent.MaxTier;
+    public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
+
+    public Vector3Int[] InteriorUnavailableCoordinates => throw new System.NotImplementedException();
+
+    public Vector3Int[] InteriorPlantableCoordinates => throw new System.NotImplementedException();
 
     public override void OnAwake() {
         BaseHeight = 6;
         BuildingName = "House";
-        InteractableBuildingComponent = new InteractableBuildingComponent(this, new ButtonTypes[]{
-            ButtonTypes.TIER_ONE,
-            ButtonTypes.TIER_TWO,
-            ButtonTypes.TIER_THREE,
-            ButtonTypes.ENTER
-        });
+        // TieredBuildingComponent = new TieredBuilding(this, 4);
+        TieredBuildingComponent = gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(3);
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
         base.OnAwake();
-        TieredBuildingComponent = new TieredBuilding(this, 4);
+
     }
 
     public void SetTier(int tier) {
         TieredBuildingComponent.SetTier(tier);
-        if (tier == 4) UpdateTexture(TieredBuildingComponent.Atlas.GetSprite($"House3"));//4 has same sprite as 3
+        // if (tier == 4) UpdateTexture(TieredBuildingComponent.Atlas.GetSprite($"House3"));//4 has same sprite as 3
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded() {
@@ -60,5 +61,21 @@ public class House : Building, ITieredBuilding {
 
     public void LoadExtraBuildingData(string[] data) {
         SetTier(int.Parse(data[0]));
+    }
+
+    public void ToggleEditBuildingInterior() {
+        throw new System.NotImplementedException();
+    }
+
+    public void EditBuildingInterior() {
+        throw new System.NotImplementedException();
+    }
+
+    public void ExitBuildingInteriorEditing() {
+        throw new System.NotImplementedException();
+    }
+
+    public void CreateInteriorCoordinates() {
+        throw new System.NotImplementedException();
     }
 }

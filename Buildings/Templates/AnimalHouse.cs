@@ -47,8 +47,8 @@ public class AnimalHouse {
     public void AddAnimalMenuObject() {
         //Animal Add Panel
         GameObject animalMenuPrefab = Building.GetType() switch {
-            Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
-            Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
+            // Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
+            // Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
             _ => throw new ArgumentException("This should never happen")
         };
         GameObject animalMenu = GameObject.Instantiate(animalMenuPrefab);

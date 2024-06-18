@@ -51,5 +51,6 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
 
     public void Update() {
         if (ShowTooltipCondition()) StartTooltipCountdown();
+        OnUpdate();
     }
 }

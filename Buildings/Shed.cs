@@ -5,35 +5,32 @@ using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 using UnityEngine.U2D;
 
-public class Shed : Building, ITieredBuilding, IEnterableBuilding, IExtraActionBuilding {
-    public TieredBuilding TieredBuildingComponent { get; private set; }
-    public EnterableBuilding EnterableBuildingComponent { get; private set; }
-    public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
+public class Shed : Building, ITieredBuilding, IEnterableBuilding {
+    public TieredBuildingComponent TieredBuildingComponent { get; private set; }
+    public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
 
     public int Tier => TieredBuildingComponent.Tier;
     public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
 
     public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
 
-    public ButtonTypes[] BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
+    public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
 
-    public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
+    public ButtonTypes[] BuildingInteractions => new ButtonTypes[] { ButtonTypes.TIER_ONE, ButtonTypes.TIER_TWO, ButtonTypes.ENTER };
 
-    public int MaxTier => TieredBuildingComponent.MaxTier;
+    public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
     public override void OnAwake() {
         BuildingName = "Shed";
-        TieredBuildingComponent = new TieredBuilding(this, 2);
-        EnterableBuildingComponent = new EnterableBuilding(this) {
-            interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{BuildingName}1")
-        };
         BaseHeight = 3;
-        InteractableBuildingComponent = new InteractableBuildingComponent(this);
+
+        TieredBuildingComponent = gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(2);
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
         base.OnAwake();
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded() {
-        return TieredBuildingComponent.Tier switch {
+        return Tier switch {
             1 => new List<MaterialInfo>{
                 new(15000, Materials.Coins),
                 new(300, Materials.Wood),
@@ -43,12 +40,12 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding, IExtraActionB
                 new(850, Materials.Wood),
                 new(300, Materials.Stone)
             },
-            _ => throw new System.ArgumentException($"Invalid tier {TieredBuildingComponent.Tier}")
+            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
         };
     }
 
     public string AddToBuildingData() {
-        return $"{TieredBuildingComponent.Tier}";
+        return $"{Tier}";
     }
 
     public void LoadExtraBuildingData(string[] data) {
@@ -85,5 +82,9 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding, IExtraActionB
             InteriorUnavailableCoordinates = GetAllInteriorUnavailableCoordinates(interiorUnavailableCoordinates.ToArray()).ToArray();
         }
         InteriorPlantableCoordinates = new Vector3Int[] { };
+    }
+
+    public void OnMouseRightClick() {
+        ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
     }
 }

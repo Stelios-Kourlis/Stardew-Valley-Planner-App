@@ -9,6 +9,7 @@ using static Utility.SpriteManager;
 using UnityEngine.Tilemaps;
 using System.Linq;
 using UnityEngine.UI;
+using System;
 
 public abstract class Building : TooltipableGameObject, IBuilding {
     protected readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
@@ -48,26 +49,26 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public Transform Transform => gameObject.transform;
 
-    // public string[] BuildingData {
-    //     get {
-    //         string data = $"{GetType()}|{BaseCoordinates[0].x}|{BaseCoordinates[0].y}";
-    //         if (this is IExtraActionBuilding extraActionBuilding) data += "|" + extraActionBuilding.AddToBuildingData();
-    //         return data.Split('|');
-    //     }
-    // }
+    // System.Action BuildingPlaced { get; }
+
+    public Action BuildingPlaced { get; set; }
+
+    // public System.Action BuildingPlaced;
 
     public void DeleteBuilding(bool force = false) {
-        if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House can't be deleted
+        // if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House can't be deleted
         IsPlaced = false;
         Tilemap.ClearAllTiles();
 
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
 
-        BuildingController.buildingGameObjects.Remove(gameObject);
-        BuildingController.buildings.Remove(this);
-        BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
-        BuildingController.AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
-        if (this is IInteractableBuilding interactableBuilding) Destroy(interactableBuilding.ButtonParentGameObject);
+        if (IsPlaced) {
+            BuildingController.buildingGameObjects.Remove(gameObject);
+            BuildingController.buildings.Remove(this);
+            BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
+            BuildingController.AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
+            if (this is IInteractableBuilding interactableBuilding) Destroy(interactableBuilding.ButtonParentGameObject);
+        }
         Destroy(TooltipGameObject);
         Destroy(gameObject);
     }
@@ -94,16 +95,21 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         IsPlaced = false;
         gameObject.AddComponent<Tilemap>();
         gameObject.AddComponent<TilemapRenderer>();
+        // Sprite = Resources.Load<Sprite>($"Buildings/{BuildingName}");
     }
 
     public override void OnUpdate() {
-        return;
+        // if (this is Shed) Debug.Log($"{IsPickedUp.Item1} ({BaseCoordinates?[0].x}, {BaseCoordinates?[0].y})");
     }
 
     public bool PickupBuilding() {
+        Tilemap.ClearAllTiles();
         IsPlaced = false;
         IsPickedUp = (true, GetBuildingData());
         BuildingController.SetCurrentAction(Actions.PLACE);
+        Debug.Log($"{IsPickedUp.Item1} ({BaseCoordinates[0].x}, {BaseCoordinates[0].y})");
+        // if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
+        BuildingController.CurrentBuildingBeingPlaced = this;
         return true;
     }
 
@@ -114,6 +120,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         }
         if (BaseCoordinates.Contains(GetMousePositionInTilemap())) Tilemap.color = SEMI_TRANSPARENT;
         else Tilemap.color = OPAQUE;
+        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickupPreview();
     }
 
     /// <summary>
@@ -132,13 +139,19 @@ public abstract class Building : TooltipableGameObject, IBuilding {
             if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.Split('|').Skip(3).ToArray());
         }
 
-        PlayParticleEffect(this, true);
+        // PlayParticleEffect(this, true);
         IsPlaced = true;
         BuildingController.buildingGameObjects.Add(gameObject);
         BuildingController.buildings.Add(this);
+        BuildingController.GetUnavailableCoordinates().UnionWith(BaseCoordinates);
         UID = (name + BaseCoordinates[0].x + BaseCoordinates[0].y).GetHashCode();
         BuildingController.AddActionToLog(new UserAction(Actions.PLACE, UID, GetBuildingData()));
+        BuildingPlaced?.Invoke();
         if (BuildingController.CurrentAction == Actions.PLACE) BuildingController.OnBuildingPlaced();
+        if (IsPickedUp.Item1) {
+            IsPickedUp = (false, "");
+            BuildingController.SetCurrentAction(Actions.EDIT);
+        }
         return true;
     }
 
@@ -146,6 +159,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     /// Show a preview of the building Placement
     /// </summary
     public void PlaceBuildingPreview(Vector3Int position) {
+        // return;
         TilemapRenderer.sortingOrder = -position.y + 50;
 
         if (BuildingCanBePlacedAtPosition(position, this).Item1) Tilemap.color = SEMI_TRANSPARENT;
@@ -159,7 +173,13 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     }
 
     public void DeleteBuildingPreview() {
-        throw new System.NotImplementedException();
+        if (!IsPlaced) {
+            Tilemap.ClearAllTiles();
+            return;
+        }
+        if (BaseCoordinates.Contains(GetMousePositionInTilemap())) Tilemap.color = SEMI_TRANSPARENT_INVALID;
+        else Tilemap.color = OPAQUE;
+        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDeletePreview();
     }
 
     /// <summary>
@@ -171,6 +191,10 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         if (!IsPlaced) return;
         Tile[] buildingTiles = SplitSprite(Sprite);
         Tilemap.SetTiles(SpriteCoordinates.ToArray(), buildingTiles);
+    }
+
+    public void HidePreview() {
+        Tilemap.ClearAllTiles();
     }
 
     /// <summary>

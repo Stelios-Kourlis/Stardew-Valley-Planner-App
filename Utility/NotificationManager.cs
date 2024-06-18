@@ -44,7 +44,7 @@ public class NotificationManager : MonoBehaviour {
             60 => 80,
             _ => 0
         };
-        notificationGameObject.GetComponent<SpriteRenderer>().size = new Vector2(600, height);
+        notificationGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(600, height);
         SpriteAtlas spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
         notificationGameObject.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
         Notification notification = new(notificationGameObject);
@@ -55,7 +55,7 @@ public class NotificationManager : MonoBehaviour {
             OnNotificationChanged();
         });
         OnNotificationChanged();
-        StartCoroutine(StartLimetimeCountdown(notification));
+        // StartCoroutine(StartLimetimeCountdown(notification));
     }
 
     private void OnNotificationChanged() {

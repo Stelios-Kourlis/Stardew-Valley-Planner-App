@@ -7,41 +7,44 @@ using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using System;
 
-public class InteractableBuildingComponent {
-    public ButtonTypes[] BuildingInteractions { get; }
-    public GameObject ButtonParentGameObject { get; private set; }
-    public IInteractableBuilding Building { get; }
+public class InteractableBuildingComponent : MonoBehaviour {
+    public ButtonTypes[] BuildingInteractions { get; set; }
+    public GameObject ButtonParentGameObject { get; private set; } = null;
+    public IInteractableBuilding Building => gameObject.GetComponent<IInteractableBuilding>();
 
-    public InteractableBuildingComponent(IInteractableBuilding building) {
-        Building = building;
+    public void Awake() {
+        Building.BuildingPlaced += CreateBuildingButtons;
         List<ButtonTypes> buildingInteractions = new();
-        if (building is ITieredBuilding tieredBuilding) {
+        if (Building is ITieredBuilding tieredBuilding) {
             foreach (int tier in Enumerable.Range(1, tieredBuilding.MaxTier)) {
                 string tierStr = tier switch {
                     1 => "ONE",
                     2 => "TWO",
                     3 => "THREE",
-                    4 => "FOUR",
+                    4 => "ONE", //todo placeholder for lack of icon for tier 4
                     _ => "INVALID"
                 };
                 buildingInteractions.Append((ButtonTypes)Enum.Parse(typeof(ButtonTypes), $"TIER_{tierStr}"));
             }
         }
-        if (building is IEnterableBuilding) buildingInteractions.Append(ButtonTypes.ENTER);
-        if (building is FishPond) {
+        if (Building is IEnterableBuilding) buildingInteractions.Append(ButtonTypes.ENTER);
+        if (Building is FishPond) {
             buildingInteractions.Append(ButtonTypes.PLACE_FISH);
             buildingInteractions.Append(ButtonTypes.CHANGE_FISH_POND_DECO);
         }
         BuildingInteractions = buildingInteractions.ToArray();
         if (BuildingInteractions.Length == 0) return;
         Debug.Log(BuildingInteractions.Length);
-        // Debug.Log(building.BuildingInteractions != null);
-        // GetButtonController().CreateButtonsForBuilding(building);
     }
 
-    private void CreateButtons() {
+    private void CreateBuildingButtons() {
         ButtonParentGameObject = GetButtonController().CreateButtonsForBuilding(Building);
     }
+
+    public void Update() {
+        if (Building.IsPlaced) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(Building);
+    }
+
     public void OnMouseRightClick() {
         if (Building.BaseCoordinates.Contains(GetMousePositionInTilemap())) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeInHierarchy);
     }

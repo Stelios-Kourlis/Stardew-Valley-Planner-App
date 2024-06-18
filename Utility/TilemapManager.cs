@@ -203,6 +203,7 @@ namespace Utility {
             int width = building.Width;
             int height = building.Height;
             Vector3 result = new(-1, -1);
+            // Debug.Log(building.BaseCoordinates[0].x);
             if (width % 2 != 0) {
                 Vector3Int leftMiddle = new(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2.0f), 0, 0);
                 Vector3Int rightMiddle = new(building.BaseCoordinates[0].x + Mathf.CeilToInt(width / 2.0f), 0, 0);
@@ -210,6 +211,7 @@ namespace Utility {
                 Vector3 rightMiddleWorld = building.Tilemap.CellToWorld(rightMiddle);
                 result.x = (leftMiddleWorld.x + rightMiddleWorld.x) / 2;
             }
+
             else result.x = building.Tilemap.CellToWorld(new Vector3Int(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2), 0, 0)).x;
             if (height % 2 != 0) {
                 Vector3Int downMiddle = new(0, building.BaseCoordinates[0].y + Mathf.FloorToInt(height / 2.0f), 0);
