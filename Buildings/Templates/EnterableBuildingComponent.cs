@@ -25,12 +25,14 @@ public class EnterableBuildingComponent : MonoBehaviour {
 
     public void Awake() {
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{Building.BuildingName}");
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
     }
 
-    public void AddBuildingInterior() {
+    public void AddBuildingInterior() { //todo rework class
+        return;
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
         int middleBuildingX = Building.BaseCoordinates[0].x + Building.Width / 2;
-        Debug.Log(interriorSprite != null ? interriorSprite.name : "Sprite is null");
+        // Debug.Log(interriorSprite != null ? interriorSprite.name : "Sprite is null");
         Vector3Int interiorPosition = new(middleBuildingX - entranceOffsetPerBuilding[interriorSprite.name], Building.BaseCoordinates[0].y, 0);
         InteriorAreaCoordinates = GetAreaAroundPosition(interiorPosition, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
         BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));

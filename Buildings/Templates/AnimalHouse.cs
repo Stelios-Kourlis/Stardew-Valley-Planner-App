@@ -8,22 +8,19 @@ using UnityEngine.UI;
 using static Utility.TilemapManager;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
-public class AnimalHouse {
+public class AnimalHouseComponent : MonoBehaviour {
     public SpriteAtlas AnimalAtlas { get; private set; }
     private readonly GameObject[] UIElements = new GameObject[2];
-    private readonly SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
+    private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
     public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding { get; private set; }
-    public int MaxAnimalCapacity { get; private set; }
-    private IAnimalHouse Building { get; set; }
+    public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
+    private IAnimalHouse Building => gameObject.GetComponent<IAnimalHouse>();
 
-    /// <summary>
-    /// Constructor for AnimalHouse, when adding tier animals ONLY add those that weren't in the previous tier
-    /// </summary>
-    public AnimalHouse(IAnimalHouse building) {
-        Building = building;
+    public void Awake() {
         AnimalAtlas = Resources.Load($"{Building.GetType()}AnimalsAtlas") as SpriteAtlas;
         animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
         AnimalsInBuilding = new List<KeyValuePair<Animals, GameObject>>();
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
     }
 
     public bool AddAnimal(Animals animal) {
@@ -31,12 +28,10 @@ public class AnimalHouse {
             GetNotificationManager().SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
             return false;
         }
-        // AnimalsInBuilding.Add(animal);
         return true;
     }
 
     public void UpdateMaxAnimalCapacity(int tier) {
-        MaxAnimalCapacity = 4 * tier;
         if (UIElements[1] != null) {
             UIElements[1].GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{MaxAnimalCapacity}");
             UIElements[1].GetComponent<RectTransform>().sizeDelta = new Vector2(620, 100 * tier + 100);
@@ -48,10 +43,10 @@ public class AnimalHouse {
         //Animal Add Panel
         GameObject animalMenuPrefab = Building.GetType() switch {
             // Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
-            // Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
+            Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
             _ => throw new ArgumentException("This should never happen")
         };
-        GameObject animalMenu = GameObject.Instantiate(animalMenuPrefab);
+        GameObject animalMenu = Instantiate(animalMenuPrefab);
         animalMenu.transform.SetParent(Building.ButtonParentGameObject.transform.GetChild(5).transform);//this is the button to toggle the animal menu
         Vector3 animalMenuPositionWorld = new(Building.Tilemap.CellToWorld(Building.BaseCoordinates[0] + new Vector3Int(1, 0, 0)).x, GetMiddleOfBuildingWorld(Building).y + 4);
         animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);

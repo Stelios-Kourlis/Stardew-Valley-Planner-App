@@ -34,7 +34,7 @@ namespace Utility {
 
         public static bool BuildingHasMoreThanOneBuildingInterface(Building building, Type type) {
             List<Type> buildingInterfaces = new(){
-                typeof(IMultipleTypeBuilding<>),
+                typeof(IMultipleTypeBuilding),
                 typeof(IConnectingBuilding),
                 typeof(ITieredBuilding),
                 };

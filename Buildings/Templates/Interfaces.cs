@@ -18,6 +18,7 @@ public interface IBuilding {
     Tilemap Tilemap { get; }
     TilemapRenderer TilemapRenderer { get; }
     Transform Transform { get; }
+    GameObject BuildingGameObject { get; }
     public (bool, string) IsPickedUp { get; }
     bool PlaceBuilding(Vector3Int position);
     bool PickupBuilding();
@@ -63,10 +64,10 @@ public interface ITieredBuilding : IInteractableBuilding {
     void SetTier(int tier);
 }
 
-public interface IMultipleTypeBuilding<T> : IBuilding where T : Enum {
-    T Type { get; }
+public interface IMultipleTypeBuilding : IBuilding, IInteractableBuilding { //its not really interactable but is needed for sprite names
+    Enum Type { get; }
     void CycleType();
-    void SetType(T type);
+    void SetType(Enum type);
     GameObject[] CreateButtonsForAllTypes();
 }
 

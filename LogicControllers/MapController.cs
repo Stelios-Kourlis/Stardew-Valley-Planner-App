@@ -29,6 +29,7 @@ public class MapController : MonoBehaviour {
         removingInvalidTiles,
         addingPlantableTiles,
         removingPlantableTiles,
+        showMouseCoordinates
     }
     private SpriteAtlas atlas;
     public MapTypes CurrentMapType { get; private set; }
@@ -57,8 +58,9 @@ public class MapController : MonoBehaviour {
     public void Update() {//this is for adding invlid tiles and plantable tiles, should never be accesible to the user
         if (Input.GetKeyDown(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)) {
 #if UNITY_EDITOR
-            tileMode = (TileMode)(((int)tileMode + 1) % 5);
+            tileMode = (TileMode)(((int)tileMode + 1) % Enum.GetValues(typeof(TileMode)).Length);
             GetNotificationManager().SendNotification($"Mode set to {tileMode}", NotificationManager.Icons.InfoIcon);
+            Debug.Log($"Mode set to {tileMode}");
             if (tileMode == TileMode.nothing) {
                 unavailableCoordinatesAreVisible = true;
                 plantableCoordinatesAreVisible = true;
@@ -88,6 +90,7 @@ public class MapController : MonoBehaviour {
             else if (tileMode == TileMode.addingPlantableTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapPlantableTiles(tile);
             else if (tileMode == TileMode.removingInvalidTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapInvalidTiles(tile);
             else if (tileMode == TileMode.removingPlantableTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapPlantableTiles(tile);
+            else if (tileMode == TileMode.showMouseCoordinates) Debug.Log(currentCell);
         }
     }
 
@@ -147,10 +150,11 @@ public class MapController : MonoBehaviour {
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
         mapTilemap.ClearAllTiles();
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
-        if (mapType != MapTypes.GingerIsland) BuildingController.PlaceHouse(1);
+        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(1);
         GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
         UpdateAllCoordinates();
     }
+
 
     public void SetMap(string mapType) {
         MapTypes mapTypeEnum = MapTypes.Normal;

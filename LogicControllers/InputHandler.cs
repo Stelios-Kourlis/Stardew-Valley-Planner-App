@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
-using static Utility.SpriteManager;
+using static Utility.BuildingManager;
 using static Utility.ClassManager;
 using System;
 using System.Diagnostics.Eventing.Reader;
@@ -47,18 +47,20 @@ public class InputHandler : MonoBehaviour {
         Building building;
 
         if (Input.GetKeyUp(KeyCode.Mouse0)) {
-            switch (BuildingController.CurrentAction) {
-                case Actions.PLACE:
-                    BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
-                    break;
-                case Actions.EDIT:
-                    building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
-                    if (building != null) building.PickupBuilding();
-                    break;
-                case Actions.DELETE:
-                    building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
-                    if (building != null) building.DeleteBuilding();
-                    break;
+            if (LeftClickShouldRegister()) {
+                switch (BuildingController.CurrentAction) {
+                    case Actions.PLACE:
+                        BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
+                        break;
+                    case Actions.EDIT:
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                        if (building != null) building.PickupBuilding();
+                        break;
+                    case Actions.DELETE:
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                        if (building != null) building.DeleteBuilding();
+                        break;
+                }
             }
         }
 

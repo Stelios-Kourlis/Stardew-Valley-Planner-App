@@ -7,26 +7,24 @@ using UnityEngine.U2D;
 public class House : Building, ITieredBuilding, IEnterableBuilding {
     public TieredBuildingComponent TieredBuildingComponent { get; private set; }
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
-    public int Tier => TieredBuildingComponent.Tier;
+    public int Tier => gameObject.GetComponent<TieredBuildingComponent>().Tier;
 
-    public ButtonTypes[] BuildingInteractions => new ButtonTypes[] { ButtonTypes.TIER_ONE, ButtonTypes.TIER_TWO, ButtonTypes.TIER_THREE, ButtonTypes.ENTER };
+    public ButtonTypes[] BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
     public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
 
-    public Vector3Int[] InteriorUnavailableCoordinates => throw new System.NotImplementedException();
+    public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
 
-    public Vector3Int[] InteriorPlantableCoordinates => throw new System.NotImplementedException();
+    public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
 
     public override void OnAwake() {
         BaseHeight = 6;
         BuildingName = "House";
-        // TieredBuildingComponent = new TieredBuilding(this, 4);
+        base.OnAwake();
         TieredBuildingComponent = gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(3);
         EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
-        base.OnAwake();
-
     }
 
     public void SetTier(int tier) {
@@ -77,5 +75,9 @@ public class House : Building, ITieredBuilding, IEnterableBuilding {
 
     public void CreateInteriorCoordinates() {
         throw new System.NotImplementedException();
+    }
+
+    public void OnMouseRightClick() {
+        ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
     }
 }

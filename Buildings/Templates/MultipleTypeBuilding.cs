@@ -7,38 +7,42 @@ using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-public class MultipleTypeBuilding<T> where T : Enum {
-    public T Type { get; set; }
-    public static T CurrentType { get; set; }
+public class MultipleTypeBuilding : MonoBehaviour {
+    private Type enumType;
+    public Enum Type { get; set; }
+    public static Enum CurrentType { get; set; }
     public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; set; }
-    public Building Building { get; private set; }
-    private readonly bool buildingHasOtherInterfaces;
+    public IMultipleTypeBuilding Building => gameObject.GetComponent<IMultipleTypeBuilding>();
+    private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
 
-    public MultipleTypeBuilding(Building building) {
-        if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type");
-        Building = building;
-        buildingHasOtherInterfaces = BuildingHasMoreThanOneBuildingInterface(Building, typeof(IMultipleTypeBuilding<>));
-        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType().Name}Atlas");
+    public MultipleTypeBuilding SetEnumType(Type type) {
+        if (!type.IsEnum) throw new ArgumentException("Enum must be an enumerated type");
+        enumType = type;
+        SetType(CurrentType ?? (Enum)Enum.GetValues(enumType).GetValue(0));
+        DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(enumType).GetValue(0)}");
+        return this;
+    }
+
+    public void Awake() {
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType()}Atlas");
         Debug.Assert(Atlas != null, $"Atlas \"{Building.GetType().Name}Atlas\" was not found");
-        if (buildingHasOtherInterfaces) return;
-        SetType(CurrentType);
-        DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(typeof(T)).GetValue(0)}");
+
     }
 
     public void CycleType() {
-        int enumLength = Enum.GetValues(typeof(T)).Length;
+        int enumLength = Enum.GetValues(enumType).Length;
         int intValue = Convert.ToInt32(Type);
         intValue = (intValue + 1) % enumLength;
-        SetType((T)Enum.ToObject(typeof(T), intValue));
+        SetType((Enum)Enum.GetValues(enumType).GetValue(intValue));
     }
 
-    public void SetType(T type) {
+    public void SetType(Enum type) {
         CurrentType = type;
         Type = type;
-        if (buildingHasOtherInterfaces) return;
-        Sprite sprite = Atlas.GetSprite($"{type}");
-        Debug.Assert(sprite != null, $"Sprite {type} was not found in {Building.GetType()}Atlas");
+        Sprite sprite = Atlas.GetSprite($"{SpriteName}");
+        Debug.Assert(sprite != null, $"Sprite {SpriteName} was not found in {Building.GetType()}Atlas");
         Building.UpdateTexture(sprite);
     }
 
@@ -54,18 +58,20 @@ public class MultipleTypeBuilding<T> where T : Enum {
     /// <returns>An array with a button for each type, with no parent, caller should call transform.SetParent()</returns>
     public virtual GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
-        foreach (T type in Enum.GetValues(typeof(T))) {
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
+        Enum currentTypeBackup = CurrentType;
+        foreach (Enum type in Enum.GetValues(enumType)) {
+            GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}";
-            button.GetComponent<Image>().sprite = Atlas.GetSprite($"{type}");
-
+            SetType(type);
+            button.GetComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
             Type buildingType = Building.GetType();
             button.GetComponent<Button>().onClick.AddListener(() => {
-                BuildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
+                BuildingController.SetCurrentBuildingType(buildingType, type);
                 BuildingController.SetCurrentAction(Actions.PLACE);
             });
             buttons.Add(button);
         }
+        SetType(currentTypeBackup);
         return buttons.ToArray();
     }
 }

@@ -15,7 +15,8 @@ using UnityEngine.U2D;
 public class ButtonController : MonoBehaviour {
 
     readonly float BUTTON_SIZE = 75;
-    private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
+    // private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
+    private readonly Type[] typesThatShouldBeInCraftables = { };
     private GameObject buttonPrefab;
 
     void Start() {
@@ -40,11 +41,11 @@ public class ButtonController : MonoBehaviour {
         panelGameObject.transform.Find("CropsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             GameObject temp = new();
-            GameObject[] buttons = temp.AddComponent<Crop>().CreateButtonsForAllTypes();
-            foreach (GameObject button in buttons) {
-                button.transform.SetParent(content.transform);
-                button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-            }
+            // GameObject[] buttons = temp.AddComponent<Crop>().CreateButtonsForAllTypes(); //todo undo comment
+            // foreach (GameObject button in buttons) {
+            //     button.transform.SetParent(content.transform);
+            //     button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            // }
             Destroy(temp);
             panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
         });
@@ -64,7 +65,6 @@ public class ButtonController : MonoBehaviour {
     /// </summary>
     /// <returns>The parent game object of the buttons</returns>
     public GameObject CreateButtonsForBuilding(IInteractableBuilding building) {
-        // Debug.Log("Creating buttons for building " + building.BuildingName);
         ButtonTypes[] buttonTypes = building.BuildingInteractions;
         int numberOfButtons = buttonTypes.Length;
         if (numberOfButtons == 0) return null;
@@ -194,15 +194,15 @@ public class ButtonController : MonoBehaviour {
             // if (type == typeof(House)) continue; //these 2 should not be available to build
             if (type == typeof(Greenhouse)) continue;
             if (!typesThatShouldBeInCraftables.Contains(type)) continue; //only add craftables
-            if (type == typeof(Craftables)) {
-                GameObject tempCraftables = new("CraftablesTypes");
-                GameObject[] buttons = tempCraftables.AddComponent<Craftables>().CreateButtonsForAllTypes();
-                foreach (GameObject craftableButton in buttons) {
-                    craftableButton.transform.SetParent(BuildingContentTransform);
-                    craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-                }
-                Destroy(tempCraftables);
-            }
+            // if (type == typeof(Craftables)) { //todo undo comment
+            //     GameObject tempCraftables = new("CraftablesTypes");
+            //     GameObject[] buttons = tempCraftables.AddComponent<Craftables>().CreateButtonsForAllTypes();
+            //     foreach (GameObject craftableButton in buttons) {
+            //         craftableButton.transform.SetParent(BuildingContentTransform);
+            //         craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            //     }
+            //     Destroy(tempCraftables);
+            // }
             GameObject temp = new();
             Building buildingTemp = (Building)temp.AddComponent(type);
             GameObject button = buildingTemp.CreateBuildingButton();

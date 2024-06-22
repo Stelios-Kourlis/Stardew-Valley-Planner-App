@@ -42,7 +42,7 @@ public class NotificationManager : MonoBehaviour {
         float height = textComponent.GetComponent<RectTransform>().sizeDelta.y switch {
             30 => 60,
             60 => 80,
-            _ => 0
+            _ => 60
         };
         notificationGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(600, height);
         SpriteAtlas spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
@@ -67,7 +67,7 @@ public class NotificationManager : MonoBehaviour {
             GameObject notificationGameObject = notification.notificationGameObject;
             int index = notifications.IndexOf(notification);
             // Debug.LogWarning(-Screen.width/2);
-            notificationGameObject.GetComponent<RectTransform>().localPosition = new Vector3(-Screen.width / 2, notificationGameObject.GetComponent<RectTransform>().sizeDelta.y * index - Screen.height / 2, 0);
+            notificationGameObject.GetComponent<RectTransform>().localPosition = new Vector3(-Screen.width / 2, notificationGameObject.GetComponent<RectTransform>().sizeDelta.y * index - Screen.height / 2 + 100, 0);
             // Debug.LogWarning(notificationGameObject.GetComponent<RectTransform>().localPosition);
         }
     }

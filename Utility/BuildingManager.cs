@@ -121,11 +121,11 @@ namespace Utility {
                 typeof(SlimeHutch),
                 typeof(Stable),
                 typeof(Well),
-                typeof(PetBowl)
+                // typeof(PetBowl)//todo undo comments
             };
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
-            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there");
+            //if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there"); //todo undo comment
 
             if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
             return (true, null);

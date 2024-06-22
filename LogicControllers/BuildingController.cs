@@ -19,57 +19,105 @@ public static class BuildingController {
     private static readonly Stack<UserAction> actionLog = new();
     /// <summary> actions the user has undone, the first 2 elements always are Action, UID and then the building data </summary>
     private static readonly Stack<UserAction> undoLog = new();
-    public static Type currentBuildingType = typeof(Shed);
+    public static Type currentBuildingType = typeof(Obelisk);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, Transform> isInsideBuilding = new(false, null);
 
     public static HashSet<GameObject> buildingGameObjects = new();
     public static GameObject LastBuildingObjectCreated { get; private set; }
-    public static Building LastBuildingCreated => LastBuildingObjectCreated.GetComponent<Building>();
+    public static Building LastBuildingCreated => LastBuildingObjectCreated != null ? LastBuildingObjectCreated.GetComponent<Building>() : null;
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
     public static void OnBuildingPlaced() {
         if (IsLoadingSave) return;
-        GameObject newBuildingObject = new(currentBuildingType.Name);
-        if (!isInsideBuilding.Key) newBuildingObject.transform.SetParent(GetGridTilemap().transform);
-        else newBuildingObject.transform.SetParent(isInsideBuilding.Value);
-        newBuildingObject.AddComponent(currentBuildingType);
-        LastBuildingObjectCreated = newBuildingObject;
-        CurrentBuildingBeingPlaced = newBuildingObject.GetComponent<Building>();
+        LastBuildingObjectCreated = CreateNewBuildingGameObject(currentBuildingType);
     }
 
+    /// <summary>
+    /// Set the type of the building that is currently being placed
+    /// </summary>
     public static void SetCurrentBuildingType(Type newType) {
-        LastBuildingObjectCreated.GetComponent<Building>().DeleteBuilding();
-        currentBuildingType = newType;
-        LastBuildingObjectCreated.AddComponent(currentBuildingType);
-        LastBuildingObjectCreated.name = currentBuildingType.Name;
-        CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
+        GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated; //Backup is needed because if we destroy it now this script terminates
+        LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
+        UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
     }
 
-    public static void SetCurrentBuildingToMultipleTypeBuilding<T>(Type buildingType, T type) where T : Enum {
-        Debug.Assert(type != null, $"Type is null in SetCurrentBuildingToMultipleTypeBuilding");
-        LastBuildingObjectCreated.GetComponent<Building>().DeleteBuilding();
-        currentBuildingType = buildingType;
-        IMultipleTypeBuilding<T> building = LastBuildingObjectCreated.AddComponent(buildingType) as IMultipleTypeBuilding<T>;
+    /// <summary>
+    /// Set the type of the building that is currently being placed and the variant of it
+    /// </summary>
+    /// <param name="newType">The type of the building, MUST be a IMultipleTypeBuilding</param>
+    /// <param name="variant">The variant of the multiple type building</param>
+    public static void SetCurrentBuildingType(Type newType, Enum variant) {
+        Debug.Assert(variant != null, $"Type is null in SetCurrentBuildingType");
+        GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
+        LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
+        //Set the variant
+        IMultipleTypeBuilding building = LastBuildingObjectCreated.GetComponent(newType) as IMultipleTypeBuilding;
         Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
-        building.SetType(type);
-        LastBuildingObjectCreated.name = currentBuildingType.Name;
+        building.SetType(variant);
+
+        UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
     }
 
-    public static void PlaceHouse(int tier) {
-        MapController mapController = GetMapController();
-        Vector3Int housePos = mapController.GetCurrentMapType() switch {
-            MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-            MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
-            _ => new Vector3Int(32, 12, 0),
-        };
-        GameObject houseGameObject = new("House");
-        houseGameObject.transform.parent = GetGridTilemap().transform;
-        // houseGameObject.AddComponent<Tilemap>();
-        houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
-        houseGameObject.GetComponent<House>().SetTier(tier);
-        houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+    private static GameObject CreateNewBuildingGameObject(Type newType) {
+        currentBuildingType = newType;
+        GameObject newGameObject = new GameObject(currentBuildingType.Name).AddComponent(newType).gameObject;
+        if (!isInsideBuilding.Key) newGameObject.transform.SetParent(GetGridTilemap().transform);
+        else newGameObject.transform.SetParent(isInsideBuilding.Value);
+        CurrentBuildingBeingPlaced = newGameObject.GetComponent<Building>();
+        return newGameObject;
+    }
+
+
+    public static void InitializeMap(int Housetier) {
+
+        static void PlaceHouse(int tier) {
+            MapController mapController = GetMapController();
+            Vector3Int housePos = mapController.GetCurrentMapType() switch {
+                MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+                MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+                _ => new Vector3Int(32, 12, 0),
+            };
+            GameObject houseGameObject = new("House");
+            houseGameObject.transform.parent = GetGridTilemap().transform;
+            houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
+            houseGameObject.GetComponent<House>().SetTier(tier);
+            houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        }
+
+        static void PlaceBin() {
+            MapController mapController = GetMapController();
+            Vector3Int binPos = mapController.GetCurrentMapType() switch {
+                // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+                // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+                _ => new Vector3Int(44, 14, 0),
+            };
+            GameObject houseGameObject = new("ShippingBin");
+            houseGameObject.transform.parent = GetGridTilemap().transform;
+            houseGameObject.AddComponent<ShippingBin>().PlaceBuilding(binPos);
+            houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        }
+
+        static void PlaceGreenhouse() {
+            MapController mapController = GetMapController();
+            Vector3Int binPos = mapController.GetCurrentMapType() switch {
+                // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+                // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+                _ => new Vector3Int(-2, 13, 0),
+            };
+            GameObject houseGameObject = new("Greenhouse");
+            houseGameObject.transform.parent = GetGridTilemap().transform;
+            houseGameObject.AddComponent<Greenhouse>().PlaceBuilding(binPos);
+            houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        }
+
+        IsLoadingSave = true;
+        PlaceHouse(Housetier);
+        PlaceBin();
+        PlaceGreenhouse();
+        IsLoadingSave = false;
+        OnBuildingPlaced();
     }
 
     /// <summary>

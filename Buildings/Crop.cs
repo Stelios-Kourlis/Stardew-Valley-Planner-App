@@ -1,85 +1,85 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Configuration;
-using UnityEngine;
-using static Utility.BuildingManager;
+// using System;
+// using System.Collections;
+// using System.Collections.Generic;
+// using System.Configuration;
+// using UnityEngine;
+// using static Utility.BuildingManager;
 
-public class Crop : Building, IMultipleTypeBuilding<Crop.Types>, IExtraActionBuilding {
-    public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; private set; }
+// public class Crop : Building, IMultipleTypeBuilding<Crop.Types>, IExtraActionBuilding {
+//     public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; private set; }
 
-    public enum Types {
-        Parsnip,
-        BlueJazz,
-        Carrot,
-        Cauliflower,
-        CoffeeBean,
-        Garlic,
-        GreenBean,
-        Kale,
-        Potato,
-        Rhubarb,
-        Strawberry,
-        Tulip,
-        UnmilledRice,
-        Blueberry,
-        Corn,
-        Hops,
-        HotPepper,
-        Melon,
-        Poppy,
-        Radish,
-        RedCabbage,
-        Starfruit,
-        SummerSpangle,
-        SummerSquash,
-        Sunflower,
-        Tomato,
-        Wheat,
-        Amaranth,
-        Artichoke,
-        Beet,
-        BokChoy,
-        Broccoli,
-        Cranberries,
-        Eggplant,
-        FairyRose,
-        Grape,
-        Pumpkin,
-        Yam,
-        Powdermelon,
-        AncientFruit,
-        CactusFruit,
-        Pineapple,
-        TaroRoot,
-        SweetGemBerry,
-        TeaLeaves
-    }
+//     public enum Types {
+//         Parsnip,
+//         BlueJazz,
+//         Carrot,
+//         Cauliflower,
+//         CoffeeBean,
+//         Garlic,
+//         GreenBean,
+//         Kale,
+//         Potato,
+//         Rhubarb,
+//         Strawberry,
+//         Tulip,
+//         UnmilledRice,
+//         Blueberry,
+//         Corn,
+//         Hops,
+//         HotPepper,
+//         Melon,
+//         Poppy,
+//         Radish,
+//         RedCabbage,
+//         Starfruit,
+//         SummerSpangle,
+//         SummerSquash,
+//         Sunflower,
+//         Tomato,
+//         Wheat,
+//         Amaranth,
+//         Artichoke,
+//         Beet,
+//         BokChoy,
+//         Broccoli,
+//         Cranberries,
+//         Eggplant,
+//         FairyRose,
+//         Grape,
+//         Pumpkin,
+//         Yam,
+//         Powdermelon,
+//         AncientFruit,
+//         CactusFruit,
+//         Pineapple,
+//         TaroRoot,
+//         SweetGemBerry,
+//         TeaLeaves
+//     }
 
 
-    public Types Type => MultipleTypeBuildingComponent.Type;
+//     public Types Type => MultipleTypeBuildingComponent.Type;
 
-    public override void OnAwake() {
-        BaseHeight = 1;
-        MultipleTypeBuildingComponent = new MultipleTypeBuilding<Types>(this);
-        base.OnAwake();
-    }
+//     public override void OnAwake() {
+//         BaseHeight = 1;
+//         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuilding<Types>>();
+//         base.OnAwake();
+//     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>{
-            new($"{Type} Seeds"),
-        };
-    }
+//     public override List<MaterialInfo> GetMaterialsNeeded() {
+//         return new List<MaterialInfo>{
+//             new($"{Type} Seeds"),
+//         };
+//     }
 
-    public void LoadExtraBuildingData(string[] data) {
-        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
-    }
+//     public void LoadExtraBuildingData(string[] data) {
+//         MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
+//     }
 
-    public GameObject[] CreateButtonsForAllTypes() {
-        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-    }
+//     public GameObject[] CreateButtonsForAllTypes() {
+//         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
+//     }
 
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+//     public void CycleType() => MultipleTypeBuildingComponent.CycleType();
 
-    public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
-}
+//     public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
+// }

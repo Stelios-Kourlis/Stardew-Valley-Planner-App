@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,13 +10,14 @@ public class TieredBuildingComponent : MonoBehaviour {
 
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
     public int Tier { get; set; } = 1;
-    public int MaxTier { get; private set; }
+    public int MaxTier { get; private set; } = 1;
     private SpriteAtlas atlas;
     private Building Building => gameObject.GetComponent<Building>();
     private bool buildingHasOtherInterfaces;
 
     public TieredBuildingComponent SetMaxTier(int maxTier) {
         MaxTier = maxTier;
+        gameObject.GetComponent<InteractableBuildingComponent>().UpdateBuildingButtons();
         return this;
     }
 
@@ -25,15 +27,13 @@ public class TieredBuildingComponent : MonoBehaviour {
         buildingHasOtherInterfaces = BuildingHasMoreThanOneBuildingInterface(Building, typeof(ITieredBuilding));
         atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType()}Atlas");
         Debug.Assert(atlas != null, $"Could not load atlas for {Building.GetType()} ({Building.GetType()}Atlas)");
-        // if (buildingHasOtherInterfaces) return;
-        // SetTier(1);
+        SetTier(1);
     }
+
 
     public virtual void SetTier(int tier) {
         if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
         Tier = tier;
-        if (buildingHasOtherInterfaces) return;
-        // Debug.Log($"Building {Building.GetType()} has no itherfaces other than {GetType()}");
-        Building.UpdateTexture(atlas.GetSprite($"{Building.GetType()}{tier}"));
+        Building.UpdateTexture(atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
 }

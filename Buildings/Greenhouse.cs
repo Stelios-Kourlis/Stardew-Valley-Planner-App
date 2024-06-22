@@ -19,17 +19,17 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
 
     public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
 
-    public ButtonTypes[] BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
+    public ButtonTypes[] BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
-    public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
+    public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
     public override void OnAwake() {
         BuildingName = "Greenhouse";
         BaseHeight = 6;
+        base.OnAwake();
         // insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
         // InteractableBuildingComponent = new InteractableBuildingComponent(this);
-        // EnterableBuildingComponent = new EnterableBuildingComponent(this);
-        base.OnAwake();
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
     }
@@ -112,6 +112,6 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
     }
 
     public void OnMouseRightClick() {
-        throw new System.NotImplementedException();
+        ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeInHierarchy);
     }
 }

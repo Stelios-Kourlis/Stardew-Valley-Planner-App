@@ -35,9 +35,9 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public (bool, string) IsPickedUp { get; private set; }
 
-    public int Height => Sprite != null ? (int)Sprite.textureRect.height / 16 : 0;
+    public int Height => Sprite != null ? (int)Sprite.textureRect.height / 16 : -1;
 
-    public int Width => Sprite != null ? (int)Sprite.textureRect.width / 16 : 0;
+    public int Width => Sprite != null ? (int)Sprite.textureRect.width / 16 : -1;
 
     public int BaseHeight { get; protected set; } = 0;
 
@@ -49,20 +49,30 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public Transform Transform => gameObject.transform;
 
-    // System.Action BuildingPlaced { get; }
+    public GameObject BuildingGameObject => gameObject;
 
     public Action BuildingPlaced { get; set; }
 
-    // public System.Action BuildingPlaced;
+    public override void OnAwake() {
+        IsPlaced = false;
+        gameObject.AddComponent<Tilemap>();
+        gameObject.AddComponent<TilemapRenderer>();
+        Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
+        // Debug.Assert(Sprite != null, $"Sprite 'Buildings/{GetType()}' not found");
+    }
+
+    public void OnDestroy() {
+        if (this is IInteractableBuilding) Destroy(gameObject.GetComponent<InteractableBuildingComponent>());
+
+    }
 
     public void DeleteBuilding(bool force = false) {
-        // if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House can't be deleted
-        IsPlaced = false;
-        Tilemap.ClearAllTiles();
+        if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House can't be deleted
 
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
 
         if (IsPlaced) {
+            // Debug.Log("Deleting building " + BuildingName);
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
             BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
@@ -89,13 +99,6 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.LoadExtraBuildingData(data.Skip(2).ToArray());
 
         return true; //make it so it might return false
-    }
-
-    public override void OnAwake() {
-        IsPlaced = false;
-        gameObject.AddComponent<Tilemap>();
-        gameObject.AddComponent<TilemapRenderer>();
-        // Sprite = Resources.Load<Sprite>($"Buildings/{BuildingName}");
     }
 
     public override void OnUpdate() {
@@ -128,8 +131,10 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     /// </summary>
     /// <returns> Whether the placement succeded or not </returns>
     public bool PlaceBuilding(Vector3Int position) {
+        Debug.Assert(Sprite != null, $"Sprite is null for {BuildingName}");
         (bool canBePlacedAtPosition, string errorMessage) = BuildingCanBePlacedAtPosition(position, this);
         if (!canBePlacedAtPosition) { GetNotificationManager().SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon); return false; }
+        PlaceBuildingPreview(position);
         Tilemap.color = OPAQUE;
 
         BaseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width).ToArray();
@@ -139,7 +144,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
             if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.Split('|').Skip(3).ToArray());
         }
 
-        // PlayParticleEffect(this, true);
+        PlayParticleEffect(this, true);
         IsPlaced = true;
         BuildingController.buildingGameObjects.Add(gameObject);
         BuildingController.buildings.Add(this);
@@ -186,7 +191,8 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     /// Update the sprite of the building
     /// </summary>
     public void UpdateTexture(Sprite newSprite) {
-        // UnityEngine.Debug.Assert(newSprite != null, $"UpdateTexture called for {GetType()} with null sprite/Called from: {new StackTrace()}");
+        Debug.Assert(newSprite != null, $"UpdateTexture called for {GetType()} with null sprite/Called from: {new System.Diagnostics.StackTrace()}");
+        // Debug.Log($"Updating texture to {newSprite.name} for {BuildingName}");
         Sprite = newSprite;
         if (!IsPlaced) return;
         Tile[] buildingTiles = SplitSprite(Sprite);
@@ -209,7 +215,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
         System.Type buildingType = GetType();
         button.GetComponent<Button>().onClick.AddListener(() => {
-            // Debug.Log($"Setting current building to {buildingType}");
+            Debug.Log($"Setting current building to {buildingType}");
             BuildingController.SetCurrentBuildingType(buildingType);
             BuildingController.SetCurrentAction(Actions.PLACE);
         });
