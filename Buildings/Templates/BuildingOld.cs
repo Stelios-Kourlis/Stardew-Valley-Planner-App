@@ -29,7 +29,7 @@
 //     ///<summary>The sprite of the building </summary>
 //     public Sprite sprite;
 //     ///<summary>The ways the user can interact with the building </summary>
-//     public ButtonTypes[] BuildingInteractions { get; protected set; } = new ButtonTypes[0];
+//     public List<ButtonTypes> BuildingInteractions { get; protected set; } = new ButtonTypes[0];
 //     public int BaseHeight { get; protected set; }
 //     public int Height {
 //         get {

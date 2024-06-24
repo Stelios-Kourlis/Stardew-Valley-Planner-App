@@ -105,13 +105,13 @@ namespace Utility {
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<Type> actualBuildings = new(){
-                // typeof(Barn),
-                // typeof(Cabin),
-                // typeof(Coop),
+                typeof(Barn),
+                typeof(Cabin),
+                typeof(Coop),
                 typeof(FishPond),
                 typeof(GoldClock),
                 typeof(Greenhouse),
-                // typeof(House),
+                typeof(House),
                 typeof(JunimoHut),
                 typeof(Mill),
                 typeof(Obelisk),
@@ -121,11 +121,11 @@ namespace Utility {
                 typeof(SlimeHutch),
                 typeof(Stable),
                 typeof(Well),
-                // typeof(PetBowl)//todo undo comments
+                typeof(PetBowl)
             };
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
-            //if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there"); //todo undo comment
+            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there"); //todo undo comment
 
             if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
             return (true, null);

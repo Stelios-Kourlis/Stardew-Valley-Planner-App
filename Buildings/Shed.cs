@@ -15,7 +15,7 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding {
 
     public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
 
-    public ButtonTypes[] BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 

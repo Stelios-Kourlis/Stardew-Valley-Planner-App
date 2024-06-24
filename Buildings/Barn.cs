@@ -10,15 +10,15 @@ using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-public class Barn : Building, ITieredBuilding, IAnimalHouse, IExtraActionBuilding, IInteractableBuilding {
+public class Barn : Building, ITieredBuilding, IAnimalHouse, IExtraActionBuilding {
     public AnimalHouseComponent AnimalHouseComponent { get; private set; }
     public TieredBuildingComponent TieredBuildingComponent { get; private set; }
     public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
-    public int Tier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
+    public int Tier => gameObject.GetComponent<TieredBuildingComponent>().Tier;
 
     public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding => gameObject.GetComponent<AnimalHouseComponent>().AnimalsInBuilding;
 
-    public ButtonTypes[] BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -30,12 +30,12 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IExtraActionBuildin
         base.OnAwake();
         TieredBuildingComponent = gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(3);
         AnimalHouseComponent = gameObject.AddComponent<AnimalHouseComponent>();
-        SetTier(1);
+        // SetTier(1);
     }
 
-    public void PerformExtraActionsOnPlace(Vector3Int position) {
-        AnimalHouseComponent.AddAnimalMenuObject();
-    }
+    // public void PerformExtraActionsOnPlace(Vector3Int position) {
+    //     // AnimalHouseComponent.AddAnimalMenuObject();
+    // }
 
     public void SetTier(int tier) {
         TieredBuildingComponent.SetTier(tier);
@@ -134,7 +134,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IExtraActionBuildin
     private void AddAnimalButton(Animals animal) {
         GameObject button = new(animal.ToString());
         AnimalsInBuilding.Add(new KeyValuePair<Animals, GameObject>(animal, button));
-        button.transform.SetParent(ButtonParentGameObject.transform.GetChild(5).GetChild(1).GetChild(0));
+        button.transform.SetParent(ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0));
         button.AddComponent<Image>().sprite = AnimalHouseComponent.AnimalAtlas.GetSprite(animal.ToString());
         button.AddComponent<Button>().onClick.AddListener(() => {
             AnimalsInBuilding.Remove(new KeyValuePair<Animals, GameObject>(animal, button));

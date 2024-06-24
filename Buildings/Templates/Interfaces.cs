@@ -51,7 +51,7 @@ public interface IExtraActionBuilding {
 
 /// <summary> This is implemented if a building can be interacted with </summary>
 public interface IInteractableBuilding : IBuilding, IExtraActionBuilding {
-    ButtonTypes[] BuildingInteractions { get; }
+    List<ButtonTypes> BuildingInteractions { get; }
     GameObject ButtonParentGameObject { get; }
     void OnMouseRightClick() { return; }
     void OnMouseEnter() { return; }

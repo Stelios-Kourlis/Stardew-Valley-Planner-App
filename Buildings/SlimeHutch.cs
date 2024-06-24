@@ -13,7 +13,7 @@ public class SlimeHutch : Building, IEnterableBuilding, IExtraActionBuilding {
 
     public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
 
-    public ButtonTypes[] BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
 
     public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
 

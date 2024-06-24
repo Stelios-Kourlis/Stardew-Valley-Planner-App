@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-public class MultipleTypeBuilding : MonoBehaviour {
+public class MultipleTypeBuildingComponent : MonoBehaviour {
     private Type enumType;
     public Enum Type { get; set; }
     public static Enum CurrentType { get; set; }
@@ -16,8 +17,9 @@ public class MultipleTypeBuilding : MonoBehaviour {
     public IMultipleTypeBuilding Building => gameObject.GetComponent<IMultipleTypeBuilding>();
     private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
 
-    public MultipleTypeBuilding SetEnumType(Type type) {
+    public MultipleTypeBuildingComponent SetEnumType(Type type) {
         if (!type.IsEnum) throw new ArgumentException("Enum must be an enumerated type");
+        if (enumType != type) CurrentType = null;
         enumType = type;
         SetType(CurrentType ?? (Enum)Enum.GetValues(enumType).GetValue(0));
         DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(enumType).GetValue(0)}");
@@ -51,6 +53,7 @@ public class MultipleTypeBuilding : MonoBehaviour {
         button.GetComponent<Image>().sprite = DefaultSprite;
         return button;
     }
+
 
     /// <summary>
     /// Creates a button for each type of the building

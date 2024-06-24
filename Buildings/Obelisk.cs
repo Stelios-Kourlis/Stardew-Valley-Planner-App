@@ -7,7 +7,7 @@ using UnityEngine.U2D;
 
 public class Obelisk : Building, IMultipleTypeBuilding {
 
-    public MultipleTypeBuilding MultipleTypeBuildingComponent { get; private set; }
+    public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
 
     public enum Types {
         Water,
@@ -16,9 +16,9 @@ public class Obelisk : Building, IMultipleTypeBuilding {
         Earth
     }
 
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuilding>().Type;
+    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
-    public ButtonTypes[] BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -26,7 +26,7 @@ public class Obelisk : Building, IMultipleTypeBuilding {
         BaseHeight = 3;
         BuildingName = "Obelisk";
         base.OnAwake();
-        MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuilding>().SetEnumType(typeof(Types));
+        MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         // Debug.Log($"1: {sprite == null}");
         // Debug.Log($"2: {sprite == null}");
     }

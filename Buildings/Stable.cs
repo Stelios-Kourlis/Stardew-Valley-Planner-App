@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 public class Stable : Building, IInteractableBuilding {
     private InteractableBuildingComponent interactableBuildingComponent;
 
-    public ButtonTypes[] BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
 
     public GameObject ButtonParentGameObject => interactableBuildingComponent.ButtonParentGameObject;
 

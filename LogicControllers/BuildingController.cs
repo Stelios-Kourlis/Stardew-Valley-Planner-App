@@ -19,7 +19,7 @@ public static class BuildingController {
     private static readonly Stack<UserAction> actionLog = new();
     /// <summary> actions the user has undone, the first 2 elements always are Action, UID and then the building data </summary>
     private static readonly Stack<UserAction> undoLog = new();
-    public static Type currentBuildingType = typeof(Obelisk);
+    public static Type currentBuildingType = typeof(Barn);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, Transform> isInsideBuilding = new(false, null);

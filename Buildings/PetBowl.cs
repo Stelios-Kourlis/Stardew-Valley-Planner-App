@@ -1,43 +1,48 @@
-// using System.Collections;
-// using System.Collections.Generic;
-// using UnityEngine;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-// public class PetBowl : Building, IMultipleTypeBuilding<PetBowl.Types>, IExtraActionBuilding {
-//     public enum Types {
-//         PetBowl,
-//         StonePetBowl,
-//         HayPetBowl
-//     }
+public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
+    public enum Types {
+        PetBowl,
+        StonePetBowl,
+        HayPetBowl
+    }
 
-//     public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; set; }
+    public MultipleTypeBuildingComponent MultipleTypeBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
 
-//     public Types Type => MultipleTypeBuildingComponent.Type;
+    public Enum Type => MultipleTypeBuildingComponent.Type;
 
-//     public override void OnAwake() {
-//         BaseHeight = 2;
-//         BuildingName = "Pet Bowl";
-//         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuilding<Types>>();
-//         base.OnAwake();
-//     }
+    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
-//     public override List<MaterialInfo> GetMaterialsNeeded() {
-//         return new(){
-//             new(5_000, Materials.Coins),
-//             new(25, Materials.Hardwood)
-//         };
-//     }
+    public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
-//     public string AddToBuildingData() {
-//         return $"{base.GetBuildingData()}|{Type}";
-//     }
+    public override void OnAwake() {
+        BaseHeight = 2;
+        BuildingName = "Pet Bowl";
+        gameObject.AddComponent<MultipleTypeBuildingComponent>();
+        base.OnAwake();
+    }
 
-//     public void LoadExtraBuildingData(string[] data) {
-//         SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
-//     }
+    public override List<MaterialInfo> GetMaterialsNeeded() {
+        return new(){
+            new(5_000, Materials.Coins),
+            new(25, Materials.Hardwood)
+        };
+    }
 
-//     public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+    public string AddToBuildingData() {
+        return $"{base.GetBuildingData()}|{Type}";
+    }
 
-//     public void SetType(Types type) => MultipleTypeBuildingComponent.SetType(type);
+    public void LoadExtraBuildingData(string[] data) {
+        SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
+    }
 
-//     public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-// }
+    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
+
+    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
+
+    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
+}

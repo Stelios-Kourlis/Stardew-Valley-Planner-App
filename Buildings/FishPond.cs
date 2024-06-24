@@ -22,7 +22,7 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
     private int decoIndex = 0;
     private GameObject waterTilemapObject;
 
-    public ButtonTypes[] BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
 
     public GameObject ButtonParentGameObject => interactableBuildingComponent.ButtonParentGameObject;
 

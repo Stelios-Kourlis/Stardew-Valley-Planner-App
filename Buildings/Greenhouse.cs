@@ -19,7 +19,7 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
 
     public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
 
-    public ButtonTypes[] BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 

@@ -26,13 +26,12 @@ public class EnterableBuildingComponent : MonoBehaviour {
     public void Awake() {
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{Building.BuildingName}");
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
     }
 
-    public void AddBuildingInterior() { //todo rework class
-        return;
+    public void AddBuildingInterior() {
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
         int middleBuildingX = Building.BaseCoordinates[0].x + Building.Width / 2;
-        // Debug.Log(interriorSprite != null ? interriorSprite.name : "Sprite is null");
         Vector3Int interiorPosition = new(middleBuildingX - entranceOffsetPerBuilding[interriorSprite.name], Building.BaseCoordinates[0].y, 0);
         InteriorAreaCoordinates = GetAreaAroundPosition(interiorPosition, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
         BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
@@ -40,9 +39,6 @@ public class EnterableBuildingComponent : MonoBehaviour {
         BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = Building.TilemapRenderer.sortingOrder + 50;
         BuildingInterior.transform.SetParent(Building.Transform);
         BuildingInterior.SetActive(false);
-        GameObject enterButton = InteractableBuildingComponent.ButtonParentGameObject.transform.Find("ENTER").gameObject;
-        GameObject editButton = enterButton.transform.GetChild(0).gameObject;
-        editButton.transform.GetChild(0).gameObject.GetComponent<Text>().text = "EXIT";
         if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
     }
 
@@ -66,21 +62,16 @@ public class EnterableBuildingComponent : MonoBehaviour {
         GetCamera().GetComponent<CameraController>().ToggleCameraLock();
         GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(InteriorAreaCoordinates[0].x + interriorSprite.rect.width / 32, InteriorAreaCoordinates[0].y + interriorSprite.rect.height / 32, 0));
         int buildingInsideHeight = InteriorAreaCoordinates[^1].y - InteriorAreaCoordinates[0].y;
-        GetCamera().GetComponent<CameraController>().SetSize(buildingInsideHeight);
+        // GetCamera().GetComponent<CameraController>().SetSize(buildingInsideHeight);
         if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
-        for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Length; i++) {
+        for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
             if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
             InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(false); //disable all other buttons
         }
         GameObject enterButton = InteractableBuildingComponent.ButtonParentGameObject.transform.Find("ENTER").gameObject;
-        GameObject editButton = enterButton.transform.GetChild(0).gameObject;
-        enterButton.transform.position = new Vector3(-400, -400, 0);
-        editButton.transform.position = new Vector3(Screen.width - editButton.GetComponent<RectTransform>().rect.width / 2 - 50, editButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
+        enterButton.transform.position = new Vector3(Screen.width - enterButton.GetComponent<RectTransform>().rect.width / 2 - 50, enterButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = 0;
         Building.TilemapRenderer.sortingOrder = -1;
-        Debug.Log(editButton.activeInHierarchy);
-        editButton.SetActive(true);
-        Debug.Log(editButton.activeInHierarchy);
     }
 
     public void ExitBuildingInteriorEditing() {
@@ -92,7 +83,7 @@ public class EnterableBuildingComponent : MonoBehaviour {
             if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) continue; //reenable buildings
             Building.Transform.parent.GetChild(i).gameObject.SetActive(true);
         }
-        for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Length; i++) {
+        for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
             if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
             InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(false); //reenable buttons
         }
@@ -100,8 +91,6 @@ public class EnterableBuildingComponent : MonoBehaviour {
         GetCamera().GetComponent<CameraController>().SetPosition(cameraPositionBeforeLock);
         GetCamera().GetComponent<CameraController>().SetSize(cameraSizeBeforeLock);
         GameObject enterButton = InteractableBuildingComponent.ButtonParentGameObject.transform.Find("ENTER").gameObject;
-        GameObject editButton = enterButton.transform.GetChild(0).gameObject;
-        editButton.SetActive(false);
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = Building.TilemapRenderer.sortingOrder + 1;
 
     }

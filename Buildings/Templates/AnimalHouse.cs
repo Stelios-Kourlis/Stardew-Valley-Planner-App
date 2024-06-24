@@ -21,6 +21,8 @@ public class AnimalHouseComponent : MonoBehaviour {
         animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
         AnimalsInBuilding = new List<KeyValuePair<Animals, GameObject>>();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
+        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ADD_ANIMAL);
     }
 
     public bool AddAnimal(Animals animal) {
@@ -42,32 +44,29 @@ public class AnimalHouseComponent : MonoBehaviour {
     public void AddAnimalMenuObject() {
         //Animal Add Panel
         GameObject animalMenuPrefab = Building.GetType() switch {
-            // Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
+            Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
             Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
             _ => throw new ArgumentException("This should never happen")
         };
         GameObject animalMenu = Instantiate(animalMenuPrefab);
-        animalMenu.transform.SetParent(Building.ButtonParentGameObject.transform.GetChild(5).transform);//this is the button to toggle the animal menu
-        Vector3 animalMenuPositionWorld = new(Building.Tilemap.CellToWorld(Building.BaseCoordinates[0] + new Vector3Int(1, 0, 0)).x, GetMiddleOfBuildingWorld(Building).y + 4);
-        animalMenu.transform.position = Camera.main.WorldToScreenPoint(animalMenuPositionWorld);
+        animalMenu.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);//this is the button to toggle the animal menu
+        animalMenu.GetComponent<RectTransform>().position = new(Building.ButtonParentGameObject.transform.position.x - 100, Building.ButtonParentGameObject.transform.position.y + 25);
         animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalMenu.SetActive(false);
         GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
-        IAnimalHouse animalHouse = Building as IAnimalHouse;
         for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++) {
             Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
             AddHoverEffect(addAnimalButton);
             addAnimalButton.onClick.AddListener(() => {
-                animalHouse.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
+                Building.AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
             });
         }
 
         //Animals In Building Panel
         GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
-        GameObject animalInBuilding = GameObject.Instantiate(animalInBuildingMenuPrefab);
-        animalInBuilding.transform.SetParent(Building.ButtonParentGameObject.transform.GetChild(5).transform);
-        Vector3 animalInBuildingMenuPositionWorld = new(Building.Tilemap.CellToWorld(Building.BaseCoordinates[0] + new Vector3Int(1, 0, 0)).x, GetMiddleOfBuildingWorld(Building).y + 1);
-        animalInBuilding.transform.position = Camera.main.WorldToScreenPoint(animalInBuildingMenuPositionWorld);
+        GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
+        animalInBuilding.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);
+        animalInBuilding.GetComponent<RectTransform>().position = new(Building.ButtonParentGameObject.transform.position.x - 100, Building.ButtonParentGameObject.transform.position.y - 25);
         animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalInBuilding.SetActive(false);
 

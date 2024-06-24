@@ -17,7 +17,17 @@ public class TieredBuildingComponent : MonoBehaviour {
 
     public TieredBuildingComponent SetMaxTier(int maxTier) {
         MaxTier = maxTier;
-        gameObject.GetComponent<InteractableBuildingComponent>().UpdateBuildingButtons();
+        for (int tier = 1; tier <= MaxTier; tier++) {
+            string tierStr = tier switch {
+                1 => "ONE",
+                2 => "TWO",
+                3 => "THREE",
+                4 => "ONE", //todo placeholder for lack of icon for tier 4
+                _ => "INVALID"
+            };
+            // Debug.Log($"TIER_{tierStr}");
+            gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding((ButtonTypes)Enum.Parse(typeof(ButtonTypes), $"TIER_{tierStr}"));
+        }
         return this;
     }
 

@@ -56,8 +56,8 @@ public class TypeBarHandler : MonoBehaviour {
     }
 
     public bool IsMultipleTypeBuilding(Type type) {
-        // if (type == typeof(Crop)) return false; //todo
-        // if (type == typeof(Craftables)) return false;
+        if (type == typeof(Crop)) return false;
+        if (type == typeof(Craftables)) return false;
         return typeof(IMultipleTypeBuilding).IsAssignableFrom(type);
     }
 
