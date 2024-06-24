@@ -32,6 +32,7 @@ public interface IBuilding {
     void UpdateTexture(Sprite sprite);
     GameObject CreateBuildingButton();
     Action BuildingPlaced { get; set; }
+    // public bool CanBeMassPlaced { get; }
 }
 
 /// <summary> This is implemented if a building needs to do extra actions on Place,Edit,Delete </summary>
@@ -99,4 +100,9 @@ public interface IEnterableBuilding : IInteractableBuilding {
 
 public interface IPaintableBuilding : IBuilding, IInteractableBuilding {
     //not implemented yet
+}
+
+public interface IMassPlaceableBuilding : IBuilding {
+    void MassPlaceBuilding(Vector3Int[] positions);
+    void MassPlaceBuildingPreview(Vector3Int[] positions);
 }

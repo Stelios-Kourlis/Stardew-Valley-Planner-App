@@ -52,6 +52,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     public GameObject BuildingGameObject => gameObject;
 
     public Action BuildingPlaced { get; set; }
+    // public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
         IsPlaced = false;

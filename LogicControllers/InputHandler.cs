@@ -7,6 +7,7 @@ using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
+using static Utility.SpriteManager;
 using System;
 using System.Diagnostics.Eventing.Reader;
 
@@ -20,7 +21,7 @@ public class InputHandler : MonoBehaviour {
     }
 
     public bool IsSearching { get; set; } = false;
-    //bool mouseIsHeld = false;
+    bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
 
     void Start() {
@@ -39,26 +40,34 @@ public class InputHandler : MonoBehaviour {
         // if (IsSearching) return; //the 2 above should always be available, rest should be disabled when searching
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            //mouseIsHeld = true; 
+            mouseIsHeld = true;
             mousePositionWhenHoldStarted = GetMousePositionInTilemap();
         }
 
         Vector3Int mousePosition = GetMousePositionInTilemap();
         Building building;
+        Vector3Int[] mouseCoverageArea;
 
         if (Input.GetKeyUp(KeyCode.Mouse0)) {
+            mouseIsHeld = false;
+            GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
             if (LeftClickShouldRegister()) {
                 switch (BuildingController.CurrentAction) {
                     case Actions.PLACE:
-                        BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
+                        if (BuildingController.CurrentBuildingBeingPlaced.GetType() is not IMassPlaceableBuilding) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
+                        else {
+                            mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                            foreach (Vector3Int position in mouseCoverageArea) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
+                        }
                         break;
                     case Actions.EDIT:
                         building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
                         if (building != null) building.PickupBuilding();
                         break;
                     case Actions.DELETE:
-                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
-                        if (building != null) building.DeleteBuilding();
+                        mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
+                        foreach (Building buildingToDelete in buildings) buildingToDelete.DeleteBuilding();
                         break;
                 }
             }
@@ -80,6 +89,11 @@ public class InputHandler : MonoBehaviour {
                 break;
             case Actions.DELETE:
                 BuildingController.LastBuildingCreated.HidePreview();
+                if (mouseIsHeld) {
+                    mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                    GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
+                    if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("RedTile"));
+                }
                 foreach (Building buildingToDelete in BuildingController.buildings) buildingToDelete.DeleteBuildingPreview();
                 break;
         }
