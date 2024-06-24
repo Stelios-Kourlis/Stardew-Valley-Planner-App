@@ -43,7 +43,7 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
         porchTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
-        EnterableBuildingComponent.AddBuildingInterior();
+        // EnterableBuildingComponent.AddBuildingInterior();
     }
 
     protected void PerformExtraActionsOnPickup() {

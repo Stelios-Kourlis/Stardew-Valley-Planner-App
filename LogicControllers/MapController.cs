@@ -53,6 +53,7 @@ public class MapController : MonoBehaviour {
         greenTile = LoadTile("GreenTile");
 
         tileMode = TileMode.nothing;
+        EnterableBuildingComponent.EnteredOrExitedBuilding += UpdateAllCoordinates;
     }
 
     public void Update() {//this is for adding invlid tiles and plantable tiles, should never be accesible to the user

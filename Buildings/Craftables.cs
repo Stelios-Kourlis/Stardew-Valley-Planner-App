@@ -289,7 +289,5 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
 
     public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
 
-    public void SetType(Enum type) {
-        throw new NotImplementedException();
-    }
+    public void SetType(Enum type) => MultipleBuildingComponent.SetType(type);
 }

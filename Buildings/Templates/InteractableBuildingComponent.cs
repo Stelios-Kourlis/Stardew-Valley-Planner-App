@@ -74,6 +74,15 @@ public class InteractableBuildingComponent : MonoBehaviour {
         return name;
     }
 
+    // public string GetBuildingInteriorSpriteName() {
+    //     string name = "";
+    //     if (Building is IMultipleTypeBuilding multipleTypeBuildingTemp && Building is ITieredBuilding && multipleTypeBuildingTemp?.Type == null) Debug.LogWarning("If building is tiered and multiple type, add the type component before the tier component");
+    //     if (Building is IMultipleTypeBuilding multipleTypeBuilding) name += $"{multipleTypeBuilding?.Type}";
+    //     name += $"{Building.GetType()}";
+    //     if (Building is ITieredBuilding tieredBuilding) name += $"{tieredBuilding?.Tier ?? 1}";
+    //     return name;
+    // }
+
     public void Update() {
         if (ButtonParentGameObject != null) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(Building);
     }

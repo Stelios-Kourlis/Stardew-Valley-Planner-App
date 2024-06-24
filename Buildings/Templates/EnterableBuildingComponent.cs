@@ -15,21 +15,28 @@ public class EnterableBuildingComponent : MonoBehaviour {
     public Vector3Int[] InteriorAreaCoordinates { get; private set; }
     private float cameraSizeBeforeLock;
     private Vector3 cameraPositionBeforeLock;
+    public static Action EnteredOrExitedBuilding { get; set; }
     private static readonly Dictionary<string, int> entranceOffsetPerBuilding = new(){
             {"SlimeHutch", 8},
             {"Greenhouse", 10},
             {"Shed1", 10},
             {"Shed2", 8},
+            {"Barn1", 11},
+            {"Barn2", 11},
+            {"Barn3", 11},
         }; //this is so the entrace tile of the interior can match the outside entrace
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
 
     public void Awake() {
-        interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{Building.BuildingName}");
+        Building.BuildingPlaced += AddBuildingInterior;
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
+
     }
 
     public void AddBuildingInterior() {
+        interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingSpriteName()}");
+        if (interriorSprite == null) return;//todo when all interiors are addded, delete this since it will be impossible to have a null sprite
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
         int middleBuildingX = Building.BaseCoordinates[0].x + Building.Width / 2;
         Vector3Int interiorPosition = new(middleBuildingX - entranceOffsetPerBuilding[interriorSprite.name], Building.BaseCoordinates[0].y, 0);
@@ -43,7 +50,13 @@ public class EnterableBuildingComponent : MonoBehaviour {
     }
 
     public void ToggleEditBuildingInterior() {
-        if (BuildingInterior == null) AddBuildingInterior();
+        if (BuildingInterior == null) AddBuildingInterior(); //failsafe
+
+        if (interriorSprite.name != InteractableBuildingComponent.GetBuildingSpriteName()) { //In case interior need to be updates
+            Destroy(BuildingInterior);
+            AddBuildingInterior();
+        }
+
         if (BuildingController.isInsideBuilding.Key) ExitBuildingInteriorEditing();
         else EditBuildingInterior();
     }
@@ -52,6 +65,7 @@ public class EnterableBuildingComponent : MonoBehaviour {
         BuildingInterior.SetActive(true);
         Building.Transform.parent.GetChild(0).gameObject.SetActive(false);//map background
         BuildingController.isInsideBuilding = new KeyValuePair<bool, Transform>(true, BuildingInterior.transform);
+        EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(BuildingInterior.transform);
         for (int i = 3; i < Building.Transform.parent.childCount; i++) {
             if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) continue;
@@ -100,6 +114,7 @@ public class EnterableBuildingComponent : MonoBehaviour {
         BuildingInterior.SetActive(false);
         Building.Transform.parent.GetChild(0).gameObject.SetActive(true);//map background
         BuildingController.isInsideBuilding = new KeyValuePair<bool, Transform>(false, null);
+        EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(Building.Transform.parent);
         for (int i = 3; i < Building.Transform.parent.childCount; i++) {
             if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) continue; //reenable buildings
@@ -107,7 +122,7 @@ public class EnterableBuildingComponent : MonoBehaviour {
         }
         for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
             if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
-            InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(false); //reenable buttons
+            InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(true); //reenable buttons
         }
         GetCamera().GetComponent<CameraController>().ToggleCameraLock();
         GetCamera().GetComponent<CameraController>().SetPosition(cameraPositionBeforeLock);
