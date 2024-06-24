@@ -105,10 +105,21 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
             interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(19, i, 0));
         }
         interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 2, 0));
-        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(20, 2, 0));
-
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(18, 2, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 14, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 15, 0));
+        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(18, 15, 0));
 
         InteriorUnavailableCoordinates = GetAllInteriorUnavailableCoordinates(interiorUnavailableCoordinates.ToArray()).ToArray();
+
+        HashSet<Vector3Int> interiorPlantableCoordinates = new();
+        for (int x = 4; x <= 15; x++) {
+            for (int y = 4; y <= 13; y++) {
+                interiorPlantableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, y, 0));
+            }
+        }
+
+        InteriorPlantableCoordinates = interiorPlantableCoordinates.ToArray();
     }
 
     public void OnMouseRightClick() {

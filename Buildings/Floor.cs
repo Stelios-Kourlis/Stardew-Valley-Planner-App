@@ -10,7 +10,7 @@
 // using static Utility.SpriteManager;
 // using static Utility.TilemapManager;
 
-// public class Floor : Building, IMultipleTypeBuilding<Floor.Types>, IConnectingBuilding {
+// public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
 
 //     public enum Types {
 //         WOOD_FLOOR,
@@ -31,10 +31,10 @@
 //     public static event Action<Vector3Int> FloorWasPlaced;
 //     public static List<Vector3Int> OtherFloors { get; private set; }
 //     public override string TooltipMessage => "";
-//     public MultipleTypeBuilding<Types> MultipleTypeBuildingComponent { get; private set; }
+//     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
 //     public ConnectingBuilding ConnectingBuildingComponent { get; private set; }
-//     public Types Type { get; private set; }
-//     public static Types CurrentType { get; private set; }
+//     public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
+//     // public static Types CurrentType { get; private set; }
 
 //     public override void OnAwake() {
 //         BaseHeight = 1;
@@ -42,9 +42,9 @@
 //         BuildingName = "Floor";
 //         OtherFloors ??= new List<Vector3Int>();
 //         FloorWasPlaced += AnotherFloorPlaced;
-//         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuilding<Types>>();
+//         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
 //         ConnectingBuildingComponent = new ConnectingBuilding();
-//         SetType(CurrentType);
+//         // SetType(CurrentType);
 //     }
 
 //     protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
@@ -129,7 +129,7 @@
 //     }
 
 //     public void SetType(Types type) {
-//         CurrentType = type;
+//         // CurrentType = type;
 //         Type = type;
 //         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}0"));
 //     }
@@ -143,7 +143,7 @@
 
 //             Type buildingType = GetType();
 //             button.GetComponent<Button>().onClick.AddListener(() => {
-//                 BuildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
+//                 BuildingController.SetCurrentBuildingType(buildingType, type);
 //                 BuildingController.SetCurrentAction(Actions.PLACE);
 //             });
 //             buttons.Add(button);

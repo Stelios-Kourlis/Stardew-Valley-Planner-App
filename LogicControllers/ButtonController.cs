@@ -15,8 +15,7 @@ using UnityEngine.U2D;
 public class ButtonController : MonoBehaviour {
 
     readonly float BUTTON_SIZE = 75;
-    // private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
-    private readonly Type[] typesThatShouldBeInCraftables = { };
+    private readonly Type[] typesThatShouldBeInCraftables = { /*typeof(Sprinkler), typeof(Floor), typeof(Fence),*/ typeof(Scarecrow), typeof(Craftables), typeof(Crop) }; //todo undo comments
     private GameObject buttonPrefab;
 
     void Start() {
@@ -174,7 +173,7 @@ public class ButtonController : MonoBehaviour {
         var buildingType = typeof(Building);
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
         foreach (var type in allTypes) {
-            // if (type == typeof(House)) continue; //these 2 should not be available to build
+            if (type == typeof(House)) continue; //these 2 should not be available to build
             if (type == typeof(Greenhouse)) continue;
             if (typesThatShouldBeInCraftables.Contains(type)) continue; //if its not any of these dont add it
             GameObject temp = new();
@@ -192,13 +191,16 @@ public class ButtonController : MonoBehaviour {
     private void AddCraftablesButtonsForPanel(Transform BuildingContentTransform) {
         var buildingType = typeof(Building);
         var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes()).Where(p => buildingType.IsAssignableFrom(p) && p.IsClass && !p.IsAbstract);
+        // Debug.Log(allTypes.Count());
         foreach (var type in allTypes) {
-            // if (type == typeof(House)) continue; //these 2 should not be available to build
+            // Debug.Log("type = " + type + ", should be in craftables = " + typesThatShouldBeInCraftables.Contains(type));
+            if (type == typeof(House)) continue; //these 2 should not be available to build
             if (type == typeof(Greenhouse)) continue;
             if (!typesThatShouldBeInCraftables.Contains(type)) continue; //only add craftables
             if (type == typeof(Craftables)) {
                 GameObject tempCraftables = new("CraftablesTypes");
                 GameObject[] buttons = tempCraftables.AddComponent<Craftables>().CreateButtonsForAllTypes();
+                // Debug.Log(buttons.Length);
                 foreach (GameObject craftableButton in buttons) {
                     craftableButton.transform.SetParent(BuildingContentTransform);
                     craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);

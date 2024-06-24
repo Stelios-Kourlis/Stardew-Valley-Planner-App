@@ -57,12 +57,7 @@ public class EnterableBuildingComponent : MonoBehaviour {
             if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) continue;
             Building.Transform.parent.GetChild(i).gameObject.SetActive(false); //disable all other buildings
         }
-        cameraPositionBeforeLock = GetCamera().transform.position;
-        cameraSizeBeforeLock = GetCamera().GetComponent<Camera>().orthographicSize;
-        GetCamera().GetComponent<CameraController>().ToggleCameraLock();
-        GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(InteriorAreaCoordinates[0].x + interriorSprite.rect.width / 32, InteriorAreaCoordinates[0].y + interriorSprite.rect.height / 32, 0));
-        int buildingInsideHeight = InteriorAreaCoordinates[^1].y - InteriorAreaCoordinates[0].y;
-        // GetCamera().GetComponent<CameraController>().SetSize(buildingInsideHeight);
+        SetUpCamera();
         if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
         for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
             if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
@@ -72,6 +67,33 @@ public class EnterableBuildingComponent : MonoBehaviour {
         enterButton.transform.position = new Vector3(Screen.width - enterButton.GetComponent<RectTransform>().rect.width / 2 - 50, enterButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = 0;
         Building.TilemapRenderer.sortingOrder = -1;
+    }
+
+    private void SetUpCamera() {
+        cameraPositionBeforeLock = GetCamera().transform.position;
+        cameraSizeBeforeLock = GetCamera().GetComponent<Camera>().orthographicSize;
+        GetCamera().GetComponent<CameraController>().ToggleCameraLock();
+        var tilemapBounds = BuildingInterior.GetComponent<Tilemap>().localBounds;
+        var camera = GetCamera().GetComponent<Camera>();
+        float tilemapWidth = tilemapBounds.size.x;
+        float tilemapHeight = tilemapBounds.size.y;
+        Vector3 tilemapCenter = tilemapBounds.center;
+
+        // Determine if the tilemap is wider or taller than what the camera can show
+        if ((tilemapWidth / tilemapHeight) > cameraSizeBeforeLock) {
+            // Tilemap is wider than the camera's aspect ratio
+            // Adjust camera size based on the width
+            GetCamera().GetComponent<CameraController>().SetSize(tilemapWidth / cameraSizeBeforeLock / 2);
+        }
+        else {
+            // Tilemap is taller than the camera's aspect ratio
+            // Adjust camera size based on the height
+            GetCamera().GetComponent<CameraController>().SetSize(tilemapHeight / 2);
+        }
+
+        // Center the camera on the tilemap
+        GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(tilemapCenter.x, tilemapCenter.y, camera.transform.position.z));
+        // GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(InteriorAreaCoordinates[0].x + interriorSprite.rect.width / 32, InteriorAreaCoordinates[0].y + interriorSprite.rect.height / 32, 0));
     }
 
     public void ExitBuildingInteriorEditing() {

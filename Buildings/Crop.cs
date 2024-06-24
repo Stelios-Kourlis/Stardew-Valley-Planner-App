@@ -65,7 +65,7 @@ public class Crop : Building, IMultipleTypeBuilding, IExtraActionBuilding {
 
     public override void OnAwake() {
         BaseHeight = 1;
-        gameObject.AddComponent<MultipleTypeBuildingComponent>();
+        gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         base.OnAwake();
     }
 

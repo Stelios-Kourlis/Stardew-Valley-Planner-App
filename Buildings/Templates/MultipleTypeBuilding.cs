@@ -9,7 +9,7 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
 public class MultipleTypeBuildingComponent : MonoBehaviour {
-    private Type enumType;
+    public Type EnumType { get; private set; }
     public Enum Type { get; set; }
     public static Enum CurrentType { get; set; }
     public SpriteAtlas Atlas { get; private set; }
@@ -19,10 +19,10 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
 
     public MultipleTypeBuildingComponent SetEnumType(Type type) {
         if (!type.IsEnum) throw new ArgumentException("Enum must be an enumerated type");
-        if (enumType != type) CurrentType = null;
-        enumType = type;
-        SetType(CurrentType ?? (Enum)Enum.GetValues(enumType).GetValue(0));
-        DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(enumType).GetValue(0)}");
+        if (EnumType != type) CurrentType = null;
+        EnumType = type;
+        SetType(CurrentType ?? (Enum)Enum.GetValues(EnumType).GetValue(0));
+        DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(EnumType).GetValue(0)}");
         return this;
     }
 
@@ -34,10 +34,10 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
     }
 
     public void CycleType() {
-        int enumLength = Enum.GetValues(enumType).Length;
+        int enumLength = Enum.GetValues(EnumType).Length;
         int intValue = Convert.ToInt32(Type);
         intValue = (intValue + 1) % enumLength;
-        SetType((Enum)Enum.GetValues(enumType).GetValue(intValue));
+        SetType((Enum)Enum.GetValues(EnumType).GetValue(intValue));
     }
 
     public void SetType(Enum type) {
@@ -62,7 +62,7 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
     public virtual GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
         Enum currentTypeBackup = CurrentType;
-        foreach (Enum type in Enum.GetValues(enumType)) {
+        foreach (Enum type in Enum.GetValues(EnumType)) {
             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}";
             SetType(type);

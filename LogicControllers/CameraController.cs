@@ -35,22 +35,60 @@ public class CameraController : MonoBehaviour {
     }
 
     public void UpdateCameraBounds() {
-        mapTilemap = GameObject.FindGameObjectWithTag("CurrentMap").GetComponent<Tilemap>();
-        tilemapBounds = mapTilemap.cellBounds;
+        if (!BuildingController.isInsideBuilding.Key) {
+            mapTilemap = GameObject.FindGameObjectWithTag("CurrentMap").GetComponent<Tilemap>();
+            tilemapBounds = mapTilemap.cellBounds;
+        }
+        else {
+            mapTilemap = BuildingController.isInsideBuilding.Value.GetComponent<Tilemap>();
+            tilemapBounds = mapTilemap.cellBounds;
+
+            // // Increase the bounds by 1 tile in each direction //todo maybe increase tilemap by 1 tile each dir?
+            // tilemapBounds = new BoundsInt(
+            //     originalBounds.xMin - 1, // Decrease xMin by 1
+            //     originalBounds.yMin - 1, // Decrease yMin by 1
+            //     originalBounds.zMin, // Z remains unchanged
+            //     originalBounds.size.x + 2, // Increase width by 2 (1 tile on each side)
+            //     originalBounds.size.y + 2, // Increase height by 2 (1 tile on each side)
+            //     originalBounds.size.z // Depth remains unchanged
+            // );
+        }
     }
 
     private void ClampCameraToBounds() {
+        UpdateCameraBounds();
         Vector3 cameraPosition = mainCamera.transform.position;
 
-        float minX = tilemapBounds.min.x + Camera.main.orthographicSize * Camera.main.aspect;
-        float maxX = tilemapBounds.max.x - Camera.main.orthographicSize * Camera.main.aspect;
-        float minY = tilemapBounds.min.y + Camera.main.orthographicSize;
-        float maxY = tilemapBounds.max.y - Camera.main.orthographicSize;
+        // Calculate the camera's vertical size based on its orthographic size and aspect ratio
+        float verticalSize = Camera.main.orthographicSize * 2;
+        float horizontalSize = verticalSize * Camera.main.aspect;
 
-        float clampedX = Mathf.Clamp(cameraPosition.x, minX, maxX);
-        float clampedY = Mathf.Clamp(cameraPosition.y, minY, maxY);
+        // Calculate the center of the tilemap
+        Vector3 tilemapCenter = mapTilemap.cellBounds.center;
 
-        mainCamera.transform.position = new Vector3(clampedX, clampedY, cameraPosition.z);
+        // Calculate tilemap size
+        float tilemapWidth = tilemapBounds.size.x;
+        float tilemapHeight = tilemapBounds.size.y;
+
+        // Check if the tilemap is smaller than the camera's view
+        if (tilemapWidth <= horizontalSize && tilemapHeight <= verticalSize) {
+            // If smaller, lock the camera to the center of the tilemap
+            mainCamera.transform.position = new Vector3(tilemapCenter.x, tilemapCenter.y, cameraPosition.z);
+        }
+        else {
+            // Adjust bounds to account for the camera's size
+            float minX = tilemapBounds.min.x + horizontalSize / 2;
+            float maxX = tilemapBounds.max.x - horizontalSize / 2;
+            float minY = tilemapBounds.min.y + verticalSize / 2;
+            float maxY = tilemapBounds.max.y - verticalSize / 2;
+
+            // Clamp the camera's position to the adjusted bounds
+            float clampedX = Mathf.Clamp(cameraPosition.x, minX, maxX);
+            float clampedY = Mathf.Clamp(cameraPosition.y, minY, maxY);
+
+            // Update the camera's position
+            mainCamera.transform.position = new Vector3(clampedX, clampedY, cameraPosition.z);
+        }
     }
 
     // Update is called once per frame
@@ -58,7 +96,8 @@ public class CameraController : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Mouse2)) {
             isMouseDown = true;
             oldMousePosition = Input.mousePosition;
-        } else if (Input.GetKeyUp(KeyCode.Mouse2)) {
+        }
+        else if (Input.GetKeyUp(KeyCode.Mouse2)) {
             isMouseDown = false;
         }
 
@@ -97,7 +136,8 @@ public class CameraController : MonoBehaviour {
         if (moveScale == 0 && scrollScale == 0) { // if locked reverse lock
             moveScale = storedMoveScale;
             scrollScale = storedScrollScale;
-        } else { //else store values and lock
+        }
+        else { //else store values and lock
             storedMoveScale = moveScale;
             storedScrollScale = scrollScale;
             moveScale = 0;
@@ -109,13 +149,13 @@ public class CameraController : MonoBehaviour {
         mainCamera.transform.position = new Vector3(position.x, position.y, mainCamera.transform.position.z);
     }
 
-    public void SetSize(float size){
+    public void SetSize(float size) {
         mainCamera.orthographicSize = size;
     }
 
     public Vector3 GetPosition() { return mainCamera.transform.position; }
 
-    public void TakePictureOfMap(){
+    public void TakePictureOfMap() {
         TilemapManager.TakePictureOfMap();
     }
 
@@ -123,13 +163,13 @@ public class CameraController : MonoBehaviour {
     /// Add a blur effect to the camera, the blur intensity is determined by the targetPanel's distance from the endPosition
     /// </summary>
     /// <param name="targetPanel">The panel that you want the blur to adjust to</param>
-    public IEnumerator BlurBasedOnDistance(GameObject targetPanel, Vector3 blurFocusPosition){
+    public IEnumerator BlurBasedOnDistance(GameObject targetPanel, Vector3 blurFocusPosition) {
         PostProcessVolume volume = gameObject.GetComponent<PostProcessVolume>();
         volume.profile.TryGetSettings(out DepthOfField depthOfField);
-        Vector3 cutOffPoint = new(targetPanel.transform.position.x, Screen.height + 500, 0 );
+        Vector3 cutOffPoint = new(targetPanel.transform.position.x, Screen.height + 500, 0);
         float maxDistance = Vector3.Distance(blurFocusPosition, cutOffPoint);
 
-        while (targetPanel.GetComponent<IToggleablePanel>().IsMoving){
+        while (targetPanel.GetComponent<IToggleablePanel>().IsMoving) {
             float currentDistance = Vector3.Distance(targetPanel.transform.position, blurFocusPosition);
             float normalizedDistance = Mathf.Clamp01(currentDistance / maxDistance);
             float blurValue = Mathf.Lerp(0.1f, 5f, normalizedDistance);
@@ -139,7 +179,7 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    public void ToggleFullscren(){
+    public void ToggleFullscren() {
         Debug.Log("Toggling Fullscreen");
         Screen.fullScreen = !Screen.fullScreen;
         PlayerPrefs.SetInt("FullScreen", Screen.fullScreen ? 1 : 0);

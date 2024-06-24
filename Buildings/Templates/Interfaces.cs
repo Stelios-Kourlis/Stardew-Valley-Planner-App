@@ -62,6 +62,7 @@ public interface ITieredBuilding : IInteractableBuilding {
     int Tier { get; }
     int MaxTier { get; }
     void SetTier(int tier);
+    // List<ButtonTypes> IInteractableBuilding.BuildingInteractions => IBuilding.BuildingGameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 }
 
 public interface IMultipleTypeBuilding : IBuilding, IInteractableBuilding { //its not really interactable but is needed for sprite names
