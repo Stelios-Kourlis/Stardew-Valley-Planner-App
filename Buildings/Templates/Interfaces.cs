@@ -32,6 +32,7 @@ public interface IBuilding {
     void UpdateTexture(Sprite sprite);
     GameObject CreateBuildingButton();
     Action BuildingPlaced { get; set; }
+    Action BuildingRemoved { get; set; }
     // public bool CanBeMassPlaced { get; }
 }
 
@@ -84,8 +85,9 @@ public interface IRangeEffectBuilding : IBuilding {
     void HideEffectRange();
 }
 
-public interface IConnectingBuilding : IBuilding {
-    int GetConnectingFlags(Vector3Int position, List<Vector3Int> otherBuildings);
+public interface IConnectingBuilding : IInteractableBuilding {
+    int GetConnectingFlags(bool includeTop = true);
+    void UpdateSelf();
 }
 
 public interface IEnterableBuilding : IInteractableBuilding {

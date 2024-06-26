@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class Stable : Building, IInteractableBuilding {
-    private InteractableBuildingComponent interactableBuildingComponent;
+public class Stable : Building {
+    private InteractableBuildingComponent InteractableBuildingComponent { get; set; }
 
-    public List<ButtonTypes> BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
+    public List<ButtonTypes> BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
 
-    public GameObject ButtonParentGameObject => interactableBuildingComponent.ButtonParentGameObject;
+    public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
 
     public override void OnAwake() {
         BuildingName = "Stable";
         BaseHeight = 2;
-        // interactableBuildingComponent = new InteractableBuildingComponent(this);
         base.OnAwake();
     }
 

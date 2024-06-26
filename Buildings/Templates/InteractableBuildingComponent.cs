@@ -37,51 +37,21 @@ public class InteractableBuildingComponent : MonoBehaviour {
         BuildingInteractions.Add(buttonType);
     }
 
-    // public void UpdateBuildingButtons() {
-    //     List<ButtonTypes> buildingInteractions = new();
-    //     if (Building is ITieredBuilding tieredBuilding) {
-    //         foreach (int tier in Enumerable.Range(1, tieredBuilding.MaxTier)) {
-    //             string tierStr = tier switch {
-    //                 1 => "ONE",
-    //                 2 => "TWO",
-    //                 3 => "THREE",
-    //                 4 => "ONE", //todo placeholder for lack of icon for tier 4
-    //                 _ => "INVALID"
-    //             };
-    //             buildingInteractions.Add((ButtonTypes)Enum.Parse(typeof(ButtonTypes), $"TIER_{tierStr}"));
-    //         }
-    //     }
-    //     if (Building is IEnterableBuilding) buildingInteractions.Add(ButtonTypes.ENTER);
-    //     if (Building is FishPond) {
-    //         buildingInteractions.Add(ButtonTypes.PLACE_FISH);
-    //         buildingInteractions.Add(ButtonTypes.CHANGE_FISH_POND_DECO);
-    //     }
-    //     if (Building is IAnimalHouse) buildingInteractions.Add(ButtonTypes.ADD_ANIMAL);
-    //     BuildingInteractions = buildingInteractions.ToArray();
-    // }
-
     private void CreateBuildingButtons() {
         ButtonParentGameObject = GetButtonController().CreateButtonsForBuilding(Building);
         ButtonsCreated?.Invoke();
     }
 
     public string GetBuildingSpriteName() {
+        // Debug.Log($"sprite name called for {Building.BuildingName}");
         string name = "";
         if (Building is IMultipleTypeBuilding multipleTypeBuildingTemp && Building is ITieredBuilding && multipleTypeBuildingTemp?.Type == null) Debug.LogWarning("If building is tiered and multiple type, add the type component before the tier component");
         if (Building is IMultipleTypeBuilding multipleTypeBuilding) name += $"{multipleTypeBuilding?.Type}";
         name += $"{Building.GetType()}";
         if (Building is ITieredBuilding tieredBuilding) name += $"{tieredBuilding?.Tier ?? 1}";
+        if (Building is IConnectingBuilding connectingBuilding) name += $"{connectingBuilding.GetConnectingFlags()}";
         return name;
     }
-
-    // public string GetBuildingInteriorSpriteName() {
-    //     string name = "";
-    //     if (Building is IMultipleTypeBuilding multipleTypeBuildingTemp && Building is ITieredBuilding && multipleTypeBuildingTemp?.Type == null) Debug.LogWarning("If building is tiered and multiple type, add the type component before the tier component");
-    //     if (Building is IMultipleTypeBuilding multipleTypeBuilding) name += $"{multipleTypeBuilding?.Type}";
-    //     name += $"{Building.GetType()}";
-    //     if (Building is ITieredBuilding tieredBuilding) name += $"{tieredBuilding?.Tier ?? 1}";
-    //     return name;
-    // }
 
     public void Update() {
         if (ButtonParentGameObject != null) GetButtonController().UpdateButtonPositionsAndScaleForBuilding(Building);

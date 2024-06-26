@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
     public enum Types {
-        PetBowl,
-        StonePetBowl,
-        HayPetBowl
+        Default,
+        Stone,
+        Hay
     }
 
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
@@ -21,8 +21,8 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
     public override void OnAwake() {
         BaseHeight = 2;
         BuildingName = "Pet Bowl";
-        gameObject.AddComponent<MultipleTypeBuildingComponent>();
         base.OnAwake();
+        gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded() {
@@ -33,11 +33,11 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
     }
 
     public string AddToBuildingData() {
-        return $"{base.GetBuildingData()}|{Type}";
+        return $"|{Type}";
     }
 
     public void LoadExtraBuildingData(string[] data) {
-        SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
+        SetType((Types)Enum.Parse(typeof(Types), data[0]));
     }
 
     public void CycleType() => MultipleTypeBuildingComponent.CycleType();

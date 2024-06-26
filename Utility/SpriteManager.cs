@@ -67,8 +67,6 @@ namespace Utility {
         }
 
         public static Tile[] SplitSprite(Sprite sprite) {
-            // int height = sprite.texture.height;
-            // int width = sprite.texture.width;
             List<Tile> tiles = new();
             Rect rect = sprite.textureRect;
             for (int y = (int)rect.y; y < rect.y + rect.height; y += 16) {

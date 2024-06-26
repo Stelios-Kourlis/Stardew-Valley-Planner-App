@@ -14,7 +14,7 @@ using System;
 public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, IExtraActionBuilding {
 
     public enum Types {
-        Scarecrow,
+        Default,
         Rarecrow1,
         Rarecrow2,
         Rarecrow3,
@@ -23,7 +23,7 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         Rarecrow6,
         Rarecrow7,
         Rarecrow8,
-        DeluxeScarecrow
+        Deluxe
     }
     private bool IsDeluxe { get; set; } = false;
 
@@ -38,7 +38,7 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
 
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
 
-    public Enum Type => MultipleTypeBuildingComponent.Type;
+    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -48,13 +48,13 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         BuildingName = "Scarecrow";
         BaseHeight = 1;
         base.OnAwake();
-        MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>();
+        MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     }
 
     public void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         Vector3Int[] coverageArea = MultipleTypeBuildingComponent.Type switch {
-            Types.DeluxeScarecrow => GetRangeOfDeluxeScarecrow(position).ToArray(),
+            Types.Deluxe => GetRangeOfDeluxeScarecrow(position).ToArray(),
             _ => GetRangeOfScarecrow(position).ToArray()
         };
         RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
@@ -66,12 +66,12 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
 
     public override List<MaterialInfo> GetMaterialsNeeded() {
         return MultipleTypeBuildingComponent.Type switch {
-            Types.DeluxeScarecrow => new List<MaterialInfo>{//Deluxe scarecrow
+            Types.Deluxe => new List<MaterialInfo>{//Deluxe scarecrow
                 new(50, Materials.Wood),
                 new(1, Materials.IridiumOre),
                 new(40, Materials.Fiber)
             },
-            Types.Scarecrow => new List<MaterialInfo>{//Normal scarecrow
+            Types.Default => new List<MaterialInfo>{//Normal scarecrow
                 new(50, Materials.Wood),
                 new(1, Materials.Coal),
                 new(20, Materials.Fiber)
@@ -112,12 +112,15 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         MultipleTypeBuildingComponent.SetType((Types)int.Parse(data[0]));
     }
 
-    protected void OnMouseEnter() { //todo Add this
-        Vector3Int lowerLeftCorner = BaseCoordinates[0];
-        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
+    public void OnMouseEnter() { //todo fix range
+        Vector3Int[] coverageArea = MultipleTypeBuildingComponent.Type switch {
+            Types.Deluxe => GetRangeOfDeluxeScarecrow(BaseCoordinates[0]).ToArray(),
+            _ => GetRangeOfScarecrow(BaseCoordinates[0]).ToArray()
+        };
+        RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
     }
 
-    protected void OnMouseExit() { //todo Add this
+    public void OnMouseExit() { //todo Add this
         RangeEffectBuildingComponent.HideEffectRange();
     }
 

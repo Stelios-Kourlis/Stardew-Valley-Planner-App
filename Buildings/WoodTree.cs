@@ -28,7 +28,7 @@ public class WoodTree : Building, IMultipleTypeBuilding, IExtraActionBuilding {/
         PineGreenRain
     }
 
-    public Enum Type => MultipleTypeBuildingComponent.Type;
+    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -37,8 +37,9 @@ public class WoodTree : Building, IMultipleTypeBuilding, IExtraActionBuilding {/
     public override void OnAwake() {
         BuildingName = "Tree";
         BaseHeight = 1;
-        MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>();
         base.OnAwake();
+        MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
+
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded() {

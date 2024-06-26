@@ -23,6 +23,7 @@ public class InputHandler : MonoBehaviour {
     public bool IsSearching { get; set; } = false;
     bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
+    IInteractableBuilding hoveredBuilding;
 
     void Start() {
         SetCursor(CursorType.Default);
@@ -30,72 +31,15 @@ public class InputHandler : MonoBehaviour {
 
     void Update() {
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)) {
-            GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
-            quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-        }
+        HandleMouseActions();
+
+        if (IsSearching) return;
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GetSettingsModalController().TogglePanel();
 
-        // if (IsSearching) return; //the 2 above should always be available, rest should be disabled when searching
-
-        if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            mouseIsHeld = true;
-            mousePositionWhenHoldStarted = GetMousePositionInTilemap();
-        }
-
-        Vector3Int mousePosition = GetMousePositionInTilemap();
-        Building building;
-        Vector3Int[] mouseCoverageArea;
-
-        if (Input.GetKeyUp(KeyCode.Mouse0)) {
-            mouseIsHeld = false;
-            GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
-            if (LeftClickShouldRegister()) {
-                switch (BuildingController.CurrentAction) {
-                    case Actions.PLACE:
-                        if (BuildingController.CurrentBuildingBeingPlaced.GetType() is not IMassPlaceableBuilding) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
-                        else {
-                            mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                            foreach (Vector3Int position in mouseCoverageArea) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
-                        }
-                        break;
-                    case Actions.EDIT:
-                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
-                        if (building != null) building.PickupBuilding();
-                        break;
-                    case Actions.DELETE:
-                        mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
-                        foreach (Building buildingToDelete in buildings) buildingToDelete.DeleteBuilding();
-                        break;
-                }
-            }
-        }
-
-        if (Input.GetKeyUp(KeyCode.Mouse1)) {
-            building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
-            if (building is IInteractableBuilding interactableBuilding) interactableBuilding.OnMouseRightClick();
-        }
-
-        switch (BuildingController.CurrentAction) {
-            case Actions.PLACE:
-                building = BuildingController.LastBuildingCreated;
-                if (building != null) building.PlaceBuildingPreview(mousePosition);
-                break;
-            case Actions.EDIT:
-                BuildingController.LastBuildingCreated.HidePreview();
-                foreach (Building buildingToPickup in BuildingController.buildings) buildingToPickup.PickupBuildingPreview();
-                break;
-            case Actions.DELETE:
-                BuildingController.LastBuildingCreated.HidePreview();
-                if (mouseIsHeld) {
-                    mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                    GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
-                    if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("RedTile"));
-                }
-                foreach (Building buildingToDelete in BuildingController.buildings) buildingToDelete.DeleteBuildingPreview();
-                break;
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)) {
+            GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
+            quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Undo)) BuildingController.UndoLastAction();
@@ -161,5 +105,77 @@ public class InputHandler : MonoBehaviour {
                 Cursor.SetCursor(Resources.Load("UI/CursorHand") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
                 break;
         }
+    }
+
+    private void HandleMouseActions() {
+        if (Input.GetKeyDown(KeyCode.Mouse0)) {
+            mouseIsHeld = true;
+            mousePositionWhenHoldStarted = GetMousePositionInTilemap();
+        }
+
+        Vector3Int mousePosition = GetMousePositionInTilemap();
+        Building building;
+        Vector3Int[] mouseCoverageArea;
+
+        if (Input.GetKeyUp(KeyCode.Mouse0)) {
+            mouseIsHeld = false;
+            GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
+            if (LeftClickShouldRegister()) {
+                switch (BuildingController.CurrentAction) {
+                    case Actions.PLACE:
+                        if (BuildingController.CurrentBuildingBeingPlaced.GetType() is not IMassPlaceableBuilding) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
+                        else {
+                            mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                            foreach (Vector3Int position in mouseCoverageArea) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
+                        }
+                        break;
+                    case Actions.EDIT:
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                        if (building != null) building.PickupBuilding();
+                        break;
+                    case Actions.DELETE:
+                        mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
+                        foreach (Building buildingToDelete in buildings) buildingToDelete.DeleteBuilding();
+                        break;
+                }
+            }
+        }
+
+        if (Input.GetKeyUp(KeyCode.Mouse1)) {
+            building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+            if (building is IInteractableBuilding interactableBuildingForRightClick) interactableBuildingForRightClick.OnMouseRightClick();
+        }
+
+        switch (BuildingController.CurrentAction) {
+            case Actions.PLACE:
+                building = BuildingController.LastBuildingCreated;
+                if (building != null) building.PlaceBuildingPreview(mousePosition);
+                break;
+            case Actions.EDIT:
+                BuildingController.LastBuildingCreated.HidePreview();
+                foreach (Building buildingToPickup in BuildingController.buildings) buildingToPickup.PickupBuildingPreview();
+                break;
+            case Actions.DELETE:
+                BuildingController.LastBuildingCreated.HidePreview();
+                if (mouseIsHeld) {
+                    mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                    GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
+                    if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("RedTile"));
+                }
+                foreach (Building buildingToDelete in BuildingController.buildings) buildingToDelete.DeleteBuildingPreview();
+                break;
+        }
+
+        if (!hoveredBuilding?.BaseCoordinates.Contains(mousePosition) ?? false) {
+            hoveredBuilding.OnMouseExit();
+            hoveredBuilding = null;
+        }
+
+        if (BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition)) is IInteractableBuilding interactableBuilding) {
+            hoveredBuilding = interactableBuilding;
+            interactableBuilding.OnMouseEnter();
+        }
+
     }
 }

@@ -21,7 +21,7 @@ public class SlimeHutch : Building, IEnterableBuilding, IExtraActionBuilding {
         BuildingName = "Slime Hutch";
         BaseHeight = 4;
         // InteractableBuildingComponent = new InteractableBuildingComponent(this);
-        // EnterableBuildingComponent = new EnterableBuildingComponent(this);
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
         base.OnAwake();
     }
 

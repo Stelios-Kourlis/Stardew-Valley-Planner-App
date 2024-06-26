@@ -22,10 +22,11 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding {
     public override void OnAwake() {
         BuildingName = "Shed";
         BaseHeight = 3;
+        base.OnAwake();
 
         TieredBuildingComponent = gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(2);
         EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
-        base.OnAwake();
+
     }
 
     public override List<MaterialInfo> GetMaterialsNeeded() {

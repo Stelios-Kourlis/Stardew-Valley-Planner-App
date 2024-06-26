@@ -52,6 +52,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     public GameObject BuildingGameObject => gameObject;
 
     public Action BuildingPlaced { get; set; }
+    public Action BuildingRemoved { get; set; }
     // public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
@@ -80,6 +81,8 @@ public abstract class Building : TooltipableGameObject, IBuilding {
             BuildingController.AddActionToLog(new UserAction(Actions.DELETE, UID, GetBuildingData()));
             if (this is IInteractableBuilding interactableBuilding) Destroy(interactableBuilding.ButtonParentGameObject);
         }
+        BuildingRemoved?.Invoke();
+
         Destroy(TooltipGameObject);
         Destroy(gameObject);
     }
