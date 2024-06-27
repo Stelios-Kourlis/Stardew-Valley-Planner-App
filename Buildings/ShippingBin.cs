@@ -11,8 +11,8 @@ public class ShippingBin : Building {
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>(){
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>(){
             new(250, Materials.Coins),
             new(150, Materials.Wood)
         };

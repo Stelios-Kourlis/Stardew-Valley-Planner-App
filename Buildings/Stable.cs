@@ -16,8 +16,8 @@ public class Stable : Building {
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>(){
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>(){
             new(10000, Materials.Coins),
             new(100, Materials.Hardwood),
             new(5, Materials.IronBar)

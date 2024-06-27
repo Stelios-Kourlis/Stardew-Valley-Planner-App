@@ -42,7 +42,7 @@ public class WoodTree : Building, IMultipleTypeBuilding, IExtraActionBuilding {/
 
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         throw new System.NotImplementedException();
     }
 

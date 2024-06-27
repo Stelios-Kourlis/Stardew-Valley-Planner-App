@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 
-public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
+public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding, IMassPlaceableBuilding {
 
     public enum Types {
         WOOD_FLOOR,
@@ -63,47 +63,47 @@ public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
         // FloorWasAltered?.Invoke(BaseCoordinates[0]);
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return MultipleTypeBuildingComponent.Type switch {
-            Types.WOOD_FLOOR => new List<MaterialInfo>(){
+            Types.WOOD_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.Wood)
             },
-            Types.RUSTIC_PLANK_FLOOR => new List<MaterialInfo>(){
+            Types.RUSTIC_PLANK_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.Wood)
             },
-            Types.STRAW_FLOOR => new List<MaterialInfo>(){
+            Types.STRAW_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.Wood),
                 new(1, Materials.Fiber)
             },
-            Types.WEATHERED_FLOOR => new List<MaterialInfo>(){
+            Types.WEATHERED_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.Wood)
             },
-            Types.CRYSTAL_FLOOR => new List<MaterialInfo>(){
+            Types.CRYSTAL_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.RefinedQuartz)
             },
-            Types.STONE_FLOOR => new List<MaterialInfo>(){
+            Types.STONE_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.Stone)
             },
-            Types.STONE_WALKWAY_FLOOR => new List<MaterialInfo>(){
+            Types.STONE_WALKWAY_FLOOR => new List<MaterialCostEntry>(){
                 new(1, Materials.Stone)
             },
-            Types.BRICK_FLOOR => new List<MaterialInfo>(){
+            Types.BRICK_FLOOR => new List<MaterialCostEntry>(){
                 new(2, Materials.Clay),
                 new(5, Materials.Stone)
             },
-            Types.WOOD_PATH => new List<MaterialInfo>(){
+            Types.WOOD_PATH => new List<MaterialCostEntry>(){
                 new(1, Materials.Wood)
             },
-            Types.GRAVEL_PATH => new List<MaterialInfo>(){
+            Types.GRAVEL_PATH => new List<MaterialCostEntry>(){
                 new(1, Materials.Stone)
             },
-            Types.COBBLESTONE_PATH => new List<MaterialInfo>(){
+            Types.COBBLESTONE_PATH => new List<MaterialCostEntry>(){
                 new(1, Materials.Stone)
             },
-            Types.STEPPING_STONE_PATH => new List<MaterialInfo>(){
+            Types.STEPPING_STONE_PATH => new List<MaterialCostEntry>(){
                 new(1, Materials.Stone)
             },
-            Types.CRYSTAL_PATH => new List<MaterialInfo>(){
+            Types.CRYSTAL_PATH => new List<MaterialCostEntry>(){
                 new(1, Materials.RefinedQuartz)
             },
             _ => throw new Exception("Invalid Floor Type")

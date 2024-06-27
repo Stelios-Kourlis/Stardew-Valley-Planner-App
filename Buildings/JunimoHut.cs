@@ -15,8 +15,8 @@ public class JunimoHut : Building, IRangeEffectBuilding, IExtraActionBuilding {
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>(){
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>(){
         new(20000, Materials.Coins),
         new(200, Materials.Stone),
         new(9, Materials.Starfruit),

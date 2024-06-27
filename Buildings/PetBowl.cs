@@ -25,7 +25,7 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
         gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return new(){
             new(5_000, Materials.Coins),
             new(25, Materials.Hardwood)

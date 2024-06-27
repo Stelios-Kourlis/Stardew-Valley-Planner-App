@@ -49,6 +49,7 @@ public static class BuildingController {
     /// <param name="newType">The type of the building, MUST be a IMultipleTypeBuilding</param>
     /// <param name="variant">The variant of the multiple type building</param>
     public static void SetCurrentBuildingType(Type newType, Enum variant) {
+        if (newType is not IMultipleTypeBuilding) throw new ArgumentException("newType must be a IMultipleTypeBuilding, else use SetCurrentBuildingType(Type newType)");
         Debug.Assert(variant != null, $"Type is null in SetCurrentBuildingType");
         GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
         LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);

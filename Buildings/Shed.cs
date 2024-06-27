@@ -29,13 +29,13 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding {
 
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return Tier switch {
-            1 => new List<MaterialInfo>{
+            1 => new List<MaterialCostEntry>{
                 new(15000, Materials.Coins),
                 new(300, Materials.Wood),
             },
-            2 => new List<MaterialInfo>{
+            2 => new List<MaterialCostEntry>{
                 new(35000, Materials.Coins),
                 new(850, Materials.Wood),
                 new(300, Materials.Stone)

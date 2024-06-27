@@ -60,19 +60,19 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
         cabinTypeIsPlaced[Convert.ToInt32(Type)] = false;
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        List<MaterialInfo> level1 = new() { new(100, Materials.Coins) };
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        List<MaterialCostEntry> level1 = new() { new(100, Materials.Coins) };
         return TieredBuildingComponent.Tier switch {
-            2 => new List<MaterialInfo>{
+            2 => new List<MaterialCostEntry>{
                 new(10_000, Materials.Coins),
                 new(450, Materials.Wood),
             }.Union(level1).ToList(),
-            3 => new List<MaterialInfo>{
+            3 => new List<MaterialCostEntry>{
                 new(60_000, Materials.Coins),
                 new(450, Materials.Wood),
                 new(150, Materials.Hardwood),
             }.Union(level1).ToList(),
-            4 => new List<MaterialInfo>{
+            4 => new List<MaterialCostEntry>{
                 new(160_000, Materials.Coins),
                 new(450, Materials.Wood),
                 new(150, Materials.Hardwood),

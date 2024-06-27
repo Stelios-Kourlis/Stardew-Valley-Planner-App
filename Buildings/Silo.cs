@@ -10,8 +10,8 @@ public class Silo : Building {
         BaseHeight = 3;
         base.OnAwake();
     }
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>(){
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>(){
             new(100, Materials.Coins),
             new(100, Materials.Stone),
             new(10, Materials.Clay),

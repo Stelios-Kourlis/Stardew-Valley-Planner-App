@@ -12,8 +12,8 @@ public class GoldClock : Building {
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo> {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry> {
             new(10_000_000, Materials.Coins)
         };
     }

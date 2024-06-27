@@ -11,8 +11,8 @@ public class Mill : Building {
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>(){
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>(){
             new(2500, Materials.Coins),
             new(50, Materials.Stone),
             new(150, Materials.Wood),

@@ -64,40 +64,40 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         RangeEffectBuildingComponent.HideEffectRange();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return MultipleTypeBuildingComponent.Type switch {
-            Types.Deluxe => new List<MaterialInfo>{//Deluxe scarecrow
+            Types.Deluxe => new List<MaterialCostEntry>{//Deluxe scarecrow
                 new(50, Materials.Wood),
                 new(1, Materials.IridiumOre),
                 new(40, Materials.Fiber)
             },
-            Types.Default => new List<MaterialInfo>{//Normal scarecrow
+            Types.Default => new List<MaterialCostEntry>{//Normal scarecrow
                 new(50, Materials.Wood),
                 new(1, Materials.Coal),
                 new(20, Materials.Fiber)
             },
-            Types.Rarecrow1 => new List<MaterialInfo>{//Rarecrows in order
+            Types.Rarecrow1 => new List<MaterialCostEntry>{//Rarecrows in order
                 new("Purchase at the Stardew Valley Fair for 800 Tokens"),
             },
-            Types.Rarecrow2 => new List<MaterialInfo>{
+            Types.Rarecrow2 => new List<MaterialCostEntry>{
                 new("	Purchase at the Spirit's Eve festival for 5,000 Coins"),
             },
-            Types.Rarecrow3 => new List<MaterialInfo>{
+            Types.Rarecrow3 => new List<MaterialCostEntry>{
                 new("Purchase at the Casino for 10,000 Qi Coins"),
             },
-            Types.Rarecrow4 => new List<MaterialInfo>{
+            Types.Rarecrow4 => new List<MaterialCostEntry>{
                 new("Purchase at the Traveling Cart randomly during fall or winter for 4,000 Coins, or purchase at the Festival of Ice for 5,000 Coins"),
             },
-            Types.Rarecrow5 => new List<MaterialInfo>{
+            Types.Rarecrow5 => new List<MaterialCostEntry>{
                 new("Purchase at the Flower Dance for 2,500 Coins"),
             },
-            Types.Rarecrow6 => new List<MaterialInfo>{
+            Types.Rarecrow6 => new List<MaterialCostEntry>{
                 new("Purchase from the Dwarf for 2,500 Coins"),
             },
-            Types.Rarecrow7 => new List<MaterialInfo>{
+            Types.Rarecrow7 => new List<MaterialCostEntry>{
                 new("Donate 20 Artifacts (not counting Minerals) to the Museum. Can be purchased from the Night Market once the first one is earned"),
             },
-            Types.Rarecrow8 => new List<MaterialInfo>{
+            Types.Rarecrow8 => new List<MaterialCostEntry>{
                 new("Donate 40 items to the Museum. Can be purchased from the Night Market once the first one is earned"),
             },
             _ => throw new System.ArgumentException($"Invalid scarecrow type {MultipleTypeBuildingComponent.Type}")

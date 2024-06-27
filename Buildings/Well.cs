@@ -11,8 +11,8 @@ public class Well : Building {
         base.OnAwake();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>(){
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>(){
         new(1000, Materials.Coins),
         new(75, Materials.Stone),
         };

@@ -73,8 +73,8 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
         else porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo>{
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry>{
             new("Complete the community center's pantry room.")
         };
     }

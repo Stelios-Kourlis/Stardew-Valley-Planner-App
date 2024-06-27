@@ -26,7 +26,7 @@ public interface IBuilding {
     void PlaceBuildingPreview(Vector3Int position);
     void PickupBuildingPreview();
     void DeleteBuildingPreview();
-    List<MaterialInfo> GetMaterialsNeeded();
+    List<MaterialCostEntry> GetMaterialsNeeded();
     string GetBuildingData();
     bool LoadBuildingFromData(string[] data);
     void UpdateTexture(Sprite sprite);
@@ -105,6 +105,6 @@ public interface IPaintableBuilding : IBuilding, IInteractableBuilding {
 }
 
 public interface IMassPlaceableBuilding : IBuilding {
-    void MassPlaceBuilding(Vector3Int[] positions);
-    void MassPlaceBuildingPreview(Vector3Int[] positions);
+    // void MassPlaceBuilding(Vector3Int[] positions);
+    // void MassPlaceBuildingPreview(Vector3Int[] positions);
 }

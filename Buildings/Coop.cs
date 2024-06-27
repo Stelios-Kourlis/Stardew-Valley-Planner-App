@@ -89,19 +89,19 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
         return $"{rabbitsRemoved} {ducksRemoved} {voidChickensRemoved} {dinosaursRemoved} {goldenChickensRemoved}";
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return Tier switch {
-            1 => new List<MaterialInfo>{
+            1 => new List<MaterialCostEntry>{
                 new(4_000, Materials.Coins),
                 new(300, Materials.Wood),
                 new(100, Materials.Stone)
             },
-            2 => new List<MaterialInfo>{
+            2 => new List<MaterialCostEntry>{
                 new(4_000 + 10_000, Materials.Coins),
                 new(300 + 400, Materials.Wood),
                 new(100 + 150, Materials.Stone)
             },
-            3 => new List<MaterialInfo>{
+            3 => new List<MaterialCostEntry>{
                 new(4_000 + 10_000 + 20_000, Materials.Coins),
                 new(300 + 400 + 500, Materials.Wood),
                 new(100 + 150 + 200, Materials.Stone)

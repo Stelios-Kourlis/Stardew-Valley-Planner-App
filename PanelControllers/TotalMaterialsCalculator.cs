@@ -12,110 +12,86 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
     const int HEIGHT = 50;
     const int WIDTH = 1200;
 
-    private readonly List<MaterialInfo> materialsNeeded = new();
+    private List<MaterialCostEntry> materialsNeeded;
     private SpriteAtlas materialAtlas;
+    private GameObject buildingCostPrefab;
+    private GameObject materialEntry;
 
     public bool IsMoving { get; private set; }
 
     public bool IsOpen { get; private set; }
+    private Transform ContentPanelTransform => gameObject.transform.GetChild(1).GetChild(0);
 
     public void Start() {
         materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
+        buildingCostPrefab = Resources.Load<GameObject>("UI/BuildingCost");
+        materialEntry = Resources.Load<GameObject>("UI/MaterialEntry");
         gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height + 500, 0);
     }
 
-    public void SumTotalMaterialsNeeded() {
-        materialsNeeded.Clear();
+    public void ShowMaterialsByType() {
+        ClearPanel();
+        materialsNeeded = new();
         foreach (Building building in BuildingController.GetBuildings()) {
-            foreach (MaterialInfo material in building.GetMaterialsNeeded()) {
-                if (material.IsSpecial) {
-                    MaterialInfo specialMaterial = materialsNeeded.FirstOrDefault(item => item.howToGet == material.howToGet);
-                    if (specialMaterial != null) specialMaterial.amount += material.amount;
-                    else materialsNeeded.Add(material);
-                    continue;
-                }
-                else {
-                    MaterialInfo materialInfo = materialsNeeded.FirstOrDefault(item => item.name == material.name);
-                    if (materialInfo != null) materialInfo.amount += material.amount;
-                    else materialsNeeded.Add(material);
-                }
+            foreach (MaterialCostEntry material in building.GetMaterialsNeeded()) {
+                MaterialCostEntry prexeistingEntry = materialsNeeded.FirstOrDefault(item => item.EntryText == material.EntryText);
+                if (prexeistingEntry != null) prexeistingEntry.amount += material.amount;
+                else materialsNeeded.Add(material);
             }
         }
-        DisplayMaterials();
+        foreach (MaterialCostEntry material in materialsNeeded) CreateTextGameObject(material, ContentPanelTransform);
     }
 
-    private void DisplayMaterials() {
-        GameObject materialsNeededPanel = GameObject.FindGameObjectWithTag("TotalMaterialsNeededPanel");
-        // StartCoroutine(OpenPanel());
-        GameObject scrollContent = materialsNeededPanel.transform.GetChild(1).GetChild(0).gameObject;
-        int counter = 0;
-
-        for (int childIndex = 0; childIndex < scrollContent.transform.childCount; childIndex++) {
-            Destroy(scrollContent.transform.GetChild(childIndex).gameObject);
+    public void ShowMaterialsByBuilding() {
+        ClearPanel();
+        foreach (Building building in BuildingController.GetBuildings()) {
+            GameObject buildingCost = Instantiate(buildingCostPrefab, ContentPanelTransform);
+            buildingCost.transform.Find("BuildingImage").GetComponent<Image>().sprite = building.Sprite;
+            buildingCost.transform.Find("Text").Find("BuildingName").GetComponent<Text>().text = building.BuildingName;
+            Transform parent = buildingCost.transform.Find("Text").Find("Materials");
+            foreach (MaterialCostEntry material in building.GetMaterialsNeeded()) CreateTextGameObject(material, parent);
         }
+        RectTransform layoutGroupRectTransform = ContentPanelTransform.GetComponent<RectTransform>();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroupRectTransform);
+    }
 
-        foreach (MaterialInfo material in materialsNeeded) {
-            GameObject entry = new($"{material}Entry");
-            entry.transform.SetParent(scrollContent.transform);
-            entry.AddComponent<RectTransform>().sizeDelta = new Vector2(WIDTH, HEIGHT);
-            entry.transform.position = new Vector3(50, -50 + counter * HEIGHT, 0);
-            if (!material.IsSpecial) {
-                AddTextGameObject(material, entry.transform);
-                AddImage(material, entry.transform);
-            }
-            else AddSpecialTextGameObject(material, entry.transform);
-            counter++;
+
+    private void CreateTextGameObject(MaterialCostEntry material, Transform parent) {
+        GameObject entryGameObject = Instantiate(materialEntry);
+        entryGameObject.transform.SetParent(parent);
+        GameObject textGameObject = entryGameObject.transform.Find("Text").gameObject;
+        textGameObject.GetComponent<Text>().text = $"{material.amount:N0}x {material.EntryText}";
+        AddImage(material, entryGameObject);
+    }
+
+    private void AddImage(MaterialCostEntry material, GameObject entryObject) {
+        GameObject imageGameObject = entryObject.transform.Find("Image").gameObject;
+        if (material.IsSpecial) {
+            imageGameObject.GetComponent<Image>().color = new(0, 0, 0, 0); //special material has no image
+            return;
         }
-        // materialsNeededPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-    }
-
-    private void AddTextGameObject(MaterialInfo material, Transform parent) {
-        if (material.IsSpecial) throw new ArgumentException("Material is special, use CreateSpecialTextGameObject() instead.");
-        GameObject textGameObject = new(material.name.ToString());
-        textGameObject.AddComponent<Text>().text = $"{material.amount:N0}x {material.name}";
-        textGameObject.GetComponent<Text>().fontSize = 50;
-        textGameObject.GetComponent<Text>().color = Color.black;
-        textGameObject.GetComponent<Text>().font = Resources.Load<Font>("StardewValley");
-        textGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(WIDTH, HEIGHT);
-        textGameObject.GetComponent<RectTransform>().pivot = new Vector2(0, 0.5f);
-        textGameObject.transform.SetParent(parent);
-    }
-
-    private void AddSpecialTextGameObject(MaterialInfo material, Transform parent) {
-        if (!material.IsSpecial) throw new ArgumentException("Material is not special, use CreateTextGameObject() instead.");
-        GameObject textGameObject = new(material.howToGet);
-        textGameObject.AddComponent<Text>().text = $"{material.amount:N0}x {material.howToGet}";
-        textGameObject.GetComponent<Text>().fontSize = 50;
-        textGameObject.GetComponent<Text>().color = Color.black;
-        textGameObject.GetComponent<Text>().font = Resources.Load<Font>("StardewValley");
-        textGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(WIDTH, HEIGHT);
-        textGameObject.GetComponent<RectTransform>().pivot = new Vector2(0, 0.5f);
-        textGameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        textGameObject.transform.SetParent(parent);
-    }
-
-    private void AddImage(MaterialInfo material, Transform parent) {
-        if (material.IsSpecial) throw new ArgumentException("Special Material do not have images");
-        GameObject imageGameObject = new(material.name.ToString());
         Sprite sprite = materialAtlas.GetSprite(material.name.ToString());
-        imageGameObject.AddComponent<Image>().sprite = sprite;
-        imageGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(HEIGHT, HEIGHT);
-        imageGameObject.GetComponent<RectTransform>().pivot = new Vector2(1, 0.5f);
-        imageGameObject.transform.SetParent(parent);
+        imageGameObject.GetComponent<Image>().sprite = sprite;
+    }
+
+    private void ClearPanel() {
+        foreach (Transform child in ContentPanelTransform) Destroy(child.gameObject);
     }
 
     public void CallClosePanelCoroutine() {
         StartCoroutine(ClosePanel());
     }
+
+    public void CallOpenPanelCoroutine() {
+        StartCoroutine(OpenPanel());
+    }
     public void TogglePanel() {
         if (IsMoving) return;
         if (IsOpen) StartCoroutine(ClosePanel());
         else {
-            SumTotalMaterialsNeeded();
             StartCoroutine(OpenPanel());
         }
     }
-
     public IEnumerator OpenPanel() {
         if (IsOpen) yield break;
         IsMoving = true;
@@ -137,7 +113,6 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
         IsMoving = false;
 
     }
-
     public IEnumerator ClosePanel() {
         if (!IsOpen) yield break;
         IsMoving = true;

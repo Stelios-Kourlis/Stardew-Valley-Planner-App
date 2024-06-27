@@ -31,6 +31,7 @@ public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
 
     public override void OnAwake() {
         BaseHeight = 1;
+        BuildingName = "Fence";
         base.OnAwake();
         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         ConnectingBuildingComponent = gameObject.AddComponent<ConnectingBuildingComponent>();
@@ -38,18 +39,18 @@ public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
         BuildingRemoved += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return MultipleTypeBuildingComponent.Type switch {
-            Types.Wood => new List<MaterialInfo>(){
+            Types.Wood => new List<MaterialCostEntry>(){
                 new(2, Materials.Wood)
             },
-            Types.Stone => new List<MaterialInfo>(){
+            Types.Stone => new List<MaterialCostEntry>(){
                 new(2, Materials.Stone)
             },
-            Types.Iron => new List<MaterialInfo>(){
+            Types.Iron => new List<MaterialCostEntry>(){
                 new(1, Materials.IronBar)
             },
-            Types.Hardwood => new List<MaterialInfo>(){
+            Types.Hardwood => new List<MaterialCostEntry>(){
                 new(1, Materials.Hardwood)
             },
             _ => throw new System.Exception("Invalid Fence Type")

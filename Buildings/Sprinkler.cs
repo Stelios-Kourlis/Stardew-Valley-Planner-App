@@ -58,18 +58,18 @@ public class Sprinkler : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         RangeEffectBuildingComponent.HideEffectRange();
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return MultipleBuildingComponent.Type switch {
-            Types.Normal => new List<MaterialInfo>{
+            Types.Normal => new List<MaterialCostEntry>{
                     new(1, Materials.IronBar),
                     new(1, Materials.CopperBar),
                 },
-            Types.Quality => new List<MaterialInfo>{
+            Types.Quality => new List<MaterialCostEntry>{
                     new(1, Materials.GoldBar),
                     new(1, Materials.IronBar),
                     new(1, Materials.RefinedQuartz)
                 },
-            Types.Iridium => new List<MaterialInfo>{
+            Types.Iridium => new List<MaterialCostEntry>{
                     new(1, Materials.IridiumBar),
                     new(1, Materials.GoldBar),
                     new(1, Materials.BatteryPack),

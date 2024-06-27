@@ -76,10 +76,10 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
         return $"{goatsRemoved} {sheepRemoved} {pigsRemoved}";
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        List<MaterialInfo> animalCost = new();
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        List<MaterialCostEntry> animalCost = new();
         foreach (var animal in AnimalHouseComponent.AnimalsInBuilding.Select(pair => pair.Key)) {
-            MaterialInfo cost = animal switch {
+            MaterialCostEntry cost = animal switch {
                 Animals.Cow => new(1_500, Materials.Coins),
                 Animals.Ostrich => new("Ostrich Egg"),
                 Animals.Goat => new(4_000, Materials.Coins),
@@ -90,17 +90,17 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
             animalCost.Add(cost);
         }
         return Tier switch {
-            1 => new List<MaterialInfo>{
+            1 => new List<MaterialCostEntry>{
                 new(6_000, Materials.Coins),
                 new(350, Materials.Wood),
                 new(150, Materials.Stone)
             }.Union(animalCost).ToList(),
-            2 => new List<MaterialInfo>{
+            2 => new List<MaterialCostEntry>{
                 new(6_000 + 12_000, Materials.Coins),
                 new(350 + 450, Materials.Wood),
                 new(150 + 200, Materials.Stone)
             }.Union(animalCost).ToList(),
-            3 => new List<MaterialInfo>{
+            3 => new List<MaterialCostEntry>{
                 new(6_000 + 12_000 + 25_000, Materials.Coins),
                 new(350 + 450 + 550, Materials.Wood),
                 new(150 + 200 + 300, Materials.Stone)

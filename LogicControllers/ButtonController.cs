@@ -15,7 +15,7 @@ using UnityEngine.U2D;
 public class ButtonController : MonoBehaviour {
 
     readonly float BUTTON_SIZE = 75;
-    private readonly Type[] typesThatShouldBeInCraftables = { /*typeof(Sprinkler),*/ typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) }; //todo undo comments
+    private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
     private GameObject buttonPrefab;
 
     void Start() {

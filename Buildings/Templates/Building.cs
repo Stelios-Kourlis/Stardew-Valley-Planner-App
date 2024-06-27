@@ -93,7 +93,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         return data;
     }
 
-    public abstract List<MaterialInfo> GetMaterialsNeeded();
+    public abstract List<MaterialCostEntry> GetMaterialsNeeded();
 
     public bool LoadBuildingFromData(string[] data) {
         int x = int.Parse(data[0]);
@@ -214,7 +214,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     public virtual GameObject CreateBuildingButton() {
         GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
         button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        button.name = $"{GetType()}Button";
+        button.name = $"{BuildingName}";
         button.GetComponent<Image>().sprite = Sprite;
 
         System.Type buildingType = GetType();

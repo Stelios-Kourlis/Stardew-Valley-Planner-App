@@ -29,7 +29,6 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
     public override void OnAwake() {
         BuildingName = "Fish Pond";
         BaseHeight = 5;
-        // interactableBuildingComponent = new InteractableBuildingComponent(this);
         atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
         Sprite = atlas.GetSprite("FishPond");
         base.OnAwake();
@@ -38,8 +37,8 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
     }
 
-    public override List<MaterialInfo> GetMaterialsNeeded() {
-        return new List<MaterialInfo> {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+        return new List<MaterialCostEntry> {
             new(5_000, Materials.Coins),
             new(200, Materials.Wood),
             new(5, Materials.Seaweed),
@@ -165,7 +164,7 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
     public override GameObject CreateBuildingButton() {
         GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
         button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        button.name = $"{GetType()}Button";
+        button.name = $"{BuildingName}";
         button.GetComponent<Image>().sprite = atlas.GetSprite("FishPondImage");
 
         Type buildingType = GetType();
