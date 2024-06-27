@@ -123,7 +123,7 @@ public class InputHandler : MonoBehaviour {
             if (LeftClickShouldRegister()) {
                 switch (BuildingController.CurrentAction) {
                     case Actions.PLACE:
-                        if (BuildingController.CurrentBuildingBeingPlaced.GetType() is not IMassPlaceableBuilding) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
+                        if (!BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
                         else {
                             mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                             foreach (Vector3Int position in mouseCoverageArea) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
@@ -151,6 +151,11 @@ public class InputHandler : MonoBehaviour {
             case Actions.PLACE:
                 building = BuildingController.LastBuildingCreated;
                 if (building != null) building.PlaceBuildingPreview(mousePosition);
+                if (mouseIsHeld && BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) {
+                    mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                    GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
+                    if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("GreenTile"));
+                }
                 break;
             case Actions.EDIT:
                 BuildingController.LastBuildingCreated.HidePreview();

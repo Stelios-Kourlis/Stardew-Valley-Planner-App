@@ -53,7 +53,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public Action BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
-    // public bool CanBeMassPlaced { get; protected set; } = false;
+    public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
         IsPlaced = false;

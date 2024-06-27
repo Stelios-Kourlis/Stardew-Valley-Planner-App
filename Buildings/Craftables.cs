@@ -9,7 +9,7 @@ using UnityEngine.U2D;
 using UnityEditor;
 using System;
 
-public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding, IMassPlaceableBuilding, IExtraActionBuilding {
+public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding, IExtraActionBuilding {
 
     public enum Types {
         Beehouse,
@@ -63,7 +63,7 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
         BaseHeight = 1;
         miniObeliskCount = 0;
         base.OnAwake();
-        // CanBeMassPlaced = true;
+        CanBeMassPlaced = true;
         gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         RangeEffectBuildingComponent = new RangeEffectBuilding(this);
     }

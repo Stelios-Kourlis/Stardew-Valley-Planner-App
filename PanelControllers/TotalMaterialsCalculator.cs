@@ -12,10 +12,17 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
     const int HEIGHT = 50;
     const int WIDTH = 1200;
 
+    private enum Mode {
+        ByType,
+        ByBuilding
+    }
+
     private List<MaterialCostEntry> materialsNeeded;
     private SpriteAtlas materialAtlas;
     private GameObject buildingCostPrefab;
     private GameObject materialEntry;
+
+    private Mode currentMode;
 
     public bool IsMoving { get; private set; }
 
@@ -31,6 +38,8 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
 
     public void ShowMaterialsByType() {
         ClearPanel();
+        currentMode = Mode.ByType;
+        SetButtonsColor();
         materialsNeeded = new();
         foreach (Building building in BuildingController.GetBuildings()) {
             foreach (MaterialCostEntry material in building.GetMaterialsNeeded()) {
@@ -44,6 +53,8 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
 
     public void ShowMaterialsByBuilding() {
         ClearPanel();
+        currentMode = Mode.ByBuilding;
+        SetButtonsColor();
         foreach (Building building in BuildingController.GetBuildings()) {
             GameObject buildingCost = Instantiate(buildingCostPrefab, ContentPanelTransform);
             buildingCost.transform.Find("BuildingImage").GetComponent<Image>().sprite = building.Sprite;
@@ -53,6 +64,41 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
         }
         RectTransform layoutGroupRectTransform = ContentPanelTransform.GetComponent<RectTransform>();
         LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroupRectTransform);
+    }
+
+    private void SetButtonsColor() {
+        GameObject buttons = gameObject.transform.Find("Buttons").gameObject;
+        GameObject byTypeButton = buttons.transform.Find("PerType").gameObject;
+        GameObject byBuildingButton = buttons.transform.Find("PerBuilding").gameObject;
+        ColorBlock normalColors = new() {
+            normalColor = new Color(1, 1, 1),
+            highlightedColor = new Color(0.9607843f, 0.9607843f, 0.9607843f),
+            pressedColor = new Color(0.7843137f, 0.7843137f, 0.7843137f),
+            selectedColor = new Color(0.9607843f, 0.9607843f, 0.9607843f),
+            disabledColor = new Color(0.7843137f, 0.7843137f, 0.7843137f),
+            colorMultiplier = 1,
+            fadeDuration = 0.1f
+        };
+
+        ColorBlock disabledColors = new() {
+            normalColor = new Color(0.5f, 0.5f, 0.5f),
+            highlightedColor = new Color(0.9607843f, 0.9607843f, 0.9607843f),
+            pressedColor = new Color(0.7843137f, 0.7843137f, 0.7843137f),
+            selectedColor = new Color(0.9607843f, 0.9607843f, 0.9607843f),
+            disabledColor = new Color(0.7843137f, 0.7843137f, 0.7843137f),
+            colorMultiplier = 1,
+            fadeDuration = 0.1f
+        };
+
+        if (currentMode == Mode.ByType) {
+            byTypeButton.GetComponent<Button>().colors = normalColors;
+            byBuildingButton.GetComponent<Button>().colors = disabledColors;
+        }
+        else {
+            byTypeButton.GetComponent<Button>().colors = disabledColors;
+            byBuildingButton.GetComponent<Button>().colors = normalColors;
+        }
+
     }
 
 
@@ -89,6 +135,8 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
         if (IsMoving) return;
         if (IsOpen) StartCoroutine(ClosePanel());
         else {
+            if (currentMode == Mode.ByType) ShowMaterialsByType();
+            else ShowMaterialsByBuilding();
             StartCoroutine(OpenPanel());
         }
     }

@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 
-public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding, IMassPlaceableBuilding {
+public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
 
     public enum Types {
         WOOD_FLOOR,
@@ -43,6 +43,7 @@ public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding, IMass
         BaseHeight = 1;
         base.OnAwake();
         BuildingName = "Floor";
+        CanBeMassPlaced = true;
         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         ConnectingBuildingComponent = gameObject.AddComponent<ConnectingBuildingComponent>();
         BuildingPlaced += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;

@@ -67,6 +67,7 @@ public class Crop : Building, IMultipleTypeBuilding, IExtraActionBuilding {
         BaseHeight = 1;
         BuildingName = "Crop";
         base.OnAwake();
+        CanBeMassPlaced = true;
         gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
 
     }

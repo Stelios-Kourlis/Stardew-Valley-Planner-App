@@ -33,6 +33,7 @@ public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
         BaseHeight = 1;
         BuildingName = "Fence";
         base.OnAwake();
+        CanBeMassPlaced = true;
         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         ConnectingBuildingComponent = gameObject.AddComponent<ConnectingBuildingComponent>();
         BuildingPlaced += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
