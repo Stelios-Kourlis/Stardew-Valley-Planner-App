@@ -8,19 +8,12 @@ using static Utility.ClassManager;
 using System;
 
 public class InteractableBuildingComponent : MonoBehaviour {
-    public List<ButtonTypes> BuildingInteractions { get; set; }
+    public HashSet<ButtonTypes> BuildingInteractions { get; set; }
     public GameObject ButtonParentGameObject { get; private set; } = null;
     public IInteractableBuilding Building => gameObject.GetComponent<IInteractableBuilding>();
     public Action ButtonsCreated;
 
     public void Awake() {
-        // UpdateBuildingButtons();
-        // if (Building == null) {
-        //     Component[] components = gameObject.GetComponents<Component>();
-        //     foreach (Component component in components) {
-        //         Debug.Log(component.GetType().ToString());
-        //     }
-        // }
         BuildingInteractions = new();
         Building.BuildingPlaced += CreateBuildingButtons;
     }

@@ -29,7 +29,7 @@ public class Sprinkler : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
     // public Types CurrentType { get; private set; }
     public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -78,7 +78,7 @@ public class Sprinkler : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         };
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         return $"{MultipleBuildingComponent.Type}";
     }
 

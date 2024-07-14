@@ -29,7 +29,7 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
 
     // public static Types CurrentType { get; private set; }
 
-    public List<ButtonTypes> BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
 
     public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
 
@@ -81,7 +81,7 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
         };
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         return $"{TieredBuildingComponent.Tier}|{MultipleTypeBuildingComponent.Type}";
     }
 

@@ -7,7 +7,6 @@ using UnityEngine.Tilemaps;
 /// <summary> The base class that all building need to implement </summary>
 public interface IBuilding {
     string BuildingName { get; }
-    int UID { get; }
     Sprite Sprite { get; }
     Vector3Int[] SpriteCoordinates { get; }
     Vector3Int[] BaseCoordinates { get; }
@@ -19,7 +18,7 @@ public interface IBuilding {
     TilemapRenderer TilemapRenderer { get; }
     Transform Transform { get; }
     GameObject BuildingGameObject { get; }
-    public (bool, string) IsPickedUp { get; }
+    public (bool, BuildingData) IsPickedUp { get; }
     bool PlaceBuilding(Vector3Int position);
     bool PickupBuilding();
     void DeleteBuilding(bool force = false);
@@ -27,8 +26,8 @@ public interface IBuilding {
     void PickupBuildingPreview();
     void DeleteBuildingPreview();
     List<MaterialCostEntry> GetMaterialsNeeded();
-    string GetBuildingData();
-    bool LoadBuildingFromData(string[] data);
+    BuildingData GetBuildingData();
+    bool LoadBuildingFromData(BuildingData data);
     void UpdateTexture(Sprite sprite);
     GameObject CreateBuildingButton();
     Action BuildingPlaced { get; set; }
@@ -44,7 +43,7 @@ public interface IExtraActionBuilding {
     void PerformExtraActionsOnDeletePreview() { return; }
     void PerformExtraActionsOnPickup() { return; }
     void PerformExtraActionsOnPickupPreview() { return; }
-    string AddToBuildingData() { return ""; }
+    string[] GetExtraData() { return null; }
     void LoadExtraBuildingData(string[] data) { return; }
     string AddBeforeBuildingName() { return ""; }
     string AddToBuildingName() { return ""; }
@@ -53,7 +52,7 @@ public interface IExtraActionBuilding {
 
 /// <summary> This is implemented if a building can be interacted with </summary>
 public interface IInteractableBuilding : IBuilding, IExtraActionBuilding {
-    List<ButtonTypes> BuildingInteractions { get; }
+    HashSet<ButtonTypes> BuildingInteractions { get; }
     GameObject ButtonParentGameObject { get; }
     void OnMouseRightClick() { return; }
     void OnMouseEnter() { return; }

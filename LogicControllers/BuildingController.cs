@@ -16,9 +16,9 @@ public static class BuildingController {
     private static readonly HashSet<Vector3Int> plantableCoordinates = new();
     public static readonly List<Building> buildings = new();
     /// <summary> actions the user has done, the first 2 elements always are Action, UID and then the building data  </summary>
-    private static readonly Stack<UserAction> actionLog = new();
+    // private static readonly Stack<UserAction> actionLog = new();
     /// <summary> actions the user has undone, the first 2 elements always are Action, UID and then the building data </summary>
-    private static readonly Stack<UserAction> undoLog = new();
+    // private static readonly Stack<UserAction> undoLog = new();
     public static Type currentBuildingType = typeof(Barn);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
@@ -29,9 +29,15 @@ public static class BuildingController {
     public static Building LastBuildingCreated => LastBuildingObjectCreated != null ? LastBuildingObjectCreated.GetComponent<Building>() : null;
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
-    public static void OnBuildingPlaced() {
+    public static void CreateNewBuilding() {
+        Debug.Log("Creating new building");
         if (IsLoadingSave) return;
         LastBuildingObjectCreated = CreateNewBuildingGameObject(currentBuildingType);
+    }
+
+    public static void DeleteLastBuilding() {
+        if (LastBuildingObjectCreated == null) return;
+        UnityEngine.Object.Destroy(LastBuildingObjectCreated);
     }
 
     /// <summary>
@@ -118,7 +124,7 @@ public static class BuildingController {
         PlaceBin();
         PlaceGreenhouse();
         IsLoadingSave = false;
-        OnBuildingPlaced();
+        CreateNewBuilding();
     }
 
     /// <summary>
@@ -136,74 +142,70 @@ public static class BuildingController {
         GetNotificationManager().SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
     }
 
-    public static void AddActionToLog(UserAction action) {
-        actionLog.Push(action);
-        undoLog.Clear();
-    }
+    // public static void AddActionToLog(UserAction action) {
+    //     actionLog.Push(action);
+    //     undoLog.Clear();
+    // }
 
-    public static void UndoLastAction() {
-        foreach (var item in actionLog) {
-            Debug.Log(item);
-        }
-        if (actionLog.Count == 0) return;
-        UserAction lastAction = actionLog.Pop();
-        Debug.Log($"Got {lastAction}");
-        undoLog.Push(lastAction);
-        Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
-        Actions action = lastAction.action;
-        switch (action) {
-            case Actions.PLACE:
-                DeleteBuilding(lastAction.UID);
-                break;
-            case Actions.DELETE:
-            case Actions.EDIT:
-                PlaceSavedBuilding(lastAction.buildingData);
-                break;
-            default:
-                throw new ArgumentException($"Invalid action {action}");
-        }
-    }
+    // public static void UndoLastAction() {
+    //     foreach (var item in actionLog) {
+    //         Debug.Log(item);
+    //     }
+    //     if (actionLog.Count == 0) return;
+    //     UserAction lastAction = actionLog.Pop();
+    //     Debug.Log($"Got {lastAction}");
+    //     undoLog.Push(lastAction);
+    //     Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
+    //     Actions action = lastAction.action;
+    //     switch (action) {
+    //         case Actions.PLACE:
+    //             DeleteBuilding(lastAction.UID);
+    //             break;
+    //         case Actions.DELETE:
+    //         case Actions.EDIT:
+    //             PlaceSavedBuilding(lastAction.buildingData);
+    //             break;
+    //         default:
+    //             throw new ArgumentException($"Invalid action {action}");
+    //     }
+    // }
 
-    public static void RedoLastUndo() {
-        Debug.Log("Entering Redo");
-        if (undoLog.Count == 0) return;
-        UserAction lastAction = undoLog.Pop();
-        actionLog.Push(lastAction);
-        Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
-        Actions action = lastAction.action;
-        switch (action) {
-            case Actions.PLACE:
-                PlaceSavedBuilding(lastAction.buildingData);
-                break;
-            case Actions.DELETE:
-            case Actions.EDIT:
-                DeleteBuilding(lastAction.UID);
-                break;
-            default:
-                throw new ArgumentException($"Invalid action {action}");
-        }
-    }
+    // public static void RedoLastUndo() {
+    //     Debug.Log("Entering Redo");
+    //     if (undoLog.Count == 0) return;
+    //     UserAction lastAction = undoLog.Pop();
+    //     actionLog.Push(lastAction);
+    //     Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
+    //     Actions action = lastAction.action;
+    //     switch (action) {
+    //         case Actions.PLACE:
+    //             PlaceSavedBuilding(lastAction.buildingData);
+    //             break;
+    //         case Actions.DELETE:
+    //         case Actions.EDIT:
+    //             DeleteBuilding(lastAction.UID);
+    //             break;
+    //         default:
+    //             throw new ArgumentException($"Invalid action {action}");
+    //     }
+    // }
 
-    public static void PlaceSavedBuilding(string buildingData) {
-        string[] data = buildingData.Split('|');
-        Type type = Type.GetType(data[0]);
+    public static void PlaceSavedBuilding(BuildingData buildingData) {
+        Type type = buildingData.type;
         GameObject go = new(type.Name);
         go.transform.parent = GetGridTilemap().transform;
         Building building = go.AddComponent(type) as Building;
         if (building != null) building.OnAwake();
-        if (building != null) building.LoadBuildingFromData(data.Skip(1).ToArray()); //todo maybe skip first part?
+        if (building != null) building.LoadBuildingFromData(buildingData);
     }
 
-    public static void DeleteBuilding(int buildingUID) {
-        for (int index = 0; index < GetGridTilemap().transform.childCount; index++) {
-            var child = GetGridTilemap().transform.GetChild(index);
-            var building = child.GetComponent<Building>();
-            if (building?.UID == buildingUID) {
-                building.DeleteBuilding();
-                return;
-            }
-        };
-        Debug.LogWarning($"No building with UID: {buildingUID}");
+    public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {
+        Building building = buildings.FirstOrDefault(building => building.BaseCoordinates[0] == lowerLeftCorner);
+        if (building == null) return;
+        // buildings.Remove(building);
+        // buildingGameObjects.Remove(building.gameObject);
+        building.DeleteBuilding();
+
     }
 
     public static Type GetCurrentBuildingType() { return currentBuildingType; }
@@ -220,6 +222,8 @@ public static class BuildingController {
             _ => InputHandler.CursorType.Default
         };
         GetInputHandler().SetCursor(type);
+        if (action == Actions.DELETE || action == Actions.EDIT) DeleteLastBuilding();
+        else if (!CurrentBuildingBeingPlaced.IsPickedUp.Item1) CreateNewBuilding();
     }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor

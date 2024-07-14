@@ -20,7 +20,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
 
     public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding => gameObject.GetComponent<AnimalHouseComponent>().AnimalsInBuilding;
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -109,7 +109,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
         };
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         string animals = "";
         foreach (Animals animal in AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int)animal}";
         return $"{Tier}|{AnimalsInBuilding.Count}{animals}";
@@ -157,7 +157,9 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
     public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
 
     public void CreateInteriorCoordinates() {
-        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent.InteriorAreaCoordinates[0];
+        Debug.Log(EnterableBuildingComponent == null);
+        Debug.Log(EnterableBuildingComponent.InteriorAreaCoordinates == null);
+        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent?.InteriorAreaCoordinates[0] ?? new Vector3Int(0, 0, 0);
         HashSet<Vector3Int> interiorUnavailableCoordinates = new();
 
         //Left side part, stable in all tiers

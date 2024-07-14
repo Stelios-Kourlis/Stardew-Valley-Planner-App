@@ -51,7 +51,7 @@ namespace Utility {
                 while (reader.Peek() >= 0) {
                     string line = reader.ReadLine();
                     if (line.Equals("")) continue;
-                    BuildingController.PlaceSavedBuilding(line);
+                    BuildingController.PlaceSavedBuilding(new BuildingData(line));
                 }
                 BuildingController.IsLoadingSave = false;
             }
@@ -73,7 +73,7 @@ namespace Utility {
             while (reader.Peek() >= 0) {
                 string line = reader.ReadLine();
                 if (line.Equals("")) continue;
-                BuildingController.PlaceSavedBuilding(line);
+                BuildingController.PlaceSavedBuilding(new BuildingData(line));
             }
             BuildingController.IsLoadingSave = false;
             BuildingController.SetCurrentBuildingType(currentType);

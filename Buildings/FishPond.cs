@@ -22,7 +22,7 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
     private int decoIndex = 0;
     private GameObject waterTilemapObject;
 
-    public List<ButtonTypes> BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => interactableBuildingComponent.BuildingInteractions;
 
     public GameObject ButtonParentGameObject => interactableBuildingComponent.ButtonParentGameObject;
 
@@ -152,7 +152,7 @@ public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         return $"{decoIndex}|{(int)fish}";
     }
 

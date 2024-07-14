@@ -64,7 +64,8 @@ public class ButtonController : MonoBehaviour {
     /// </summary>
     /// <returns>The parent game object of the buttons</returns>
     public GameObject CreateButtonsForBuilding(IInteractableBuilding building) {
-        List<ButtonTypes> buttonTypes = building.BuildingInteractions;
+        HashSet<ButtonTypes> buttonTypes = building.BuildingInteractions;
+        foreach (ButtonTypes b in buttonTypes) Debug.Log(b);
         int numberOfButtons = buttonTypes.Count;
         if (numberOfButtons == 0) return null;
 
@@ -225,7 +226,7 @@ public class ButtonController : MonoBehaviour {
         float BUTTON_OFFSET = 5 * BUTTON_SIZE / 4 * (7.5f / GetCamera().GetComponent<Camera>().orthographicSize);
         //Debug.Log("Finding position of button "+buttonNumber+"/"+numberOfButtons + ", offset = "+BUTTON_OFFSET + ", middleOfBuildingScreen = "+middleOfBuildingScreen);
         if (numberOfButtons <= 0) throw new ArgumentException("numberOfButtons must be greater than 0");
-        if (numberOfButtons > Enum.GetValues(typeof(ButtonTypes)).Length) throw new ArgumentException("numberOfButtons must be less than 5");
+        if (numberOfButtons > Enum.GetValues(typeof(ButtonTypes)).Length) throw new ArgumentException($"numberOfButtons must be less than {Enum.GetValues(typeof(ButtonTypes)).Length} (got {numberOfButtons})");
 
         return numberOfButtons switch {
             1 => middleOfBuildingScreen,

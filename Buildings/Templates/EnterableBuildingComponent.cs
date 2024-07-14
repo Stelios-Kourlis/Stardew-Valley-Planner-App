@@ -46,7 +46,8 @@ public class EnterableBuildingComponent : MonoBehaviour {
         BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = Building.TilemapRenderer.sortingOrder + 50;
         BuildingInterior.transform.SetParent(Building.Transform);
         BuildingInterior.SetActive(false);
-        if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
+        Debug.Log(InteriorAreaCoordinates == null);
+        Building.CreateInteriorCoordinates();
     }
 
     public void ToggleEditBuildingInterior() {
@@ -73,9 +74,15 @@ public class EnterableBuildingComponent : MonoBehaviour {
         }
         SetUpCamera();
         if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
-        for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
-            if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
-            InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(false); //disable all other buttons
+
+        // for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
+        //     if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
+        //     InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(false); //disable all other buttons
+        // }
+
+        foreach (ButtonTypes type in InteractableBuildingComponent.BuildingInteractions) {
+            if (type == ButtonTypes.ENTER) continue;
+            InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject.SetActive(false);
         }
         GameObject enterButton = InteractableBuildingComponent.ButtonParentGameObject.transform.Find("ENTER").gameObject;
         enterButton.transform.position = new Vector3(Screen.width - enterButton.GetComponent<RectTransform>().rect.width / 2 - 50, enterButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
@@ -120,9 +127,14 @@ public class EnterableBuildingComponent : MonoBehaviour {
             if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) continue; //reenable buildings
             Building.Transform.parent.GetChild(i).gameObject.SetActive(true);
         }
-        for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
-            if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
-            InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(true); //reenable buttons
+        // for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
+        //     if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
+        //     InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(true); //reenable buttons
+        // }
+
+        foreach (ButtonTypes type in InteractableBuildingComponent.BuildingInteractions) {
+            if (type == ButtonTypes.ENTER) continue;
+            InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject.SetActive(true);
         }
         GetCamera().GetComponent<CameraController>().ToggleCameraLock();
         GetCamera().GetComponent<CameraController>().SetPosition(cameraPositionBeforeLock);

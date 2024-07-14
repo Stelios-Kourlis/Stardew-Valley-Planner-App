@@ -55,7 +55,7 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
     public MultipleTypeBuildingComponent MultipleBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -269,7 +269,7 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
         SetType((Types)int.Parse(data[0]));
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         return $"{Convert.ToInt32(Type)}";
     }
 

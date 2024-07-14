@@ -17,7 +17,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
 
     public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding => gameObject.GetComponent<AnimalHouseComponent>().AnimalsInBuilding;
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -110,7 +110,7 @@ public class Coop : Building, ITieredBuilding, IAnimalHouse {
         };
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         string animals = "";
         foreach (Animals animal in AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int)animal}";
         return $"{Tier}|{AnimalsInBuilding.Count}{animals}";

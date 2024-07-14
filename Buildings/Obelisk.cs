@@ -18,7 +18,7 @@ public class Obelisk : Building, IMultipleTypeBuilding {
 
     public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 

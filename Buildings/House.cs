@@ -9,7 +9,7 @@ public class House : Building, ITieredBuilding, IEnterableBuilding {
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public int Tier => gameObject.GetComponent<TieredBuildingComponent>().Tier;
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -53,7 +53,7 @@ public class House : Building, ITieredBuilding, IEnterableBuilding {
         };
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         return $"{Tier}";
     }
 

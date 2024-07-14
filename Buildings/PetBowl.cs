@@ -14,7 +14,7 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
 
     public Enum Type => MultipleTypeBuildingComponent.Type;
 
-    public List<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
@@ -32,7 +32,7 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
         };
     }
 
-    public string AddToBuildingData() {
+    public string GetExtraData() {
         return $"|{Type}";
     }
 
