@@ -90,13 +90,11 @@ public interface IConnectingBuilding : IInteractableBuilding {
 }
 
 public interface IEnterableBuilding : IInteractableBuilding {
-    Vector3Int[] InteriorUnavailableCoordinates { get; }
-    Vector3Int[] InteriorPlantableCoordinates { get; }
+    HashSet<Vector3Int> InteriorUnavailableCoordinates { get; }
+    HashSet<Vector3Int> InteriorPlantableCoordinates { get; }
     void ToggleEditBuildingInterior();
     void EditBuildingInterior();
     void ExitBuildingInteriorEditing();
-    void CreateInteriorCoordinates();
-
 }
 
 public interface IPaintableBuilding : IBuilding, IInteractableBuilding {

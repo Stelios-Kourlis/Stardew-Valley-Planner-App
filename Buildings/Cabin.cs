@@ -105,20 +105,5 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
     public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
     public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 
-    // public GameObject[] CreateButtonsForAllTypes() {
-    //     List<GameObject> buttons = new();
-    //     foreach (Types type in Enum.GetValues(typeof(Types))) {
-    //         GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-    //         button.name = $"{type}Button";
-    //         button.GetComponent<Image>().sprite = MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}1");
-    //         Type buildingType = GetType();
-    //         button.GetComponent<Button>().onClick.AddListener(() => {
-    //             BuildingController.SetCurrentBuildingToMultipleTypeBuilding(buildingType, type);
-    //             BuildingController.SetCurrentAction(Actions.PLACE);
-    //         });
-    //         buttons.Add(button);
-    //     }
-    //     return buttons.ToArray();
-    // }
 
 }

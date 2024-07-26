@@ -89,15 +89,15 @@ namespace Utility {
         /// <returns> If the position is unavailable return (false, reason), with reason being a string with the issue, else returns (true, null)</returns>
         public static (bool, string) BuildingCanBePlacedAtPosition(Vector3Int position, Building building) {
             if (building.IsPlaced) return (false, "Building has already been placed");
-            Vector3Int[] unavailableCoordinates, plantableCoordinates;
+            HashSet<Vector3Int> unavailableCoordinates, plantableCoordinates;
             if (BuildingController.isInsideBuilding.Key) {
                 IEnterableBuilding enterableBuilding = BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>();
                 unavailableCoordinates = enterableBuilding.InteriorUnavailableCoordinates;
                 plantableCoordinates = enterableBuilding.InteriorPlantableCoordinates;
             }
             else {
-                unavailableCoordinates = BuildingController.GetUnavailableCoordinates().ToArray();
-                plantableCoordinates = BuildingController.GetPlantableCoordinates().ToArray();
+                unavailableCoordinates = BuildingController.GetUnavailableCoordinates();
+                plantableCoordinates = BuildingController.GetPlantableCoordinates();
             }
 
             List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);

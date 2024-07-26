@@ -26,9 +26,9 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
 
     public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
 
-    public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
 
-    public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public override void OnAwake() {
         BaseHeight = 4;
@@ -156,73 +156,4 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
 
     public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
 
-    public void CreateInteriorCoordinates() {
-        Debug.Log(EnterableBuildingComponent == null);
-        Debug.Log(EnterableBuildingComponent.InteriorAreaCoordinates == null);
-        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent?.InteriorAreaCoordinates[0] ?? new Vector3Int(0, 0, 0);
-        HashSet<Vector3Int> interiorUnavailableCoordinates = new();
-
-        //Left side part, stable in all tiers
-        for (int x = 1; x <= 5; x++) {
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 6, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 5, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 4, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 3, 0));
-        }
-        // interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(3, 3, 0));
-
-        switch (Tier) {
-            case 1:
-                for (int x = 1; x < 17; x++) {
-                    if (x != 11) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 0, 0));
-                    interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 12, 0));
-                    if (x == 1 || x == 2 || (x >= 7 && x <= 14)) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 11, 0));
-                }
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(16, 1, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 8, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 8, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 9, 0));
-                break;
-            case 2:
-                for (int x = 1; x < 21; x++) {
-                    if (x != 11) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 0, 0));
-                    interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 12, 0));
-                    if (x == 1 || x == 2 || (x >= 7 && x <= 19)) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 11, 0));
-                }
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(20, 1, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(3, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(3, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 8, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 9, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 10, 0));
-                break;
-            case 3:
-                for (int x = 1; x < 24; x++) {
-                    if (x != 11) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 0, 0));
-                    interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 12, 0));
-                    if (x == 1 || x >= 7) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, 11, 0));
-                }
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(23, 1, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(23, 2, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 6, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(2, 7, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 8, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(23, 10, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(23, 9, 0));
-                break;
-            default: throw new System.ArgumentException($"Invalid tier {Tier} in Barn");
-        }
-        InteriorUnavailableCoordinates = GetAllInteriorUnavailableCoordinates(interiorUnavailableCoordinates.ToArray()).ToArray();
-        InteriorPlantableCoordinates = new Vector3Int[0];
-    }
 }

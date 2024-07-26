@@ -51,10 +51,7 @@ public class ButtonController : MonoBehaviour {
 
         AddBuildingButtonsForPanel(content.transform);
 
-        //Action Buttons
-        GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { BuildingController.SetCurrentAction(Actions.PLACE); });
-        GameObject.FindWithTag("DeleteButton").GetComponent<Button>().onClick.AddListener(() => { BuildingController.SetCurrentAction(Actions.DELETE); });
-        GameObject.FindWithTag("PickupButton").GetComponent<Button>().onClick.AddListener(() => { BuildingController.SetCurrentAction(Actions.EDIT); });
+
 
     }
 
@@ -65,7 +62,6 @@ public class ButtonController : MonoBehaviour {
     /// <returns>The parent game object of the buttons</returns>
     public GameObject CreateButtonsForBuilding(IInteractableBuilding building) {
         HashSet<ButtonTypes> buttonTypes = building.BuildingInteractions;
-        foreach (ButtonTypes b in buttonTypes) Debug.Log(b);
         int numberOfButtons = buttonTypes.Count;
         if (numberOfButtons == 0) return null;
 

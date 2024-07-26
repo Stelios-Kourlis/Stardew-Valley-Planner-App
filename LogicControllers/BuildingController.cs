@@ -142,54 +142,6 @@ public static class BuildingController {
         GetNotificationManager().SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
     }
 
-    // public static void AddActionToLog(UserAction action) {
-    //     actionLog.Push(action);
-    //     undoLog.Clear();
-    // }
-
-    // public static void UndoLastAction() {
-    //     foreach (var item in actionLog) {
-    //         Debug.Log(item);
-    //     }
-    //     if (actionLog.Count == 0) return;
-    //     UserAction lastAction = actionLog.Pop();
-    //     Debug.Log($"Got {lastAction}");
-    //     undoLog.Push(lastAction);
-    //     Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
-    //     Actions action = lastAction.action;
-    //     switch (action) {
-    //         case Actions.PLACE:
-    //             DeleteBuilding(lastAction.UID);
-    //             break;
-    //         case Actions.DELETE:
-    //         case Actions.EDIT:
-    //             PlaceSavedBuilding(lastAction.buildingData);
-    //             break;
-    //         default:
-    //             throw new ArgumentException($"Invalid action {action}");
-    //     }
-    // }
-
-    // public static void RedoLastUndo() {
-    //     Debug.Log("Entering Redo");
-    //     if (undoLog.Count == 0) return;
-    //     UserAction lastAction = undoLog.Pop();
-    //     actionLog.Push(lastAction);
-    //     Debug.Log($"Undoing {lastAction.action} with data {lastAction.buildingData}");
-    //     Actions action = lastAction.action;
-    //     switch (action) {
-    //         case Actions.PLACE:
-    //             PlaceSavedBuilding(lastAction.buildingData);
-    //             break;
-    //         case Actions.DELETE:
-    //         case Actions.EDIT:
-    //             DeleteBuilding(lastAction.UID);
-    //             break;
-    //         default:
-    //             throw new ArgumentException($"Invalid action {action}");
-    //     }
-    // }
-
     public static void PlaceSavedBuilding(BuildingData buildingData) {
         Type type = buildingData.type;
         GameObject go = new(type.Name);

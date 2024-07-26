@@ -15,9 +15,9 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
 
-    public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
 
-    public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -27,8 +27,6 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
         BuildingName = "Greenhouse";
         BaseHeight = 6;
         base.OnAwake();
-        // insideAreaTexture = Resources.Load("BuildingInsides/Greenhouse") as Texture2D;
-        // InteractableBuildingComponent = new InteractableBuildingComponent(this);
         EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
@@ -43,7 +41,6 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
         porchTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
-        // EnterableBuildingComponent.AddBuildingInterior();
     }
 
     protected void PerformExtraActionsOnPickup() {
@@ -84,44 +81,6 @@ public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, I
     public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
 
     public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
-
-    public void CreateInteriorCoordinates() {
-        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent.InteriorAreaCoordinates[0];
-        HashSet<Vector3Int> interiorUnavailableCoordinates = new();
-        for (int i = 0; i < 20; i++) {
-            if (i != 10) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 0, 0));
-            if (i <= 4 || i >= 16) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 1, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 16, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 17, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 18, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 19, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 20, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 21, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 22, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 23, 0));
-        }
-        for (int i = 0; i < 24; i++) {
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(0, i, 0));
-            interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(19, i, 0));
-        }
-        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 2, 0));
-        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(18, 2, 0));
-        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 14, 0));
-        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(1, 15, 0));
-        interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(18, 15, 0));
-
-        InteriorUnavailableCoordinates = GetAllInteriorUnavailableCoordinates(interiorUnavailableCoordinates.ToArray()).ToArray();
-
-        HashSet<Vector3Int> interiorPlantableCoordinates = new();
-        for (int x = 4; x <= 15; x++) {
-            for (int y = 4; y <= 13; y++) {
-                interiorPlantableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(x, y, 0));
-            }
-        }
-
-        InteriorPlantableCoordinates = interiorPlantableCoordinates.ToArray();
-    }
-
     public void OnMouseRightClick() {
         ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeInHierarchy);
     }

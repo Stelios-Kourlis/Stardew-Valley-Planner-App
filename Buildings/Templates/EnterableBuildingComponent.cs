@@ -7,12 +7,15 @@ using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using UnityEngine.UI;
+using System.Linq;
 
 public class EnterableBuildingComponent : MonoBehaviour {
     public GameObject BuildingInterior { get; private set; }
     public Sprite interriorSprite;
     private IEnterableBuilding Building => gameObject.GetComponent<IEnterableBuilding>();
     public Vector3Int[] InteriorAreaCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorUnavailableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
     private float cameraSizeBeforeLock;
     private Vector3 cameraPositionBeforeLock;
     public static Action EnteredOrExitedBuilding { get; set; }
@@ -46,8 +49,10 @@ public class EnterableBuildingComponent : MonoBehaviour {
         BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = Building.TilemapRenderer.sortingOrder + 50;
         BuildingInterior.transform.SetParent(Building.Transform);
         BuildingInterior.SetActive(false);
-        Debug.Log(InteriorAreaCoordinates == null);
-        Building.CreateInteriorCoordinates();
+
+        string BuildingName = Building.GetType().ToString() + ((Building is ITieredBuilding tieredBuilding) ? tieredBuilding.Tier : "");
+        InteriorUnavailableCoordinates = BuildingUnavailableCoordinatesController.GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+        InteriorPlantableCoordinates = BuildingUnavailableCoordinatesController.GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
     }
 
     public void ToggleEditBuildingInterior() {
@@ -73,18 +78,13 @@ public class EnterableBuildingComponent : MonoBehaviour {
             Building.Transform.parent.GetChild(i).gameObject.SetActive(false); //disable all other buildings
         }
         SetUpCamera();
-        if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
-
-        // for (int i = 0; i < InteractableBuildingComponent.BuildingInteractions.Count; i++) {
-        //     if (InteractableBuildingComponent.BuildingInteractions[i] == ButtonTypes.ENTER) continue;
-        //     InteractableBuildingComponent.ButtonParentGameObject.transform.GetChild(i).gameObject.SetActive(false); //disable all other buttons
-        // }
+        // if (Building is IEnterableBuilding enterableBuilding) enterableBuilding.CreateInteriorCoordinates();
 
         foreach (ButtonTypes type in InteractableBuildingComponent.BuildingInteractions) {
             if (type == ButtonTypes.ENTER) continue;
             InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject.SetActive(false);
         }
-        GameObject enterButton = InteractableBuildingComponent.ButtonParentGameObject.transform.Find("ENTER").gameObject;
+        GameObject enterButton = InteractableBuildingComponent.ButtonParentGameObject.transform.Find("ENTER").gameObject;//todo make exit building constast size
         enterButton.transform.position = new Vector3(Screen.width - enterButton.GetComponent<RectTransform>().rect.width / 2 - 50, enterButton.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
         BuildingInterior.GetComponent<TilemapRenderer>().sortingOrder = 0;
         Building.TilemapRenderer.sortingOrder = -1;

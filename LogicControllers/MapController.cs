@@ -188,7 +188,7 @@ public class MapController : MonoBehaviour {
     }
 
     private void ToggleMapUnavailableCoordinatesForBuildingInside() {
-        Vector3Int[] interiorUnavailableCoordinates = BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>().InteriorUnavailableCoordinates;
+        HashSet<Vector3Int> interiorUnavailableCoordinates = BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<EnterableBuildingComponent>().InteriorUnavailableCoordinates;
         Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
         unavailableCoordinatesTilemap.ClearAllTiles();
         if (unavailableCoordinatesAreVisible) {
@@ -201,7 +201,7 @@ public class MapController : MonoBehaviour {
     }
 
     public void ToggleMapPlantableCoordinates() {
-        HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>().InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
+        HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<EnterableBuildingComponent>().InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
         Tilemap plantableCoordinatesTilemap = GameObject.FindWithTag("PlantableTilemap").GetComponent<Tilemap>();
         plantableCoordinatesTilemap.ClearAllTiles();
         if (plantableCoordinatesAreVisible) {

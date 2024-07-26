@@ -15,9 +15,9 @@ public class House : Building, ITieredBuilding, IEnterableBuilding {
 
     public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
 
-    public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
 
-    public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public override void OnAwake() {
         BaseHeight = 6;

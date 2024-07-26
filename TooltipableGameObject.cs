@@ -36,9 +36,8 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
     }
     public void OnPointerEnter(PointerEventData eventData) {
         ActionBeforeEnteringSettings = BuildingController.CurrentAction;
-        BuildingController.SetCurrentAction(Actions.DO_NOTHING);
+        // BuildingController.SetCurrentAction(Actions.DO_NOTHING);
         GetInputHandler().SetCursor(InputHandler.CursorType.Default);
-        // if (BuildingController.LastBuildingObjectCreated != null) BuildingController.LastBuildingObjectCreated.GetComponent<Building>().HidePreview();
         StartTooltipCountdown();
     }
 
@@ -46,7 +45,7 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
         if (!(BuildingController.CurrentAction == Actions.DO_NOTHING)) return;
         if (GetSettingsModalController().IsOpen) return;
         if (GetTotalMaterialsCalculator().IsOpen) return;
-        BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
+        // BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
     }
 
     public void Update() {

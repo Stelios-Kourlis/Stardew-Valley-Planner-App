@@ -9,9 +9,9 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding {
     public TieredBuildingComponent TieredBuildingComponent { get; private set; }
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public int Tier => gameObject.GetComponent<TieredBuildingComponent>().Tier;
-    public Vector3Int[] InteriorUnavailableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorUnavailableCoordinates { get; private set; }
 
-    public Vector3Int[] InteriorPlantableCoordinates { get; private set; }
+    public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
 
     public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
 
@@ -63,26 +63,6 @@ public class Shed : Building, ITieredBuilding, IEnterableBuilding {
     public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
 
     public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
-
-    public void CreateInteriorCoordinates() {
-        Vector3Int interiorLowerLeftCorner = EnterableBuildingComponent.InteriorAreaCoordinates[0];
-        if (Tier == 1) {
-            List<Vector3Int> interiorUnavailableCoordinates = new();
-            for (int i = 0; i < 13; i++) {
-                if (i != 6) interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 0, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 10, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 11, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 12, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(i, 13, 0));
-            }
-            for (int i = 0; i < 13; i++) {
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(0, i, 0));
-                interiorUnavailableCoordinates.Add(interiorLowerLeftCorner + new Vector3Int(12, i, 0));
-            }
-            InteriorUnavailableCoordinates = GetAllInteriorUnavailableCoordinates(interiorUnavailableCoordinates.ToArray()).ToArray();
-        }
-        InteriorPlantableCoordinates = new Vector3Int[] { };
-    }
 
     public void OnMouseRightClick() {
         ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
