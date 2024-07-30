@@ -11,13 +11,10 @@ using System.Reflection;
 using Utility;
 
 public class TypeBarHandler : MonoBehaviour {
-    private readonly float moveScale = 5f;
-    private bool typeBarIsOpen = false;
-    private bool typeBarisHidden;
-    private bool searchBarIsHidden = true;
     private readonly Sprite[] arrowButtons = new Sprite[2];
     private Type lastType;
     private Type currentBuildingType;
+    private GameObject searchBar;
 
     // Start is called before the first frame update
     void Start() {
@@ -26,6 +23,8 @@ public class TypeBarHandler : MonoBehaviour {
         arrowButtons[1] = Sprite.Create(Resources.Load("UI/TypeBarHide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
 
         lastType = BuildingController.GetCurrentBuildingType();
+
+        searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar");
     }
 
     void Update() {
@@ -34,9 +33,9 @@ public class TypeBarHandler : MonoBehaviour {
         if (currentBuildingType == lastType) return;
         bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(currentBuildingType);
         if (isCurrentlyBuildingMultipleTypeBuilding) {
-            if (!typeBarIsOpen) {
-                typeBarIsOpen = true;
-                StartCoroutine(OpenBar());
+            if (!GetComponent<MoveablePanel>().IsPanelOpen()) {
+                GetComponent<MoveablePanel>().SetPanelToOpenPosition();
+                searchBar.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
             }
             Transform typeBarContent = transform.GetChild(0).GetChild(0);
             GameObject temp = new();
@@ -49,99 +48,19 @@ public class TypeBarHandler : MonoBehaviour {
                 button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             }
         }
-        else if (!isCurrentlyBuildingMultipleTypeBuilding && typeBarIsOpen) {
-            typeBarIsOpen = false;
-            StartCoroutine(CloseBar());
+        else if (!isCurrentlyBuildingMultipleTypeBuilding && GetComponent<MoveablePanel>().IsPanelOpen()) {
+            GetComponent<MoveablePanel>().SetPanelToHiddenPosition();
+            searchBar.GetComponent<MoveablePanel>().SetPanelToHiddenPosition();
         }
     }
 
     public bool IsMultipleTypeBuilding(Type type) {
         if (type == typeof(Crop)) return false;
         if (type == typeof(Craftables)) return false;
-        return typeof(IMultipleTypeBuilding).IsAssignableFrom(type);
-    }
-
-
-    /// <summary>
-    /// if the bar is visible (floor is selected), toggle it collapsing to the side and back
-    /// </summary>
-    public void ToggleHideBar() {
-        if (!typeBarIsOpen) return;
-        if (typeBarisHidden) StartCoroutine(OpenBar());
-        else StartCoroutine(HideBar());
-    }
-
-    public void ToggleSearchBar() {
-        if (!typeBarIsOpen) return;
-        if (searchBarIsHidden) StartCoroutine(OpenSearchBar());
-        else StartCoroutine(HideSearchBar());
-    }
-
-    IEnumerator OpenBar() {
-        while (gameObject.transform.position.x > Screen.width - 10) {
-            gameObject.transform.position = new Vector3(gameObject.transform.position.x - moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
-            yield return null;
-        }
-        transform.GetChild(1).GetComponent<Image>().sprite = arrowButtons[1];
-        StartCoroutine(ShowSearchBarButton());
-        typeBarisHidden = false;
-    }
-
-    IEnumerator CloseBar() {
-        while (gameObject.transform.position.x < Screen.width + gameObject.GetComponent<RectTransform>().rect.width + 400) {
-            gameObject.transform.position = new Vector3(gameObject.transform.position.x + moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
-            yield return null;
-        }
-        StartCoroutine(CloseSearchBar());
-    }
-
-    IEnumerator HideBar() {
-        while (gameObject.GetComponent<RectTransform>().anchoredPosition.x < Screen.width / 2 + GetComponent<RectTransform>().rect.width) {
-            gameObject.transform.position = new Vector3(gameObject.transform.position.x + moveScale, gameObject.transform.position.y, gameObject.transform.position.z);
-            yield return null;
-        }
-        transform.GetChild(1).GetComponent<Image>().sprite = arrowButtons[0];
-        typeBarisHidden = true;
-        StartCoroutine(CloseSearchBar());
-    }
-
-    IEnumerator OpenSearchBar() {
-        Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
-        while (searchBar.position.x > Screen.width - 10) {
-            searchBar.position = new Vector3(searchBar.position.x - moveScale, searchBar.position.y, searchBar.position.z);
-            yield return null;
-        }
-        searchBarIsHidden = false;
-        // searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[1];
-    }
-
-    IEnumerator ShowSearchBarButton() {
-        Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
-        Transform searchBarButton = searchBar.GetChild(0);
-        while (searchBarButton.GetComponent<RectTransform>().position.x > Screen.width) {
-            searchBar.position = new Vector3(searchBar.position.x - moveScale, searchBar.position.y, searchBar.position.z);
-            yield return null;
-        }
-        searchBarIsHidden = true;
-        // searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
-    }
-
-    IEnumerator HideSearchBar() {
-        Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
-        Transform searchBarButton = searchBar.GetChild(0);
-        while (searchBarButton.GetComponent<RectTransform>().position.x < Screen.width) {
-            searchBar.position = new Vector3(searchBar.position.x + moveScale, searchBar.position.y, searchBar.position.z);
-            yield return null;
-        }
-        searchBarIsHidden = true;
-        // searchBar.GetChild(0).GetComponent<Image>().sprite = arrowButtons[0];
-    }
-
-    IEnumerator CloseSearchBar() {
-        Transform searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar").transform;
-        while (searchBar.position.x < Screen.width + searchBar.GetComponent<RectTransform>().rect.width + 50) {
-            searchBar.position = new Vector3(searchBar.position.x + moveScale, searchBar.position.y, searchBar.position.z);
-            yield return null;
-        }
+        GameObject temp = new();
+        temp.AddComponent(type);
+        bool isMultipleTypeBuilding = temp.TryGetComponent(out MultipleTypeBuildingComponent _);
+        Destroy(temp);
+        return isMultipleTypeBuilding;
     }
 }

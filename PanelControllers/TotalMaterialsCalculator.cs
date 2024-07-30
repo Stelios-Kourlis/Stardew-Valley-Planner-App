@@ -7,10 +7,7 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
-
-    const int HEIGHT = 50;
-    const int WIDTH = 1200;
+public class TotalMaterialsCalculator : MonoBehaviour {
 
     private enum Mode {
         ByType,
@@ -23,17 +20,12 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
     private GameObject materialEntry;
 
     private Mode currentMode;
-
-    public bool IsMoving { get; private set; }
-
-    public bool IsOpen { get; private set; }
     private Transform ContentPanelTransform => gameObject.transform.GetChild(1).GetChild(0);
 
     public void Start() {
         materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
         buildingCostPrefab = Resources.Load<GameObject>("UI/BuildingCost");
         materialEntry = Resources.Load<GameObject>("UI/MaterialEntry");
-        gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height + 500, 0);
     }
 
     public void ShowMaterialsByType() {
@@ -101,7 +93,6 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
 
     }
 
-
     private void CreateTextGameObject(MaterialCostEntry material, Transform parent) {
         GameObject entryGameObject = Instantiate(materialEntry);
         entryGameObject.transform.SetParent(parent);
@@ -124,55 +115,5 @@ public class TotalMaterialsCalculator : MonoBehaviour, IToggleablePanel {
         foreach (Transform child in ContentPanelTransform) Destroy(child.gameObject);
     }
 
-    public void CallClosePanelCoroutine() {
-        StartCoroutine(ClosePanel());
-    }
 
-    public void CallOpenPanelCoroutine() {
-        StartCoroutine(OpenPanel());
-    }
-    public void TogglePanel() {
-        if (IsMoving) return;
-        if (IsOpen) StartCoroutine(ClosePanel());
-        else {
-            if (currentMode == Mode.ByType) ShowMaterialsByType();
-            else ShowMaterialsByBuilding();
-            StartCoroutine(OpenPanel());
-        }
-    }
-    public IEnumerator OpenPanel() {
-        if (IsOpen) yield break;
-        IsMoving = true;
-        IsOpen = true;
-        IToggleablePanel.PanelsCurrentlyOpen++;
-        StartCoroutine(GetSettingsModalController().ClosePanel());
-        if (BuildingController.CurrentAction != Actions.DO_NOTHING) {
-            IToggleablePanel.ActionBeforeEnteringSettings = BuildingController.CurrentAction;
-            BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-        }
-        GetInputHandler().SetCursor(InputHandler.CursorType.Default);
-        // BuildingController.LastBuildingObjectCreated.GetComponent<Building>().HidePreview();
-        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width / 2, Screen.height / 2, 0)));// the close to 0,0 the more blur we want
-        while (gameObject.transform.position.y > Screen.height / 2) {
-            gameObject.transform.position -= new Vector3(0, IToggleablePanel.MOVE_SCALE * Time.deltaTime, 0);
-            yield return null;
-        }
-        gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-        IsMoving = false;
-
-    }
-    public IEnumerator ClosePanel() {
-        if (!IsOpen) yield break;
-        IsMoving = true;
-        IsOpen = false;
-        IToggleablePanel.PanelsCurrentlyOpen--;
-        StartCoroutine(GetCamera().GetComponent<CameraController>().BlurBasedOnDistance(gameObject, new Vector3(Screen.width / 2, Screen.height / 2, 0)));// the close to 0,0 the more blur we want
-        while (gameObject.transform.position.y < Screen.height + 500) {
-            gameObject.transform.position += new Vector3(0, IToggleablePanel.MOVE_SCALE * Time.deltaTime, 0);
-            yield return null;
-        }
-        IsMoving = false;
-        gameObject.transform.position = new Vector3(Screen.width / 2, Screen.height + 500, 0);
-        if (IToggleablePanel.PanelsCurrentlyOpen == 0) BuildingController.SetCurrentAction(IToggleablePanel.ActionBeforeEnteringSettings);
-    }
 }

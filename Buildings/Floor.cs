@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 
-public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
+public class Floor : Building, IConnectingBuilding {
 
     public enum Types {
         WOOD_FLOOR,
@@ -31,13 +31,11 @@ public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
     public override string TooltipMessage => "";
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
     public ConnectingBuildingComponent ConnectingBuildingComponent { get; private set; }
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
-    // public static Types CurrentType { get; private set; }
 
     public override void OnAwake() {
         BaseHeight = 1;
@@ -122,10 +120,6 @@ public class Floor : Building, IMultipleTypeBuilding, IConnectingBuilding {
     public void UpdateSelf() {
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
-
-    public void CycleType() => gameObject.GetComponent<MultipleTypeBuildingComponent>().CycleType();
-
-    public void SetType(Enum type) => gameObject.GetComponent<MultipleTypeBuildingComponent>().SetType(type);
 
     public GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();

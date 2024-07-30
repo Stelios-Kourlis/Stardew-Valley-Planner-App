@@ -5,7 +5,7 @@ using System.Configuration;
 using UnityEngine;
 using static Utility.BuildingManager;
 
-public class Crop : Building, IMultipleTypeBuilding, IExtraActionBuilding {
+public class Crop : Building, IExtraActionBuilding {
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
 
     public enum Types {
@@ -56,13 +56,6 @@ public class Crop : Building, IMultipleTypeBuilding, IExtraActionBuilding {
         TeaLeaves
     }
 
-
-    public Enum Type => MultipleTypeBuildingComponent.Type;
-
-    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
-
-    public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
-
     public override void OnAwake() {
         BaseHeight = 1;
         BuildingName = "Crop";
@@ -74,7 +67,7 @@ public class Crop : Building, IMultipleTypeBuilding, IExtraActionBuilding {
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {
         return new List<MaterialCostEntry>{
-            new($"{Type} Seeds"),
+            new($"{MultipleTypeBuildingComponent.Type} Seeds"),
         };
     }
 
@@ -85,8 +78,4 @@ public class Crop : Building, IMultipleTypeBuilding, IExtraActionBuilding {
     public GameObject[] CreateButtonsForAllTypes() {
         return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
     }
-
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
-
-    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
 }

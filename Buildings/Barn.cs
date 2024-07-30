@@ -11,24 +11,17 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 using static Utility.TilemapManager;
 
-public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding, IExtraActionBuilding {
+public class Barn : Building, IExtraActionBuilding, IAnimalHouse {
     public AnimalHouseComponent AnimalHouseComponent { get; private set; }
     public TieredBuildingComponent TieredBuildingComponent { get; private set; }
     public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
-    public int Tier => gameObject.GetComponent<TieredBuildingComponent>().Tier;
 
-    public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding => gameObject.GetComponent<AnimalHouseComponent>().AnimalsInBuilding;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
-    public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
-
-    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
-
-    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public override void OnAwake() {
         BaseHeight = 4;
@@ -46,32 +39,32 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
         //Update Animals
         List<KeyValuePair<Animals, GameObject>> animalsToRemove = new();
         string animalsRemoved = GetRemovedAnimals();
-        if (tier < 2) animalsToRemove.AddRange(AnimalsInBuilding.Where(animal => animal.Key == Animals.Goat));
-        if (tier < 3) animalsToRemove.AddRange(AnimalsInBuilding.Where(animal => animal.Key == Animals.Sheep || animal.Key == Animals.Pig));
+        if (tier < 2) animalsToRemove.AddRange(AnimalHouseComponent.AnimalsInBuilding.Where(animal => animal.Key == Animals.Goat));
+        if (tier < 3) animalsToRemove.AddRange(AnimalHouseComponent.AnimalsInBuilding.Where(animal => animal.Key == Animals.Sheep || animal.Key == Animals.Pig));
         if (animalsToRemove.Count != 0) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}", NotificationManager.Icons.InfoIcon);
 
         foreach (var pair in animalsToRemove) {
             Destroy(pair.Value);
-            AnimalsInBuilding.Remove(pair);
+            AnimalHouseComponent.AnimalsInBuilding.Remove(pair);
         }
 
-        if (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}", NotificationManager.Icons.InfoIcon);
-        while (AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) {
-            Destroy(AnimalsInBuilding.Last().Value);
-            AnimalsInBuilding.Remove(AnimalsInBuilding.Last());
+        if (AnimalHouseComponent.AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalHouseComponent.AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}", NotificationManager.Icons.InfoIcon);
+        while (AnimalHouseComponent.AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) {
+            Destroy(AnimalHouseComponent.AnimalsInBuilding.Last().Value);
+            AnimalHouseComponent.AnimalsInBuilding.Remove(AnimalHouseComponent.AnimalsInBuilding.Last());
         }
     }
 
     private string GetRemovedAnimals() {
-        int goatCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.Goat);
+        int goatCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Goat);
         string goatsRemoved = goatCount > 0 ? $"{goatCount} Goat" : "";
         if (goatCount > 1) goatsRemoved += "s";
         goatsRemoved += ",";
 
-        int sheepCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.Sheep);
+        int sheepCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Sheep);
         string sheepRemoved = sheepCount > 0 ? $"{sheepCount} Sheep," : "";
 
-        int pigCount = AnimalsInBuilding.Count(animal => animal.Key == Animals.Pig);
+        int pigCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Pig);
         string pigsRemoved = pigCount > 0 ? $"{pigCount} Pig" : "";
         return $"{goatsRemoved} {sheepRemoved} {pigsRemoved}";
     }
@@ -89,7 +82,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
             };
             animalCost.Add(cost);
         }
-        return Tier switch {
+        return TieredBuildingComponent.Tier switch {
             1 => new List<MaterialCostEntry>{
                 new(6_000, Materials.Coins),
                 new(350, Materials.Wood),
@@ -105,14 +98,14 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
                 new(350 + 450 + 550, Materials.Wood),
                 new(150 + 200 + 300, Materials.Stone)
             }.Union(animalCost).ToList(),
-            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
+            _ => throw new System.ArgumentException($"Invalid tier {TieredBuildingComponent.Tier}")
         };
     }
 
     public string GetExtraData() {
         string animals = "";
-        foreach (Animals animal in AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int)animal}";
-        return $"{Tier}|{AnimalsInBuilding.Count}{animals}";
+        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int)animal}";
+        return $"{TieredBuildingComponent.Tier}|{AnimalHouseComponent.AnimalsInBuilding.Count}{animals}";
     }
 
     public void LoadExtraBuildingData(int x, int y, params string[] data) {
@@ -124,9 +117,9 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
     public bool AddAnimal(Animals animal) {
         if (!AnimalHouseComponent.AddAnimal(animal)) return false;
         List<Animals> allowedAnimals = new() { Animals.Cow, Animals.Ostrich };
-        if (Tier >= 2) allowedAnimals.Add(Animals.Goat);
-        if (Tier == 3) { allowedAnimals.Add(Animals.Sheep); allowedAnimals.Add(Animals.Pig); }
-        if (!allowedAnimals.Contains(animal)) { GetNotificationManager().SendNotification($"Cannot add {animal} to Barn tier {Tier}", NotificationManager.Icons.ErrorIcon); return false; }
+        if (TieredBuildingComponent.Tier >= 2) allowedAnimals.Add(Animals.Goat);
+        if (TieredBuildingComponent.Tier == 3) { allowedAnimals.Add(Animals.Sheep); allowedAnimals.Add(Animals.Pig); }
+        if (!allowedAnimals.Contains(animal)) { GetNotificationManager().SendNotification($"Cannot add {animal} to Barn tier {TieredBuildingComponent.Tier}", NotificationManager.Icons.ErrorIcon); return false; }
         AddAnimalButton(animal);
         return true;
     }
@@ -135,11 +128,11 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
 
     private void AddAnimalButton(Animals animal) {
         GameObject button = new(animal.ToString());
-        AnimalsInBuilding.Add(new KeyValuePair<Animals, GameObject>(animal, button));
+        AnimalHouseComponent.AnimalsInBuilding.Add(new KeyValuePair<Animals, GameObject>(animal, button));
         button.transform.SetParent(ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0));
         button.AddComponent<Image>().sprite = AnimalHouseComponent.AnimalAtlas.GetSprite(animal.ToString());
         button.AddComponent<Button>().onClick.AddListener(() => {
-            AnimalsInBuilding.Remove(new KeyValuePair<Animals, GameObject>(animal, button));
+            AnimalHouseComponent.AnimalsInBuilding.Remove(new KeyValuePair<Animals, GameObject>(animal, button));
             Destroy(button);
         });
         AddHoverEffect(button.GetComponent<Button>());
@@ -147,7 +140,7 @@ public class Barn : Building, ITieredBuilding, IAnimalHouse, IEnterableBuilding,
     }
 
     public void OnMouseRightClick() {
-        ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+        if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
     }
 
     public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();

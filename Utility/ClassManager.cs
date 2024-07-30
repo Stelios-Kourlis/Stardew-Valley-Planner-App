@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 namespace Utility {
@@ -10,7 +11,13 @@ namespace Utility {
         // [[Obsolete("Use BuildingController instead")]]
         // public static BuildingController GetBuildingController() { return GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>(); }
 
-        public static Tilemap GetGridTilemap() { return GameObject.FindGameObjectWithTag("Grid").GetComponent<Tilemap>(); }
+        public static Tilemap GetGridTilemap() {
+            if (BuildingController.isInsideBuilding.Key) {
+                // Debug.Log(SceneManager.GetActiveScene().name);
+                return SceneManager.GetActiveScene().GetRootGameObjects()[0].GetComponent<Tilemap>();
+            }
+            return GameObject.FindGameObjectWithTag("Grid").GetComponent<Tilemap>();
+        }
 
         public static GameObject GetCamera() { return GameObject.FindGameObjectWithTag("MainCamera"); }
 
@@ -28,24 +35,24 @@ namespace Utility {
 
         public static InputHandler GetInputHandler() { return GameObject.FindWithTag("LogicComponent").GetComponent<InputHandler>(); }
 
-        public static SettingsModalController GetSettingsModalController() { return GameObject.FindWithTag("SettingsModal").GetComponent<SettingsModalController>(); }
+        public static GameObject GetSettingsModal() { return GameObject.FindWithTag("SettingsModal"); }
 
         public static TotalMaterialsCalculator GetTotalMaterialsCalculator() { return GameObject.FindWithTag("TotalMaterialsNeededPanel").GetComponent<TotalMaterialsCalculator>(); }
 
-        public static bool BuildingHasMoreThanOneBuildingInterface(Building building, Type type) {
-            List<Type> buildingInterfaces = new(){
-                typeof(IMultipleTypeBuilding),
-                typeof(IConnectingBuilding),
-                typeof(ITieredBuilding),
-                };
-            List<Type> interfaces = new();
-            foreach (Type itype in building.GetType().GetInterfaces().ToList()) {
-                if (itype.IsGenericType) interfaces.Add(itype.GetGenericTypeDefinition());
-                else interfaces.Add(itype);
-            }
-            List<Type> interfacesImplementedByBuilding = interfaces.Where(i => buildingInterfaces.Contains(i)).ToList();
-            interfacesImplementedByBuilding.Remove(type);
-            return interfacesImplementedByBuilding.Count > 0;
-        }
+        // public static bool BuildingHasMoreThanOneBuildingInterface(Building building, Type type) {
+        //     List<Type> buildingInterfaces = new(){
+        //         typeof(IMultipleTypeBuilding),
+        //         typeof(IConnectingBuilding),
+        //         typeof(ITieredBuilding),
+        //         };
+        //     List<Type> interfaces = new();
+        //     foreach (Type itype in building.GetType().GetInterfaces().ToList()) {
+        //         if (itype.IsGenericType) interfaces.Add(itype.GetGenericTypeDefinition());
+        //         else interfaces.Add(itype);
+        //     }
+        //     List<Type> interfacesImplementedByBuilding = interfaces.Where(i => buildingInterfaces.Contains(i)).ToList();
+        //     interfacesImplementedByBuilding.Remove(type);
+        //     return interfacesImplementedByBuilding.Count > 0;
+        // }
     }
 }

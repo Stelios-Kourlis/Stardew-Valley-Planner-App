@@ -8,16 +8,12 @@ using static Utility.ClassManager;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-public class Greenhouse : Building, IEnterableBuilding, IInteractableBuilding, IExtraActionBuilding {
+public class Greenhouse : Building, IInteractableBuilding, IExtraActionBuilding {
 
     private GameObject porchTilemapObject;
     private Sprite porchSprite;
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
-
-    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
-
-    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 

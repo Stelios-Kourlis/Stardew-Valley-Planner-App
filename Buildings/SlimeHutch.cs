@@ -5,12 +5,9 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using static Utility.TilemapManager;
 
-public class SlimeHutch : Building, IEnterableBuilding, IExtraActionBuilding {
+public class SlimeHutch : Building, IExtraActionBuilding {
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
     public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
-
-    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
-    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -36,13 +33,8 @@ public class SlimeHutch : Building, IEnterableBuilding, IExtraActionBuilding {
         };
     }
 
-    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
-
-    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
-
-    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
-
     public void OnMouseRightClick() {
-        ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+        var buttonParent = InteractableBuildingComponent.ButtonParentGameObject;
+        buttonParent.SetActive(!buttonParent.activeSelf);
     }
 }

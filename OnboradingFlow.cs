@@ -31,9 +31,9 @@ public class OnboradingFlow : MonoBehaviour {
         gameObject.SetActive(true);
         GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
         GameObject buildingPanel = GameObject.FindGameObjectWithTag("Panel");
-        StartCoroutine(settingsModal.GetComponent<SettingsModalController>().ClosePanel());
-        StartCoroutine(buildingPanel.GetComponent<BuildingMenuController>().ClosePanel());
-        IToggleablePanel.PanelsCurrentlyOpen++;
+        settingsModal.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
+        buildingPanel.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
+        // IToggleablePanel.PanelsCurrentlyOpen++;
         BuildingController.SetCurrentAction(Actions.DO_NOTHING);
         GetInputHandler().SetCursor(InputHandler.CursorType.Default);
 
@@ -114,7 +114,7 @@ public class OnboradingFlow : MonoBehaviour {
             arrowButton.transform.SetParent(parentOfArrowButton);
         }
 
-        IToggleablePanel.PanelsCurrentlyOpen--;
+        // IToggleablePanel.PanelsCurrentlyOpen--;
 
         GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
         settingsModal.SetActive(true);

@@ -14,7 +14,7 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
     public static Enum CurrentType { get; set; }
     public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; set; }
-    public IMultipleTypeBuilding Building => gameObject.GetComponent<IMultipleTypeBuilding>();
+    public Building Building => gameObject.GetComponent<Building>();
     private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
 
     public MultipleTypeBuildingComponent SetEnumType(Type type) {
@@ -45,7 +45,7 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
         Type = type;
         Sprite sprite = Atlas.GetSprite($"{SpriteName}");
         Debug.Assert(sprite != null, $"Sprite {SpriteName} was not found in {Building.GetType()}Atlas");
-        Building.UpdateTexture(sprite);
+        if (sprite != null) Building.UpdateTexture(sprite);
     }
 
     public GameObject CreateButton() {

@@ -35,11 +35,11 @@ public class InputHandler : MonoBehaviour {
 
         if (IsSearching) return;
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GetSettingsModalController().TogglePanel();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GetSettingsModal().GetComponent<MoveablePanel>().TogglePanel();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)) {
             GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
-            quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+            quitConfirmPanel.GetComponent<MoveablePanel>().SetPanelToOpenPosition();
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Undo)) UndoRedoController.UndoLastAction();
@@ -75,7 +75,7 @@ public class InputHandler : MonoBehaviour {
             GetNotificationManager().SendNotification("Set mode to delete", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("DeleteAllButton").GetComponent<ConfirmationWidow>().OpenConfirmDialog();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("ConfirmDeleteAll").GetComponent<MoveablePanel>().SetPanelToOpenPosition();
     }
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action) {
@@ -190,7 +190,10 @@ public class InputHandler : MonoBehaviour {
         }
 
         //Mouse Hover
-        if (hoveredBuilding != null && (!hoveredBuilding.BaseCoordinates?.Contains(mousePosition) ?? false)) {
+
+        //Hover Exit
+        bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
+        if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
             if (hoveredBuilding is IInteractableBuilding interactableBuilding) {
                 interactableBuilding.OnMouseExit();
             }
@@ -198,7 +201,10 @@ public class InputHandler : MonoBehaviour {
             hoveredBuilding = null;
         }
 
-        if (BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition)) != null) {
+        //Hover Enter
+        Building BuildingUnderMouse = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
+        bool isInsideBuilding = BuildingController.isInsideBuilding.Key;
+        if (BuildingUnderMouse != null && !isInsideBuilding) {
             hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
             hoveredBuilding.DoBuildingPreview();
             if (hoveredBuilding is IInteractableBuilding interactableBuilding) {

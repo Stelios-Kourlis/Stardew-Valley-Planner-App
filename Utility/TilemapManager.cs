@@ -228,7 +228,7 @@ namespace Utility {
 
         public static void TakePictureOfMap() {
             // Building.CurrentAction = Actions.EDIT;
-            BuildingController.LastBuildingObjectCreated.SetActive(false); //todo do this by disablijg the go
+            BuildingController.LastBuildingObjectCreated.SetActive(false);
             // Save the original camera settings
             Vector3 originalPosition = Camera.main.transform.position;
             float originalSize = Camera.main.orthographicSize;

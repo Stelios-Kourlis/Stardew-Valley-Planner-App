@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using UnityEngine.Tilemaps;
 
-public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
+public class Fence : Building, IConnectingBuilding {
 
     public enum Types {
         Wood,
@@ -23,7 +23,6 @@ public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
     public ConnectingBuildingComponent ConnectingBuildingComponent { get; private set; }
     public SpriteAtlas Atlas => MultipleTypeBuildingComponent.Atlas;
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -59,8 +58,8 @@ public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
     }
 
     public void LoadExtraBuildingData(string[] data) {
-        SetType((Types)Enum.Parse(typeof(Types), data[0]));
-        UpdateTexture(Atlas.GetSprite($"{Type}Fence0"));
+        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
+        UpdateTexture(Atlas.GetSprite($"{MultipleTypeBuildingComponent.Type}Fence0"));
     }
 
 
@@ -97,10 +96,4 @@ public class Fence : Building, IMultipleTypeBuilding, IConnectingBuilding {
         }
         return buttons.ToArray();
     }
-
-    public int GetConnectingFlags(bool includeTop = true) => gameObject.GetComponent<ConnectingBuildingComponent>() != null ? gameObject.GetComponent<ConnectingBuildingComponent>().GetConnectingFlags(false) : 0;
-
-    public void CycleType() => gameObject.GetComponent<MultipleTypeBuildingComponent>().CycleType();
-
-    public void SetType(Enum type) => gameObject.GetComponent<MultipleTypeBuildingComponent>().SetType(type);
 }

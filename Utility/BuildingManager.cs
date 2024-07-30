@@ -91,7 +91,7 @@ namespace Utility {
             if (building.IsPlaced) return (false, "Building has already been placed");
             HashSet<Vector3Int> unavailableCoordinates, plantableCoordinates;
             if (BuildingController.isInsideBuilding.Key) {
-                IEnterableBuilding enterableBuilding = BuildingController.isInsideBuilding.Value.parent.gameObject.GetComponent<IEnterableBuilding>();
+                EnterableBuildingComponent enterableBuilding = BuildingController.isInsideBuilding.Value;
                 unavailableCoordinates = enterableBuilding.InteriorUnavailableCoordinates;
                 plantableCoordinates = enterableBuilding.InteriorPlantableCoordinates;
             }
@@ -125,7 +125,7 @@ namespace Utility {
             };
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
-            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there"); //todo undo comment
+            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there");
 
             if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
             return (true, null);
@@ -134,7 +134,7 @@ namespace Utility {
         public static bool LeftClickShouldRegister() {
             if (EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name == "TopRightButtons") return true;
             if (EventSystem.current.IsPointerOverGameObject()) return false;
-            if (GetSettingsModalController().IsOpen) return false;
+            // if (GetSettingsModalController().IsOpen) return false; //todo fix
             return true;
         }
 

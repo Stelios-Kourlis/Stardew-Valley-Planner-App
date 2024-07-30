@@ -59,44 +59,43 @@ public interface IInteractableBuilding : IBuilding, IExtraActionBuilding {
     void OnMouseExit() { return; }
 }
 
-public interface ITieredBuilding : IInteractableBuilding {
-    int Tier { get; }
-    int MaxTier { get; }
-    void SetTier(int tier);
-    // List<ButtonTypes> IInteractableBuilding.BuildingInteractions => IBuilding.BuildingGameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
-}
+// public interface ITieredBuilding : IInteractableBuilding {
+//     int Tier { get; }
+//     int MaxTier { get; }
+//     void SetTier(int tier);
+// }
 
-public interface IMultipleTypeBuilding : IBuilding, IInteractableBuilding { //its not really interactable but is needed for sprite names
-    Enum Type { get; }
-    void CycleType();
-    void SetType(Enum type);
-    GameObject[] CreateButtonsForAllTypes();
-}
+// public interface IMultipleTypeBuilding : IBuilding, IInteractableBuilding { //its not really interactable but is needed for sprite names
+//     Enum Type { get; }
+//     void CycleType();
+//     void SetType(Enum type);
+//     GameObject[] CreateButtonsForAllTypes();
+// }
 
 public interface IAnimalHouse : IInteractableBuilding {
-    List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding { get; }
+    // List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding { get; }
     bool AddAnimal(Animals animal);
-    void ToggleAnimalMenu();
+    // void ToggleAnimalMenu();
 }
 
-public interface IRangeEffectBuilding : IBuilding {
-    void ShowEffectRange(Vector3Int[] RangeArea);
-    void HideEffectRange();
-}
+// public interface IRangeEffectBuilding : IBuilding {
+//     void ShowEffectRange(Vector3Int[] RangeArea);
+//     void HideEffectRange();
+// }
 
 public interface IConnectingBuilding : IInteractableBuilding {
-    int GetConnectingFlags(bool includeTop = true);
+    // int GetConnectingFlags(bool includeTop = true);
     void UpdateSelf();
 }
 
-public interface IEnterableBuilding : IInteractableBuilding {
-    HashSet<Vector3Int> InteriorUnavailableCoordinates { get; }
-    HashSet<Vector3Int> InteriorPlantableCoordinates { get; }
-    void ToggleEditBuildingInterior();
-    void EditBuildingInterior();
-    void ExitBuildingInteriorEditing();
-}
+// public interface IEnterableBuilding : IInteractableBuilding {
+//     HashSet<Vector3Int> InteriorUnavailableCoordinates { get; }
+//     HashSet<Vector3Int> InteriorPlantableCoordinates { get; }
+//     void ToggleEditBuildingInterior();
+//     void EditBuildingInterior();
+//     void ExitBuildingInteriorEditing();
+// }
 
-public interface IPaintableBuilding : IBuilding, IInteractableBuilding {
-    //not implemented yet
-}
+// public interface IPaintableBuilding : IBuilding, IInteractableBuilding {
+//     //not implemented yet
+// }

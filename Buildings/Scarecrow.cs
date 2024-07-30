@@ -11,7 +11,7 @@ using static Utility.TilemapManager;
 using System.Runtime.Remoting.Messaging;
 using System;
 
-public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, IExtraActionBuilding {
+public class Scarecrow : Building, IExtraActionBuilding {
 
     public enum Types {
         Default,
@@ -37,8 +37,6 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
 
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
-
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -112,7 +110,7 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         MultipleTypeBuildingComponent.SetType((Types)int.Parse(data[0]));
     }
 
-    public void OnMouseEnter() { //todo fix range
+    public void OnMouseEnter() {
         Vector3Int[] coverageArea = MultipleTypeBuildingComponent.Type switch {
             Types.Deluxe => GetRangeOfDeluxeScarecrow(BaseCoordinates[0]).ToArray(),
             _ => GetRangeOfScarecrow(BaseCoordinates[0]).ToArray()
@@ -120,17 +118,7 @@ public class Scarecrow : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         RangeEffectBuildingComponent.ShowEffectRange(coverageArea);
     }
 
-    public void OnMouseExit() { //todo Add this
+    public void OnMouseExit() {
         RangeEffectBuildingComponent.HideEffectRange();
     }
-
-    public GameObject[] CreateButtonsForAllTypes() {
-        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-    }
-
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
-
-    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
-    public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
-    public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
 }

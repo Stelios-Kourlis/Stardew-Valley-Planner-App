@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
 
-public class Obelisk : Building, IMultipleTypeBuilding {
+public class Obelisk : Building {
 
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
 
@@ -15,8 +15,6 @@ public class Obelisk : Building, IMultipleTypeBuilding {
         Island,
         Earth
     }
-
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -68,9 +66,5 @@ public class Obelisk : Building, IMultipleTypeBuilding {
     //     MultipleTypeBuildingComponent.SetType((Types)int.Parse(data[0]));
     // }
 
-    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
-
-    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
 }

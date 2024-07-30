@@ -6,10 +6,6 @@ using UnityEngine.Tilemaps;
 
 public class TileBuildingData : MonoBehaviour {
 
-    ///<summary>Link this buildingBaseCoordinates with PlaceBuilding.buildingBaseCoordinates</summary>am>
-    void Start() {
-    }
-
     ///<summary>Place all the invalid tiles in the PlaceBuildng.buildingBaseCoordinates list</summary>
     ///<param name="farm">The name of the farm, possible farms:
     ///Normal, Riverland, Forest, Hilltop, Wilderness, Four Corners, Beach. IS CASE SENSITIVE</param>

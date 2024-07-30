@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Utility.TilemapManager;
 
-public class JunimoHut : Building, IRangeEffectBuilding, IExtraActionBuilding {
+public class JunimoHut : Building, IExtraActionBuilding, IInteractableBuilding {
 
 
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
+    public InteractableBuildingComponent InteractableBuildingComponent { get; private set; }
+
+    public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
+
+    public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
     public override void OnAwake() {
         BuildingName = "Junimo Hut";
@@ -32,15 +37,12 @@ public class JunimoHut : Building, IRangeEffectBuilding, IExtraActionBuilding {
         RangeEffectBuildingComponent.HideEffectRange();
     }
 
-    // protected override void OnMouseEnter() { //TODO: Fix this
-    //     Vector3Int lowerLeftCorner = BaseCoordinates[0];
-    //     RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
-    // }
+    public void OnMouseEnter() { //TODO: Fix this
+        Vector3Int lowerLeftCorner = BaseCoordinates[0];
+        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
+    }
 
-    // protected override void OnMouseExit() {
-    //     RangeEffectBuildingComponent.HideEffectRange();
-    // }
-
-    public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
-    public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
+    public void OnMouseExit() {
+        RangeEffectBuildingComponent.HideEffectRange();
+    }
 }

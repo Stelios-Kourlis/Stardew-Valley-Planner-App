@@ -10,7 +10,7 @@ using static Utility.SpriteManager;
 using UnityEngine.UI;
 using System.Linq;
 
-public class Sprinkler : Building, IMultipleTypeBuilding, IRangeEffectBuilding, IExtraActionBuilding {
+public class Sprinkler : Building, IExtraActionBuilding {
 
     public enum Types {
         Normal,
@@ -26,8 +26,6 @@ public class Sprinkler : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
     public MultipleTypeBuildingComponent MultipleBuildingComponent { get; private set; }
     public SpriteAtlas Atlas => MultipleBuildingComponent.Atlas;
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
-    // public Types CurrentType { get; private set; }
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -86,10 +84,9 @@ public class Sprinkler : Building, IMultipleTypeBuilding, IRangeEffectBuilding, 
         SetType((Types)Enum.Parse(typeof(Types), data[0]));
     }
 
-    // public void OnMouseRightClick
 
     public void OnMouseRightClick() {
-        //todo add type switching
+        CycleType();
     }
 
     public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);

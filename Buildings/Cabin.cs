@@ -8,7 +8,7 @@ using UnityEngine.U2D;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraActionBuilding {
+public class Cabin : Building, IExtraActionBuilding {
 
     public enum Types {
         Wood,
@@ -23,7 +23,7 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
     private MultipleTypeBuildingComponent MultipleTypeBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
     private TieredBuildingComponent TieredBuildingComponent => gameObject.GetComponent<TieredBuildingComponent>();
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
-    public int Tier => gameObject.GetComponent<TieredBuildingComponent>()?.Tier ?? 1;
+    private EnterableBuildingComponent EnterableBuildingComponent => gameObject.GetComponent<EnterableBuildingComponent>();
 
     public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>()?.Type;
 
@@ -33,7 +33,9 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
 
     public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
 
-    public int MaxTier => TieredBuildingComponent.MaxTier;
+    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
+
+    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
 
     public override void OnAwake() {
         BaseHeight = 3;
@@ -42,6 +44,7 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
         for (int i = 0; i < cabinTypeIsPlaced.Length; i++) cabinTypeIsPlaced[i] = false;
         gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(4);
+        gameObject.AddComponent<EnterableBuildingComponent>();
         // multipleTypeBuildingComponent.DefaultSprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{Types.Wood}1");
 
         // SetType(CurrentType);
@@ -105,5 +108,13 @@ public class Cabin : Building, ITieredBuilding, IMultipleTypeBuilding, IExtraAct
     public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
     public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 
+    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
 
+    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
+
+    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
+
+    public void OnMouseRightClick() {
+        if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+    }
 }

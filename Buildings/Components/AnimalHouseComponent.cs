@@ -14,6 +14,7 @@ public class AnimalHouseComponent : MonoBehaviour {
     private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
     public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding { get; private set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
+    public Dictionary<int, HashSet<Animals>> animalsPerTier;
     private IAnimalHouse Building => gameObject.GetComponent<IAnimalHouse>();
 
     public void Awake() {
@@ -23,6 +24,11 @@ public class AnimalHouseComponent : MonoBehaviour {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ADD_ANIMAL);
+    }
+
+    public AnimalHouseComponent SetAllowedAnimalsPerTier(Dictionary<int, HashSet<Animals>> animalsPerTier) {
+        this.animalsPerTier = animalsPerTier;
+        return this;
     }
 
     public bool AddAnimal(Animals animal) {
@@ -42,15 +48,16 @@ public class AnimalHouseComponent : MonoBehaviour {
     }
 
     public void AddAnimalMenuObject() {
-        //Animal Add Panel
-        GameObject animalMenuPrefab = Building.GetType() switch {
-            Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
-            Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
-            _ => throw new ArgumentException("This should never happen")
-        };
+        //Animal Add Panel (Upper)
+        // GameObject animalMenuPrefab = Building.GetType() switch {
+        //     Type t when t == typeof(Coop) => Resources.Load<GameObject>("UI/CoopAnimalMenu"),
+        //     Type t when t == typeof(Barn) => Resources.Load<GameObject>("UI/BarnAnimalMenu"),
+        //     _ => throw new ArgumentException("This should never happen")
+        // };
+        GameObject animalMenuPrefab = Resources.Load<GameObject>($"UI/{Building.GetType()}AnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
         animalMenu.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);//this is the button to toggle the animal menu
-        animalMenu.GetComponent<RectTransform>().position = new(Building.ButtonParentGameObject.transform.position.x - 100, Building.ButtonParentGameObject.transform.position.y + 25);
+        animalMenu.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, Building.ButtonParentGameObject.transform.position.y + 25);
         animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         animalMenu.SetActive(false);
         GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
@@ -62,7 +69,7 @@ public class AnimalHouseComponent : MonoBehaviour {
             });
         }
 
-        //Animals In Building Panel
+        //Animals In Building Panel (Lower)
         GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
         GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
         animalInBuilding.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);

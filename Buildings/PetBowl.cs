@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
+public class PetBowl : Building, IExtraActionBuilding {
     public enum Types {
         Default,
         Stone,
@@ -11,8 +11,6 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
     }
 
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
-
-    public Enum Type => MultipleTypeBuildingComponent.Type;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
@@ -33,16 +31,10 @@ public class PetBowl : Building, IMultipleTypeBuilding, IExtraActionBuilding {
     }
 
     public string GetExtraData() {
-        return $"|{Type}";
+        return $"|{MultipleTypeBuildingComponent.Type}";
     }
 
     public void LoadExtraBuildingData(string[] data) {
-        SetType((Types)Enum.Parse(typeof(Types), data[0]));
+        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
     }
-
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
-
-    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
-
-    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
 }

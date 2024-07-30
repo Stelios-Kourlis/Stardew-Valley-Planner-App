@@ -9,7 +9,7 @@ using UnityEngine.U2D;
 using UnityEditor;
 using System;
 
-public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding, IExtraActionBuilding {
+public class Craftables : Building, IExtraActionBuilding {
 
     public enum Types {
         Beehouse,
@@ -48,10 +48,8 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
         DeluxeWormBin
     }
 
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
-    public Enum CurrentType => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
     private static int miniObeliskCount;
-    public override string TooltipMessage => Type.ToString();
+    public override string TooltipMessage => MultipleBuildingComponent.Type.ToString();
     public MultipleTypeBuildingComponent MultipleBuildingComponent => gameObject.GetComponent<MultipleTypeBuildingComponent>();
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }
 
@@ -69,26 +67,26 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
     }
 
     protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
-        if (Convert.ToInt32(Type) == (int)Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7
-        if (Convert.ToInt32(Type) == (int)Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(position).ToArray()); //look wiki
+        if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.MushroomLog) RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(position, 3).ToArray()); //7x7
+        if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.Beehouse) RangeEffectBuildingComponent.ShowEffectRange(GetRangeOfBeehouse(position).ToArray()); //look wiki
     }
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
-        if (Convert.ToInt32(Type) == (int)Types.MiniObelisk) {
+        if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.MiniObelisk) {
             if (miniObeliskCount >= 2) { GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time", NotificationManager.Icons.ErrorIcon); return; }
             else miniObeliskCount++;
         }
-        HideEffectRange();
+        RangeEffectBuildingComponent.HideEffectRange();
     }
 
     public void PerformExtraActionsOnDelete() {
-        if (Convert.ToInt32(Type) == (int)Types.MiniObelisk) miniObeliskCount--;
+        if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.MiniObelisk) miniObeliskCount--;
     }
 
     public void SetType(Types type) => MultipleBuildingComponent.SetType(type);
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {
-        return Type switch {
+        return MultipleBuildingComponent.Type switch {
             Types.Beehouse => new List<MaterialCostEntry>(){
                 new(40, Materials.Wood),
                 new(8, Materials.Coal),
@@ -270,25 +268,15 @@ public class Craftables : Building, IMultipleTypeBuilding, IRangeEffectBuilding,
     }
 
     public string GetExtraData() {
-        return $"{Convert.ToInt32(Type)}";
+        return $"{Convert.ToInt32(MultipleBuildingComponent.Type)}";
     }
 
-    public void OnMouseEnter() { //todo Add mouse enter/leave
-        if (Convert.ToInt32(Type) == (int)Types.MushroomLog) ShowEffectRange(GetAreaAroundPosition(BaseCoordinates[0], 3).ToArray());
-        if (Convert.ToInt32(Type) == (int)Types.Beehouse) ShowEffectRange(GetRangeOfBeehouse(BaseCoordinates[0]).ToArray());
+    public void OnMouseEnter() {
+        if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.MushroomLog) RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(BaseCoordinates[0], 3).ToArray());
+        if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.Beehouse) RangeEffectBuildingComponent.ShowEffectRange(GetRangeOfBeehouse(BaseCoordinates[0]).ToArray());
     }
 
     public void OnMouseExit() {
         RangeEffectBuildingComponent.HideEffectRange();
     }
-
-    public void CycleType() => MultipleBuildingComponent.CycleType();
-
-    public GameObject[] CreateButtonsForAllTypes() => MultipleBuildingComponent.CreateButtonsForAllTypes();
-
-    public void ShowEffectRange(Vector3Int[] RangeArea) => RangeEffectBuildingComponent.ShowEffectRange(RangeArea);
-
-    public void HideEffectRange() => RangeEffectBuildingComponent.HideEffectRange();
-
-    public void SetType(Enum type) => MultipleBuildingComponent.SetType(type);
 }

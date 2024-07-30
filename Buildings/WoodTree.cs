@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WoodTree : Building, IMultipleTypeBuilding, IExtraActionBuilding {//the name wood tree is a stupid name but Unity already has a class named Tree, oh well
+public class WoodTree : Building, IExtraActionBuilding {//the name wood tree is a stupid name but Unity already has a class named Tree, oh well
 
 
     public MultipleTypeBuildingComponent MultipleTypeBuildingComponent { get; private set; }
@@ -28,8 +28,6 @@ public class WoodTree : Building, IMultipleTypeBuilding, IExtraActionBuilding {/
         PineGreenRain
     }
 
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>().Type;
-
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
@@ -47,7 +45,7 @@ public class WoodTree : Building, IMultipleTypeBuilding, IExtraActionBuilding {/
     }
 
     public string GetExtraData() {
-        return $"{Type}";
+        return $"{MultipleTypeBuildingComponent.Type}";
     }
 
     public void LoadExtraBuildingData(string[] data) {

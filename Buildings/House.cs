@@ -1,23 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
 
-public class House : Building, ITieredBuilding, IEnterableBuilding {
+public class House : Building {
+
+    public enum MarriageCandidate {
+        Emily,
+        Haley,
+        Leah,
+        Maru,
+        Penny,
+        Abigail,
+        Alex,
+        Elliott,
+        Harvey,
+        Sam,
+        Sebastian,
+        Shane,
+        Crobus
+    }
+
     public TieredBuildingComponent TieredBuildingComponent { get; private set; }
+
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
-    public int Tier => gameObject.GetComponent<TieredBuildingComponent>().Tier;
 
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
-
-    public int MaxTier => gameObject.GetComponent<TieredBuildingComponent>().MaxTier;
-
-    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
-
-    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
+    private MarriageCandidate? spouse = null;
 
     public override void OnAwake() {
         BaseHeight = 6;
@@ -33,7 +46,7 @@ public class House : Building, ITieredBuilding, IEnterableBuilding {
     }
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {
-        return Tier switch {
+        return TieredBuildingComponent.Tier switch {
             1 => new List<MaterialCostEntry> { new("Free") },
             2 => new List<MaterialCostEntry>{
                 new(10_000, Materials.Coins),
@@ -49,35 +62,25 @@ public class House : Building, ITieredBuilding, IEnterableBuilding {
                 new(450, Materials.Wood),
                 new(100, Materials.Hardwood),
             },
-            _ => throw new System.ArgumentException($"Invalid tier {Tier}")
+            _ => throw new System.ArgumentException($"Invalid tier {TieredBuildingComponent.Tier}")
         };
     }
 
     public string GetExtraData() {
-        return $"{Tier}";
+        return $"{TieredBuildingComponent.Tier}";
     }
 
     public void LoadExtraBuildingData(string[] data) {
         SetTier(int.Parse(data[0]));
     }
 
-    public void ToggleEditBuildingInterior() {
-        throw new System.NotImplementedException();
-    }
+    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
 
-    public void EditBuildingInterior() {
-        throw new System.NotImplementedException();
-    }
+    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
 
-    public void ExitBuildingInteriorEditing() {
-        throw new System.NotImplementedException();
-    }
-
-    public void CreateInteriorCoordinates() {
-        throw new System.NotImplementedException();
-    }
+    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
 
     public void OnMouseRightClick() {
-        ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+        if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
     }
 }

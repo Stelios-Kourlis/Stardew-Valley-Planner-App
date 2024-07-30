@@ -98,6 +98,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     }
 
     public void StopBuildingPreview() {
+        // Debug.Log("StopBuildingPreview");
         Tilemap.color = OPAQUE;
     }
 
@@ -122,6 +123,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
     }
 
     public void NoPreview() {
+        Debug.Log("NoPreview");
         if (IsPlaced) Tilemap.color = OPAQUE;
         else Tilemap.ClearAllTiles();
     }
@@ -171,7 +173,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         BuildingController.GetUnavailableCoordinates().UnionWith(BaseCoordinates);
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetBuildingData()));
         BuildingPlaced?.Invoke();
-        BuildingController.CreateNewBuilding(); //todo is if needed?
+        BuildingController.CreateNewBuilding();
         if (IsPickedUp.Item1) {
             IsPickedUp = (false, null);
             BuildingController.SetCurrentAction(Actions.EDIT);

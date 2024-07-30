@@ -32,9 +32,9 @@ public class TieredBuildingComponent : MonoBehaviour {
     }
 
     public void Awake() {
-        if (Building is not ITieredBuilding) throw new System.ArgumentException($"Building {Building.GetType()} does not implement ITieredBuilding");
+        // if (Building is not ITieredBuilding) throw new System.ArgumentException($"Building {Building.GetType()} does not implement ITieredBuilding");
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        buildingHasOtherInterfaces = BuildingHasMoreThanOneBuildingInterface(Building, typeof(ITieredBuilding));
+        // buildingHasOtherInterfaces = BuildingHasMoreThanOneBuildingInterface(Building, typeof(ITieredBuilding));
         atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType()}Atlas");
         Debug.Assert(atlas != null, $"Could not load atlas for {Building.GetType()} ({Building.GetType()}Atlas)");
         SetTier(1);

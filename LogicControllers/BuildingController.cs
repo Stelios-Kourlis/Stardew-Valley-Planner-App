@@ -15,14 +15,10 @@ public static class BuildingController {
     private static readonly HashSet<Vector3Int> unavailableCoordinates = new();
     private static readonly HashSet<Vector3Int> plantableCoordinates = new();
     public static readonly List<Building> buildings = new();
-    /// <summary> actions the user has done, the first 2 elements always are Action, UID and then the building data  </summary>
-    // private static readonly Stack<UserAction> actionLog = new();
-    /// <summary> actions the user has undone, the first 2 elements always are Action, UID and then the building data </summary>
-    // private static readonly Stack<UserAction> undoLog = new();
     public static Type currentBuildingType = typeof(Barn);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
-    public static KeyValuePair<bool, Transform> isInsideBuilding = new(false, null);
+    public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
 
     public static HashSet<GameObject> buildingGameObjects = new();
     public static GameObject LastBuildingObjectCreated { get; private set; }
@@ -30,7 +26,7 @@ public static class BuildingController {
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
     public static void CreateNewBuilding() {
-        Debug.Log("Creating new building");
+        // Debug.Log("Creating new building");
         if (IsLoadingSave) return;
         LastBuildingObjectCreated = CreateNewBuildingGameObject(currentBuildingType);
     }
@@ -60,9 +56,9 @@ public static class BuildingController {
         GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
         LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
         //Set the variant
-        IMultipleTypeBuilding building = LastBuildingObjectCreated.GetComponent(newType) as IMultipleTypeBuilding;
-        Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
-        building.SetType(variant);
+        // Building building = (Building)LastBuildingObjectCreated.GetComponent(newType);
+        // Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
+        LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().SetType(variant);
 
         UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
     }
@@ -71,7 +67,7 @@ public static class BuildingController {
         currentBuildingType = newType;
         GameObject newGameObject = new GameObject(currentBuildingType.Name).AddComponent(newType).gameObject;
         if (!isInsideBuilding.Key) newGameObject.transform.SetParent(GetGridTilemap().transform);
-        else newGameObject.transform.SetParent(isInsideBuilding.Value);
+        else newGameObject.transform.SetParent(isInsideBuilding.Value.BuildingInterior.transform); //the transform of the building that is being edited
         CurrentBuildingBeingPlaced = newGameObject.GetComponent<Building>();
         return newGameObject;
     }
@@ -175,17 +171,17 @@ public static class BuildingController {
         };
         GetInputHandler().SetCursor(type);
         if (action == Actions.DELETE || action == Actions.EDIT) DeleteLastBuilding();
-        else if (!CurrentBuildingBeingPlaced.IsPickedUp.Item1) CreateNewBuilding();
+        else if ((!CurrentBuildingBeingPlaced.IsPickedUp.Item1) && CurrentBuildingBeingPlaced.gameObject == null) CreateNewBuilding();//If there is a picked up building, dont create a new
     }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
     public static bool Save() { return Utility.BuildingManager.Save(); }
     public static bool Load() { return Utility.BuildingManager.Load(); }
     public static void SaveAndQuit() { if (Save()) Quit(); }//if the user saved then quit
-    public static void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<RectTransform>().localPosition = new Vector3(0, 1000, 0); }
+    public static void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<MoveablePanel>().SetPanelToClosedPosition(); }
     public static void Quit() {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
-        quitConfirmPanel.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+        quitConfirmPanel.GetComponent<MoveablePanel>().SetPanelToOpenPosition();
     }
 
     public static void QuitApp() {
