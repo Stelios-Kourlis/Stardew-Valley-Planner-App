@@ -24,6 +24,8 @@ public class AnimalHouseComponent : MonoBehaviour {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ADD_ANIMAL);
+
+        gameObject.GetComponent<TieredBuildingComponent>().tierChanged += UpdateMaxAnimalCapacity;
     }
 
     public AnimalHouseComponent SetAllowedAnimalsPerTier(Dictionary<int, HashSet<Animals>> animalsPerTier) {

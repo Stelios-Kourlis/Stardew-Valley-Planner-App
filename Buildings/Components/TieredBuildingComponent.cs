@@ -13,6 +13,7 @@ public class TieredBuildingComponent : MonoBehaviour {
     [field: SerializeField] public int MaxTier { get; private set; } = 1;
     private SpriteAtlas atlas;
     private Building Building => gameObject.GetComponent<Building>();
+    public Action<int> tierChanged;
 
     public TieredBuildingComponent SetMaxTier(int maxTier) {
         MaxTier = maxTier;
@@ -40,6 +41,7 @@ public class TieredBuildingComponent : MonoBehaviour {
     public virtual void SetTier(int tier) {
         if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
         Tier = tier;
+        tierChanged?.Invoke(tier);
         Building.UpdateTexture(atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
 }
