@@ -9,7 +9,7 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
 public class MultipleTypeBuildingComponent : MonoBehaviour {
-    public static Type EnumType { get; private set; }
+    public static Type EnumType { get; private set; }//this needs a rework
     public Enum Type { get; set; }
     public static Enum CurrentType { get; set; }
     public SpriteAtlas Atlas { get; private set; }

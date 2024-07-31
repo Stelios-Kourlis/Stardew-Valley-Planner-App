@@ -146,39 +146,11 @@ public class InputHandler : MonoBehaviour {
         //Mouse Right Click
         if (Input.GetKeyUp(KeyCode.Mouse1)) {
             building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
-            if (building is IInteractableBuilding interactableBuildingForRightClick) interactableBuildingForRightClick.OnMouseRightClick();
+            if (building != null)
+                if (building.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) interactableBuildingComponent.OnMouseRightClick();
         }
 
         // //Every Frame
-        // switch (BuildingController.CurrentAction) {
-        //     case Actions.PLACE:
-        //         building = BuildingController.LastBuildingCreated;
-        //         if (building != null) building.PlaceBuildingPreview(mousePosition);
-        //         if (mouseIsHeld && BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) {
-        //             mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-        //             GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
-        //             if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("GreenTile"));
-        //         }
-        //         break;
-        //     case Actions.EDIT:
-        //         foreach (Building buildingToPickup in BuildingController.buildings) {
-        //             if (buildingToPickup.BaseCoordinates.Contains(mousePosition)) buildingToPickup.PickupBuildingPreview();
-        //             else buildingToPickup.NoPreview();
-        //         }
-        //         break;
-        //     case Actions.DELETE:
-        //         if (mouseIsHeld) {
-        //             mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-        //             GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
-        //             if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("RedTile"));
-        //         }
-        //         foreach (Building buildingToDelete in BuildingController.buildings) {
-        //             if (buildingToDelete.BaseCoordinates.Contains(mousePosition)) buildingToDelete.DeleteBuildingPreview();
-        //             else buildingToDelete.NoPreview();
-        //         }
-        //         break;
-        // }
-
         if (BuildingController.CurrentAction == Actions.PLACE) {
             building = BuildingController.CurrentBuildingBeingPlaced;
             if (building != null) building.PlaceBuildingPreview(mousePosition);
@@ -191,26 +163,26 @@ public class InputHandler : MonoBehaviour {
 
         //Mouse Hover
 
-        //Hover Exit
-        bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
-        if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
-            if (hoveredBuilding is IInteractableBuilding interactableBuilding) {
-                interactableBuilding.OnMouseExit();
-            }
-            if (hoveredBuilding.IsPlaced) hoveredBuilding.StopBuildingPreview();
-            hoveredBuilding = null;
-        }
+        // //Hover Exit //todo fix hovering
+        // bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
+        // if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
+        //     if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
+        //         interactableBuildingComponent.OnMouseExit();
+        //     }
+        //     if (hoveredBuilding.IsPlaced) hoveredBuilding.StopBuildingPreview();
+        //     hoveredBuilding = null;
+        // }
 
-        //Hover Enter
-        Building BuildingUnderMouse = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
-        bool isInsideBuilding = BuildingController.isInsideBuilding.Key;
-        if (BuildingUnderMouse != null && !isInsideBuilding) {
-            hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
-            hoveredBuilding.DoBuildingPreview();
-            if (hoveredBuilding is IInteractableBuilding interactableBuilding) {
-                interactableBuilding.OnMouseEnter();
-            }
-        }
+        // //Hover Enter
+        // Building BuildingUnderMouse = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
+        // bool isInsideBuilding = BuildingController.isInsideBuilding.Key;
+        // if (BuildingUnderMouse != null && !isInsideBuilding) {
+        //     hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
+        //     hoveredBuilding.DoBuildingPreview();
+        //     if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
+        //         interactableBuildingComponent.OnMouseEnter();
+        //     }
+        // }
 
     }
 }

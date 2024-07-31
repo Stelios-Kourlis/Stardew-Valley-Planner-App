@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Animals{
+[Serializable]
+public enum Animals {
     Goat,
     Ostrich,
     Pig,

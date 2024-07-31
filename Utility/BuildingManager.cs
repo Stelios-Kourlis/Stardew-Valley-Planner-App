@@ -28,7 +28,7 @@ namespace Utility {
                 PlayerPrefs.SetString("DefaultSavePath", directoryPath);
                 using StreamWriter writer = new(savePath);
                 foreach (Building building in BuildingController.GetBuildings()) {
-                    writer.WriteLine(building.GetBuildingData());
+                    writer.WriteLine(building.GetComponent<BuildingSaverLoader>().SaveBuilding());
                 }
             }
             return savePath != "";
@@ -38,45 +38,45 @@ namespace Utility {
         /// Load a farm from a file
         /// </summary>
         /// <returns>true, if the user chose a file, false if the user cancelled</returns>
-        public static bool Load() {
+        public static bool Load() {//todo fix load
             string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
             var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
-            Type currentType = BuildingController.currentBuildingType;
-            if (paths.Length > 0) {
-                string directoryPath = Path.GetDirectoryName(paths[0]);
-                PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
-                using StreamReader reader = new(paths[0]);
-                BuildingController.DeleteAllBuildings(true);
-                BuildingController.IsLoadingSave = true;
-                while (reader.Peek() >= 0) {
-                    string line = reader.ReadLine();
-                    if (line.Equals("")) continue;
-                    BuildingController.PlaceSavedBuilding(new BuildingData(line));
-                }
-                BuildingController.IsLoadingSave = false;
-            }
-            BuildingController.SetCurrentBuildingType(currentType);
+            // Type currentType = BuildingController.currentBuildingType;
+            // if (paths.Length > 0) {
+            //     string directoryPath = Path.GetDirectoryName(paths[0]);
+            //     PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
+            //     using StreamReader reader = new(paths[0]);
+            //     BuildingController.DeleteAllBuildings(true);
+            //     BuildingController.IsLoadingSave = true;
+            //     while (reader.Peek() >= 0) {
+            //         string line = reader.ReadLine();
+            //         if (line.Equals("")) continue;
+            //         BuildingController.PlaceSavedBuilding(new BuildingData(line));
+            //     }
+            //     BuildingController.IsLoadingSave = false;
+            // }
+            // BuildingController.SetCurrentBuildingType(currentType);
             return paths.Length > 0;
         }
 
-        public static bool LoadThenSwitchSceneToFarm() {
+        public static bool LoadThenSwitchSceneToFarm() {//todo fix
             string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
             var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
-            if (paths.Length <= 0) return false;
-            SceneManager.LoadScene("App");
-            Type currentType = BuildingController.currentBuildingType;
-            string directoryPath = Path.GetDirectoryName(paths[0]);
-            PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
-            using StreamReader reader = new(paths[0]);
-            BuildingController.DeleteAllBuildings(true);
-            BuildingController.IsLoadingSave = true;
-            while (reader.Peek() >= 0) {
-                string line = reader.ReadLine();
-                if (line.Equals("")) continue;
-                BuildingController.PlaceSavedBuilding(new BuildingData(line));
-            }
-            BuildingController.IsLoadingSave = false;
-            BuildingController.SetCurrentBuildingType(currentType);
+            // if (paths.Length <= 0) return false;
+            // SceneManager.LoadScene("App");
+            // Type currentType = BuildingController.currentBuildingType;
+            // string directoryPath = Path.GetDirectoryName(paths[0]);
+            // PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
+            // using StreamReader reader = new(paths[0]);
+            // BuildingController.DeleteAllBuildings(true);
+            // BuildingController.IsLoadingSave = true;
+            // while (reader.Peek() >= 0) {
+            //     string line = reader.ReadLine();
+            //     if (line.Equals("")) continue;
+            //     BuildingController.PlaceSavedBuilding(new BuildingData(line));
+            // }
+            // BuildingController.IsLoadingSave = false;
+            // BuildingController.SetCurrentBuildingType(currentType);
             return paths.Length > 0;
         }
 

@@ -199,7 +199,7 @@ namespace Utility {
         /// Get the middle coordinate of a building in world coordinates
         /// </summary>
         /// <param name="building">The building</param>
-        public static Vector3 GetMiddleOfBuildingWorld(IBuilding building) {
+        public static Vector3 GetMiddleOfBuildingWorld(Building building) {
             int width = building.Width;
             int height = building.Height;
             Vector3 result = new(-1, -1);

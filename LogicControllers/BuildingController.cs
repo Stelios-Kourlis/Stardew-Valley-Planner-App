@@ -139,12 +139,10 @@ public static class BuildingController {
     }
 
     public static void PlaceSavedBuilding(BuildingData buildingData) {
-        Type type = buildingData.type;
-        GameObject go = new(type.Name);
+        GameObject go = new(buildingData.type.Name);
         go.transform.parent = GetGridTilemap().transform;
-        Building building = go.AddComponent(type) as Building;
-        if (building != null) building.OnAwake();
-        if (building != null) building.LoadBuildingFromData(buildingData);
+        BuildingSaverLoader buildingLoader = go.AddComponent<BuildingSaverLoader>();
+        buildingLoader.LoadBuilding(buildingData);
     }
 
     public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {

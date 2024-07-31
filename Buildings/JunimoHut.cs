@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Utility.TilemapManager;
 
-public class JunimoHut : Building, IExtraActionBuilding, IInteractableBuilding {
+public class JunimoHut : Building, IExtraActionBuilding {
 
 
     public RangeEffectBuilding RangeEffectBuildingComponent { get; private set; }

@@ -74,12 +74,6 @@ public class House : Building {
         SetTier(int.Parse(data[0]));
     }
 
-    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
-
-    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
-
-    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
-
     public void OnMouseRightClick() {
         if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
     }

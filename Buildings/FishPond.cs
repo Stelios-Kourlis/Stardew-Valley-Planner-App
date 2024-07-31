@@ -12,7 +12,7 @@ using static Utility.BuildingManager;
 using System.Linq;
 
 
-public class FishPond : Building, IInteractableBuilding, IExtraActionBuilding {
+public class FishPond : Building, IExtraActionBuilding {
     private InteractableBuildingComponent interactableBuildingComponent;
     private SpriteAtlas atlas;
     private SpriteAtlas fishAtlas;

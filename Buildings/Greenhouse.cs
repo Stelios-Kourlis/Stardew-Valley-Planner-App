@@ -8,7 +8,7 @@ using static Utility.ClassManager;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-public class Greenhouse : Building, IInteractableBuilding, IExtraActionBuilding {
+public class Greenhouse : Building, IExtraActionBuilding {
 
     private GameObject porchTilemapObject;
     private Sprite porchSprite;

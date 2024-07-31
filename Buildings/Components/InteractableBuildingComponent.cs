@@ -8,7 +8,7 @@ using static Utility.ClassManager;
 using System;
 
 public class InteractableBuildingComponent : MonoBehaviour {
-    public HashSet<ButtonTypes> BuildingInteractions { get; set; }
+    [field: SerializeField] public HashSet<ButtonTypes> BuildingInteractions { get; set; }
     public GameObject ButtonParentGameObject { get; private set; } = null;
     public Building Building => gameObject.GetComponent<Building>();
     public Action ButtonsCreated;
@@ -58,6 +58,6 @@ public class InteractableBuildingComponent : MonoBehaviour {
     }
 
     public void OnMouseRightClick() {
-        if (Building.BaseCoordinates.Contains(GetMousePositionInTilemap())) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeInHierarchy);
+        if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
     }
 }

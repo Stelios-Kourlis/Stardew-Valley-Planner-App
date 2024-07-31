@@ -11,25 +11,25 @@ using System.Linq;
 using UnityEngine.UI;
 using System;
 
-public abstract class Building : TooltipableGameObject, IBuilding {
+public abstract class Building : TooltipableGameObject {
     protected readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
     protected readonly Color SEMI_TRANSPARENT_INVALID = new(1, 0.5f, 0.5f, 0.5f);
     protected readonly Color OPAQUE = new(1, 1, 1, 1);
     public override string TooltipMessage {
         get {
             string tooltip = BuildingName;
-            if (this is IInteractableBuilding) tooltip += "\nRight Click to Interact";
+            if (TryGetComponent(out InteractableBuildingComponent _)) tooltip += "\nRight Click to Interact";
             return tooltip;
         }
     }
 
-    public string BuildingName { get; protected set; }
+    [field: SerializeField] public string BuildingName { get; protected set; }
 
-    public Vector3Int[] SpriteCoordinates { get; private set; }
+    [field: SerializeField] public Vector3Int[] SpriteCoordinates { get; private set; }
 
-    public Vector3Int[] BaseCoordinates { get; private set; }
+    [field: SerializeField] public Vector3Int[] BaseCoordinates { get; private set; }
 
-    public bool IsPlaced { get; private set; } = false;
+    [field: SerializeField] public bool IsPlaced { get; private set; } = false;
 
     public (bool, BuildingData) IsPickedUp { get; private set; }
 
@@ -39,7 +39,7 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public int BaseHeight { get; protected set; } = 0;
 
-    public Sprite Sprite { get; protected set; } = null;
+    [field: SerializeField] public Sprite Sprite { get; protected set; } = null;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
 
@@ -51,19 +51,19 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public Action BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
-    public bool CanBeMassPlaced { get; protected set; } = false;
+    [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
         IsPlaced = false;
         gameObject.AddComponent<Tilemap>();
         gameObject.AddComponent<TilemapRenderer>();
+        gameObject.AddComponent<BuildingSaverLoader>();
         Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
         // Debug.Assert(Sprite != null, $"Sprite 'Buildings/{GetType()}' not found");
     }
 
     public void OnDestroy() {
-        if (this is IInteractableBuilding) Destroy(gameObject.GetComponent<InteractableBuildingComponent>());
-
+        Destroy(gameObject.GetComponent<InteractableBuildingComponent>());
     }
 
     public void DeleteBuilding(bool force = false) {
@@ -72,12 +72,11 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
 
         if (IsPlaced) {
-            // Debug.Log("Deleting building " + BuildingName);
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
             BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
-            UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, GetBuildingData()));
-            if (this is IInteractableBuilding interactableBuilding) Destroy(interactableBuilding.ButtonParentGameObject);
+            UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
+            if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
         BuildingRemoved?.Invoke();
 
@@ -102,21 +101,22 @@ public abstract class Building : TooltipableGameObject, IBuilding {
         Tilemap.color = OPAQUE;
     }
 
-    public BuildingData GetBuildingData() {
-        if (!IsPlaced) throw new ArgumentException("Do not call BuildingData on buildings that havent been placed");
-        string[] extraData = this is IExtraActionBuilding extraActionBuilding ? extraActionBuilding.GetExtraData() : null;
-        return new BuildingData(GetType(), BaseCoordinates[0], extraData);
-    }
+    // public BuildingData GetBuildingData() {
+    //     if (!IsPlaced) throw new ArgumentException("Do not call BuildingData on buildings that havent been placed");
+    //     string[] extraData = this is IExtraActionBuilding extraActionBuilding ? extraActionBuilding.GetExtraData() : null;
+    //     // return new BuildingData(GetType(), BaseCoordinates[0], extraData);
+    //     return null;
+    // }
 
     public abstract List<MaterialCostEntry> GetMaterialsNeeded();
 
-    public bool LoadBuildingFromData(BuildingData data) {
-        PlaceBuilding(data.lowerLeftCorner);
+    // public bool LoadBuildingFromData(BuildingData data) {
+    //     PlaceBuilding(data.lowerLeftCorner);
 
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.LoadExtraBuildingData(data.extraData);
+    //     if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.LoadExtraBuildingData(data.extraData);
 
-        return true; //make it so it might return false
-    }
+    //     return true; //make it so it might return false
+    // }
 
     public override void OnUpdate() {
         // if (this is Shed) Debug.Log($"{IsPickedUp.Item1} ({BaseCoordinates?[0].x}, {BaseCoordinates?[0].y})");
@@ -130,10 +130,10 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
     public bool PickupBuilding() {
         Tilemap.ClearAllTiles();
-        IsPickedUp = (true, GetBuildingData());
+        IsPickedUp = (true, GetComponent<BuildingSaverLoader>().SaveBuilding());
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
-        UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetBuildingData()));
+        UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
         IsPlaced = false;
         return true;
@@ -161,17 +161,17 @@ public abstract class Building : TooltipableGameObject, IBuilding {
 
         BaseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width).ToArray();
         SpriteCoordinates = GetAreaAroundPosition(position, Height, Width).ToArray();
-        if (this is IExtraActionBuilding extraActionBuilding) {
-            extraActionBuilding.PerformExtraActionsOnPlace(position);
-            if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.extraData);
-        }
+        // if (this is IExtraActionBuilding extraActionBuilding) {
+        //     extraActionBuilding.PerformExtraActionsOnPlace(position);
+        //     if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.extraData);
+        // }
 
         PlayParticleEffect(this, true);
         IsPlaced = true;
         BuildingController.buildingGameObjects.Add(gameObject);
         BuildingController.buildings.Add(this);
         BuildingController.GetUnavailableCoordinates().UnionWith(BaseCoordinates);
-        UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetBuildingData()));
+        UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         BuildingPlaced?.Invoke();
         BuildingController.CreateNewBuilding();
         if (IsPickedUp.Item1) {
