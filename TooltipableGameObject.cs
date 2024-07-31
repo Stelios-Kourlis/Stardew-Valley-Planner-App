@@ -43,9 +43,9 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
 
     public void OnPointerExit(PointerEventData eventData) {
         if (!(BuildingController.CurrentAction == Actions.DO_NOTHING)) return;
-        // if (GetSettingsModalController().IsOpen) return; //todo fix
-        // if (GetTotalMaterialsCalculator().IsOpen) return;
-        // BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
+        if (GetSettingsModal().GetComponent<MoveablePanel>().IsPanelOpen()) return;
+        if (GetTotalMaterialsCalculator().gameObject.GetComponent<MoveablePanel>().IsPanelOpen()) return;
+        BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
     }
 
     public void Update() {

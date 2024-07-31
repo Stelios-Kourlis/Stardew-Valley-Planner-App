@@ -284,7 +284,9 @@ namespace Utility {
         }
 
         public static Vector3Int GetMousePositionInTilemap() {
-            return GetGridTilemap().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            Vector3Int pos = GetGridTilemap().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            pos.z = 0; //for some reason it returned z as -10????
+            return pos;
         }
 
     }

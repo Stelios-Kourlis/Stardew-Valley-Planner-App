@@ -32,6 +32,11 @@ public class WoodTree : Building, IExtraActionBuilding {//the name wood tree is 
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
 
+
+    public void PerformExtraActionsOnPlace(Vector3Int position) {
+        BaseCoordinates = new Vector3Int[] { position + new Vector3Int(1, 0, 0) };
+    }
+
     public override void OnAwake() {
         BuildingName = "Tree";
         BaseHeight = 1;
@@ -51,9 +56,4 @@ public class WoodTree : Building, IExtraActionBuilding {//the name wood tree is 
     public void LoadExtraBuildingData(string[] data) {
         MultipleTypeBuildingComponent.SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
     }
-
-    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
-    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
 }

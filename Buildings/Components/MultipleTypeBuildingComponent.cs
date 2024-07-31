@@ -9,19 +9,20 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
 public class MultipleTypeBuildingComponent : MonoBehaviour {
-    public static Type EnumType { get; private set; }//this needs a rework
+    public Type EnumType { get; private set; }//this needs a rework
     public Enum Type { get; set; }
-    public static Enum CurrentType { get; set; }
     public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; set; }
     public Building Building => gameObject.GetComponent<Building>();
     private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
 
-    public MultipleTypeBuildingComponent SetEnumType(Type type) {
+    /// <summary>
+    /// Sets the type of the building to the given enum type. If you want the building to start with a specific type, pass it as the second argument
+    /// </summary>
+    public MultipleTypeBuildingComponent SetEnumType(Type type, Enum previousType = null) {
         if (!type.IsEnum) throw new ArgumentException("Enum must be an enumerated type");
-        if (EnumType != type) CurrentType = null;
         EnumType = type;
-        SetType(CurrentType ?? (Enum)Enum.GetValues(EnumType).GetValue(0));
+        SetType(previousType ?? (Enum)Enum.GetValues(EnumType).GetValue(0));
         DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(EnumType).GetValue(0)}");
         return this;
     }
@@ -41,10 +42,9 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
     }
 
     public void SetType(Enum type) {
-        CurrentType = type;
         Type = type;
         Sprite sprite = Atlas.GetSprite($"{SpriteName}");
-        Debug.Assert(sprite != null, $"Sprite {SpriteName} was not found in {Building.GetType()}Atlas");
+        // Debug.Assert(sprite != null, $"Sprite {SpriteName} was not found in {Building.GetType()}Atlas");
         if (sprite != null) Building.UpdateTexture(sprite);
     }
 
@@ -61,7 +61,7 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
     /// <returns>An array with a button for each type, with no parent, caller should call transform.SetParent()</returns>
     public virtual GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
-        Enum currentTypeBackup = CurrentType;
+        Enum currentTypeBackup = Type;
         foreach (Enum type in Enum.GetValues(EnumType)) {
             GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
             button.name = $"{type}";

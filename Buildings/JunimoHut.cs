@@ -37,7 +37,7 @@ public class JunimoHut : Building, IExtraActionBuilding {
         RangeEffectBuildingComponent.HideEffectRange();
     }
 
-    public void OnMouseEnter() { //TODO: Fix this
+    public void OnMouseEnter() {
         Vector3Int lowerLeftCorner = BaseCoordinates[0];
         RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
     }

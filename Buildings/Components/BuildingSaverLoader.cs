@@ -6,10 +6,12 @@ using static BuildingData;
 
 public class BuildingSaverLoader : MonoBehaviour {
 
+    BuildingData buildingData;
+
     [ContextMenu("Save Building")]
     public BuildingData SaveBuilding() {
         if (!gameObject.TryGetComponent(out Building Building)) throw new System.Exception("Building component not found");
-        if (!Building.IsPlaced) throw new System.Exception("Building is not placed, cannot save");
+        if (Building.CurrentBuildingState != Building.BuildingState.PLACED) throw new System.Exception("Building is not placed, cannot save");
 
         List<ComponentData> extraData = new();
         if (TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) {
@@ -22,7 +24,7 @@ public class BuildingSaverLoader : MonoBehaviour {
         if (TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) {
             ComponentData multipleTypeData = new(typeof(MultipleTypeBuildingComponent),
                 new List<KeyValuePair<string, string>> {
-                    new("Enum Type", MultipleTypeBuildingComponent.EnumType.ToString()),
+                    new("Enum Type", multipleTypeBuildingComponent.EnumType.ToString()),
                     new("Type", multipleTypeBuildingComponent.Type.ToString())
                 });
             extraData.Add(multipleTypeData);
@@ -37,10 +39,11 @@ public class BuildingSaverLoader : MonoBehaviour {
             }
             extraData.Add(animalHouseData);
         }
-        Debug.Log(Building.GetType());
-        Debug.Log(Building.BaseCoordinates[0]);
-        Debug.Log(new BuildingData(Building.GetType(), Building.BaseCoordinates[0], extraData.ToArray()));
-        return new(Building.GetType(), Building.BaseCoordinates[0], extraData.ToArray());
+        // Debug.Log(Building.GetType());
+        // Debug.Log(Building.BaseCoordinates[0]);
+        // Debug.Log(new BuildingData(Building.GetType(), Building.BaseCoordinates[0], extraData.ToArray()));
+        buildingData = new(Building.GetType(), Building.BaseCoordinates[0], extraData.ToArray());
+        return buildingData;
     }
 
     public void LoadBuilding(BuildingData data) {
@@ -48,6 +51,7 @@ public class BuildingSaverLoader : MonoBehaviour {
         gameObject.AddComponent(data.type);
         Building Building = gameObject.GetComponent<Building>();
         Building.PlaceBuilding(data.lowerLeftCorner);
+        this.buildingData = data;
         foreach (ComponentData compData in data.componentData) {
             switch (compData.componentType) {
                 case Type t when t == typeof(TieredBuildingComponent):
@@ -56,7 +60,14 @@ public class BuildingSaverLoader : MonoBehaviour {
                     break;
                 case Type t when t == typeof(MultipleTypeBuildingComponent):
                     MultipleTypeBuildingComponent multipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>();
-                    // multipleTypeBuildingComponent.SetEnumType(Enum.Parse(compData.componentData[0].Value));//todo add enum type to component data
+                    multipleTypeBuildingComponent.SetEnumType(Type.GetType(compData.componentData[0].Value));
+                    multipleTypeBuildingComponent.SetType((Enum)Enum.Parse(multipleTypeBuildingComponent.EnumType, compData.componentData[1].Value));
+                    break;
+                case Type t when t == typeof(AnimalHouseComponent):
+                    AnimalHouseComponent animalHouseComponent = gameObject.AddComponent<AnimalHouseComponent>();
+                    for (int i = 1; i < int.Parse(compData.componentData[0].Value); i++) {
+                        animalHouseComponent.AddAnimal(Enum.Parse<Animals>(compData.componentData[i].Key));
+                    }
                     break;
             }
         }

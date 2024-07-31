@@ -54,6 +54,8 @@ public class MapController : MonoBehaviour {
 
         tileMode = TileMode.nothing;
         EnterableBuildingComponent.EnteredOrExitedBuilding += UpdateAllCoordinates;
+
+        BuildingController.anyBuildingPositionChanged += UpdateAllCoordinates;
     }
 
     public void Update() {//this is for adding invlid tiles and plantable tiles, should never be accesible to the user

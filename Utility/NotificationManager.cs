@@ -37,25 +37,19 @@ public class NotificationManager : MonoBehaviour {
     public void SendNotification(string message, Icons icon) {
         GameObject notificationGameObject = Resources.Load("UI/Notification") as GameObject;
         notificationGameObject = Instantiate(notificationGameObject, GetCanvasGameObject().transform);
-        Text textComponent = notificationGameObject.transform.GetChild(0).GetComponent<Text>();
+        Text textComponent = notificationGameObject.transform.GetChild(0).GetChild(0).GetComponent<Text>();
         textComponent.text = message;
-        float height = textComponent.GetComponent<RectTransform>().sizeDelta.y switch {
-            30 => 60,
-            60 => 80,
-            _ => 60
-        };
-        notificationGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(600, height);
         SpriteAtlas spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
-        notificationGameObject.transform.GetChild(1).GetChild(0).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
+        notificationGameObject.transform.GetChild(1).GetChild(1).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
         Notification notification = new(notificationGameObject);
         notifications.Insert(0, notification);
-        notificationGameObject.GetComponent<Button>().onClick.AddListener(() => {
+        notificationGameObject.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(() => {
             Destroy(notificationGameObject);
             notifications.Remove(notification);
             OnNotificationChanged();
         });
         OnNotificationChanged();
-        // StartCoroutine(StartLimetimeCountdown(notification));
+        StartCoroutine(StartLimetimeCountdown(notification));
     }
 
     private void OnNotificationChanged() {
@@ -73,7 +67,15 @@ public class NotificationManager : MonoBehaviour {
     }
 
     IEnumerator StartLimetimeCountdown(Notification notification) {
-        yield return new WaitForSeconds(NOTIFICATION_LIFETIME_SECONDS);
+        float timeAlive = 0;
+        // Debug.Log(notification.notificationGameObject.transform.GetChild(1).GetChild(0).name);
+        GameObject progressCircle = notification.notificationGameObject.transform.GetChild(1).GetChild(0).gameObject;
+        // Debug.Log(progressCircle.GetComponent<Image>().sprite.name);
+        while (timeAlive < NOTIFICATION_LIFETIME_SECONDS) {
+            timeAlive += Time.deltaTime;
+            progressCircle.GetComponent<Image>().fillAmount = timeAlive / NOTIFICATION_LIFETIME_SECONDS;
+            yield return null;
+        }
         Destroy(notification.notificationGameObject);
         notifications.Remove(notification); ;
         OnNotificationChanged();

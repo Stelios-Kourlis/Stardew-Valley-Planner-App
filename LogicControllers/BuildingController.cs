@@ -25,10 +25,20 @@ public static class BuildingController {
     public static Building LastBuildingCreated => LastBuildingObjectCreated != null ? LastBuildingObjectCreated.GetComponent<Building>() : null;
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
+    public static Action anyBuildingPositionChanged;
+
     public static void CreateNewBuilding() {
         // Debug.Log("Creating new building");
         if (IsLoadingSave) return;
+        Enum type = null;
+        bool lastBuildingWasMultipleType = LastBuildingObjectCreated != null && LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent);
+        if (lastBuildingWasMultipleType) {
+            type = LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().Type;
+        }
         LastBuildingObjectCreated = CreateNewBuildingGameObject(currentBuildingType);
+        if (LastBuildingObjectCreated.TryGetComponent(out multipleTypeBuildingComponent)) {
+            if (type != null) multipleTypeBuildingComponent.SetType(type);
+        }
     }
 
     public static void DeleteLastBuilding() {
@@ -130,8 +140,8 @@ public static class BuildingController {
         foreach (Building building in buildings) {
             if (building == null) continue;
             if (building.gameObject == null) continue;
-            // if (building is House && !deleteHouse) continue;
-            unavailableCoordinates.RemoveWhere(vec => building.BaseCoordinates.Contains(vec));
+            if (building is House && !deleteHouse) continue;
+            // unavailableCoordinates.RemoveWhere(vec => building.BaseCoordinates.Contains(vec));
             building.DeleteBuilding();
         }
         // buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
@@ -169,7 +179,7 @@ public static class BuildingController {
         };
         GetInputHandler().SetCursor(type);
         if (action == Actions.DELETE || action == Actions.EDIT) DeleteLastBuilding();
-        else if ((!CurrentBuildingBeingPlaced.IsPickedUp.Item1) && CurrentBuildingBeingPlaced.gameObject == null) CreateNewBuilding();//If there is a picked up building, dont create a new
+        else if ((CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) && CurrentBuildingBeingPlaced.gameObject == null) CreateNewBuilding();//If there is a picked up building, dont create a new
     }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor

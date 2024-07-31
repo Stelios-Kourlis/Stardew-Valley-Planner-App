@@ -39,8 +39,8 @@ public class TypeBarHandler : MonoBehaviour {
             }
             Transform typeBarContent = transform.GetChild(0).GetChild(0);
             GameObject temp = new();
-            dynamic buildingTemp = temp.AddComponent(currentBuildingType);
-            GameObject[] buttons = buildingTemp.CreateButtonsForAllTypes();
+            Building buildingTemp = temp.AddComponent(currentBuildingType) as Building;
+            GameObject[] buttons = buildingTemp.GetComponent<MultipleTypeBuildingComponent>().CreateButtonsForAllTypes();
             Destroy(temp);
             for (int i = 0; i < typeBarContent.childCount; i++) Destroy(typeBarContent.GetChild(i).gameObject);
             foreach (GameObject button in buttons) {

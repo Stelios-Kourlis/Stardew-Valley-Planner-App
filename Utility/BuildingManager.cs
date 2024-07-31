@@ -38,24 +38,24 @@ namespace Utility {
         /// Load a farm from a file
         /// </summary>
         /// <returns>true, if the user chose a file, false if the user cancelled</returns>
-        public static bool Load() {//todo fix load
+        public static bool Load() {
             string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
             var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
-            // Type currentType = BuildingController.currentBuildingType;
-            // if (paths.Length > 0) {
-            //     string directoryPath = Path.GetDirectoryName(paths[0]);
-            //     PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
-            //     using StreamReader reader = new(paths[0]);
-            //     BuildingController.DeleteAllBuildings(true);
-            //     BuildingController.IsLoadingSave = true;
-            //     while (reader.Peek() >= 0) {
-            //         string line = reader.ReadLine();
-            //         if (line.Equals("")) continue;
-            //         BuildingController.PlaceSavedBuilding(new BuildingData(line));
-            //     }
-            //     BuildingController.IsLoadingSave = false;
-            // }
-            // BuildingController.SetCurrentBuildingType(currentType);
+            Type currentType = BuildingController.currentBuildingType;
+            if (paths.Length > 0) {
+                string directoryPath = Path.GetDirectoryName(paths[0]);
+                PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
+                using StreamReader reader = new(paths[0]);
+                BuildingController.DeleteAllBuildings(true);
+                BuildingController.IsLoadingSave = true;
+                while (reader.Peek() >= 0) {
+                    //         string line = reader.ReadLine(); //todo fix load
+                    //         if (line.Equals("")) continue;
+                    //         BuildingController.PlaceSavedBuilding(new BuildingData(line));
+                }
+                BuildingController.IsLoadingSave = false;
+            }
+            BuildingController.SetCurrentBuildingType(currentType);
             return paths.Length > 0;
         }
 
@@ -88,17 +88,11 @@ namespace Utility {
         /// </summary>
         /// <returns> If the position is unavailable return (false, reason), with reason being a string with the issue, else returns (true, null)</returns>
         public static (bool, string) BuildingCanBePlacedAtPosition(Vector3Int position, Building building) {
-            if (building.IsPlaced) return (false, "Building has already been placed");
-            HashSet<Vector3Int> unavailableCoordinates, plantableCoordinates;
-            if (BuildingController.isInsideBuilding.Key) {
-                EnterableBuildingComponent enterableBuilding = BuildingController.isInsideBuilding.Value;
-                unavailableCoordinates = enterableBuilding.InteriorUnavailableCoordinates;
-                plantableCoordinates = enterableBuilding.InteriorPlantableCoordinates;
-            }
-            else {
-                unavailableCoordinates = BuildingController.GetUnavailableCoordinates();
-                plantableCoordinates = BuildingController.GetPlantableCoordinates();
-            }
+            // Debug.Log(BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0)));
+            if (building.CurrentBuildingState == Building.BuildingState.PLACED) return (false, "Building has already been placed");
+            HashSet<Vector3Int> unavailableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorUnavailableCoordinates.ToHashSet() : BuildingController.GetUnavailableCoordinates();
+            HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
+
 
             List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
@@ -123,6 +117,7 @@ namespace Utility {
                 typeof(Well),
                 typeof(PetBowl)
             };
+            // Debug.Log($"{GetMousePositionInTilemap()} - {BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0))} - {BuildingController.GetUnavailableCoordinates().Contains(GetMousePositionInTilemap())}");
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
             if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there");
@@ -134,7 +129,7 @@ namespace Utility {
         public static bool LeftClickShouldRegister() {
             if (EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name == "TopRightButtons") return true;
             if (EventSystem.current.IsPointerOverGameObject()) return false;
-            // if (GetSettingsModalController().IsOpen) return false; //todo fix
+            if (GetSettingsModal().GetComponent<MoveablePanel>().IsPanelOpen()) return false;
             return true;
         }
 

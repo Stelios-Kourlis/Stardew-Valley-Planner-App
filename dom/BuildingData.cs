@@ -34,16 +34,9 @@ public class BuildingData {
         this.componentData = extraData ?? (new ComponentData[0]);
     }
 
-    public BuildingData(string[] stringData) {
-        // string[] data = stringData.Split('|');
-        // type = Type.GetType(data[0]);
-        // lowerLeftCorner = new Vector3Int(int.Parse(data[1]), int.Parse(data[2]), 0);
-        // extraData = data[3..];
-    }
-
     public override string ToString() {
         string data = $"{type}\n{lowerLeftCorner.x}, {lowerLeftCorner.y}\n";
-        foreach (ComponentData c in componentData) data += c.ToString() + "\n";
+        foreach (ComponentData c in componentData) data += c.ToString();
         return data;
     }
 }
