@@ -6,6 +6,7 @@ using UnityEngine.Tilemaps;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 using static Utility.ClassManager;
+using static Utility.InvalidTileLoader;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.SceneManagement;
@@ -61,13 +62,12 @@ public class EnterableBuildingComponent : MonoBehaviour {
         grid.AddComponent<Tilemap>();
         BuildingInterior.transform.SetParent(grid.transform);
 
+
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
 
-        // string BuildingName = Building.GetType().ToString();
-        // if (BuildingName.Contains("Cabin")) BuildingName = "House";
-        // BuildingName += (Building is ITieredBuilding tieredBuilding) ? tieredBuilding.Tier : "";
-        // InteriorUnavailableCoordinates = BuildingUnavailableCoordinatesController.GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
-        // InteriorPlantableCoordinates = BuildingUnavailableCoordinatesController.GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+        string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
+        InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+        InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
     }
 
     public void ToggleEditBuildingInterior() {
@@ -90,7 +90,7 @@ public class EnterableBuildingComponent : MonoBehaviour {
         }
 
         cameraPositionBeforeEnter = GetCamera().transform.position;
-        GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(interriorSprite.textureRect.width / 16 / 2, interriorSprite.textureRect.height / 16 / 2, 0)); //center the camera on the interior
+        GetCamera().GetComponent<CameraController>().SetPosition(Vector3.zero); //center the camera on the interior
         SceneManager.MoveGameObjectToScene(GetCamera(), BuildingInteriorScene);
 
         foreach (ButtonTypes type in InteractableBuildingComponent.BuildingInteractions) {
@@ -98,7 +98,8 @@ public class EnterableBuildingComponent : MonoBehaviour {
             InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject.SetActive(false);
         }
 
-        for (int i = 0; i < Building.Transform.parent.childCount; i++) {
+        Building.Transform.parent.GetChild(0).gameObject.SetActive(false); //the map background
+        for (int i = 4; i < Building.Transform.parent.childCount; i++) { //all buildings
             if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) Building.Transform.gameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 0); //make building transparent
             else Building.Transform.parent.GetChild(i).gameObject.SetActive(false); //disable all other buildings
         }

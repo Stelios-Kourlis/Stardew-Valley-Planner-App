@@ -120,7 +120,7 @@ public class InputHandler : MonoBehaviour {
         //Mouse Left Click
         if (Input.GetKeyUp(KeyCode.Mouse0)) {
             mouseIsHeld = false;
-            GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
+            GameObject.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
             if (LeftClickShouldRegister()) {
                 switch (BuildingController.CurrentAction) {
                     case Actions.PLACE:
