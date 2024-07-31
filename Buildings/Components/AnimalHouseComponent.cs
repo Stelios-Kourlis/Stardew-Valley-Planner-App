@@ -12,7 +12,7 @@ public class AnimalHouseComponent : MonoBehaviour {
     public SpriteAtlas AnimalAtlas { get; private set; }
     private readonly GameObject[] UIElements = new GameObject[2];
     private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
-    public List<KeyValuePair<Animals, GameObject>> AnimalsInBuilding { get; private set; }
+    public List<Animals> AnimalsInBuilding { get; private set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
     public Dictionary<int, HashSet<Animals>> animalsPerTier;
     private Building Building => gameObject.GetComponent<Building>();
@@ -20,7 +20,7 @@ public class AnimalHouseComponent : MonoBehaviour {
     public void Awake() {
         AnimalAtlas = Resources.Load($"{Building.GetType()}AnimalsAtlas") as SpriteAtlas;
         animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
-        AnimalsInBuilding = new List<KeyValuePair<Animals, GameObject>>();
+        AnimalsInBuilding = new List<Animals>();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ADD_ANIMAL);
@@ -39,6 +39,7 @@ public class AnimalHouseComponent : MonoBehaviour {
             return false;
         }
         if (!animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains(animal)) { GetNotificationManager().SendNotification($"Cannot add {animal} to Barn tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
+        AnimalsInBuilding.Add(animal);
         AddAnimalButton(animal);
         return true;
     }
@@ -50,15 +51,30 @@ public class AnimalHouseComponent : MonoBehaviour {
             UIElements[1].transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(580, 100 * tier + 100 - 50);
         }
 
-        var animalsToRemove = AnimalsInBuilding.Where(animal => !animalsPerTier[tier].Contains(animal.Key)).ToList();
-        foreach (var pair in animalsToRemove) {
-            Destroy(pair.Value);
-            AnimalsInBuilding.Remove(pair);
-        }
-        if (AnimalsInBuilding.Count > MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}", NotificationManager.Icons.InfoIcon);
+        var animalsToRemove = AnimalsInBuilding.Where(animal => !animalsPerTier[tier].Contains(animal)).ToList();
+
+        AnimalsInBuilding.RemoveAll(animal => animalsToRemove.Contains(animal));
+
+        if (AnimalsInBuilding.Count > MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - MaxAnimalCapacity} animals that exceed the new capacity of {Building.BuildingName}", NotificationManager.Icons.InfoIcon);
         while (AnimalsInBuilding.Count > MaxAnimalCapacity) {
-            Destroy(AnimalsInBuilding.Last().Value);
             AnimalsInBuilding.Remove(AnimalsInBuilding.Last());
+        }
+
+        UpdateAnimals();
+    }
+
+    public void UpdateAnimals() {
+
+        GameObject targetGameObject = gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0).gameObject;
+
+        // Step 2: Iterate through all its children
+        foreach (Transform child in targetGameObject.transform) {
+            // Step 3: Destroy each child GameObject
+            Destroy(child.gameObject);
+        }
+
+        foreach (var animal in AnimalsInBuilding) {
+            AddAnimalButton(animal);
         }
     }
 
@@ -95,11 +111,10 @@ public class AnimalHouseComponent : MonoBehaviour {
 
     private void AddAnimalButton(Animals animal) {
         GameObject button = new(animal.ToString());
-        AnimalsInBuilding.Add(new KeyValuePair<Animals, GameObject>(animal, button));
         button.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0));
         button.AddComponent<Image>().sprite = AnimalAtlas.GetSprite(animal.ToString());
         button.AddComponent<Button>().onClick.AddListener(() => {
-            AnimalsInBuilding.Remove(new KeyValuePair<Animals, GameObject>(animal, button));
+            AnimalsInBuilding.Remove(animal);
             Destroy(button);
         });
         AddHoverEffect(button.GetComponent<Button>());

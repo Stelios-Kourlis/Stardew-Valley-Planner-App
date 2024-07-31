@@ -34,8 +34,8 @@ public class BuildingSaverLoader : MonoBehaviour {
                 new List<KeyValuePair<string, string>> {
                     new("Animals In Building", animalHouseComponent.AnimalsInBuilding.Count.ToString())
                 });
-            foreach (var kvp in animalHouseComponent.AnimalsInBuilding) {
-                animalHouseData.AddKeyValuePairToData(kvp.Key.ToString(), kvp.Value.ToString());
+            foreach (var animal in animalHouseComponent.AnimalsInBuilding) {
+                animalHouseData.AddKeyValuePairToData(animal.ToString(), "");
             }
             extraData.Add(animalHouseData);
         }

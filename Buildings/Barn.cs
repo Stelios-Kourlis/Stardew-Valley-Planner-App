@@ -77,7 +77,7 @@ public class Barn : Building, IExtraActionBuilding {
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {
         List<MaterialCostEntry> animalCost = new();
-        foreach (var animal in AnimalHouseComponent.AnimalsInBuilding.Select(pair => pair.Key)) {
+        foreach (var animal in AnimalHouseComponent.AnimalsInBuilding) {
             MaterialCostEntry cost = animal switch {
                 Animals.Cow => new(1_500, Materials.Coins),
                 Animals.Ostrich => new("Ostrich Egg"),
@@ -110,7 +110,7 @@ public class Barn : Building, IExtraActionBuilding {
 
     public string GetExtraData() {
         string animals = "";
-        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int)animal}";
+        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding) animals += $"|{(int)animal}";
         return $"{TieredBuildingComponent.Tier}|{AnimalHouseComponent.AnimalsInBuilding.Count}{animals}";
     }
 

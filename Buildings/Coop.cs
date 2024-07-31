@@ -89,7 +89,7 @@ public class Coop : Building {
     //     return $"{rabbitsRemoved} {ducksRemoved} {voidChickensRemoved} {dinosaursRemoved} {goldenChickensRemoved}";
     // }
 
-    public override List<MaterialCostEntry> GetMaterialsNeeded() {
+    public override List<MaterialCostEntry> GetMaterialsNeeded() {//todo add animal costs
         return TieredBuildingComponent.Tier switch {
             1 => new List<MaterialCostEntry>{
                 new(4_000, Materials.Coins),
@@ -112,7 +112,7 @@ public class Coop : Building {
 
     public string GetExtraData() {
         string animals = "";
-        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding.Select(pair => pair.Key)) animals += $"|{(int)animal}";
+        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding) animals += $"|{(int)animal}";
         return $"{TieredBuildingComponent.Tier}|{AnimalHouseComponent.AnimalsInBuilding.Count}{animals}";
     }
 
