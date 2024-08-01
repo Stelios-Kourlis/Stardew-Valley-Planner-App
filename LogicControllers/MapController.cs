@@ -9,6 +9,7 @@ using System;
 using UnityEngine.U2D;
 using System.IO;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class MapController : MonoBehaviour {
     public enum MapTypes {
@@ -40,6 +41,7 @@ public class MapController : MonoBehaviour {
     private Actions currentAction;
     private TileMode tileMode;
     private Vector3Int startTile;
+    public Scene MapScene { get; private set; }
 
     void Start() {
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
@@ -141,10 +143,15 @@ public class MapController : MonoBehaviour {
         CurrentMapType = mapType;
         BuildingController.DeleteAllBuildings(true);
         BuildingController.GetUnavailableCoordinates().Clear();
+
+        MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
+
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";
+        BuildingController.SetCurrentTilemapTransform(map.transform);
         Vector3Int mapPos = new(-27, -36, 0);
         Sprite mapTexture = atlas.GetSprite(map.name);
+
         Vector3Int[] spriteArrayCoordinates = GetAreaAroundPosition(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
         TileBuildingData dataScript = map.AddComponent(typeof(TileBuildingData)) as TileBuildingData;
@@ -154,8 +161,15 @@ public class MapController : MonoBehaviour {
         mapTilemap.ClearAllTiles();
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
         if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(1);
-        GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
+        // GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
         UpdateAllCoordinates();
+
+        GameObject grid = new("Grid");
+        grid.AddComponent<Grid>();
+        grid.AddComponent<Tilemap>();
+        map.transform.SetParent(grid.transform);
+
+        SceneManager.MoveGameObjectToScene(grid, MapScene);
     }
 
 

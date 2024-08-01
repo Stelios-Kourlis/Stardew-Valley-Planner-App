@@ -59,7 +59,7 @@ public class HUDButtonCotroller : MonoBehaviour {
     }
 
     public void OpenActionButtonMenu() {
-        Vector3 startPosition = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").position;
+        Vector3 startPosition = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").GetComponent<RectTransform>().localPosition;
         float buttonWidth = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").GetComponent<RectTransform>().rect.width;
         for (int childIndex = 0; childIndex < ActionButtons.Count(); childIndex++) {
             Vector3 endPosition = startPosition - new Vector3((buttonWidth + 10) * (childIndex + 1), 0, 0);
@@ -70,9 +70,9 @@ public class HUDButtonCotroller : MonoBehaviour {
     }
 
     public void CloseActionButtonMenu() {
-        Vector3 endPosition = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").position;
+        Vector3 endPosition = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").GetComponent<RectTransform>().localPosition;
         for (int childIndex = 0; childIndex < ActionButtons.Count(); childIndex++) {
-            Vector3 startPosition = ActionButtons[childIndex].transform.position;
+            Vector3 startPosition = ActionButtons[childIndex].GetComponent<RectTransform>().localPosition;
             StartCoroutine(UIObjectMover.MoveObjectInConstantTime(ActionButtons[childIndex].transform, startPosition, endPosition, 0.5f));
         }
         ActionButtonMenuIsOpen = false;

@@ -27,7 +27,7 @@ namespace Utility {
 
         public static GameObject GetCanvasGameObject() { return GameObject.FindWithTag("Canvas"); }
 
-        public static ButtonController GetButtonController() { return GameObject.FindWithTag("LogicComponent").GetComponent<ButtonController>(); }
+        public static BuildingButtonController GetButtonController() { return GameObject.FindWithTag("LogicComponent").GetComponent<BuildingButtonController>(); }
 
         public static NotificationManager GetNotificationManager() { return GameObject.FindWithTag("LogicComponent").GetComponent<NotificationManager>(); }
 

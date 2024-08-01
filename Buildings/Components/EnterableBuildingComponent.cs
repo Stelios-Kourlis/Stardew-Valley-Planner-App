@@ -38,7 +38,8 @@ public class EnterableBuildingComponent : MonoBehaviour {
             {"Cabin3", 13}
         }; //this is so the entrace tile of the interior can match the outside entrace
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
-    private Scene AppScene => SceneManager.GetSceneByName("App");
+    private Scene MapScene => GetMapController().MapScene;
+    private Transform mapTransform;
 
     public void Awake() {
         Building.BuildingPlaced += AddBuildingInterior;
@@ -85,32 +86,31 @@ public class EnterableBuildingComponent : MonoBehaviour {
     public void EditBuildingInterior() {
         BuildingController.isInsideBuilding = new KeyValuePair<bool, EnterableBuildingComponent>(true, this);
 
+
+
         foreach (GameObject obj in BuildingInteriorScene.GetRootGameObjects()) {
             obj.SetActive(true);
         }
 
         cameraPositionBeforeEnter = GetCamera().transform.position;
-        GetCamera().GetComponent<CameraController>().SetPosition(Vector3.zero); //center the camera on the interior
-        SceneManager.MoveGameObjectToScene(GetCamera(), BuildingInteriorScene);
+        GetCamera().GetComponent<CameraController>().SetPosition(new Vector3(BuildingInterior.GetComponent<Tilemap>().size.x / 2, BuildingInterior.GetComponent<Tilemap>().size.x / 2)); //center the camera on the interior
 
         foreach (ButtonTypes type in InteractableBuildingComponent.BuildingInteractions) {
-            if (type == ButtonTypes.ENTER) continue;
-            InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject.SetActive(false);
+            GameObject button = InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject;
+            if (type == ButtonTypes.ENTER) {
+                button.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+                button.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+                button.GetComponent<RectTransform>().position = new Vector3(Screen.width - 60, 60, 0);
+            }
+            else button.SetActive(false);
         }
 
-        Building.Transform.parent.GetChild(0).gameObject.SetActive(false); //the map background
-        for (int i = 4; i < Building.Transform.parent.childCount; i++) { //all buildings
-            if (Building.Transform.parent.GetChild(i).gameObject == Building.Transform.gameObject) Building.Transform.gameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 0); //make building transparent
-            else Building.Transform.parent.GetChild(i).gameObject.SetActive(false); //disable all other buildings
-        }
-
-        foreach (GameObject obj in AppScene.GetRootGameObjects()) {
-            if (obj.name == "Canvas") continue;
-            if (obj.name == "EventSystem") continue;
-            if (obj.name == "Logic") continue;
-            if (obj.name == "Grid") continue;
+        foreach (GameObject obj in MapScene.GetRootGameObjects()) {
             obj.SetActive(false);
         }
+
+        mapTransform = BuildingController.CurrentTilemapTransform;
+        BuildingController.SetCurrentTilemapTransform(BuildingInterior.transform);
 
         SceneManager.SetActiveScene(BuildingInteriorScene);
 
@@ -126,10 +126,11 @@ public class EnterableBuildingComponent : MonoBehaviour {
         }
 
         GetCamera().GetComponent<CameraController>().SetPosition(cameraPositionBeforeEnter); //center the camera on the interior
-        SceneManager.MoveGameObjectToScene(GetCamera(), AppScene);
+        // SceneManager.MoveGameObjectToScene(GetCamera(), MapScene);
 
         foreach (ButtonTypes type in InteractableBuildingComponent.BuildingInteractions) {
-            if (type == ButtonTypes.ENTER) continue;
+            GameObject button = InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject;
+            if (type == ButtonTypes.ENTER) button.GetComponent<RectTransform>().sizeDelta = new Vector2(75, 75);
             InteractableBuildingComponent.ButtonParentGameObject.transform.Find(type.ToString()).gameObject.SetActive(true);
         }
 
@@ -138,11 +139,13 @@ public class EnterableBuildingComponent : MonoBehaviour {
             else Building.Transform.parent.GetChild(i).gameObject.SetActive(true); //disable all other buildings
         }
 
-        foreach (GameObject obj in AppScene.GetRootGameObjects()) {
+        foreach (GameObject obj in MapScene.GetRootGameObjects()) {
             obj.SetActive(true);
         }
 
-        SceneManager.SetActiveScene(AppScene);
+        BuildingController.SetCurrentTilemapTransform(mapTransform);
+
+        SceneManager.SetActiveScene(MapScene);
 
         EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(GetGridTilemap().transform);

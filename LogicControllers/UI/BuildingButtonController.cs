@@ -12,14 +12,15 @@ using System.Linq;
 using UnityEngine.U2D;
 
 
-public class ButtonController : MonoBehaviour {
+public class BuildingButtonController : MonoBehaviour {
 
     readonly float BUTTON_SIZE = 75;
 
     private GameObject buttonPrefab;
 
-    void Start() {
+    void Awake() {
         buttonPrefab = Resources.Load<GameObject>("UI/Button");
+        // Debug.Log(buttonPrefab == null);
     }
 
     /// <summary>

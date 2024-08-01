@@ -92,29 +92,4 @@ public class Cabin : Building, IExtraActionBuilding {
         TieredBuildingComponent.SetTier(int.Parse(data[0]));
         MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[1]));
     }
-
-    // public void SetTier(int tier) {
-    //     tieredBuildingComponent.SetTier(tier);
-    //     Sprite sprite;
-    //     Types type = multipleTypeBuildingComponent?.Type ?? Types.Wood;
-    //     // sprite = Atlas.GetSprite($"{type}{tier}");
-    //     // UpdateTexture(sprite);
-    // }
-
-    public void SetTier(int tier) => TieredBuildingComponent.SetTier(tier);
-
-    public void CycleType() => MultipleTypeBuildingComponent.CycleType();
-
-    public void SetType(Enum type) => MultipleTypeBuildingComponent.SetType(type);
-    public GameObject[] CreateButtonsForAllTypes() => MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-
-    public void ToggleEditBuildingInterior() => EnterableBuildingComponent.ToggleEditBuildingInterior();
-
-    public void EditBuildingInterior() => EnterableBuildingComponent.EditBuildingInterior();
-
-    public void ExitBuildingInteriorEditing() => EnterableBuildingComponent.ExitBuildingInteriorEditing();
-
-    public void OnMouseRightClick() {
-        if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
-    }
 }

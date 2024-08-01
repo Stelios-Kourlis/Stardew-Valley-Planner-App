@@ -19,6 +19,7 @@ public static class BuildingController {
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
+    public static Transform CurrentTilemapTransform { get; private set; }
 
     public static HashSet<GameObject> buildingGameObjects = new();
     public static GameObject LastBuildingObjectCreated { get; private set; }
@@ -76,8 +77,7 @@ public static class BuildingController {
     private static GameObject CreateNewBuildingGameObject(Type newType) {
         currentBuildingType = newType;
         GameObject newGameObject = new GameObject(currentBuildingType.Name).AddComponent(newType).gameObject;
-        if (!isInsideBuilding.Key) newGameObject.transform.SetParent(GetGridTilemap().transform);
-        else newGameObject.transform.SetParent(isInsideBuilding.Value.BuildingInterior.transform); //the transform of the building that is being edited
+        newGameObject.transform.SetParent(CurrentTilemapTransform);
         CurrentBuildingBeingPlaced = newGameObject.GetComponent<Building>();
         return newGameObject;
     }
@@ -93,7 +93,7 @@ public static class BuildingController {
                 _ => new Vector3Int(32, 12, 0),
             };
             GameObject houseGameObject = new("House");
-            houseGameObject.transform.parent = GetGridTilemap().transform;
+            houseGameObject.transform.parent = CurrentTilemapTransform;
             houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
             houseGameObject.GetComponent<House>().SetTier(tier);
             houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
@@ -107,7 +107,7 @@ public static class BuildingController {
                 _ => new Vector3Int(44, 14, 0),
             };
             GameObject houseGameObject = new("ShippingBin");
-            houseGameObject.transform.parent = GetGridTilemap().transform;
+            houseGameObject.transform.parent = CurrentTilemapTransform;
             houseGameObject.AddComponent<ShippingBin>().PlaceBuilding(binPos);
             houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
         }
@@ -120,7 +120,7 @@ public static class BuildingController {
                 _ => new Vector3Int(-2, 13, 0),
             };
             GameObject houseGameObject = new("Greenhouse");
-            houseGameObject.transform.parent = GetGridTilemap().transform;
+            houseGameObject.transform.parent = CurrentTilemapTransform;
             houseGameObject.AddComponent<Greenhouse>().PlaceBuilding(binPos);
             houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
         }
@@ -180,6 +180,11 @@ public static class BuildingController {
         GetInputHandler().SetCursor(type);
         if (action == Actions.DELETE || action == Actions.EDIT) DeleteLastBuilding();
         else if ((CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) && CurrentBuildingBeingPlaced.gameObject == null) CreateNewBuilding();//If there is a picked up building, dont create a new
+    }
+
+    public static void SetCurrentTilemapTransform(Transform newTransform) {
+        CurrentTilemapTransform = newTransform;
+        GetCamera().GetComponent<CameraController>().UpdateTilemapBounds();
     }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor

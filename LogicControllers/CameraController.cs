@@ -12,8 +12,7 @@ public class CameraController : MonoBehaviour {
     private Tilemap mapTilemap;
     private Slider scrollScaleSlider;
     private Slider moveScaleSlider;
-    private BoundsInt tilemapBounds;
-    //public float threshold = 0.1f;
+    private Bounds tilemapBounds;
     [SerializeField] private float moveScale = 6;
     private float scrollScale = 0.5f;
     private float storedScrollScale, storedMoveScale;
@@ -25,45 +24,32 @@ public class CameraController : MonoBehaviour {
         isMouseDown = false;
         mainCamera = gameObject.GetComponent<Camera>();
         oldMousePosition = Input.mousePosition;
-        UpdateCameraBounds();
         blurMultiplier = 5;
 
         if (PlayerPrefs.GetInt("FullScreen", 1) == 1) Screen.fullScreen = true;
         else Screen.fullScreen = false;
     }
 
-    public void UpdateCameraBounds() {
+    public void UpdateTilemapBounds() {
+        if (BuildingController.CurrentTilemapTransform == null) return;
 
-        if (!BuildingController.isInsideBuilding.Key) {
-            mapTilemap = GameObject.FindGameObjectWithTag("CurrentMap").GetComponent<Tilemap>();
-            tilemapBounds = mapTilemap.cellBounds;
-        }
-        else {
-            mapTilemap = BuildingController.isInsideBuilding.Value.GetComponent<Tilemap>();
-            tilemapBounds = mapTilemap.cellBounds;
-        }
+        mapTilemap = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>();
+        mapTilemap.CompressBounds(); //awlays compress bounds
+        Debug.Log($"Updates tilemap bounds for {mapTilemap.name}");
+        tilemapBounds = mapTilemap.localBounds;
     }
 
     private void ClampCameraToBounds() {
+        float clampedX, clampedY;
+        Vector3 cameraPosition = mainCamera.transform.position;
+        if (tilemapBounds.Contains(cameraPosition)) return; //if the camera is inside the bounds, don't clamp it;
+        Debug.Log(tilemapBounds);
 
-        if (BuildingController.isInsideBuilding.Key) {
-            // Get the tilemap bounds
-            // Debug.Log(BuildingController.isInsideBuilding.Value.GetComponent<Tilemap>().name);
-            BuildingController.isInsideBuilding.Value.GetComponent<Tilemap>().CompressBounds();
-            BoundsInt tilemapBounds = BuildingController.isInsideBuilding.Value.GetComponent<Tilemap>().cellBounds;
-
-            Vector3 cameraPosition = mainCamera.transform.position;
-
-            // Clamp the camera position to ensure it stays within the tilemap bounds
-            float clampedX = Mathf.Clamp(cameraPosition.x, tilemapBounds.min.x, tilemapBounds.max.x);
-            float clampedY = Mathf.Clamp(cameraPosition.y, tilemapBounds.min.y, tilemapBounds.max.y);
-
-            mainCamera.transform.position = new Vector3(clampedX, clampedY, cameraPosition.z);
+        if (BuildingController.isInsideBuilding.Key) { //keep only the camera center in bounds
+            clampedX = Mathf.Clamp(cameraPosition.x, tilemapBounds.min.x, tilemapBounds.max.x);
+            clampedY = Mathf.Clamp(cameraPosition.y, tilemapBounds.min.y, tilemapBounds.max.y);
         }
-        else {
-            UpdateCameraBounds();
-            Vector3 cameraPosition = mainCamera.transform.position;
-
+        else { //keep the whole camera within bounds
             // Calculate the camera's vertical size based on its orthographic size and aspect ratio
             float verticalSize = Camera.main.orthographicSize * 2;
             float horizontalSize = verticalSize * Camera.main.aspect;
@@ -74,13 +60,19 @@ public class CameraController : MonoBehaviour {
             float maxY = tilemapBounds.max.y - verticalSize / 2;
 
             // Clamp the camera's position to the adjusted bounds
-            float clampedX = Mathf.Clamp(cameraPosition.x, minX, maxX);
-            float clampedY = Mathf.Clamp(cameraPosition.y, minY, maxY);
+            clampedX = Mathf.Clamp(cameraPosition.x, minX, maxX);
+            clampedY = Mathf.Clamp(cameraPosition.y, minY, maxY);
 
-            // Update the camera's position
-            mainCamera.transform.position = new Vector3(clampedX, clampedY, cameraPosition.z);
-            // }
+
         }
+
+        mainCamera.transform.position = new Vector3(clampedX, clampedY, cameraPosition.z);
+
+        // if (Input.GetKey(KeyCode.C)) {
+        //     mainCamera.transform.position = tilemapBounds.center;
+        //     mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, mainCamera.transform.position.y, -10);
+        // }
+        // Debug.Log(tilemapBounds.Contains(mainCamera.transform.position));
     }
 
     // Update is called once per frame
@@ -138,7 +130,7 @@ public class CameraController : MonoBehaviour {
     }
 
     public void SetPosition(Vector3 position) {
-        mainCamera.transform.position = new Vector3(position.x, position.y, mainCamera.transform.position.z);
+        mainCamera.transform.position = new Vector3(position.x, position.y, -10);
     }
 
     public void SetSize(float size) {
