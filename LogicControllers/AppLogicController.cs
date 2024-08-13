@@ -25,10 +25,10 @@ public class AppLogicController : MonoBehaviour {
 
     public void PlayerPressedLoadFarmButton() {
         DontDestroyOnLoad(gameObject);
-        if (Load()) {
-            SceneManager.LoadScene("App");
-            Destroy(gameObject);
-        }
+        // if (LoadFromFile()) {
+        //     SceneManager.LoadScene("App");
+        //     Destroy(gameObject);
+        // }
     }
 
     private IEnumerator ShowLogo() {

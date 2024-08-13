@@ -11,41 +11,31 @@ using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-public class EnterableBuildingComponent : MonoBehaviour {
+[RequireComponent(typeof(Building))]
+public class EnterableBuildingComponent : BuildingComponent {
     public GameObject BuildingInterior { get; private set; }
     public Sprite interriorSprite;
-    public Building Building => gameObject.GetComponent<Building>();
     public Vector3Int[] InteriorAreaCoordinates { get; private set; }
     public HashSet<Vector3Int> InteriorUnavailableCoordinates { get; private set; }
     public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
     public static Action EnteredOrExitedBuilding { get; set; }
+    public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
     private static int numberOfInteriors = 0;
     private Vector3 cameraPositionBeforeEnter;
     Scene BuildingInteriorScene;
-    private static readonly Dictionary<string, int> entranceOffsetPerBuilding = new(){
-            {"SlimeHutch", 8},
-            {"Greenhouse", 10},
-            {"Shed1", 10},
-            {"Shed2", 8},
-            {"Barn1", 11},
-            {"Barn2", 11},
-            {"Barn3", 11},
-            {"House1", 3},
-            {"House2", 10},
-            {"House3", 13},
-            {"Cabin1", 3},
-            {"Cabin2", 10},
-            {"Cabin3", 13}
-        }; //this is so the entrace tile of the interior can match the outside entrace
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
     private Scene MapScene => GetMapController().MapScene;
     private Transform mapTransform;
+
+    public EnterableBuildingComponent AddInteriorInteractions(HashSet<ButtonTypes> interiorInteractions) {
+        InteriorInteractions = interiorInteractions;
+        return this;
+    }
 
     public void Awake() {
         Building.BuildingPlaced += AddBuildingInterior;
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
-
     }
 
     public void AddBuildingInterior() {
@@ -150,5 +140,13 @@ public class EnterableBuildingComponent : MonoBehaviour {
         EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(GetGridTilemap().transform);
 
+    }
+
+    public override BuildingData.ComponentData Save() { //todo add saving interior
+        return null;
+    }
+
+    public override void Load(BuildingData.ComponentData data) {
+        return;
     }
 }

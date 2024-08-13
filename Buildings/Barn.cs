@@ -24,6 +24,7 @@ public class Barn : Building, IExtraActionBuilding {
 
 
     public override void OnAwake() {
+        Debug.Log("Barn OnAwake");
         BaseHeight = 4;
         BuildingName = "Barn";
         base.OnAwake();
@@ -35,45 +36,14 @@ public class Barn : Building, IExtraActionBuilding {
                 { 3, new HashSet<Animals>{ Animals.Cow, Animals.Ostrich, Animals.Goat, Animals.Sheep, Animals.Pig } }
             }
         );
-        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(
+            new HashSet<ButtonTypes> {
+                ButtonTypes.TIER_ONE,
+                ButtonTypes.TIER_TWO,
+                ButtonTypes.TIER_THREE,
+            }
+        );
     }
-
-    // public void SetTier(int tier) {
-    //     TieredBuildingComponent.SetTier(tier);
-    //     AnimalHouseComponent.UpdateMaxAnimalCapacity(tier);
-
-    //     //Update Animals
-    //     List<KeyValuePair<Animals, GameObject>> animalsToRemove = new();
-    //     string animalsRemoved = GetRemovedAnimals();
-    //     if (tier < 2) animalsToRemove.AddRange(AnimalHouseComponent.AnimalsInBuilding.Where(animal => animal.Key == Animals.Goat));
-    //     if (tier < 3) animalsToRemove.AddRange(AnimalHouseComponent.AnimalsInBuilding.Where(animal => animal.Key == Animals.Sheep || animal.Key == Animals.Pig));
-    //     if (animalsToRemove.Count != 0) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}", NotificationManager.Icons.InfoIcon);
-
-    //     foreach (var pair in animalsToRemove) {
-    //         Destroy(pair.Value);
-    //         AnimalHouseComponent.AnimalsInBuilding.Remove(pair);
-    //     }
-
-    //     if (AnimalHouseComponent.AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalHouseComponent.AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}", NotificationManager.Icons.InfoIcon);
-    //     while (AnimalHouseComponent.AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) {
-    //         Destroy(AnimalHouseComponent.AnimalsInBuilding.Last().Value);
-    //         AnimalHouseComponent.AnimalsInBuilding.Remove(AnimalHouseComponent.AnimalsInBuilding.Last());
-    //     }
-    // }
-
-    // private string GetRemovedAnimals() {
-    //     int goatCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Goat);
-    //     string goatsRemoved = goatCount > 0 ? $"{goatCount} Goat" : "";
-    //     if (goatCount > 1) goatsRemoved += "s";
-    //     goatsRemoved += ",";
-
-    //     int sheepCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Sheep);
-    //     string sheepRemoved = sheepCount > 0 ? $"{sheepCount} Sheep," : "";
-
-    //     int pigCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Pig);
-    //     string pigsRemoved = pigCount > 0 ? $"{pigCount} Pig" : "";
-    //     return $"{goatsRemoved} {sheepRemoved} {pigsRemoved}";
-    // }
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {
         List<MaterialCostEntry> animalCost = new();
@@ -107,17 +77,4 @@ public class Barn : Building, IExtraActionBuilding {
             _ => throw new System.ArgumentException($"Invalid tier {TieredBuildingComponent.Tier}")
         };
     }
-
-    public string GetExtraData() {
-        string animals = "";
-        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding) animals += $"|{(int)animal}";
-        return $"{TieredBuildingComponent.Tier}|{AnimalHouseComponent.AnimalsInBuilding.Count}{animals}";
-    }
-
-    public void LoadExtraBuildingData(int x, int y, params string[] data) {
-        TieredBuildingComponent.SetTier(int.Parse(data[0]));
-        int animalCount = int.Parse(data[1]);
-        for (int i = 0; i < animalCount; i++) AnimalHouseComponent.AddAnimal((Animals)Enum.Parse(typeof(Animals), data[i + 2]));
-    }
-
 }

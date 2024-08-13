@@ -8,14 +8,17 @@ using UnityEngine.UI;
 using static Utility.TilemapManager;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
-public class AnimalHouseComponent : MonoBehaviour {
+using static BuildingData;
+
+[RequireComponent(typeof(Building))]
+[Serializable]
+public class AnimalHouseComponent : BuildingComponent {
     public SpriteAtlas AnimalAtlas { get; private set; }
     private readonly GameObject[] UIElements = new GameObject[2];
     private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
-    public List<Animals> AnimalsInBuilding { get; private set; }
+    [field: SerializeField] public List<Animals> AnimalsInBuilding { get; private set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
     public Dictionary<int, HashSet<Animals>> animalsPerTier;
-    private Building Building => gameObject.GetComponent<Building>();
 
     public void Awake() {
         AnimalAtlas = Resources.Load($"{Building.GetType()}AnimalsAtlas") as SpriteAtlas;
@@ -28,8 +31,8 @@ public class AnimalHouseComponent : MonoBehaviour {
         gameObject.GetComponent<TieredBuildingComponent>().tierChanged += UpdateMaxAnimalCapacity;
     }
 
-    public AnimalHouseComponent SetAllowedAnimalsPerTier(Dictionary<int, HashSet<Animals>> animalsPerTier) {
-        this.animalsPerTier = animalsPerTier;
+    public AnimalHouseComponent SetAllowedAnimalsPerTier(Dictionary<int, HashSet<Animals>> allowedAnimalsPerTier) {
+        animalsPerTier = allowedAnimalsPerTier;
         return this;
     }
 
@@ -38,6 +41,7 @@ public class AnimalHouseComponent : MonoBehaviour {
             GetNotificationManager().SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
             return false;
         }
+        Debug.Log(animalsPerTier);
         if (!animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains(animal)) { GetNotificationManager().SendNotification($"Cannot add {animal} to Barn tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
         AnimalsInBuilding.Add(animal);
         AddAnimalButton(animal);
@@ -124,5 +128,23 @@ public class AnimalHouseComponent : MonoBehaviour {
     public void ToggleAnimalMenu() {
         UIElements[0].SetActive(!UIElements[0].activeSelf);
         UIElements[1].SetActive(!UIElements[1].activeSelf);
+    }
+
+    public override ComponentData Save() {
+        ComponentData animalHouseData = new(typeof(AnimalHouseComponent), new Dictionary<string, string>());
+        foreach (var animal in AnimalsInBuilding) {
+            if (animalHouseData.componentData.ContainsKey(animal.ToString())) animalHouseData.componentData[animal.ToString()] = (int.Parse(animalHouseData.componentData[animal.ToString()]) + 1).ToString();
+            else animalHouseData.componentData.Add(animal.ToString(), "1");
+        }
+        return animalHouseData;
+    }
+
+    public override void Load(ComponentData data) {
+        // Awake();
+        // Building.OnAwake();
+        // Debug.Log(animalsPerTier);
+        foreach (var kvp in data.componentData) {
+            for (int count = 0; count < int.Parse(kvp.Value); count++) AddAnimal(Enum.Parse<Animals>(kvp.Key));
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -8,12 +9,12 @@ using UnityEngine.UI;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 
-public class MultipleTypeBuildingComponent : MonoBehaviour {
+[RequireComponent(typeof(Building))]
+public class MultipleTypeBuildingComponent : BuildingComponent {
     public Type EnumType { get; private set; }//this needs a rework
     public Enum Type { get; set; }
     public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; set; }
-    public Building Building => gameObject.GetComponent<Building>();
     private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
 
     /// <summary>
@@ -76,5 +77,18 @@ public class MultipleTypeBuildingComponent : MonoBehaviour {
         }
         SetType(currentTypeBackup);
         return buttons.ToArray();
+    }
+
+    public override BuildingData.ComponentData Save() {
+        return new(typeof(MultipleTypeBuildingComponent),
+                new Dictionary<string, string> {
+                    {"Enum Type", EnumType.ToString()},
+                    {"Type", Type.ToString()}
+                });
+    }
+
+    public override void Load(BuildingData.ComponentData data) {
+        SetEnumType(System.Type.GetType(data.componentData["Enum Type"]));
+        SetType((Enum)Enum.Parse(EnumType, data.componentData["Type"]));
     }
 }

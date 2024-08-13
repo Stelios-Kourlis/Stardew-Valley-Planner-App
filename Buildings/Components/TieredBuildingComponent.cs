@@ -6,13 +6,13 @@ using UnityEngine;
 using UnityEngine.U2D;
 using static Utility.ClassManager;
 
-public class TieredBuildingComponent : MonoBehaviour {
+[RequireComponent(typeof(Building))]
+public class TieredBuildingComponent : BuildingComponent {
 
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
     [field: SerializeField] public int Tier { get; set; } = 1;
     [field: SerializeField] public int MaxTier { get; private set; } = 1;
     private SpriteAtlas atlas;
-    private Building Building => gameObject.GetComponent<Building>();
     public Action<int> tierChanged;
 
     public TieredBuildingComponent SetMaxTier(int maxTier) {
@@ -39,9 +39,21 @@ public class TieredBuildingComponent : MonoBehaviour {
 
 
     public virtual void SetTier(int tier) {
-        if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
+        // if (MaxTier == 1) Building.OnAwake();
+        // if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
         Tier = tier;
         tierChanged?.Invoke(tier);
         Building.UpdateTexture(atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+    }
+
+    public override BuildingData.ComponentData Save() {
+        return new(typeof(TieredBuildingComponent),
+                new Dictionary<string, string> {
+                    { "Tier", Tier.ToString() }
+                });
+    }
+
+    public override void Load(BuildingData.ComponentData data) {
+        SetTier(int.Parse(data.componentData["Tier"]));
     }
 }

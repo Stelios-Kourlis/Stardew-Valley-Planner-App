@@ -23,7 +23,7 @@ public class Greenhouse : Building, IExtraActionBuilding {
         BuildingName = "Greenhouse";
         BaseHeight = 6;
         base.OnAwake();
-        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(new HashSet<ButtonTypes>()); //no interior interactions
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
     }

@@ -7,6 +7,7 @@ using static Utility.SpriteManager;
 /// <summary>
 /// Methods to handle buildings with an effect that has a range ex. Scarecrows, JunimoHuts etc...
 /// </summary>
+[RequireComponent(typeof(Building))]
 public class RangeEffectBuilding {
     private Building Building { get; set; }
     private Vector3Int[] RangeArea { get; set; }

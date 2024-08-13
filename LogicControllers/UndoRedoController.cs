@@ -34,7 +34,7 @@ public static class UndoRedoController {
                 throw new ArgumentException($"Invalid action {action}");
         }
         ignoreAction = false;
-        Debug.Log($"New last action is {actionLog.First().action + " " + actionLog.First().BuildingData.type}");
+        Debug.Log($"New last action is {actionLog.First().action + " " + actionLog.First().BuildingData.buildingType}");
         if (actionLog.First().action == Actions.EDIT) UndoLastAction();//edit is a 2 phase action, undo both phases
 
     }

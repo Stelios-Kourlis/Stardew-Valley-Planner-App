@@ -13,7 +13,8 @@ public enum ConnectFlag {
     RIGHT_ATTACHED = 8,
 }
 
-public class ConnectingBuildingComponent : MonoBehaviour {
+[RequireComponent(typeof(Building))]
+public class ConnectingBuildingComponent : BuildingComponent {
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
@@ -30,6 +31,14 @@ public class ConnectingBuildingComponent : MonoBehaviour {
         if (otherBuildings.Contains(neighbors[2])) flags.Add(ConnectFlag.BOTTOM_ATTACHED);
         if (includeTop) if (otherBuildings.Contains(neighbors[3])) flags.Add(ConnectFlag.TOP_ATTACHED);
         return flags.Cast<int>().Sum();
+    }
+
+    public override void Load(BuildingData.ComponentData data) { //No saving/load function in this component
+        return;
+    }
+
+    public override BuildingData.ComponentData Save() {
+        return null;
     }
 
     public void UpdateAllOtherBuildingOfSameType() {

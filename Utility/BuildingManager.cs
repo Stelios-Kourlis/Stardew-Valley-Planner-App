@@ -1,63 +1,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using SFB;
+using UnityEditor;
+using UnityEditor.Toolbars;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using static BuildingData;
 using static Utility.ClassManager;
 using static Utility.TilemapManager;
+using Newtonsoft.Json;
 
 namespace Utility {
     public static class BuildingManager {
-
-        /// <summary>
-        /// Save the current state of the buildings to a file
-        /// </summary>
-        /// <returns>true, if the user saved, false if the user cancelled</returns>
-        public static bool Save() {
-            string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
-            string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp"); ;
-            if (savePath != "") {
-                string directoryPath = Path.GetDirectoryName(savePath);
-                PlayerPrefs.SetString("DefaultSavePath", directoryPath);
-                using StreamWriter writer = new(savePath);
-                foreach (Building building in BuildingController.GetBuildings()) {
-                    writer.WriteLine(building.GetComponent<BuildingSaverLoader>().SaveBuilding());
-                }
-            }
-            return savePath != "";
-        }
-
-        /// <summary>
-        /// Load a farm from a file
-        /// </summary>
-        /// <returns>true, if the user chose a file, false if the user cancelled</returns>
-        public static bool Load() {
-            string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
-            Type currentType = BuildingController.currentBuildingType;
-            if (paths.Length > 0) {
-                string directoryPath = Path.GetDirectoryName(paths[0]);
-                PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
-                using StreamReader reader = new(paths[0]);
-                BuildingController.DeleteAllBuildings(true);
-                BuildingController.IsLoadingSave = true;
-                while (reader.Peek() >= 0) {
-                    //         string line = reader.ReadLine(); //todo fix load
-                    //         if (line.Equals("")) continue;
-                    //         BuildingController.PlaceSavedBuilding(new BuildingData(line));
-                }
-                BuildingController.IsLoadingSave = false;
-            }
-            BuildingController.SetCurrentBuildingType(currentType);
-            return paths.Length > 0;
-        }
 
         public static bool LoadThenSwitchSceneToFarm() {//todo fix
             string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);

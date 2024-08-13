@@ -44,11 +44,13 @@ public class Cabin : Building, IExtraActionBuilding {
         for (int i = 0; i < cabinTypeIsPlaced.Length; i++) cabinTypeIsPlaced[i] = false;
         gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(4);
-        gameObject.AddComponent<EnterableBuildingComponent>();
-        // multipleTypeBuildingComponent.DefaultSprite = multipleTypeBuildingComponent.Atlas.GetSprite($"{Types.Wood}1");
-
-        // SetType(CurrentType);
-        // SetTier(1);
+        gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(
+            new HashSet<ButtonTypes> {
+                ButtonTypes.TIER_ONE,
+                ButtonTypes.TIER_TWO,
+                ButtonTypes.TIER_THREE,
+            }
+        );
     }
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {

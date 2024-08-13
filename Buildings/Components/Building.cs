@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine.UI;
 using System;
 
+[Serializable]
 public abstract class Building : TooltipableGameObject {
     protected readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
     protected readonly Color SEMI_TRANSPARENT_INVALID = new(1, 0.5f, 0.5f, 0.5f);
@@ -29,11 +30,11 @@ public abstract class Building : TooltipableGameObject {
         PICKED_UP,
     }
 
-    [field: SerializeField] public BuildingState CurrentBuildingState { get; protected set; } = BuildingState.NOT_PLACED;
+    public BuildingState CurrentBuildingState { get; protected set; } = BuildingState.NOT_PLACED;
 
     [field: SerializeField] public string BuildingName { get; protected set; }
 
-    [field: SerializeField] public Vector3Int[] SpriteCoordinates { get; private set; }
+    public Vector3Int[] SpriteCoordinates { get; private set; }
 
     [field: SerializeField] public Vector3Int[] BaseCoordinates { get; protected set; }
 
@@ -59,11 +60,10 @@ public abstract class Building : TooltipableGameObject {
 
     public override void OnAwake() {
         CurrentBuildingState = BuildingState.NOT_PLACED;
-        gameObject.AddComponent<Tilemap>();
-        gameObject.AddComponent<TilemapRenderer>();
-        gameObject.AddComponent<BuildingSaverLoader>();
+        if (!gameObject.TryGetComponent<Tilemap>(out _)) gameObject.AddComponent<Tilemap>();
+        if (!gameObject.TryGetComponent<TilemapRenderer>(out _)) gameObject.AddComponent<TilemapRenderer>();
+        if (!gameObject.TryGetComponent<BuildingSaverLoader>(out _)) gameObject.AddComponent<BuildingSaverLoader>();
         Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
-        // Debug.Assert(Sprite != null, $"Sprite 'Buildings/{GetType()}' not found");
     }
 
     public void OnDestroy() {
@@ -157,7 +157,7 @@ public abstract class Building : TooltipableGameObject {
 
         PlayParticleEffect(this, true);
         BuildingController.buildingGameObjects.Add(gameObject);
-        BuildingController.buildings.Add(this);
+        // BuildingController.buildings.Add(this);
         if (CurrentBuildingState == BuildingState.PICKED_UP) BuildingController.SetCurrentAction(Actions.EDIT); //todo add BuildingData loading
         CurrentBuildingState = BuildingState.PLACED;
         BuildingController.buildingGameObjects.Add(gameObject);

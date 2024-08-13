@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Windows.Forms;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
@@ -30,14 +31,21 @@ public class House : Building {
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
-    private MarriageCandidate? spouse = null;
+    // private MarriageCandidate? spouse = null;//todo implement marriage
 
     public override void OnAwake() {
         BaseHeight = 6;
         BuildingName = "House";
         base.OnAwake();
         TieredBuildingComponent = gameObject.AddComponent<TieredBuildingComponent>().SetMaxTier(3);
-        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(
+            new HashSet<ButtonTypes> {
+                ButtonTypes.TIER_ONE,
+                ButtonTypes.TIER_TWO,
+                ButtonTypes.TIER_THREE,
+                ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS
+            }
+        ); ;
     }
 
     public void SetTier(int tier) {

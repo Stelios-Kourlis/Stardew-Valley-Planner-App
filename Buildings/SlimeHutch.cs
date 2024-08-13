@@ -16,7 +16,7 @@ public class SlimeHutch : Building, IExtraActionBuilding {
     public override void OnAwake() {
         BuildingName = "Slime Hutch";
         BaseHeight = 4;
-        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(new HashSet<ButtonTypes>()); //no interior interactions
         base.OnAwake();
     }
 

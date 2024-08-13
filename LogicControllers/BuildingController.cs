@@ -137,7 +137,8 @@ public static class BuildingController {
     /// Deletes all buildings except the house
     /// </summary>
     public static void DeleteAllBuildings(bool deleteHouse = false) {
-        foreach (Building building in buildings) {
+        var allBuilding = buildings.ToArray();
+        foreach (Building building in allBuilding) {
             if (building == null) continue;
             if (building.gameObject == null) continue;
             if (building is House && !deleteHouse) continue;
@@ -149,7 +150,7 @@ public static class BuildingController {
     }
 
     public static void PlaceSavedBuilding(BuildingData buildingData) {
-        GameObject go = new(buildingData.type.Name);
+        GameObject go = new(buildingData.buildingType.Name);
         go.transform.parent = GetGridTilemap().transform;
         BuildingSaverLoader buildingLoader = go.AddComponent<BuildingSaverLoader>();
         buildingLoader.LoadBuilding(buildingData);
@@ -188,8 +189,8 @@ public static class BuildingController {
     }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
-    public static bool Save() { return Utility.BuildingManager.Save(); }
-    public static bool Load() { return Utility.BuildingManager.Load(); }
+    public static bool Save() { return BuildingSaverLoader.SaveToFile(); }
+    public static bool Load() { return BuildingSaverLoader.LoadFromFile(); }
     public static void SaveAndQuit() { if (Save()) Quit(); }//if the user saved then quit
     public static void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<MoveablePanel>().SetPanelToClosedPosition(); }
     public static void Quit() {

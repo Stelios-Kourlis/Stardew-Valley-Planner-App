@@ -7,10 +7,10 @@ using static Utility.TilemapManager;
 using static Utility.ClassManager;
 using System;
 
-public class InteractableBuildingComponent : MonoBehaviour {
+[RequireComponent(typeof(Building))]
+public class InteractableBuildingComponent : BuildingComponent {
     [field: SerializeField] public HashSet<ButtonTypes> BuildingInteractions { get; set; }
     public GameObject ButtonParentGameObject { get; private set; } = null;
-    public Building Building => gameObject.GetComponent<Building>();
     public Action ButtonsCreated;
 
     public void Awake() {
@@ -59,5 +59,13 @@ public class InteractableBuildingComponent : MonoBehaviour {
 
     public void OnMouseRightClick() {
         if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+    }
+
+    public override BuildingData.ComponentData Save() {
+        return null;
+    }
+
+    public override void Load(BuildingData.ComponentData data) {
+        return;
     }
 }

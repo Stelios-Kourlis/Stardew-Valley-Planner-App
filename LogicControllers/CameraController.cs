@@ -35,7 +35,7 @@ public class CameraController : MonoBehaviour {
 
         mapTilemap = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>();
         mapTilemap.CompressBounds(); //awlays compress bounds
-        Debug.Log($"Updates tilemap bounds for {mapTilemap.name}");
+        // Debug.Log($"Updates tilemap bounds for {mapTilemap.name}");
         tilemapBounds = mapTilemap.localBounds;
     }
 
@@ -43,7 +43,7 @@ public class CameraController : MonoBehaviour {
         float clampedX, clampedY;
         Vector3 cameraPosition = mainCamera.transform.position;
         if (tilemapBounds.Contains(cameraPosition)) return; //if the camera is inside the bounds, don't clamp it;
-        Debug.Log(tilemapBounds);
+        // Debug.Log(tilemapBounds);
 
         if (BuildingController.isInsideBuilding.Key) { //keep only the camera center in bounds
             clampedX = Mathf.Clamp(cameraPosition.x, tilemapBounds.min.x, tilemapBounds.max.x);

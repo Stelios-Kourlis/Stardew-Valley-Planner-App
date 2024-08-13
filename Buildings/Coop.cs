@@ -30,64 +30,14 @@ public class Coop : Building {
                 { 3, new HashSet<Animals>{ Animals.Chicken, Animals.Duck, Animals.VoidChicken, Animals.Dinosaur, Animals.GoldenChicken, Animals.Rabbit } }
             }
         );
-        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>();
+        EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(
+            new HashSet<ButtonTypes> {
+                ButtonTypes.TIER_ONE,
+                ButtonTypes.TIER_TWO,
+                ButtonTypes.TIER_THREE,
+            }
+        );
     }
-
-    // public void PerformExtraActionsOnPlace(Vector3Int position) {
-    //     AnimalHouseComponent.AddAnimalMenuObject();
-    // }
-
-    // public void SetTier(int tier) {
-    //     TieredBuildingComponent.SetTier(tier);
-    //     AnimalHouseComponent.UpdateMaxAnimalCapacity(tier);
-
-    //     //Update Animals
-    //     List<KeyValuePair<Animals, GameObject>> animalsToRemove = new();
-
-    //     string animalsRemoved = GetRemovedAnimals();
-    //     if (tier < 2) animalsToRemove.AddRange(AnimalHouseComponent.AnimalsInBuilding.Where(animal => animal.Key == Animals.Duck || animal.Key == Animals.VoidChicken || animal.Key == Animals.Dinosaur || animal.Key == Animals.GoldenChicken));
-    //     if (tier < 3) animalsToRemove.AddRange(AnimalHouseComponent.AnimalsInBuilding.Where(animal => animal.Key == Animals.Rabbit));
-    //     if (animalsToRemove.Count != 0) GetNotificationManager().SendNotification($"Removed {animalsRemoved} because they aren't allowed in tier {tier} {GetType()}", NotificationManager.Icons.InfoIcon);
-
-    //     foreach (var pair in animalsToRemove) {
-    //         Destroy(pair.Value);
-    //         AnimalHouseComponent.AnimalsInBuilding.Remove(pair);
-    //     }
-
-    //     if (AnimalHouseComponent.AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalHouseComponent.AnimalsInBuilding.Count - AnimalHouseComponent.MaxAnimalCapacity} animals that exceed the new capacity of {GetType()}", NotificationManager.Icons.InfoIcon);
-    //     while (AnimalHouseComponent.AnimalsInBuilding.Count > AnimalHouseComponent.MaxAnimalCapacity) {
-    //         Destroy(AnimalHouseComponent.AnimalsInBuilding.Last().Value);
-    //         AnimalHouseComponent.AnimalsInBuilding.Remove(AnimalHouseComponent.AnimalsInBuilding.Last());
-    //     }
-    // }
-
-    // private string GetRemovedAnimals() {
-    //     int rabbitCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Rabbit);
-    //     string rabbitsRemoved = rabbitCount > 0 ? $"{rabbitCount} Rabbit" : "";
-    //     if (rabbitCount > 1) rabbitsRemoved += "s";
-    //     rabbitsRemoved += ",";
-
-    //     int duckCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Duck);
-    //     string ducksRemoved = duckCount > 0 ? $"{duckCount} Duck" : "";
-    //     if (duckCount > 1) ducksRemoved += "s";
-    //     ducksRemoved += ",";
-
-    //     int voidChickenCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.VoidChicken);
-    //     string voidChickensRemoved = voidChickenCount > 0 ? $"{voidChickenCount} Void Chicken" : "";
-    //     if (voidChickenCount > 1) voidChickensRemoved += "s";
-    //     voidChickensRemoved += ",";
-
-    //     int dinosaurCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.Dinosaur);
-    //     string dinosaursRemoved = dinosaurCount > 0 ? $"{dinosaurCount} Dinosaur" : "";
-    //     if (dinosaurCount > 1) dinosaursRemoved += "s";
-    //     dinosaursRemoved += ",";
-
-    //     int goldenChickenCount = AnimalHouseComponent.AnimalsInBuilding.Count(animal => animal.Key == Animals.GoldenChicken);
-    //     string goldenChickensRemoved = goldenChickenCount > 0 ? $"{goldenChickenCount} Golden Chicken" : "";
-    //     if (goldenChickenCount > 1) goldenChickensRemoved += "s";
-
-    //     return $"{rabbitsRemoved} {ducksRemoved} {voidChickensRemoved} {dinosaursRemoved} {goldenChickensRemoved}";
-    // }
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {//todo add animal costs
         return TieredBuildingComponent.Tier switch {
