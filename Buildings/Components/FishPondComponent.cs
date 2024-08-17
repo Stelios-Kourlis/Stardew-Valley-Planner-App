@@ -45,6 +45,7 @@ public class FishPondComponent : BuildingComponent {
     /// </summary>
     /// <param name="fishType"> The fish</param>
     public void SetFishImage(Fish fishType) {
+        Debug.Log($"Setting fish image to {fishType}");
         Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
         Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),
@@ -72,7 +73,7 @@ public class FishPondComponent : BuildingComponent {
             fishButton.onClick.AddListener(() => {
                 Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
                 SetFishImage(fishType);
-                Debug.Log($"Set fish to {fishType}");
+                // Debug.Log($"Set fish to {fishType}");
             });
         }
     }
@@ -93,11 +94,14 @@ public class FishPondComponent : BuildingComponent {
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
 
-    public void SetWaterTilemapColor(Color color) {
+    public void SetWaterTilemapAlpha(float alpha) {
+        var color = waterTilemapObject.GetComponent<Tilemap>().color;
+        color.a = alpha;
         waterTilemapObject.GetComponent<Tilemap>().color = color;
     }
 
     public void ClearWaterTilemap() {
+        // Debug.Log("Cleared Water");
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 
@@ -110,11 +114,14 @@ public class FishPondComponent : BuildingComponent {
         decoTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
     }
 
-    public void SetDecoTilemapColor(Color color) {
+    public void SetDecoTilemapAlpha(float alpha) {
+        var color = decoTilemapObject.GetComponent<Tilemap>().color;
+        color.a = alpha;
         decoTilemapObject.GetComponent<Tilemap>().color = color;
     }
 
     public void ClearDecoTilemap() {
+        // Debug.Log("Cleared Deco");
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 
@@ -133,7 +140,9 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
+        Debug.Log($"Set Fish {data.componentData["Fish"]}");
         SetFishImage((Fish)Enum.Parse(typeof(Fish), data.componentData["Fish"]));
+        decoIndex = 0;
         for (int index = 0; index != int.Parse(data.componentData["Deco Index"]); index++) {
             CycleFishPondDeco();
         }

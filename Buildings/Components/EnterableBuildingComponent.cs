@@ -39,10 +39,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     }
 
     public void AddBuildingInterior() {
-        Debug.Log(BuildingInteriorScene.name);
-        // if (BuildingInteriorScene.name != null) Upda
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");
-        Debug.Log(BuildingInteriorScene.name);
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
         InteriorAreaCoordinates = GetAreaAroundPosition(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
@@ -145,7 +142,8 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
         foreach (Transform buildingGameObject in interiorTransform) {
-            buildingGameObject.GetComponent<Building>().DeleteBuilding();
+            Building building = buildingGameObject.GetComponent<Building>();
+            if (building.CurrentBuildingState == Building.BuildingState.PLACED) building.DeleteBuilding();
         }
 
         BuildingInterior.GetComponent<Tilemap>().ClearAllTiles();

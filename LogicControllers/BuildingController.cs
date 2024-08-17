@@ -63,6 +63,9 @@ public static class BuildingController {
     /// Set the type of the building that is currently being placed
     /// </summary>
     public static void SetCurrentBuildingType(Type newType) {
+        if (CurrentAction == Actions.PLACE && CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) {
+            CurrentBuildingBeingPlaced.GetComponent<BuildingSaverLoader>().LoadSelf();
+        }
         GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated; //Backup is needed because if we destroy it now this script terminates
         LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
         UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
@@ -192,7 +195,8 @@ public static class BuildingController {
         };
         GetInputHandler().SetCursor(type);
         if (action == Actions.DELETE || action == Actions.EDIT) CurrentBuildingBeingPlaced.NoPreview();
-        else if ((CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) || CurrentBuildingBeingPlaced == null) CreateNewBuilding();//If there is a picked up building, dont create a new
+        else CurrentBuildingBeingPlaced.DoBuildingPreview();
+        // else if ((CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) || CurrentBuildingBeingPlaced == null) CreateNewBuilding();//If there is a picked up building, dont create a new
     }
 
     public static void SetCurrentTilemapTransform(Transform newTransform) {
@@ -214,7 +218,7 @@ public static class BuildingController {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-                    Application.Quit();
+        Application.Quit();
 #endif
     }
 }

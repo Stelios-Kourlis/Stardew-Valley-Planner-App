@@ -166,25 +166,25 @@ public class InputHandler : MonoBehaviour {
         //Mouse Hover
 
         // //Hover Exit //todo fix hovering
-        // bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
-        // if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
-        //     if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
-        //         interactableBuildingComponent.OnMouseExit();
-        //     }
-        //     if (hoveredBuilding.IsPlaced) hoveredBuilding.StopBuildingPreview();
-        //     hoveredBuilding = null;
-        // }
+        bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
+        if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
+            // if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
+            //         interactableBuildingComponent.OnMouseExit();
+            //     }
+            if (hoveredBuilding.CurrentBuildingState == Building.BuildingState.PLACED) hoveredBuilding.NoPreview();
+            hoveredBuilding = null;
+        }
 
         // //Hover Enter
-        // Building BuildingUnderMouse = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
-        // bool isInsideBuilding = BuildingController.isInsideBuilding.Key;
-        // if (BuildingUnderMouse != null && !isInsideBuilding) {
-        //     hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
-        //     hoveredBuilding.DoBuildingPreview();
-        //     if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
-        //         interactableBuildingComponent.OnMouseEnter();
-        //     }
-        // }
+        Building BuildingUnderMouse = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
+        bool isInsideBuilding = BuildingController.isInsideBuilding.Key;
+        if (BuildingUnderMouse != null && !isInsideBuilding) {
+            hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
+            hoveredBuilding.DoBuildingPreview();
+            // if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
+            //     interactableBuildingComponent.OnMouseEnter();
+            // }
+        }
 
     }
 }

@@ -20,6 +20,7 @@ public class FishPond : Building, IExtraActionBuilding {
     public override void OnAwake() {
         BuildingName = "Fish Pond";
         BaseHeight = 5;
+        HidBuildingPreview += HideBuildingPreviewComp;
         base.OnAwake();
         gameObject.AddComponent<FishPondComponent>();
 
@@ -35,9 +36,22 @@ public class FishPond : Building, IExtraActionBuilding {
         };
     }
 
+    public void HideBuildingPreviewComp() {
+        if (CurrentBuildingState == BuildingState.PLACED) {
+            FishPondComponent.SetDecoTilemapAlpha(1);
+            FishPondComponent.SetWaterTilemapAlpha(1);
+        }
+        else {
+            FishPondComponent.ClearDecoTilemap();
+            FishPondComponent.ClearWaterTilemap();
+        }
+    }
+
     public void PerformExtraActionsOnPlace(Vector3Int position) {
-        FishPondComponent.SetDecoTilemapLocation(position);
+        FishPondComponent.SetDecoTilemapLocation(position); //just copy the color of the tilemap
+        FishPondComponent.SetDecoTilemapAlpha(1);
         FishPondComponent.SetWaterTilemapLocation(position);
+        FishPondComponent.SetWaterTilemapAlpha(1);
     }
 
     public void PerformExtraActionsOnPickup() {
@@ -47,37 +61,31 @@ public class FishPond : Building, IExtraActionBuilding {
 
     public void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         FishPondComponent.SetDecoTilemapLocation(position); //just copy the color of the tilemap
-        FishPondComponent.SetDecoTilemapColor(Tilemap.color);
+        FishPondComponent.SetDecoTilemapAlpha(Tilemap.color.a);
         FishPondComponent.SetWaterTilemapLocation(position);
-        FishPondComponent.SetWaterTilemapColor(Tilemap.color);
-        // decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
-        // decoTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
-
-        // waterTilemapObject.GetComponent<Tilemap>().SetTiles(GetAreaAroundPosition(position, Height, Width).ToArray(), SplitSprite(atlas.GetSprite("FishPondBottom")));
-        // waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
+        FishPondComponent.SetWaterTilemapAlpha(Tilemap.color.a);
     }
 
     public void PerformExtraActionsOnPickupPreview() {
-        Vector3Int currentCell = GetMousePositionInTilemap();
-        if (BaseCoordinates.Contains(currentCell)) {
-            FishPondComponent.SetDecoTilemapColor(SEMI_TRANSPARENT);
-            FishPondComponent.SetWaterTilemapColor(SEMI_TRANSPARENT);
+        if (CurrentBuildingState == BuildingState.PLACED) {
+            FishPondComponent.SetDecoTilemapAlpha(Tilemap.color.a);
+            FishPondComponent.SetWaterTilemapAlpha(Tilemap.color.a);
         }
         else {
-            FishPondComponent.SetDecoTilemapColor(OPAQUE);
-            FishPondComponent.SetWaterTilemapColor(OPAQUE);
+            FishPondComponent.ClearDecoTilemap();
+            FishPondComponent.ClearWaterTilemap();
         }
     }
 
     public void PerformExtraActionsOnDeletePreview() {
-        Vector3Int currentCell = GetMousePositionInTilemap();
-        if (BaseCoordinates.Contains(currentCell)) {
-            FishPondComponent.SetDecoTilemapColor(SEMI_TRANSPARENT_INVALID);
-            FishPondComponent.SetWaterTilemapColor(SEMI_TRANSPARENT_INVALID);
+        Debug.Log($"PerformExtraActionsOnDeletePreview ({CurrentBuildingState})");
+        if (CurrentBuildingState == BuildingState.PLACED) {
+            FishPondComponent.SetDecoTilemapAlpha(Tilemap.color.a);
+            FishPondComponent.SetWaterTilemapAlpha(Tilemap.color.a);
         }
         else {
-            FishPondComponent.SetDecoTilemapColor(OPAQUE);
-            FishPondComponent.SetWaterTilemapColor(OPAQUE);
+            FishPondComponent.ClearDecoTilemap();
+            FishPondComponent.ClearWaterTilemap();
         }
     }
 }

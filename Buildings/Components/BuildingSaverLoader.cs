@@ -34,7 +34,16 @@ public class BuildingSaverLoader : MonoBehaviour {
         Building Building = gameObject.AddComponent(data.buildingType) as Building;
         Building.PlaceBuilding(data.lowerLeftCorner);
         buildingData = data;
-        foreach (ComponentData compData in data.componentData) {
+        LoadSavedComponents();
+    }
+
+    public void LoadSelf() {
+        LoadBuilding(buildingData);
+    }
+
+    public void LoadSavedComponents() {
+        foreach (ComponentData compData in buildingData.componentData) {
+            Debug.Log($"Loading component: {compData.componentType}");
             BuildingComponent component = gameObject.GetComponent(compData.componentType) as BuildingComponent;
             component.Load(compData);
         }

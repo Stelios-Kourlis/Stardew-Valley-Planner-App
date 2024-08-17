@@ -12,14 +12,16 @@ public class InteractableBuildingComponent : BuildingComponent {
     [field: SerializeField] public HashSet<ButtonTypes> BuildingInteractions { get; set; }
     public GameObject ButtonParentGameObject { get; private set; } = null;
     public Action ButtonsCreated;
+    bool wereButtonOpenOnBuildingPickup = false;
 
     public void Awake() {
         BuildingInteractions = new();
-        Building.BuildingPlaced += _ => CreateBuildingButtons();//ignore position places
+        Building.BuildingPlaced += _ => BuildingWasPlaced();//ignore position places
+        Building.BuildingPickedUp += BuildingPickedUp;
     }
 
     public void OnDestroy() {
-        Building.BuildingPlaced -= _ => CreateBuildingButtons();
+        Building.BuildingPlaced -= _ => BuildingWasPlaced();
         Destroy(gameObject.GetComponent<TieredBuildingComponent>());
         Destroy(gameObject.GetComponent<FishPondComponent>());
         Destroy(gameObject.GetComponent<AnimalHouseComponent>());
@@ -27,13 +29,22 @@ public class InteractableBuildingComponent : BuildingComponent {
         Destroy(gameObject.GetComponent<EnterableBuildingComponent>());
     }
 
+    public void BuildingPickedUp() {
+        wereButtonOpenOnBuildingPickup = ButtonParentGameObject.activeSelf;
+        ButtonParentGameObject.SetActive(false);
+    }
+
     public void AddInteractionToBuilding(ButtonTypes buttonType) {
         BuildingInteractions.Add(buttonType);
     }
 
-    private void CreateBuildingButtons() {
-        ButtonParentGameObject = GetButtonController().CreateButtonsForBuilding(Building);
-        ButtonsCreated?.Invoke();
+    private void BuildingWasPlaced() {
+        // Debug.Log(ButtonParentGameObject);
+        if (ButtonParentGameObject == null) {
+            ButtonParentGameObject = GetButtonController().CreateButtonsForBuilding(Building);
+            ButtonsCreated?.Invoke();
+        }
+        ButtonParentGameObject.SetActive(wereButtonOpenOnBuildingPickup);
     }
 
     public string GetBuildingSpriteName() {

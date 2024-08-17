@@ -30,7 +30,7 @@ public abstract class Building : TooltipableGameObject {
         PICKED_UP,
     }
 
-    public BuildingState CurrentBuildingState { get; protected set; } = BuildingState.NOT_PLACED;
+    [field: SerializeField] public BuildingState CurrentBuildingState { get; protected set; } = BuildingState.NOT_PLACED;
 
     [field: SerializeField] public string BuildingName { get; protected set; }
 
@@ -57,6 +57,7 @@ public abstract class Building : TooltipableGameObject {
     public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
     public Action BuildingPickedUp { get; set; }
+    protected Action HidBuildingPreview { get; set; }
     [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
@@ -93,6 +94,9 @@ public abstract class Building : TooltipableGameObject {
 
     public void DoBuildingPreview() {
         switch (BuildingController.CurrentAction) {
+            // case Actions.PLACE: //Place is handled diffrently
+            //     PlaceBuildingPreview(GetMousePositionInTilemap());
+            //     break;
             case Actions.EDIT:
                 PickupBuildingPreview();
                 break;
@@ -102,9 +106,10 @@ public abstract class Building : TooltipableGameObject {
         }
     }
 
-    public void StopBuildingPreview() {
-        Tilemap.color = OPAQUE;
-    }
+    // public void StopBuildingPreview() {
+    //     Tilemap.color = OPAQUE;
+    //     StoppedBuildingPreview?.Invoke();
+    // }
 
     public abstract List<MaterialCostEntry> GetMaterialsNeeded();
 
@@ -113,9 +118,11 @@ public abstract class Building : TooltipableGameObject {
     }
 
     public void NoPreview() {
-        Debug.Log("NoPreview");
+        // Debug.Log($"NoPreview on {BuildingName} (State = {CurrentBuildingState})");
         if (CurrentBuildingState == BuildingState.PLACED) Tilemap.color = OPAQUE;
         else Tilemap.ClearAllTiles();
+        HidBuildingPreview?.Invoke();
+
     }
 
     public bool PickupBuilding() {
@@ -161,13 +168,17 @@ public abstract class Building : TooltipableGameObject {
         PlayParticleEffect(this, true);
         BuildingController.buildingGameObjects.Add(gameObject);
         // BuildingController.buildings.Add(this);
-        if (CurrentBuildingState == BuildingState.PICKED_UP) BuildingController.SetCurrentAction(Actions.EDIT); //todo add BuildingData loading
+        bool wasPickedUp = BuildingState.PICKED_UP == CurrentBuildingState; //kind of ghetto but change need to happen before setting the action
         CurrentBuildingState = BuildingState.PLACED;
+        if (wasPickedUp) {
+            GetComponent<BuildingSaverLoader>().LoadSavedComponents();
+            BuildingController.SetCurrentAction(Actions.EDIT); //todo add BuildingData loading
+        }
         BuildingController.buildingGameObjects.Add(gameObject);
         BuildingController.buildings.Add(this);
         BuildingController.AddToUnavailableCoordinates(BaseCoordinates);
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
-        BuildingController.CreateNewBuilding();
+        if (!wasPickedUp) BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         BuildingController.anyBuildingPositionChanged?.Invoke();
         BuildingPlaced?.Invoke(BaseCoordinates[0]);
@@ -178,7 +189,7 @@ public abstract class Building : TooltipableGameObject {
     /// Show a preview of the building Placement
     /// </summary
     public void PlaceBuildingPreview(Vector3Int position) {
-        // return;
+        if (CurrentBuildingState == BuildingState.PLACED) return;
         TilemapRenderer.sortingOrder = -position.y + 50;
 
         if (BuildingCanBePlacedAtPosition(position, this).Item1) Tilemap.color = SEMI_TRANSPARENT;
