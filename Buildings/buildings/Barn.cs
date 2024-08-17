@@ -24,7 +24,7 @@ public class Barn : Building, IExtraActionBuilding {
 
 
     public override void OnAwake() {
-        Debug.Log("Barn OnAwake");
+        // Debug.Log("Barn OnAwake");
         BaseHeight = 4;
         BuildingName = "Barn";
         base.OnAwake();

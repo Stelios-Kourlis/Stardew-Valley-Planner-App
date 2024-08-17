@@ -8,6 +8,7 @@ public enum ButtonTypes {
     TIER_ONE = 1,
     TIER_TWO,
     TIER_THREE,
+    TIER_FOUR,
     ENTER,
     PAINT,
     PLACE_FISH,

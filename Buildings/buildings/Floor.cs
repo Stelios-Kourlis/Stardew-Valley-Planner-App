@@ -44,7 +44,7 @@ public class Floor : Building, IConnectingBuilding {
         CanBeMassPlaced = true;
         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         ConnectingBuildingComponent = gameObject.AddComponent<ConnectingBuildingComponent>();
-        BuildingPlaced += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
+        BuildingPlaced += _ => gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType();
         BuildingRemoved += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
     }
 
@@ -58,7 +58,7 @@ public class Floor : Building, IConnectingBuilding {
     }
 
     public void PerformExtraActionsOnDelete() {
-        BuildingPlaced -= gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
+        BuildingPlaced -= _ => gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType();
         // FloorWasAltered?.Invoke(BaseCoordinates[0]);
     }
 

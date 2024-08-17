@@ -41,7 +41,6 @@ public class AnimalHouseComponent : BuildingComponent {
             GetNotificationManager().SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
             return false;
         }
-        Debug.Log(animalsPerTier);
         if (!animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains(animal)) { GetNotificationManager().SendNotification($"Cannot add {animal} to Barn tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
         AnimalsInBuilding.Add(animal);
         AddAnimalButton(animal);

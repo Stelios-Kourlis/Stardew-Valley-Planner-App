@@ -15,12 +15,13 @@ public class InteractableBuildingComponent : BuildingComponent {
 
     public void Awake() {
         BuildingInteractions = new();
-        Building.BuildingPlaced += CreateBuildingButtons;
+        Building.BuildingPlaced += _ => CreateBuildingButtons();//ignore position places
     }
 
     public void OnDestroy() {
-        Building.BuildingPlaced -= CreateBuildingButtons;
+        Building.BuildingPlaced -= _ => CreateBuildingButtons();
         Destroy(gameObject.GetComponent<TieredBuildingComponent>());
+        Destroy(gameObject.GetComponent<FishPondComponent>());
         Destroy(gameObject.GetComponent<AnimalHouseComponent>());
         Destroy(gameObject.GetComponent<MultipleTypeBuildingComponent>());
         Destroy(gameObject.GetComponent<EnterableBuildingComponent>());

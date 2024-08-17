@@ -6,20 +6,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class HUDButtonCotroller : MonoBehaviour {
-    private bool ActionButtonMenuIsOpen = false;
-    public float SPEED = 500.0f; // Speed of the movement
-
-    private GameObject[] ActionButtons = new GameObject[3];
     private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
     public void Awake() {
         //Action Buttons
         GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { ActionButtonPressed(GameObject.FindWithTag("PlaceButton"), Actions.PLACE); });
         GameObject.FindWithTag("DeleteButton").GetComponent<Button>().onClick.AddListener(() => { ActionButtonPressed(GameObject.FindWithTag("DeleteButton"), Actions.DELETE); });
         GameObject.FindWithTag("PickupButton").GetComponent<Button>().onClick.AddListener(() => { ActionButtonPressed(GameObject.FindWithTag("PickupButton"), Actions.EDIT); });
-
-        ActionButtons[0] = GameObject.FindWithTag("PickupButton");
-        ActionButtons[1] = GameObject.FindWithTag("DeleteButton");
-        ActionButtons[2] = GameObject.FindWithTag("PlaceButton");
+        GameObject.Find("CloseMenuButton").GetComponent<Button>().onClick.AddListener(() => { GameObject.Find("ActionButtons").GetComponent<FoldingMenuGroup>().ToggleMenu(); });
 
         //Tab Buttons
         GameObject panelGameObject = GameObject.FindWithTag("Panel");
@@ -53,40 +46,16 @@ public class HUDButtonCotroller : MonoBehaviour {
         AddBuildingButtonsForPanel(content.transform);
     }
 
-    public void ToggleActionButtonMenu() {
-        if (ActionButtonMenuIsOpen) CloseActionButtonMenu();
-        else OpenActionButtonMenu();
-    }
-
-    public void OpenActionButtonMenu() {
-        Vector3 startPosition = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").GetComponent<RectTransform>().localPosition;
-        float buttonWidth = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").GetComponent<RectTransform>().rect.width;
-        for (int childIndex = 0; childIndex < ActionButtons.Count(); childIndex++) {
-            Vector3 endPosition = startPosition - new Vector3((buttonWidth + 10) * (childIndex + 1), 0, 0);
-            StartCoroutine(UIObjectMover.MoveObjectInConstantTime(ActionButtons[childIndex].transform, startPosition, endPosition, 0.5f));
-        }
-
-        ActionButtonMenuIsOpen = true;
-    }
-
-    public void CloseActionButtonMenu() {
-        Vector3 endPosition = GameObject.Find("ActionButtons").transform.Find("CloseMenuButton").GetComponent<RectTransform>().localPosition;
-        for (int childIndex = 0; childIndex < ActionButtons.Count(); childIndex++) {
-            Vector3 startPosition = ActionButtons[childIndex].GetComponent<RectTransform>().localPosition;
-            StartCoroutine(UIObjectMover.MoveObjectInConstantTime(ActionButtons[childIndex].transform, startPosition, endPosition, 0.5f));
-        }
-        ActionButtonMenuIsOpen = false;
-    }
 
 
 
     private void ActionButtonPressed(GameObject button, Actions action) {
-        if (!ActionButtonMenuIsOpen) {
+        if (GameObject.Find("ActionButtons").GetComponent<FoldingMenuGroup>().isOpen) {
+            // Debug.Log("g");
             button.transform.SetAsLastSibling();
             BuildingController.SetCurrentAction(action);
-            CloseActionButtonMenu();
         }
-        else OpenActionButtonMenu();
+        GameObject.Find("ActionButtons").GetComponent<FoldingMenuGroup>().ToggleMenu();
 
     }
 

@@ -22,7 +22,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
     private static int numberOfInteriors = 0;
     private Vector3 cameraPositionBeforeEnter;
-    Scene BuildingInteriorScene;
+    private Scene BuildingInteriorScene;
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
     private Scene MapScene => GetMapController().MapScene;
     private Transform mapTransform;
@@ -33,19 +33,22 @@ public class EnterableBuildingComponent : BuildingComponent {
     }
 
     public void Awake() {
-        Building.BuildingPlaced += AddBuildingInterior;
+        Building.BuildingPlaced += _ => AddBuildingInterior();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
     }
 
     public void AddBuildingInterior() {
+        Debug.Log(BuildingInteriorScene.name);
+        // if (BuildingInteriorScene.name != null) Upda
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");
+        Debug.Log(BuildingInteriorScene.name);
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
         InteriorAreaCoordinates = GetAreaAroundPosition(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
         BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
         BuildingInterior.GetComponent<Tilemap>().CompressBounds();
-        BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = Building.TilemapRenderer.sortingOrder + 50;
+        BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = -100;
 
         GameObject grid = new("Grid");
         grid.SetActive(false);
@@ -53,20 +56,116 @@ public class EnterableBuildingComponent : BuildingComponent {
         grid.AddComponent<Tilemap>();
         BuildingInterior.transform.SetParent(grid.transform);
 
+        GameObject canvas = new("Canvas");
+        canvas.SetActive(false);
+        canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        canvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
+        canvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
+        canvas.AddComponent<GraphicRaycaster>();
+
+        if (InteriorInteractions.Count > 0) {
+            GameObject parent = new("InteriorButtons");
+            parent.transform.SetParent(canvas.transform);
+            parent.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+            parent.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
+            parent.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
+            parent.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
+            parent.GetComponent<RectTransform>().position = new Vector3(-10, -350, 0); //this puts it right below the other button
+            parent.AddComponent<FoldingMenuGroup>();
+
+            GameObject closeButton = new("Close");
+            closeButton.transform.SetParent(parent.transform);
+            closeButton.AddComponent<FoldingMenuItem>().isAnchorButton = true;
+            closeButton.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+            closeButton.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+            closeButton.AddComponent<Image>().sprite = Resources.Load<Sprite>("UI/CloseFoldingMenu");
+            closeButton.AddComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
+
+
+            foreach (ButtonTypes type in InteriorInteractions) {
+                GameObject button = new(type.ToString());
+                button.transform.SetParent(parent.transform);
+                button.AddComponent<FoldingMenuItem>();
+                button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+                button.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
+                button.AddComponent<Image>().sprite = Resources.Load<Sprite>($"UI/{type}");
+                switch (type) {
+                    case ButtonTypes.TIER_ONE:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            Building.GetComponent<TieredBuildingComponent>().SetTier(1);
+                            UpdateBuildingInterior();
+                        });
+                        break;
+                    case ButtonTypes.TIER_TWO:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            Building.GetComponent<TieredBuildingComponent>().SetTier(2);
+                            UpdateBuildingInterior();
+                        });
+                        break;
+                    case ButtonTypes.TIER_THREE:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            Building.GetComponent<TieredBuildingComponent>().SetTier(3);
+                            UpdateBuildingInterior(); ;
+                        });
+                        break;
+                    case ButtonTypes.TIER_FOUR:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            Building.GetComponent<TieredBuildingComponent>().SetTier(4);
+                            UpdateBuildingInterior();
+                        });
+                        break;
+                    case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            Debug.Log("WIP");
+                        });
+                        break;
+                    default:
+                        throw new System.ArgumentException($"Invalid interior interaction {type}");
+                }
+
+                button.GetComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
+
+                closeButton.transform.SetAsLastSibling();
+            }
+        }
+
+
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
+        SceneManager.MoveGameObjectToScene(canvas, BuildingInteriorScene);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
         InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
     }
 
+    public void UpdateBuildingInterior() {
+        if (BuildingInterior == null) AddBuildingInterior(); //failsafe
+
+        Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
+        foreach (Transform buildingGameObject in interiorTransform) {
+            buildingGameObject.GetComponent<Building>().DeleteBuilding();
+        }
+
+        BuildingInterior.GetComponent<Tilemap>().ClearAllTiles();
+        interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
+        InteriorAreaCoordinates = GetAreaAroundPosition(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
+        BuildingInterior.GetComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
+        BuildingInterior.GetComponent<Tilemap>().CompressBounds();
+        GetCamera().GetComponent<CameraController>().UpdateTilemapBounds();
+
+        string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
+        InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+        InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+        GetMapController().UpdateAllCoordinates();
+    }
+
     public void ToggleEditBuildingInterior() {
         if (BuildingInterior == null) AddBuildingInterior(); //failsafe
 
         if (interriorSprite.name != InteractableBuildingComponent.GetBuildingInsideSpriteName()) { //In case interior need to be updates
-            Destroy(BuildingInterior);
-            AddBuildingInterior();
+            UpdateBuildingInterior();
         }
 
         if (BuildingController.isInsideBuilding.Key) ExitBuildingInteriorEditing();

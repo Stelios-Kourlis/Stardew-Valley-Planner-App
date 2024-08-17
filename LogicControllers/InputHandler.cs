@@ -10,6 +10,7 @@ using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using System;
 using System.Diagnostics.Eventing.Reader;
+using UnityEngine.SceneManagement;
 
 public class InputHandler : MonoBehaviour {
 
@@ -156,8 +157,9 @@ public class InputHandler : MonoBehaviour {
             if (building != null) building.PlaceBuildingPreview(mousePosition);
             if (mouseIsHeld && BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) {
                 mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().ClearAllTiles();
-                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) GetGridTilemap().gameObject.transform.Find("MassDeletePreview").GetComponent<Tilemap>().SetTile(position, LoadTile("GreenTile"));
+                Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects()[3].transform.Find("MassDeletePreview").GetComponent<Tilemap>();
+                massDeleteTilemap.ClearAllTiles();
+                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile("GreenTile"));
             }
         }
 

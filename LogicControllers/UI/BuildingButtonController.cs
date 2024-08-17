@@ -28,6 +28,7 @@ public class BuildingButtonController : MonoBehaviour {
     /// </summary>
     /// <returns>The parent game object of the buttons</returns>
     public GameObject CreateButtonsForBuilding(Building building) {
+        // Debug.Log("Creating buttons for building " + building.BuildingName);
         HashSet<ButtonTypes> buttonTypes = building.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
         int numberOfButtons = buttonTypes.Count;
         if (numberOfButtons == 0) return null;
@@ -108,16 +109,13 @@ public class BuildingButtonController : MonoBehaviour {
                 button.onClick.AddListener(() => { GetNotificationManager().SendNotification("Not Implemented yet", NotificationManager.Icons.ErrorIcon); });//todo add building painting support
                 break;
             case ButtonTypes.PLACE_FISH:
-                if (building is FishPond fishPond) fishPond.CreateFishMenu();
-                else throw new ArgumentException("Building MUST be fish pond to have this button type");
                 button.onClick.AddListener(() => {
-                    GameObject fishMenu = button.transform.GetChild(1).gameObject;
-                    fishMenu.SetActive(!fishMenu.activeInHierarchy);
+                    if (building.BuildingGameObject.TryGetComponent(out FishPondComponent fishPondComponent)) fishPondComponent.ToggleFishMenu();
                 });
                 break;
             case ButtonTypes.CHANGE_FISH_POND_DECO:
                 button.onClick.AddListener(() => {
-                    if (building is FishPond fishPond) fishPond.CycleFishPondDeco();
+                    if (building.BuildingGameObject.TryGetComponent(out FishPondComponent fishPondComponent)) fishPondComponent.CycleFishPondDeco();
                 });
                 break;
             case ButtonTypes.ADD_ANIMAL:

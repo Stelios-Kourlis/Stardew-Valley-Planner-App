@@ -54,8 +54,9 @@ public abstract class Building : TooltipableGameObject {
 
     public GameObject BuildingGameObject => gameObject;
 
-    public Action BuildingPlaced { get; set; }
+    public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
+    public Action BuildingPickedUp { get; set; }
     [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
@@ -78,7 +79,7 @@ public abstract class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) {
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
-            BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
+            BuildingController.RemoveFromUnavailableCoordinates(BaseCoordinates);
             UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
             if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
@@ -122,8 +123,10 @@ public abstract class Building : TooltipableGameObject {
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
         UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetComponent<BuildingSaverLoader>().SaveBuilding()));
-        BuildingController.GetUnavailableCoordinates().RemoveWhere(x => BaseCoordinates.Contains(x));
+        BuildingController.RemoveFromUnavailableCoordinates(BaseCoordinates);
         CurrentBuildingState = BuildingState.PICKED_UP;
+        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
+        BuildingPickedUp?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
         return true;
     }
@@ -162,12 +165,12 @@ public abstract class Building : TooltipableGameObject {
         CurrentBuildingState = BuildingState.PLACED;
         BuildingController.buildingGameObjects.Add(gameObject);
         BuildingController.buildings.Add(this);
-        BuildingController.GetUnavailableCoordinates().UnionWith(BaseCoordinates);
+        BuildingController.AddToUnavailableCoordinates(BaseCoordinates);
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
         BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         BuildingController.anyBuildingPositionChanged?.Invoke();
-        BuildingPlaced?.Invoke();
+        BuildingPlaced?.Invoke(BaseCoordinates[0]);
         return true;
     }
 

@@ -15,7 +15,7 @@ public static class BuildingController {
     private static readonly HashSet<Vector3Int> unavailableCoordinates = new();
     private static readonly HashSet<Vector3Int> plantableCoordinates = new();
     public static readonly List<Building> buildings = new();
-    public static Type currentBuildingType = typeof(Barn);
+    public static Type currentBuildingType = typeof(FishPond);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
@@ -42,9 +42,21 @@ public static class BuildingController {
         }
     }
 
-    public static void DeleteLastBuilding() {
-        if (LastBuildingObjectCreated == null) return;
-        UnityEngine.Object.Destroy(LastBuildingObjectCreated);
+    public static void DeleteCurrentBuilding() {
+        if (CurrentBuildingBeingPlaced == null) return;
+        CurrentBuildingBeingPlaced.DeleteBuilding();
+    }
+
+    public static void AddToUnavailableCoordinates(Vector3Int[] coordinates) {
+        if (!isInsideBuilding.Key) GetUnavailableCoordinates().UnionWith(coordinates);
+        else isInsideBuilding.Value.InteriorUnavailableCoordinates.UnionWith(coordinates);
+        GetMapController().UpdateUnavailableCoordinates();
+    }
+
+    public static void RemoveFromUnavailableCoordinates(Vector3Int[] coordinates) {
+        if (!isInsideBuilding.Key) GetUnavailableCoordinates().ExceptWith(coordinates);
+        else isInsideBuilding.Value.InteriorUnavailableCoordinates.ExceptWith(coordinates);
+        GetMapController().UpdateUnavailableCoordinates();
     }
 
     /// <summary>
@@ -179,8 +191,8 @@ public static class BuildingController {
             _ => InputHandler.CursorType.Default
         };
         GetInputHandler().SetCursor(type);
-        if (action == Actions.DELETE || action == Actions.EDIT) DeleteLastBuilding();
-        else if ((CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) && CurrentBuildingBeingPlaced.gameObject == null) CreateNewBuilding();//If there is a picked up building, dont create a new
+        if (action == Actions.DELETE || action == Actions.EDIT) CurrentBuildingBeingPlaced.NoPreview();
+        else if ((CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) || CurrentBuildingBeingPlaced == null) CreateNewBuilding();//If there is a picked up building, dont create a new
     }
 
     public static void SetCurrentTilemapTransform(Transform newTransform) {

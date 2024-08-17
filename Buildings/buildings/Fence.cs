@@ -35,7 +35,7 @@ public class Fence : Building, IConnectingBuilding {
         CanBeMassPlaced = true;
         MultipleTypeBuildingComponent = gameObject.AddComponent<MultipleTypeBuildingComponent>().SetEnumType(typeof(Types));
         ConnectingBuildingComponent = gameObject.AddComponent<ConnectingBuildingComponent>();
-        BuildingPlaced += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
+        BuildingPlaced += _ => gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType();
         BuildingRemoved += gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
     }
 
@@ -73,7 +73,7 @@ public class Fence : Building, IConnectingBuilding {
     }
 
     public void PerformExtraActionsOnDelete() {
-        BuildingPlaced -= gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType;
+        BuildingPlaced -= _ => gameObject.GetComponent<ConnectingBuildingComponent>().UpdateAllOtherBuildingOfSameType();
     }
 
     public void UpdateSelf() {
