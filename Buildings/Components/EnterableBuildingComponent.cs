@@ -39,6 +39,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     }
 
     public void AddBuildingInterior() {
+        if (BuildingInteriorScene.name != null) return; //failsafe
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");

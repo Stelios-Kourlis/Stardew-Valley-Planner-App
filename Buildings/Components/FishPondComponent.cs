@@ -62,7 +62,6 @@ public class FishPondComponent : BuildingComponent {
         GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         fishMenu = Instantiate(fishMenuPrefab);
         fishMenu.transform.SetParent(Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0));
-        // Vector3 fishMenuPositionWorld = new(Building.Tilemap.CellToWorld(Building.BaseCoordinates[0] + new Vector3Int(1, 0, 0)).x, GetMiddleOfBuildingWorld(Building).y);
         fishMenu.GetComponent<RectTransform>().localPosition = Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).position - new Vector3(75, 0, 0);
         fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
         fishMenu.SetActive(false);
@@ -82,10 +81,6 @@ public class FishPondComponent : BuildingComponent {
         fishMenu.SetActive(!fishMenu.activeSelf);
     }
 
-    public void UpdateFishImage() {
-        SetFishImage(fish);
-    }
-
     public void SetWaterTilemapLocation(Vector3Int lowerLeftCorner) {
         Vector3Int[] baseCoordinates = GetAreaAroundPosition(lowerLeftCorner, Building.BaseHeight, Building.Width).ToArray();
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
@@ -101,7 +96,6 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public void ClearWaterTilemap() {
-        // Debug.Log("Cleared Water");
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 

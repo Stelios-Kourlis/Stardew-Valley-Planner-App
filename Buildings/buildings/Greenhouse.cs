@@ -26,6 +26,7 @@ public class Greenhouse : Building, IExtraActionBuilding {
         EnterableBuildingComponent = gameObject.AddComponent<EnterableBuildingComponent>().AddInteriorInteractions(new HashSet<ButtonTypes>()); //no interior interactions
         porchSprite = Resources.Load<Sprite>("Buildings/GreenhousePorch");
         porchTilemapObject = CreateTilemapObject(transform, 0, "Porch");
+        HidBuildingPreview += NoPreviewPortch;
     }
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
@@ -39,31 +40,30 @@ public class Greenhouse : Building, IExtraActionBuilding {
         porchTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
     }
 
-    protected void PerformExtraActionsOnPickup() {
+    public void PerformExtraActionsOnPickup() {
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
     }
 
-    protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
-        Vector3Int porchBottomRight = position + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
+    public void NoPreviewPortch() {
+        // Debug.Log($"NoPreview on {BuildingName} (State = {CurrentBuildingState})");
+        if (CurrentBuildingState == BuildingState.PLACED) porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+        else porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+    }
+
+    public void PerformExtraActionsOnPlacePreview(Vector3Int position) {
+        Vector3Int porchBottomRight = position + new Vector3Int(2, -2, 0);
         Vector3Int[] porchCoordinates = GetAreaAroundPosition(porchBottomRight, 2, 3).ToArray();
-        HashSet<Vector3Int> unavailableCoordinates = BuildingController.GetUnavailableCoordinates();
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
-        if (unavailableCoordinates.Intersect(porchCoordinates).Count() > 0) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
-        else porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
+        porchTilemapObject.GetComponent<Tilemap>().color = Tilemap.color;
     }
 
-    protected void PerformExtraActionsOnDeletePreview() {
-        Vector3Int currentCell = GetMousePositionInTilemap();
-        // Debug.Log(currentCell);
-        if (BaseCoordinates?.Contains(currentCell) ?? false) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT_INVALID;
-        else porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+    public void PerformExtraActionsOnDeletePreview() {
+        porchTilemapObject.GetComponent<Tilemap>().color = Tilemap.color;
     }
 
-    protected void PerformExtraActionsOnPickupPreview() {
-        Vector3Int currentCell = GetMousePositionInTilemap();
-        if (BaseCoordinates.Contains(currentCell)) porchTilemapObject.GetComponent<Tilemap>().color = SEMI_TRANSPARENT;
-        else porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
+    public void PerformExtraActionsOnPickupPreview() {
+        porchTilemapObject.GetComponent<Tilemap>().color = Tilemap.color;
     }
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {

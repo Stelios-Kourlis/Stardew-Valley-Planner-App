@@ -58,6 +58,7 @@ namespace Utility {
 
 
             List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);
+            if (building is Greenhouse) baseCoordinates.AddRange(GetAreaAroundPosition(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;

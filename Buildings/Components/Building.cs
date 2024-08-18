@@ -122,7 +122,6 @@ public abstract class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) Tilemap.color = OPAQUE;
         else Tilemap.ClearAllTiles();
         HidBuildingPreview?.Invoke();
-
     }
 
     public bool PickupBuilding() {
