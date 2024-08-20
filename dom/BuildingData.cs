@@ -11,27 +11,29 @@ public class BuildingData {
 
     public class ComponentData {
         public readonly Type componentType;
-        public readonly Dictionary<string, string> componentData;
+        public readonly List<JProperty> componentData;
+        // public readonly List<BuildingData> buildings;
 
-        public ComponentData(Type componentType, Dictionary<string, string> componentData) {
+        public ComponentData(Type componentType, List<JProperty> componentData) {
             this.componentType = componentType;
             this.componentData = componentData;
         }
 
-        public void AddKeyValuePairToData(string key, string value) {
-            componentData.Add(key, value);
+        public void AddProperty(JProperty property) {
+            Debug.Log($"Adding {property}");
+            componentData.Add(property);
         }
 
         public override string ToString() {
             string data = $"{componentType}:\n";
-            foreach (KeyValuePair<string, string> kvp in componentData) data += $"- {kvp.Key}: {kvp.Value}\n";
+            // foreach (KeyValuePair<string, string> kvp in componentData) data += $"- {kvp.Key}: {kvp.Value}\n";
             return data;
         }
 
         public void AddToJson(JObject BuildingJObject) {
             JObject componentJObject = new();
-            foreach (var item in componentData) {
-                componentJObject[item.Key] = item.Value;
+            foreach (var property in componentData) {
+                componentJObject[property.Name] = property.Value;
             }
             BuildingJObject[componentType.ToString()] = componentJObject;
         }
@@ -60,7 +62,10 @@ public class BuildingData {
             ["Lower Left Corner X"] = lowerLeftCorner.x,
             ["Lower Left Corner Y"] = lowerLeftCorner.y
         };
-        foreach (var item in componentData) item.AddToJson(buildingData);
+        foreach (var component in componentData) {
+            Debug.Log($"Adding component {component.componentType} to JSON");
+            component.AddToJson(buildingData);
+        }
         return buildingData;
 
     }

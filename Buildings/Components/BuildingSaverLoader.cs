@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 // [RequireComponent(typeof(Building))]
 public class BuildingSaverLoader : MonoBehaviour {
@@ -20,6 +21,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     public BuildingData SaveBuilding() {
         if (!gameObject.TryGetComponent(out Building Building)) throw new Exception("Building component not found");
         if (Building.CurrentBuildingState != Building.BuildingState.PLACED) throw new Exception("Building is not placed, cannot save");
+
 
         List<ComponentData> extraData = new();
         foreach (BuildingComponent component in gameObject.GetComponents<BuildingComponent>()) {
@@ -32,9 +34,12 @@ public class BuildingSaverLoader : MonoBehaviour {
     public void LoadBuilding(BuildingData data) {
         // if (!data.buildingType.IsAssignableFrom(typeof(Building))) throw new Exception($"Invalid building type {data.buildingType}");
         Building Building = gameObject.AddComponent(data.buildingType) as Building;
-        Building.PlaceBuilding(data.lowerLeftCorner);
-        buildingData = data;
-        LoadSavedComponents();
+        if (Building.PlaceBuilding(data.lowerLeftCorner)) {
+            buildingData = data;
+            LoadSavedComponents();
+        }
+        else throw new Exception($"Failed to place building {data.buildingType}");
+
     }
 
     public void LoadSelf() {
@@ -60,6 +65,8 @@ public class BuildingSaverLoader : MonoBehaviour {
         Debug.Log("Saving all buildings");
         Debug.Log($"Building count: {BuildingController.buildings.Count}");
         foreach (Building building in BuildingController.buildings) {
+            Debug.Log(building.gameObject.scene.name.ToString());
+            if (!building.gameObject.scene.name.ToString().Contains("Map Scene")) continue;
             Debug.Log($"Saving {building.BuildingName} (index: {BuildingController.buildings.IndexOf(building)})");
             if (building.TryGetComponent(out BuildingSaverLoader saverLoader)) buildingData.Add(saverLoader.SaveBuilding());
             else throw new Exception("BuildingSaverLoader component not found");
@@ -83,7 +90,7 @@ public class BuildingSaverLoader : MonoBehaviour {
             List<BuildingData> allData = SaveAllBuildings();
             JObject root = new();
             foreach (var data in allData) root.Add(allData.IndexOf(data).ToString(), data.ToJson());
-            writer.Write(root.ToString());
+            writer.Write(Regex.Unescape(root.ToString(Formatting.Indented)));
         }
         return savePath != "";
     }
@@ -120,10 +127,8 @@ public class BuildingSaverLoader : MonoBehaviour {
         static ComponentData ParseComponentFromJson(JProperty jsonText) {
             Debug.Log($"Loading component: {jsonText}");
             Type componentType = Type.GetType(jsonText.Name);
-            Dictionary<string, string> componentData = new();
-            foreach (JProperty item in jsonText.Value.Cast<JProperty>()) {
-                componentData.Add(item.Name, item.Value.ToString());
-            }
+            List<JProperty> componentData = new();
+            foreach (JProperty item in jsonText.Value.Cast<JProperty>()) componentData.Add(item);
             return new(componentType, componentData);
         }
 

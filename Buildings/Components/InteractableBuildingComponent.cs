@@ -30,6 +30,7 @@ public class InteractableBuildingComponent : BuildingComponent {
     }
 
     public void BuildingPickedUp() {
+        if (ButtonParentGameObject == null) return;
         wereButtonOpenOnBuildingPickup = ButtonParentGameObject.activeSelf;
         ButtonParentGameObject.SetActive(false);
     }
@@ -38,13 +39,13 @@ public class InteractableBuildingComponent : BuildingComponent {
         BuildingInteractions.Add(buttonType);
     }
 
-    private void BuildingWasPlaced() {
+    public void BuildingWasPlaced() {
         // Debug.Log(ButtonParentGameObject);
         if (ButtonParentGameObject == null) {
             ButtonParentGameObject = GetButtonController().CreateButtonsForBuilding(Building);
             ButtonsCreated?.Invoke();
         }
-        ButtonParentGameObject.SetActive(wereButtonOpenOnBuildingPickup);
+        else ButtonParentGameObject.SetActive(wereButtonOpenOnBuildingPickup);
     }
 
     public string GetBuildingSpriteName() {

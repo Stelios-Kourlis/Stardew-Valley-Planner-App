@@ -10,6 +10,10 @@ using static Utility.InvalidTileLoader;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+using static BuildingData;
 
 [RequireComponent(typeof(Building))]
 public class EnterableBuildingComponent : BuildingComponent {
@@ -136,10 +140,12 @@ public class EnterableBuildingComponent : BuildingComponent {
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
         InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+
+        Debug.Log("added interior");
     }
 
     public void UpdateBuildingInterior() {
-        if (BuildingInterior == null) AddBuildingInterior(); //failsafe
+        if (BuildingInteriorScene.name == null) AddBuildingInterior(); //failsafe
 
         Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
         foreach (Transform buildingGameObject in interiorTransform) {
@@ -174,7 +180,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     public void EditBuildingInterior() {
         BuildingController.isInsideBuilding = new KeyValuePair<bool, EnterableBuildingComponent>(true, this);
 
-
+        GetComponent<InteractableBuildingComponent>().BuildingWasPlaced(); //if the buttons havent been added yet. add them
 
         foreach (GameObject obj in BuildingInteriorScene.GetRootGameObjects()) {
             obj.SetActive(true);
@@ -240,11 +246,41 @@ public class EnterableBuildingComponent : BuildingComponent {
 
     }
 
-    public override BuildingData.ComponentData Save() { //todo add saving interior
-        return null;
+    public override ComponentData Save() { //todo add saving interior
+        if (BuildingInteriorScene.name == null) return null;
+
+        ComponentData data = new(typeof(EnterableBuildingComponent), new());
+        int index = 0;
+        foreach (Transform building in BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0)) {
+            if (building.GetComponent<Building>().CurrentBuildingState != Building.BuildingState.PLACED) continue; //only save placed buildings
+            JProperty jproperty = new(index.ToString(), building.GetComponent<BuildingSaverLoader>().SaveBuilding().ToJson());
+            data.AddProperty(jproperty);
+            index++;
+        }
+        return data;
+
     }
 
-    public override void Load(BuildingData.ComponentData data) {
-        return;
+    public override void Load(ComponentData data) {
+        // AddBuildingInterior();
+        UpdateBuildingInterior();
+        EditBuildingInterior();
+        foreach (var property in data.componentData) {
+            JObject buildingData = (JObject)property.Value;
+            string buildingName = buildingData.Value<string>("Building Type");
+            int lowerLeftX = buildingData.Value<int>("Lower Left Corner X");
+            int lowerLeftY = buildingData.Value<int>("Lower Left Corner Y");
+
+            List<ComponentData> allComponentData = new();
+            foreach (var component in buildingData.Properties().Skip(3)) {
+                Type componentType = Type.GetType(component.Name);
+                List<JProperty> componentData = new();
+                foreach (JProperty item in component.Value.Cast<JProperty>()) componentData.Add(item);
+                allComponentData.Add(new(componentType, componentData));
+            }
+
+            BuildingController.PlaceSavedBuilding(new BuildingData(Type.GetType(buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), allComponentData.ToArray()));
+        }
+        ExitBuildingInteriorEditing();
     }
 }

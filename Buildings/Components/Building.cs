@@ -10,6 +10,7 @@ using UnityEngine.Tilemaps;
 using System.Linq;
 using UnityEngine.UI;
 using System;
+using System.Threading.Tasks;
 
 [Serializable]
 public abstract class Building : TooltipableGameObject {
@@ -54,6 +55,7 @@ public abstract class Building : TooltipableGameObject {
 
     public GameObject BuildingGameObject => gameObject;
 
+    // public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
     public Action BuildingPickedUp { get; set; }
@@ -73,7 +75,7 @@ public abstract class Building : TooltipableGameObject {
     }
 
     public void DeleteBuilding(bool force = false) {
-        if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House can't be deleted
+        if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
 
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
 
@@ -153,7 +155,11 @@ public abstract class Building : TooltipableGameObject {
     public bool PlaceBuilding(Vector3Int position) {
         Debug.Assert(Sprite != null, $"Sprite is null for {BuildingName}");
         (bool canBePlacedAtPosition, string errorMessage) = BuildingCanBePlacedAtPosition(position, this);
-        if (!canBePlacedAtPosition) { GetNotificationManager().SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon); return false; }
+        if (!canBePlacedAtPosition) {
+            GetNotificationManager().SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon);
+            Debug.Log($"Failed to place {BuildingName}: {errorMessage}");
+            return false;
+        }
         PlaceBuildingPreview(position);
         Tilemap.color = OPAQUE;
 
@@ -181,6 +187,12 @@ public abstract class Building : TooltipableGameObject {
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         BuildingController.anyBuildingPositionChanged?.Invoke();
         BuildingPlaced?.Invoke(BaseCoordinates[0]);
+        // if (BuildingPlaced != null) {
+        //     foreach (Func<Vector3Int, Task> handler in BuildingPlaced.GetInvocationList().Cast<Func<Vector3Int, Task>>()) {
+        //         await handler(position);
+        //     }
+        // }
+        Debug.Log($"Placed buildng {BuildingName}");
         return true;
     }
 

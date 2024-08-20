@@ -151,14 +151,13 @@ public static class BuildingController {
     /// <summary>
     /// Deletes all buildings except the house
     /// </summary>
-    public static void DeleteAllBuildings(bool deleteHouse = false) {
+    public static void DeleteAllBuildings(bool force = false) {
         var allBuilding = buildings.ToArray();
         foreach (Building building in allBuilding) {
             if (building == null) continue;
             if (building.gameObject == null) continue;
-            if (building is House && !deleteHouse) continue;
             // unavailableCoordinates.RemoveWhere(vec => building.BaseCoordinates.Contains(vec));
-            building.DeleteBuilding();
+            building.DeleteBuilding(force);
         }
         // buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
         GetNotificationManager().SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
@@ -166,7 +165,7 @@ public static class BuildingController {
 
     public static void PlaceSavedBuilding(BuildingData buildingData) {
         GameObject go = new(buildingData.buildingType.Name);
-        go.transform.parent = GetGridTilemap().transform;
+        go.transform.SetParent(CurrentTilemapTransform);
         BuildingSaverLoader buildingLoader = go.AddComponent<BuildingSaverLoader>();
         buildingLoader.LoadBuilding(buildingData);
     }

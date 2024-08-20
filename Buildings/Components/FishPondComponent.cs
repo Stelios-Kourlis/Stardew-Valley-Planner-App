@@ -11,6 +11,7 @@ using static Utility.ClassManager;
 using static Utility.BuildingManager;
 using System.Linq;
 using static BuildingData;
+using Newtonsoft.Json.Linq;
 
 public class FishPondComponent : BuildingComponent {
     protected readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
@@ -127,17 +128,16 @@ public class FishPondComponent : BuildingComponent {
 
     public override ComponentData Save() {
         return new(typeof(FishPondComponent),
-                new Dictionary<string, string> {
-                    { "Fish", fish.ToString() },
-                    { "Deco Index", decoIndex.ToString() }
+                new() {
+                    new JProperty("Fish", fish.ToString()),
+                    new JProperty("Deco Index", decoIndex.ToString())
                 });
     }
 
     public override void Load(ComponentData data) {
-        Debug.Log($"Set Fish {data.componentData["Fish"]}");
-        SetFishImage((Fish)Enum.Parse(typeof(Fish), data.componentData["Fish"]));
+        SetFishImage((Fish)Enum.Parse(typeof(Fish), data.componentData.First(x => x.Name == "Fish").Value.ToString()));
         decoIndex = 0;
-        for (int index = 0; index != int.Parse(data.componentData["Deco Index"]); index++) {
+        for (int index = 0; index != int.Parse(data.componentData.First(x => x.Name == "Deco Index").Value.ToString()); index++) {
             CycleFishPondDeco();
         }
     }

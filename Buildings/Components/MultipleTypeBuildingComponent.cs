@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
@@ -81,14 +82,14 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
 
     public override BuildingData.ComponentData Save() {
         return new(typeof(MultipleTypeBuildingComponent),
-                new Dictionary<string, string> {
-                    {"Enum Type", EnumType.ToString()},
-                    {"Type", Type.ToString()}
+                new() {
+                    new JProperty("Enum Type", EnumType.ToString()),
+                    new JProperty("Type", Type.ToString())
                 });
     }
 
     public override void Load(BuildingData.ComponentData data) {
-        SetEnumType(System.Type.GetType(data.componentData["Enum Type"]));
-        SetType((Enum)Enum.Parse(EnumType, data.componentData["Type"]));
+        SetEnumType(System.Type.GetType(data.componentData.First(x => x.Name == "Enum Type").Value.ToString()));
+        SetType((Enum)Enum.Parse(EnumType, data.componentData.First(x => x.Name == "Type").Value.ToString()));
     }
 }

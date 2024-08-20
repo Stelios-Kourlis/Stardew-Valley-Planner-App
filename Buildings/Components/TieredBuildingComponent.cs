@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.U2D;
 using static Utility.ClassManager;
@@ -47,13 +49,10 @@ public class TieredBuildingComponent : BuildingComponent {
     }
 
     public override BuildingData.ComponentData Save() {
-        return new(typeof(TieredBuildingComponent),
-                new Dictionary<string, string> {
-                    { "Tier", Tier.ToString() }
-                });
+        return new(typeof(TieredBuildingComponent), new() { new JProperty("Tier", Tier) });
     }
 
     public override void Load(BuildingData.ComponentData data) {
-        SetTier(int.Parse(data.componentData["Tier"]));
+        SetTier(int.Parse(data.componentData.First(x => x.Name == "Tier").Value.ToString()));
     }
 }

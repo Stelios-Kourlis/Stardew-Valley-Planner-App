@@ -9,6 +9,7 @@ using static Utility.TilemapManager;
 using static Utility.BuildingManager;
 using static Utility.ClassManager;
 using static BuildingData;
+using Newtonsoft.Json.Linq;
 
 [RequireComponent(typeof(Building))]
 [Serializable]
@@ -130,20 +131,21 @@ public class AnimalHouseComponent : BuildingComponent {
     }
 
     public override ComponentData Save() {
-        ComponentData animalHouseData = new(typeof(AnimalHouseComponent), new Dictionary<string, string>());
+        ComponentData animalHouseData = new(typeof(AnimalHouseComponent), new());
         foreach (var animal in AnimalsInBuilding) {
-            if (animalHouseData.componentData.ContainsKey(animal.ToString())) animalHouseData.componentData[animal.ToString()] = (int.Parse(animalHouseData.componentData[animal.ToString()]) + 1).ToString();
-            else animalHouseData.componentData.Add(animal.ToString(), "1");
+            var animalAlreadyExists = animalHouseData.componentData.FirstOrDefault(x => x.Name == animal.ToString());
+            if (animalAlreadyExists != null) {
+                int index = animalHouseData.componentData.IndexOf(animalAlreadyExists);
+                animalHouseData.componentData[index] = new JProperty(animal.ToString(), int.Parse(animalAlreadyExists.Value.ToString()) + 1);
+            }
+            else animalHouseData.componentData.Add(new JProperty(animal.ToString(), 1));
         }
         return animalHouseData;
     }
 
     public override void Load(ComponentData data) {
-        // Awake();
-        // Building.OnAwake();
-        // Debug.Log(animalsPerTier);
-        foreach (var kvp in data.componentData) {
-            for (int count = 0; count < int.Parse(kvp.Value); count++) AddAnimal(Enum.Parse<Animals>(kvp.Key));
+        foreach (var property in data.componentData) {
+            for (int count = 0; count < int.Parse((string)property.Value); count++) AddAnimal(Enum.Parse<Animals>(property.Name));
         }
     }
 }
