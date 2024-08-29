@@ -127,9 +127,10 @@ public class EnterableBuildingComponent : BuildingComponent {
                         throw new System.ArgumentException($"Invalid interior interaction {type}");
                 }
 
-                button.GetComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
+                // button.GetComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
 
                 closeButton.transform.SetAsLastSibling();
+
             }
         }
 

@@ -9,10 +9,10 @@ using static Utility.ClassManager;
 
 public class SearchBar : MonoBehaviour {
 
-    GameObject contentGameObject;
+    [SerializeField] GameObject contentGameObject;
     public void Awake() {
-        if (gameObject.name == "Search") contentGameObject = transform.parent.GetChild(0).GetChild(0).gameObject;
-        else if (gameObject.name == "TypeSearchBar") contentGameObject = GameObject.Find("TypeSelectBar").transform.GetChild(0).GetChild(0).gameObject;
+        // if (gameObject.name == "Search") contentGameObject = transform.parent.GetChild(0).GetChild(0).gameObject;
+        // else if (gameObject.name == "TypeSearchBar") contentGameObject = GameObject.Find("TypeSelectBar").transform.GetChild(0).GetChild(0).gameObject;
         InputField inputField;
         inputField = GetComponent<InputField>();
         inputField.onValueChanged.AddListener(OnValueChanged);

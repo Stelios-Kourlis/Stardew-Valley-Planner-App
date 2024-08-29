@@ -55,7 +55,7 @@ public abstract class Building : TooltipableGameObject {
 
     public GameObject BuildingGameObject => gameObject;
 
-    // public Action<Vector3Int> BuildingPlaced { get; set; }
+
     public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
     public Action BuildingPickedUp { get; set; }

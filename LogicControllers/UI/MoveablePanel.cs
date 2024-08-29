@@ -24,7 +24,7 @@ public class MoveablePanel : MonoBehaviour {
     [SerializeField] private float moveSpeed, moveTime;
     [SerializeField] Vector3 closedPosition, openPosition, hiddenPosition;
     [SerializeField] private Button[] toggleButtons, openButtons, closeButtons;
-    [SerializeField] private Sprite[] toggleButtonSprites = new Sprite[2];
+    [SerializeField] private readonly Sprite[] toggleButtonSprites = new Sprite[2];
     private Vector3 CurrentPosition => gameObject.GetComponent<RectTransform>().localPosition;
 
     public void Start() {
@@ -56,6 +56,7 @@ public class MoveablePanel : MonoBehaviour {
         if (moveType == MoveType.ConstantTime) StartCoroutine(UIObjectMover.MoveObjectInConstantTime(transform, CurrentPosition, openPosition, moveTime));
         else StartCoroutine(UIObjectMover.MoveObjectWithConstastSpeed(transform, CurrentPosition, openPosition, moveSpeed));
         panelState = PanelState.Open;
+        // Debug.Log(toggleButtonSprites[0]);
         if (invoker != null && toggleButtonSprites[0] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[0];
     }
 

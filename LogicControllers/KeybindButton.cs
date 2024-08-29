@@ -23,7 +23,7 @@ public class KeybindButton : MonoBehaviour {
     }
 
     private void SetUpButton() {
-        Debug.Log("Setting up button: " + gameObject.name);
+        // Debug.Log("Setting up button: " + gameObject.name);
 
         Action action = (Action)Enum.Parse(typeof(Action), KeybindButtonGameObject.transform.parent.parent.name);
         Keybind actionKeybind = GetKeybind(action);

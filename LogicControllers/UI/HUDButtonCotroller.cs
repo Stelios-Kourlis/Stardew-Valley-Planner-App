@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class HUDButtonCotroller : MonoBehaviour {
-    private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables), typeof(Crop) };
+    private readonly Type[] typesThatShouldBeInCraftables = { typeof(Sprinkler), typeof(Floor), typeof(Fence), typeof(Scarecrow), typeof(Craftables) };
     public void Awake() {
         //Action Buttons
         GameObject.FindWithTag("PlaceButton").GetComponent<Button>().onClick.AddListener(() => { ActionButtonPressed(GameObject.FindWithTag("PlaceButton"), Actions.PLACE); });
@@ -15,23 +15,25 @@ public class HUDButtonCotroller : MonoBehaviour {
         GameObject.Find("CloseMenuButton").GetComponent<Button>().onClick.AddListener(() => { GameObject.Find("ActionButtons").GetComponent<FoldingMenuGroup>().ToggleMenu(); });
 
         //Tab Buttons
-        GameObject panelGameObject = GameObject.FindWithTag("Panel");
-        GameObject content = panelGameObject.transform.GetChild(0).GetChild(0).gameObject;
+        // GameObject panelGameObject = GameObject.FindWithTag("Panel");
+        GameObject panelGameObject = GameObject.Find("BuildingSelect").transform.Find("Rect").gameObject;
+        // GameObject content = panelGameObject.transform.GetChild(0).GetChild(0).gameObject;
+        GameObject content = panelGameObject.transform.Find("ScrollAreaBuildings").Find("Content").gameObject;
 
-        panelGameObject.transform.Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
+        panelGameObject.transform.Find("CategoryButtons").Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             AddBuildingButtonsForPanel(content.transform);
             panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
         });
 
 
-        panelGameObject.transform.Find("PlaceablesButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
+        panelGameObject.transform.Find("CategoryButtons").Find("PlaceablesButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             AddCraftablesButtonsForPanel(content.transform);
             panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
         });
 
-        panelGameObject.transform.Find("CropsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
+        panelGameObject.transform.Find("CategoryButtons").Find("CropsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             GameObject temp = new();
             GameObject[] buttons = temp.AddComponent<Crop>().CreateButtonsForAllTypes();
@@ -68,6 +70,7 @@ public class HUDButtonCotroller : MonoBehaviour {
         foreach (var type in allTypes) {
             if (type == typeof(House)) continue; //these 2 should not be available to build
             if (type == typeof(Greenhouse)) continue;
+            if (type == typeof(Crop)) continue; //later category
             if (typesThatShouldBeInCraftables.Contains(type)) continue; //if its not any of these dont add it
             GameObject temp = new();
             Building buildingTemp = (Building)temp.AddComponent(type);
@@ -99,7 +102,7 @@ public class HUDButtonCotroller : MonoBehaviour {
             }
             GameObject temp = new();
             Building buildingTemp = (Building)temp.AddComponent(type);
-            GameObject button = buildingTemp.CreateBuildingButton();
+            GameObject button = buildingTemp.CreateBuildingButton();//todo Floor/Fence are missing icons
             button.transform.SetParent(BuildingContentTransform);
             button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             Destroy(temp);
