@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine.UI;
 using UnityEngine;
+using System.Linq;
 
 public class MoveablePanel : MonoBehaviour {
 
@@ -27,9 +28,9 @@ public class MoveablePanel : MonoBehaviour {
     private Vector3 CurrentPosition => gameObject.GetComponent<RectTransform>().localPosition;
 
     public void Start() {
-        foreach (Button button in toggleButtons) button.onClick.AddListener(() => TogglePanel(button.gameObject));
-        foreach (Button button in openButtons) button.onClick.AddListener(() => SetPanelToOpenPosition(button.gameObject));
-        foreach (Button button in closeButtons) button.onClick.AddListener(() => SetPanelToClosedPosition(button.gameObject));
+        if (toggleButtons != null) foreach (Button button in toggleButtons) button.onClick.AddListener(() => TogglePanel(button.gameObject));
+        if (openButtons != null) foreach (Button button in openButtons) button.onClick.AddListener(() => SetPanelToOpenPosition(button.gameObject));
+        if (closeButtons != null) foreach (Button button in closeButtons) button.onClick.AddListener(() => SetPanelToClosedPosition(button.gameObject));
 
         panelState = PanelState.Closed;
         gameObject.GetComponent<RectTransform>().localPosition = hiddenPosition == Vector3.zero ? closedPosition : hiddenPosition;

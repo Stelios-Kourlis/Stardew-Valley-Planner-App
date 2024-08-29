@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class TabButton : MonoBehaviour, IPointerEnterHandler {
 
     [SerializeField] private TabGroup tabGroup;
+    public string TabName;
 
     void Start() {
         tabGroup.AddTabToTabGroup(this);

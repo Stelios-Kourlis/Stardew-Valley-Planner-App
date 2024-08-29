@@ -8,22 +8,6 @@ using UnityEngine.U2D;
 
 public class House : Building {
 
-    public enum MarriageCandidate {
-        Emily,
-        Haley,
-        Leah,
-        Maru,
-        Penny,
-        Abigail,
-        Alex,
-        Elliott,
-        Harvey,
-        Sam,
-        Sebastian,
-        Shane,
-        Crobus
-    }
-
     public TieredBuildingComponent TieredBuildingComponent { get; private set; }
 
     public EnterableBuildingComponent EnterableBuildingComponent { get; private set; }
@@ -45,7 +29,8 @@ public class House : Building {
                 ButtonTypes.TIER_THREE,
                 ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS
             }
-        ); ;
+        );
+        gameObject.AddComponent<HouseExtensionsComponent>();
     }
 
     public void SetTier(int tier) {

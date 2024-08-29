@@ -35,6 +35,8 @@ namespace Utility {
 
         public static InputHandler GetInputHandler() { return GameObject.FindWithTag("LogicComponent").GetComponent<InputHandler>(); }
 
+        public static KeybindHandler GetKeybindHandler() { return GameObject.FindWithTag("LogicComponent").GetComponent<KeybindHandler>(); }
+
         public static GameObject GetSettingsModal() { return GameObject.FindWithTag("SettingsModal"); }
 
         public static TotalMaterialsCalculator GetTotalMaterialsCalculator() { return GameObject.FindWithTag("TotalMaterialsNeededPanel").GetComponent<TotalMaterialsCalculator>(); }

@@ -27,5 +27,7 @@ public class TabGroup : MonoBehaviour {
         foreach (Transform child in tabContentParent.transform) child.gameObject.SetActive(false);
         tabContentParent.transform.Find(selectedTab.gameObject.name).gameObject.SetActive(true);
 
+        transform.parent.Find("TabName").GetComponent<Text>().text = selectedTab.TabName;
+
     }
 }

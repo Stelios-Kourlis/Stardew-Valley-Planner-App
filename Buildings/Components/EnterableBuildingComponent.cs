@@ -24,6 +24,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
     public static Action EnteredOrExitedBuilding { get; set; }
     public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
+    public GameObject InteriorButtonsParent { get; private set; }
     private static int numberOfInteriors = 0;
     private Vector3 cameraPositionBeforeEnter;
     private Scene BuildingInteriorScene;
@@ -67,17 +68,17 @@ public class EnterableBuildingComponent : BuildingComponent {
         canvas.AddComponent<GraphicRaycaster>();
 
         if (InteriorInteractions.Count > 0) {
-            GameObject parent = new("InteriorButtons");
-            parent.transform.SetParent(canvas.transform);
-            parent.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
-            parent.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
-            parent.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
-            parent.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
-            parent.GetComponent<RectTransform>().position = new Vector3(-10, -350, 0); //this puts it right below the other button
-            parent.AddComponent<FoldingMenuGroup>();
+            InteriorButtonsParent = new("InteriorButtons");
+            InteriorButtonsParent.transform.SetParent(canvas.transform);
+            InteriorButtonsParent.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+            InteriorButtonsParent.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
+            InteriorButtonsParent.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
+            InteriorButtonsParent.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
+            InteriorButtonsParent.GetComponent<RectTransform>().position = new Vector3(-10, -350, 0); //this puts it right below the other button
+            InteriorButtonsParent.AddComponent<FoldingMenuGroup>();
 
             GameObject closeButton = new("Close");
-            closeButton.transform.SetParent(parent.transform);
+            closeButton.transform.SetParent(InteriorButtonsParent.transform);
             closeButton.AddComponent<FoldingMenuItem>().isAnchorButton = true;
             closeButton.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
             closeButton.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
@@ -87,7 +88,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
             foreach (ButtonTypes type in InteriorInteractions) {
                 GameObject button = new(type.ToString());
-                button.transform.SetParent(parent.transform);
+                button.transform.SetParent(InteriorButtonsParent.transform);
                 button.AddComponent<FoldingMenuItem>();
                 button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
                 button.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
@@ -119,7 +120,7 @@ public class EnterableBuildingComponent : BuildingComponent {
                         break;
                     case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
                         button.AddComponent<Button>().onClick.AddListener(() => {
-                            Debug.Log("WIP");
+                            Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();
                         });
                         break;
                     default:
@@ -141,7 +142,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
         InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
 
-        Debug.Log("added interior");
+        // Debug.Log("added interior");
     }
 
     public void UpdateBuildingInterior() {
@@ -149,7 +150,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
         foreach (Transform buildingGameObject in interiorTransform) {
-            Building building = buildingGameObject.GetComponent<Building>();
+            if (!buildingGameObject.TryGetComponent(out Building building)) continue;
             if (building.CurrentBuildingState == Building.BuildingState.PLACED) building.DeleteBuilding();
         }
 

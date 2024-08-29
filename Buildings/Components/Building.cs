@@ -192,7 +192,7 @@ public abstract class Building : TooltipableGameObject {
         //         await handler(position);
         //     }
         // }
-        Debug.Log($"Placed buildng {BuildingName}");
+        // Debug.Log($"Placed buildng {BuildingName}");
         return true;
     }
 
