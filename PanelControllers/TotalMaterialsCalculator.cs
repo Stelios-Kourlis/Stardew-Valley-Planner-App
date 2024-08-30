@@ -20,12 +20,18 @@ public class TotalMaterialsCalculator : MonoBehaviour {
     private GameObject materialEntry;
 
     private Mode currentMode;
-    private Transform ContentPanelTransform => gameObject.transform.GetChild(1).GetChild(0);
+    private Transform ContentPanelTransform => gameObject.transform.Find("ScrollArea").GetChild(0);
 
     public void Start() {
         materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
         buildingCostPrefab = Resources.Load<GameObject>("UI/BuildingCost");
         materialEntry = Resources.Load<GameObject>("UI/MaterialEntry");
+        GetComponent<MoveablePanel>().panelOpened += RecalculateMaterials;
+    }
+
+    private void RecalculateMaterials() {
+        if (currentMode == Mode.ByType) ShowMaterialsByType();
+        else ShowMaterialsByBuilding();
     }
 
     public void ShowMaterialsByType() {

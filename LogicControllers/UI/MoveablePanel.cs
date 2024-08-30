@@ -4,6 +4,7 @@ using System.ComponentModel;
 using UnityEngine.UI;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class MoveablePanel : MonoBehaviour {
 
@@ -22,6 +23,7 @@ public class MoveablePanel : MonoBehaviour {
     [SerializeField] private PanelState panelState;
     [SerializeField] private MoveType moveType;
     [SerializeField] private float moveSpeed, moveTime;
+    public Action panelOpened, panelClosed;
     [SerializeField] Vector3 closedPosition, openPosition, hiddenPosition;
     [SerializeField] private Button[] toggleButtons, openButtons, closeButtons;
     [SerializeField] private readonly Sprite[] toggleButtonSprites = new Sprite[2];
@@ -58,6 +60,7 @@ public class MoveablePanel : MonoBehaviour {
         panelState = PanelState.Open;
         // Debug.Log(toggleButtonSprites[0]);
         if (invoker != null && toggleButtonSprites[0] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[0];
+        panelOpened?.Invoke();
     }
 
     public void SetPanelToClosedPosition(GameObject invoker = null) {
@@ -68,12 +71,14 @@ public class MoveablePanel : MonoBehaviour {
         else StartCoroutine(UIObjectMover.MoveObjectWithConstastSpeed(transform, CurrentPosition, closedPosition, moveSpeed));
         panelState = PanelState.Closed;
         if (invoker != null && toggleButtonSprites[1] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[1];
+        panelClosed?.Invoke();
     }
 
     public void SetPanelToHiddenPosition() {
         if (panelState == PanelState.Hidden) return;
         StopAllCoroutines();
         StartCoroutine(UIObjectMover.MoveObjectWithConstastSpeed(transform, CurrentPosition, hiddenPosition, 500f));
+        panelState = PanelState.Hidden;
     }
 
     public PanelState GetPanelState() {
