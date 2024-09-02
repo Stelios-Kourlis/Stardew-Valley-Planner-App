@@ -11,7 +11,7 @@ public class TabGroup : MonoBehaviour {
 
     [SerializeField] private GameObject tabContentParent;
     [SerializeField] private List<TabButton> tabButtons;
-    [SerializeField] private TabButton selectedTab;
+    public TabButton SelectedTab { get; private set; }
     public void Awake() {
         tabButtons = new List<TabButton>();
     }
@@ -21,13 +21,13 @@ public class TabGroup : MonoBehaviour {
     }
 
     public void ChangeSelectedTab(TabButton newSelectedTab) {
-        selectedTab = newSelectedTab;
+        SelectedTab = newSelectedTab;
         foreach (TabButton button in tabButtons) button.GetComponent<Image>().color = TAB_INACTIVE_COLOR;
-        selectedTab.GetComponent<Image>().color = TAB_ACTIVE_COLOR;
+        SelectedTab.GetComponent<Image>().color = TAB_ACTIVE_COLOR;
         foreach (Transform child in tabContentParent.transform) child.gameObject.SetActive(false);
-        tabContentParent.transform.Find(selectedTab.gameObject.name).gameObject.SetActive(true);
+        tabContentParent.transform.Find(SelectedTab.gameObject.name).gameObject.SetActive(true);
 
-        transform.parent.Find("TabName").GetComponent<Text>().text = selectedTab.TabName;
+        transform.parent.Find("TabName").GetComponent<Text>().text = SelectedTab.TabName;
 
     }
 }

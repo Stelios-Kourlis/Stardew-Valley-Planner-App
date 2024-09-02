@@ -20,6 +20,7 @@ public class KeybindHandler : MonoBehaviour {
         Load,
         Undo,
         Redo,
+        OpenBuildingMenu
     }
 
     public class Keybind {
@@ -105,6 +106,7 @@ public class KeybindHandler : MonoBehaviour {
             Action.Load => new Keybind(KeyCode.L),
             Action.Undo => new Keybind(KeyCode.Z, KeyCode.LeftControl),
             Action.Redo => new Keybind(KeyCode.Y, KeyCode.LeftControl),
+            Action.OpenBuildingMenu => new Keybind(KeyCode.B),
             _ => throw new Exception("Action not found"),
         };
     }

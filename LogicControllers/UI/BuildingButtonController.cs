@@ -59,13 +59,14 @@ public class BuildingButtonController : MonoBehaviour {
         buttonParent.transform.position = Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building));
         for (int buttonIndex = 0; buttonIndex < buttonParent.transform.childCount; buttonIndex++) {
             buttonParent.transform.GetChild(buttonIndex).position = CalculatePositionOfButton(building.GetComponent<InteractableBuildingComponent>().BuildingInteractions.Count, buttonIndex + 1, Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building)));
-            buttonParent.transform.GetChild(buttonIndex).transform.localScale = new Vector3(buttonScale, buttonScale);
+            buttonParent.transform.GetChild(buttonIndex).transform.localScale = new Vector3(buttonScale, buttonScale, 1);
         }
     }
 
     private GameObject CreateInteractionButton(ButtonTypes type, Building building) {
         GameObject button = Instantiate(buttonPrefab);
         button.name = type.ToString();
+        // button.AddComponent<ButtonSelfHandler>();
         button.GetComponent<Image>().sprite = Resources.Load<Sprite>($"UI/{type}");
         // button.transform.position = buttonPositionScreen;
 

@@ -88,12 +88,13 @@ public class AnimalHouseComponent : BuildingComponent {
         GameObject animalMenu = Instantiate(animalMenuPrefab);
         animalMenu.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);//this is the button to toggle the animal menu
         animalMenu.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y + 25);
-        animalMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        animalMenu.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         animalMenu.SetActive(false);
         GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
         for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++) {
             Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-            AddHoverEffect(addAnimalButton);
+            // AddHoverEffect(addAnimalButton);
+            addAnimalButton.gameObject.AddComponent<ButtonSelfHandler>();
             addAnimalButton.onClick.AddListener(() => {
                 AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
             });
@@ -104,7 +105,7 @@ public class AnimalHouseComponent : BuildingComponent {
         GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
         animalInBuilding.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);
         animalInBuilding.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y - 25);
-        animalInBuilding.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        animalInBuilding.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         animalInBuilding.SetActive(false);
 
         animalInBuilding.GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{MaxAnimalCapacity}");
@@ -121,8 +122,9 @@ public class AnimalHouseComponent : BuildingComponent {
             AnimalsInBuilding.Remove(animal);
             Destroy(button);
         });
-        AddHoverEffect(button.GetComponent<Button>());
-        button.transform.localScale = new Vector3(1, 1);
+        button.AddComponent<ButtonSelfHandler>();
+        // AddHoverEffect(button.GetComponent<Button>());
+        button.transform.localScale = new Vector3(1, 1, 1);
     }
 
     public void ToggleAnimalMenu() {

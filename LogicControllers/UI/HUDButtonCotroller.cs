@@ -45,7 +45,8 @@ public class HUDButtonCotroller : MonoBehaviour {
             panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
         });
 
-        AddBuildingButtonsForPanel(content.transform);
+        panelGameObject.transform.Find("CategoryButtons").Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.Invoke();
+        panelGameObject.transform.Find("CategoryButtons").Find("BuildingsButton").gameObject.GetComponent<Button>().Select();
     }
 
 

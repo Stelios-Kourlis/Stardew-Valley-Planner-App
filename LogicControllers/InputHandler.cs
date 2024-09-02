@@ -77,6 +77,8 @@ public class InputHandler : MonoBehaviour {
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("ConfirmDeleteAll").GetComponent<MoveablePanel>().SetPanelToOpenPosition();
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.OpenBuildingMenu)) GameObject.Find("BuildingSelect").GetComponent<MoveablePanel>().TogglePanel();
     }
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action) {

@@ -113,20 +113,22 @@ namespace Utility {
             particleSystem.Play();
         }
 
-        public static void AddHoverEffect(Button button) {
-            EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
-            EventTrigger.Entry pointerEnterEntry = new();
-            pointerEnterEntry.eventID = EventTriggerType.PointerEnter;
-            pointerEnterEntry.callback.AddListener((eventData) => {
-                button.transform.localScale = new Vector3(1.2f, 1.2f);
-            });
-            eventTrigger.triggers.Add(pointerEnterEntry);
-            EventTrigger.Entry pointerExitEntry = new();
-            pointerExitEntry.eventID = EventTriggerType.PointerExit;
-            pointerExitEntry.callback.AddListener((eventData) => {
-                button.transform.localScale = new Vector3(1, 1);
-            });
-            eventTrigger.triggers.Add(pointerExitEntry);
-        }
+        // public static void AddHoverEffect(Button button) {
+        //     EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
+        //     EventTrigger.Entry pointerEnterEntry = new() {
+        //         eventID = EventTriggerType.PointerEnter
+        //     };
+        //     pointerEnterEntry.callback.AddListener((eventData) => {
+        //         button.transform.localScale = new Vector3(1.2f, 1.2f, 1);
+        //     });
+        //     eventTrigger.triggers.Add(pointerEnterEntry);
+        //     EventTrigger.Entry pointerExitEntry = new() {
+        //         eventID = EventTriggerType.PointerExit
+        //     };
+        //     pointerExitEntry.callback.AddListener((eventData) => {
+        //         button.transform.localScale = new Vector3(1, 1, 1);
+        //     });
+        //     eventTrigger.triggers.Add(pointerExitEntry);
+        // }
     }
 }

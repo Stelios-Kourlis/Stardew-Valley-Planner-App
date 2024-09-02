@@ -247,8 +247,9 @@ public abstract class Building : TooltipableGameObject {
         button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         button.name = $"{BuildingName}";
         button.GetComponent<Image>().sprite = Sprite;
+        button.AddComponent<ButtonSelfHandler>();
 
-        System.Type buildingType = GetType();
+        Type buildingType = GetType();
         button.GetComponent<Button>().onClick.AddListener(() => {
             Debug.Log($"Setting current building to {buildingType}");
             BuildingController.SetCurrentBuildingType(buildingType);

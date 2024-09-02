@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
@@ -36,6 +37,8 @@ namespace Utility {
         public static InputHandler GetInputHandler() { return GameObject.FindWithTag("LogicComponent").GetComponent<InputHandler>(); }
 
         public static KeybindHandler GetKeybindHandler() { return GameObject.FindWithTag("LogicComponent").GetComponent<KeybindHandler>(); }
+
+        public static UpdateChecker GetUpdateChecker() { return GameObject.FindWithTag("UpdateChecker").GetComponent<UpdateChecker>(); }
 
         public static GameObject GetSettingsModal() { return GameObject.FindWithTag("SettingsModal"); }
 

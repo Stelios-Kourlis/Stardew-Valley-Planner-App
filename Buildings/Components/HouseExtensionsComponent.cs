@@ -145,10 +145,11 @@ public class HouseExtensionsComponent : BuildingComponent {
             case HouseModifications.SouthernRoom:
                 break;
             case HouseModifications.CornerRoom:
-                origin = new Vector3Int(27, 11, 0);
-                if (isOn) sprite = spriteAtlas.GetSprite("CornerRoom");
-                else sprite = spriteAtlas.GetSprite("CornerRoomRemoved");
+                origin = new Vector3Int(27, 14, 0);
+                if (isOn) sprite = spriteAtlas.GetSprite("CornerRoomWalls");
+                else sprite = spriteAtlas.GetSprite("CornerRoomRemovedWalls");
                 BuildingInteriorTilemap.SetTiles(GetAreaAroundPosition(origin, (int)(sprite.textureRect.height / 16), (int)(sprite.textureRect.width / 16)).ToArray(), SplitSprite(sprite));
+                modificationMenu.transform.Find("Renovations").Find("CornerRoom").Find("Button").GetComponent<Image>().sprite = isOn ? checkbox["On"] : checkbox["Off"];
                 break;
             case HouseModifications.ExpandedCornerRoom:
                 break;

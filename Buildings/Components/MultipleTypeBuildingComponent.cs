@@ -69,6 +69,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
             button.name = $"{type}";
             SetType(type);
             button.GetComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
+            button.AddComponent<ButtonSelfHandler>();
             Type buildingType = Building.GetType();
             button.GetComponent<Button>().onClick.AddListener(() => {
                 BuildingController.SetCurrentBuildingType(buildingType, type);

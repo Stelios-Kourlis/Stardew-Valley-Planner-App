@@ -10,16 +10,6 @@ using static Utility.ClassManager;
 
 public class NotificationManager : MonoBehaviour {
 
-    private class Notification {
-        public readonly GameObject notificationGameObject;
-        public readonly float durationAliveSeconds;
-
-        public Notification(GameObject notificationGameObject) {
-            this.notificationGameObject = notificationGameObject;
-            durationAliveSeconds = 0;
-        }
-    }
-
     public enum Icons {
         ErrorIcon,
         SaveIcon,
@@ -32,54 +22,32 @@ public class NotificationManager : MonoBehaviour {
     private readonly float TOOLTIP_DELAY_SECONDS = 0.75f;
     public bool IsShowingTooltip { get; private set; } = false;
 
-    private readonly List<Notification> notifications = new();
+    public readonly List<Notification> notifications = new();
+    private SpriteAtlas spriteAtlas;
+    private GameObject notificationPrefab;
+
+    public void Start() {
+        spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
+        notificationPrefab = Resources.Load("UI/Notification") as GameObject;
+    }
 
     public void SendNotification(string message, Icons icon) {
-        GameObject notificationGameObject = Resources.Load("UI/Notification") as GameObject;
-        notificationGameObject = Instantiate(notificationGameObject, GetCanvasGameObject().transform);
-        Text textComponent = notificationGameObject.transform.GetChild(0).GetChild(0).GetComponent<Text>();
-        textComponent.text = message;
-        SpriteAtlas spriteAtlas = Resources.Load<SpriteAtlas>("UI/NotificationIconsAtlas");
-        notificationGameObject.transform.GetChild(1).GetChild(1).GetComponent<Image>().sprite = spriteAtlas.GetSprite(icon.ToString());
-        Notification notification = new(notificationGameObject);
-        notifications.Insert(0, notification);
-        notificationGameObject.transform.GetChild(0).GetComponent<Button>().onClick.AddListener(() => {
-            Destroy(notificationGameObject);
-            notifications.Remove(notification);
-            OnNotificationChanged();
-        });
-        OnNotificationChanged();
-        StartCoroutine(StartLimetimeCountdown(notification));
+        GameObject notificationGameObject = Instantiate(notificationPrefab, GetCanvasGameObject().transform.Find("NotificationArea"));
+        Notification notification = notificationGameObject.GetComponent<Notification>().InitializeParameters(NOTIFICATION_LIFETIME_SECONDS, message, spriteAtlas.GetSprite(icon.ToString()));
+        notifications.Add(notification);
+        OnNotificationAdded();
     }
 
-    private void OnNotificationChanged() {
+    private void OnNotificationAdded() {
         if (notifications.Count > MAX_POSSIBLE_NOTIFICATIONS) {
-            Destroy(notifications.Last().notificationGameObject);
-            notifications.Remove(notifications.Last());
-        }
-        foreach (Notification notification in notifications) {
-            GameObject notificationGameObject = notification.notificationGameObject;
-            int index = notifications.IndexOf(notification);
-            // Debug.LogWarning(-Screen.width/2);
-            notificationGameObject.GetComponent<RectTransform>().localPosition = new Vector3(-Screen.width / 2, notificationGameObject.GetComponent<RectTransform>().sizeDelta.y * index - Screen.height / 2 + 100, 0);
-            // Debug.LogWarning(notificationGameObject.GetComponent<RectTransform>().localPosition);
+            Destroy(notifications.Last().gameObject);
         }
     }
 
-    IEnumerator StartLimetimeCountdown(Notification notification) {
-        float timeAlive = 0;
-        // Debug.Log(notification.notificationGameObject.transform.GetChild(1).GetChild(0).name);
-        GameObject progressCircle = notification.notificationGameObject.transform.GetChild(1).GetChild(0).gameObject;
-        // Debug.Log(progressCircle.GetComponent<Image>().sprite.name);
-        while (timeAlive < NOTIFICATION_LIFETIME_SECONDS) {
-            timeAlive += Time.deltaTime;
-            progressCircle.GetComponent<Image>().fillAmount = timeAlive / NOTIFICATION_LIFETIME_SECONDS;
-            yield return null;
-        }
-        Destroy(notification.notificationGameObject);
-        notifications.Remove(notification); ;
-        OnNotificationChanged();
-    }
+
+
+
+    //Move this to another class?
 
     public GameObject ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject) {
         GameObject tooltipGameObject = Resources.Load("UI/Tooltip") as GameObject;
