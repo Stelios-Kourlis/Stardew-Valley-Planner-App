@@ -74,8 +74,8 @@ public class BuildingButtonController : MonoBehaviour {
             GameObject fishIcon = new("FishIcon");
             fishIcon.transform.SetParent(button.transform);
             fishIcon.transform.position = new Vector3(0, 0, 0);
-            fishIcon.transform.localScale = new Vector3(0.4f, 0.4f);
-            fishIcon.AddComponent<Image>().sprite = Resources.Load<SpriteAtlas>("Fish/FishAtlas").GetSprite("NO_FISH_OLD");//i prefer the old
+            fishIcon.transform.localScale = new Vector3(0.4f, 0.4f, 1);
+            fishIcon.AddComponent<Image>().sprite = Resources.Load<SpriteAtlas>("Fish/FishAtlas").GetSprite("PLACE_FISH");//i prefer the old
         }
 
         button.GetComponent<RectTransform>().sizeDelta = new Vector2(BUTTON_SIZE, BUTTON_SIZE);

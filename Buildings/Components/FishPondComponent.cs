@@ -53,10 +53,15 @@ public class FishPondComponent : BuildingComponent {
             Fish.SuperCucumber => new Color(0.4117647f, 0.3294118f, 0.7490196f, 1),
             Fish.Slimejack => new Color(0.08886068f, 0.7490196f, 0.003921576f, 1),
             Fish.VoidSalmon => new Color(0.5764706f, 0.1176471f, 0.7490196f, 1),
+            Fish.PLACE_FISH => new Color(1, 1, 1, 1),
             _ => new Color(0.2039216f, 0.5254902f, 0.7490196f, 1),
         };
         waterTilemapObject.GetComponent<Tilemap>().color = color;
         fish = fishType;
+    }
+
+    public void RemoveFish() {
+        SetFishImage(Fish.PLACE_FISH);
     }
 
     public void CreateFishMenu() {
@@ -64,7 +69,7 @@ public class FishPondComponent : BuildingComponent {
         fishMenu = Instantiate(fishMenuPrefab);
         fishMenu.transform.SetParent(Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0));
         fishMenu.GetComponent<RectTransform>().localPosition = Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).position - new Vector3(75, 0, 0);
-        fishMenu.GetComponent<RectTransform>().localScale = new Vector2(1, 1);
+        fishMenu.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         fishMenu.SetActive(false);
         GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
         for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++) {
@@ -76,6 +81,8 @@ public class FishPondComponent : BuildingComponent {
                 // Debug.Log($"Set fish to {fishType}");
             });
         }
+
+        fishMenu.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(() => RemoveFish());
     }
 
     public void ToggleFishMenu() {
