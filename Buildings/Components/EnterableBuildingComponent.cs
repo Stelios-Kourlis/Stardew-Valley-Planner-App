@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using static BuildingData;
+using static FlooringComponent;
+using static WallsComponent;
 
 [RequireComponent(typeof(Building))]
 public class EnterableBuildingComponent : BuildingComponent {
@@ -32,8 +34,22 @@ public class EnterableBuildingComponent : BuildingComponent {
     private Scene MapScene => GetMapController().MapScene;
     private Transform mapTransform;
 
+    Dictionary<int, List<WallOrigin>> wallsValues;
+    Dictionary<int, List<FlooringOrigin>> floorsValues;
+
     public EnterableBuildingComponent AddInteriorInteractions(HashSet<ButtonTypes> interiorInteractions) {
         InteriorInteractions = interiorInteractions;
+        return this;
+    }
+
+    public EnterableBuildingComponent AddWalls(Dictionary<int, List<WallOrigin>> values) {
+        wallsValues = values;
+        return this;
+    }
+
+    public EnterableBuildingComponent AddFloors(Dictionary<int, List<FlooringOrigin>> values) {
+        floorsValues = values;
+        Debug.Log(floorsValues);
         return this;
     }
 
@@ -67,6 +83,23 @@ public class EnterableBuildingComponent : BuildingComponent {
         canvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
         canvas.AddComponent<GraphicRaycaster>();
 
+        if (wallsValues != null) {
+            GameObject walls = new("Walls");
+            walls.transform.SetParent(BuildingInterior.transform);
+            walls.AddComponent<Tilemap>();
+            walls.AddComponent<TilemapRenderer>().sortingOrder = -101;
+            gameObject.AddComponent<WallsComponent>().SetWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier], walls.GetComponent<Tilemap>());
+        }
+
+        if (floorsValues != null) {
+            GameObject floors = new("Floors");
+            floors.transform.SetParent(BuildingInterior.transform);
+            floors.AddComponent<Tilemap>();
+            floors.AddComponent<TilemapRenderer>().sortingOrder = -102;
+            Debug.Log(floorsValues);
+            gameObject.AddComponent<FlooringComponent>().SetFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier], floors.GetComponent<Tilemap>());
+        }
+
         if (InteriorInteractions.Count > 0) {
             InteriorButtonsParent = new("InteriorButtons");
             InteriorButtonsParent.transform.SetParent(canvas.transform);
@@ -80,6 +113,7 @@ public class EnterableBuildingComponent : BuildingComponent {
             GameObject closeButton = new("Close");
             closeButton.transform.SetParent(InteriorButtonsParent.transform);
             closeButton.AddComponent<FoldingMenuItem>().isAnchorButton = true;
+            closeButton.AddComponent<UIElement>();
             closeButton.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
             closeButton.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
             closeButton.AddComponent<Image>().sprite = Resources.Load<Sprite>("UI/CloseFoldingMenu");
@@ -90,6 +124,7 @@ public class EnterableBuildingComponent : BuildingComponent {
                 GameObject button = new(type.ToString());
                 button.transform.SetParent(InteriorButtonsParent.transform);
                 button.AddComponent<FoldingMenuItem>();
+                button.AddComponent<UIElement>();
                 button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
                 button.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
                 button.AddComponent<Image>().sprite = Resources.Load<Sprite>($"UI/{type}");
@@ -161,6 +196,10 @@ public class EnterableBuildingComponent : BuildingComponent {
         BuildingInterior.GetComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
         BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         GetCamera().GetComponent<CameraController>().UpdateTilemapBounds();
+
+        gameObject.GetComponent<WallsComponent>().UpdateWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier]);
+
+        gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
@@ -248,7 +287,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
     }
 
-    public override ComponentData Save() { //todo add saving interior
+    public override ComponentData Save() {
         if (BuildingInteriorScene.name == null) return null;
 
         ComponentData data = new(typeof(EnterableBuildingComponent), new());

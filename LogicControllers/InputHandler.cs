@@ -11,6 +11,8 @@ using static Utility.SpriteManager;
 using System;
 using System.Diagnostics.Eventing.Reader;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.CodeDom;
 
 public class InputHandler : MonoBehaviour {
 
@@ -18,16 +20,23 @@ public class InputHandler : MonoBehaviour {
         Default,
         Delete,
         Place,
-        Pickup
+        Pickup,
+        PlaceWallpaper,
+        PlaceFlooring
     }
 
     public bool IsSearching { get; set; } = false;
     bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
     Building hoveredBuilding;
+    GameObject followCursorObject;
 
     void Start() {
-        SetCursor(CursorType.Default);
+        SetCursorBasedOnCurrentAction(Actions.DO_NOTHING);
+
+        GameObject.Find("setCursorToWallpaper").GetComponent<Button>().onClick.AddListener(() => {
+            BuildingController.SetCurrentAction(Actions.PLACE_FLOORING);
+        });
     }
 
     void Update() {
@@ -93,20 +102,48 @@ public class InputHandler : MonoBehaviour {
         return isPrimaryPressed && isSecondaryPressed;
     }
 
-    public void SetCursor(CursorType type) {
-        switch (type) {
-            case CursorType.Default:
+    public void SetCursorBasedOnCurrentAction(Actions action) {
+        Debug.Log("Setting cursor to " + action);
+        if (followCursorObject != null) {
+            StopCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
+            Destroy(followCursorObject);
+            followCursorObject = null;
+        }
+        switch (action) {
+            case Actions.DO_NOTHING:
                 Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
                 break;
-            case CursorType.Delete:
+            case Actions.DELETE:
                 Cursor.SetCursor(Resources.Load("UI/CursorDelete") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
                 break;
-            case CursorType.Place:
+            case Actions.PLACE:
                 Cursor.SetCursor(Resources.Load("UI/CursorPlace") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
                 break;
-            case CursorType.Pickup:
+            case Actions.EDIT:
                 Cursor.SetCursor(Resources.Load("UI/CursorHand") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
                 break;
+            case Actions.PLACE_WALLPAPER:
+                Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+                GameObject wallpaperPreview = Resources.Load("UI/WallpaperButton") as GameObject;
+                followCursorObject = Instantiate(wallpaperPreview, GetCanvasGameObject().transform);
+                followCursorObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = WallsComponent.SelectedWallpaperSprite;
+                StartCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
+                break;
+            case Actions.PLACE_FLOORING:
+                Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
+                GameObject floorPreview = Resources.Load("UI/FlooringButton") as GameObject;
+                followCursorObject = Instantiate(floorPreview, GetCanvasGameObject().transform);
+                followCursorObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = FlooringComponent.SelectedFloorSprite;
+                StartCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
+                break;
+        }
+    }
+
+    private IEnumerator MakeGameObjectFollowCursorButtomRight(GameObject gameObjectFollowing) {
+        followCursorObject.GetComponent<RectTransform>().localScale = new Vector3(0.75f, 0.75f, 0.75f);
+        while (true) {
+            if (gameObjectFollowing != null) gameObjectFollowing.GetComponent<RectTransform>().position = Input.mousePosition - new Vector3(-48, 48);
+            yield return null;
         }
     }
 
@@ -141,6 +178,25 @@ public class InputHandler : MonoBehaviour {
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                         Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
                         foreach (Building buildingToDelete in buildings) buildingToDelete.DeleteBuilding();
+                        break;
+                    case Actions.PLACE_WALLPAPER:
+                        if (BuildingController.isInsideBuilding.Key) {
+                            WallsComponent component = BuildingController.isInsideBuilding.Value.gameObject.GetComponent<WallsComponent>();
+                            Vector3 mousePositionInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                            Vector3Int mousePositionInInteriorTilemap = component.wallPaperTilemap.WorldToCell(mousePositionInWorld);
+                            mousePositionInInteriorTilemap.z = 0;
+                            Debug.Log("Applying to " + mousePositionInInteriorTilemap);
+                            component.ApplyCurrentWallpaper(mousePosition);
+                        }
+                        break;
+                    case Actions.PLACE_FLOORING:
+                        if (BuildingController.isInsideBuilding.Key) {
+                            FlooringComponent component = BuildingController.isInsideBuilding.Value.gameObject.GetComponent<FlooringComponent>();
+                            Vector3 mousePositionInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                            Vector3Int mousePositionInInteriorTilemap = component.flooringTilemap.WorldToCell(mousePositionInWorld);
+                            mousePositionInInteriorTilemap.z = 0;
+                            component.ApplyCurrentFloorTexture(mousePosition);
+                        }
                         break;
                 }
             }

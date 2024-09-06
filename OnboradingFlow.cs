@@ -35,7 +35,6 @@ public class OnboradingFlow : MonoBehaviour {
         buildingPanel.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
         // IToggleablePanel.PanelsCurrentlyOpen++;
         BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-        GetInputHandler().SetCursor(InputHandler.CursorType.Default);
 
         introText.SetActive(true);
         actionText.SetActive(false);

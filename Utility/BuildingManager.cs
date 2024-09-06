@@ -60,6 +60,7 @@ namespace Utility {
             List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);
             if (building is Greenhouse) baseCoordinates.AddRange(GetAreaAroundPosition(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
+            if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) return (false, $"Can't place {building.BuildingName} outside of bounds");
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<Type> actualBuildings = new(){
@@ -84,10 +85,16 @@ namespace Utility {
             // Debug.Log($"{GetMousePositionInTilemap()} - {BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0))} - {BuildingController.GetUnavailableCoordinates().Contains(GetMousePositionInTilemap())}");
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
-            if (building.GetType() == typeof(Crop) && !plantableCoordinates.Contains(position)) return (false, "Can't place a crop there");
+            if ((building.GetType() == typeof(Crop) || building.GetType() == typeof(WoodTree)) && !plantableCoordinates.Contains(position)) return (false, "Can't place a Crop/Tree there");
 
             if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
             return (true, null);
+        }
+
+        private static bool CoordinateIsWithinBounds(Vector3Int coordinate, IEnumerable<Vector3Int> bounds) {
+            bool isWithinX = coordinate.x >= bounds.Min(coord => coord.x) && coordinate.x <= bounds.Max(coord => coord.x);
+            bool isWithinY = coordinate.y >= bounds.Min(coord => coord.y) && coordinate.y <= bounds.Max(coord => coord.y);
+            return isWithinX && isWithinY;
         }
 
         public static bool LeftClickShouldRegister() {

@@ -53,7 +53,7 @@ public class NotificationManager : MonoBehaviour {
         GameObject tooltipGameObject = Resources.Load("UI/Tooltip") as GameObject;
         tooltipGameObject = Instantiate(tooltipGameObject, GetCanvasGameObject().transform);
         tooltipGameObject.transform.GetChild(0).GetComponent<Text>().text = tooltipableGameObject.TooltipMessage;
-        tooltipGameObject.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+        tooltipGameObject.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x - 10, Input.mousePosition.y - 48, 0);
         StartCoroutine(MakeTooltipFollowCursor(tooltipableGameObject, tooltipGameObject));
         return tooltipGameObject;
     }
@@ -61,7 +61,7 @@ public class NotificationManager : MonoBehaviour {
     IEnumerator MakeTooltipFollowCursor(TooltipableGameObject tooltipedGameObjectscript, GameObject tooltip) {
         while (true) {
             if (tooltipedGameObjectscript.ShowTooltipCondition() && tooltip != null) {
-                tooltip.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0);
+                tooltip.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x - 10, Input.mousePosition.y - 48, 0);
                 yield return null;
             }
             else {

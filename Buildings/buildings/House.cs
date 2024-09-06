@@ -5,6 +5,8 @@ using System.Windows.Forms;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.U2D;
+using static FlooringComponent;
+using static WallsComponent;
 
 public class House : Building {
 
@@ -28,8 +30,49 @@ public class House : Building {
                 ButtonTypes.TIER_TWO,
                 ButtonTypes.TIER_THREE,
                 ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS
+            }).AddWalls(new Dictionary<int, List<WallOrigin>>{
+            {1, new(){
+                    new WallOrigin(new Vector3Int(1, 8, 0), 10)
+                    }
+            },
+            {2, new(){
+                    new WallOrigin(new Vector3Int(1, 8, 0), 17),
+                    new WallOrigin(new Vector3Int(18, 3, 0), 2),
+                    new WallOrigin(new Vector3Int(20, 8, 0), 9),
+                }
+            },
+            {3, new(){
+                    new WallOrigin(new Vector3Int(1, 11, 0), 10),
+                    new WallOrigin(new Vector3Int(13, 11, 0), 8),
+                    new WallOrigin(new Vector3Int(1, 20, 0), 12, 11),
+                    new WallOrigin(new Vector3Int(13, 18, 0), 2, 61),
+                    new WallOrigin(new Vector3Int(15, 20, 0), 13, 61),
+                    new WallOrigin(new Vector3Int(21, 7, 0), 2),
+                    new WallOrigin(new Vector3Int(23, 11, 0), 11),
+                }
             }
-        );
+        }).AddFloors(new Dictionary<int, List<FlooringOrigin>>{
+            {1, new(){
+                    new FlooringOrigin(new Vector3Int(1, 0, 0), 10, 9)
+                    }
+                },
+            {2, new(){
+                    new FlooringOrigin(new Vector3Int(1, 0, 0), 6, 9, 47),
+                    new FlooringOrigin(new Vector3Int(7, 0, 0), 11, 9),
+                    new FlooringOrigin(new Vector3Int(18, 2, 0), 2, 2),
+                    new FlooringOrigin(new Vector3Int(20, 1, 0), 9, 10)
+                    }
+                },
+            {3, new(){
+                    new FlooringOrigin(new Vector3Int(1, 1, 0), 9, 12, 47),
+                    new FlooringOrigin(new Vector3Int(10, 3, 0), 11, 11),
+                    new FlooringOrigin(new Vector3Int(1, 15, 0), 12, 6, 1),
+                    new FlooringOrigin(new Vector3Int(13, 15, 0), 15, 6, 31),
+                    new FlooringOrigin(new Vector3Int(21, 5, 0), 2, 2),
+                    new FlooringOrigin(new Vector3Int(23, 1, 0), 11, 11)
+                }
+            }
+        });
         gameObject.AddComponent<HouseExtensionsComponent>();
     }
 

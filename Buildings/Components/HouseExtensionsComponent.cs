@@ -43,7 +43,7 @@ public class HouseExtensionsComponent : BuildingComponent {
     public MarriageCandidate spouse;
     public bool isMarried;
     private Sprite spouseRoomSprite;
-    GameObject modificationMenu;
+    public GameObject ModificationMenu { get; private set; }
     Tilemap modificationsTilemap;
     SpriteAtlas spriteAtlas;
     readonly Dictionary<string, Sprite> checkbox = new(2);
@@ -65,17 +65,16 @@ public class HouseExtensionsComponent : BuildingComponent {
     }
 
     void CreateModificationMenu() {
-        modificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().InteriorButtonsParent.transform.parent);
-        modificationMenu.transform.position = Vector3.zero;
-        // modificationMenu.SetActive(false);
-        modificationMenu.transform.Find("Marriage").Find("Checkbox").GetComponent<Toggle>().onValueChanged.AddListener(ChangeMarriedStatus);
-        modificationMenu.transform.Find("Renovations").Find("CornerRoom").GetComponent<Toggle>().onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
+        ModificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().InteriorButtonsParent.transform.parent);
+        ModificationMenu.transform.position = Vector3.zero;
+        ModificationMenu.GetComponent<HouseModificationMenu>().GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
+        ModificationMenu.GetComponent<HouseModificationMenu>().GetCornerRoomToggle().onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
     }
 
     public void ToggleModificationMenu() {
-        if (modificationMenu == null) CreateModificationMenu();
+        if (ModificationMenu == null) CreateModificationMenu();
         // modificationMenu
-        modificationMenu.GetComponent<MoveablePanel>().TogglePanel();
+        ModificationMenu.GetComponent<MoveablePanel>().TogglePanel();
     }
 
     bool IsMarriageElligible() {
@@ -95,11 +94,11 @@ public class HouseExtensionsComponent : BuildingComponent {
         isMarried = isNowMarried;
         if (isMarried) {
             AddSpouseRoom();
-            modificationMenu.transform.Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>().sprite = checkbox["On"];
+            ModificationMenu.transform.Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>().sprite = checkbox["On"];
         }
         else {
             RemoveSpouseRoom();
-            modificationMenu.transform.Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>().sprite = checkbox["Off"];
+            ModificationMenu.transform.Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>().sprite = checkbox["Off"];
         }
 
 
@@ -149,7 +148,7 @@ public class HouseExtensionsComponent : BuildingComponent {
                 if (isOn) sprite = spriteAtlas.GetSprite("CornerRoomWalls");
                 else sprite = spriteAtlas.GetSprite("CornerRoomRemovedWalls");
                 BuildingInteriorTilemap.SetTiles(GetAreaAroundPosition(origin, (int)(sprite.textureRect.height / 16), (int)(sprite.textureRect.width / 16)).ToArray(), SplitSprite(sprite));
-                modificationMenu.transform.Find("Renovations").Find("CornerRoom").Find("Button").GetComponent<Image>().sprite = isOn ? checkbox["On"] : checkbox["Off"];
+                ModificationMenu.transform.Find("Renovations").Find("CornerRoom").Find("Button").GetComponent<Image>().sprite = isOn ? checkbox["On"] : checkbox["Off"];
                 break;
             case HouseModifications.ExpandedCornerRoom:
                 break;

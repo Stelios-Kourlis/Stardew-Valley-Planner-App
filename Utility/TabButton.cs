@@ -12,13 +12,12 @@ public class TabButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     [SerializeField] private TabGroup tabGroup;
     public string TabName;
+    public bool isStartingTab;
 
     void Start() {
         tabGroup.AddTabToTabGroup(this);
         GetComponent<Button>().onClick.AddListener(() => tabGroup.ChangeSelectedTab(this));
         GetComponent<Image>().color = Color.HSVToRGB(0, 0, 0.6f);
-
-        if (gameObject.name == "Maps") tabGroup.ChangeSelectedTab(this);
     }
 
     public void OnPointerEnter(PointerEventData eventData) {

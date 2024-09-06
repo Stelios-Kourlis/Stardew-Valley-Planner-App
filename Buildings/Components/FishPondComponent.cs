@@ -74,7 +74,7 @@ public class FishPondComponent : BuildingComponent {
         GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
         for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++) {
             Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-            fishButton.gameObject.AddComponent<ButtonSelfHandler>();
+            fishButton.gameObject.AddComponent<UIElement>();
             fishButton.onClick.AddListener(() => {
                 Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
                 SetFishImage(fishType);

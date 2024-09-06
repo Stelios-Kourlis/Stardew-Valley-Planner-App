@@ -6,5 +6,7 @@ public enum Actions {
     PLACE,
     DELETE,
     EDIT,
-    DO_NOTHING
+    DO_NOTHING,
+    PLACE_WALLPAPER,
+    PLACE_FLOORING,
 }

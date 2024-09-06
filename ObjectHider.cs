@@ -37,7 +37,7 @@ public class ObjectHider : MonoBehaviour, IPointerEnterHandler {
             timer += Time.deltaTime;
             yield return null;
         }
-        BuildingController.SetCurrentAction(TooltipableGameObject.ActionBeforeEnteringSettings);
+        // BuildingController.SetCurrentAction(TooltipableGameObject.ActionBeforeEnteringSettings);
         for (int i = 0; i < transform.childCount; i++) {
             transform.GetChild(i).gameObject.SetActive(false);
         }

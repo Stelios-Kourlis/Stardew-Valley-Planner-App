@@ -16,7 +16,7 @@ public static class BuildingController {
     private static readonly HashSet<Vector3Int> plantableCoordinates = new();
     public static readonly List<Building> buildings = new();
     public static Type currentBuildingType = typeof(FishPond);
-    public static Actions CurrentAction { get; private set; } = Actions.PLACE;
+    public static Actions CurrentAction { get; private set; } = Actions.PLACE_WALLPAPER;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
     public static Transform CurrentTilemapTransform { get; private set; }
@@ -32,12 +32,12 @@ public static class BuildingController {
         // Debug.Log("Creating new building");
         if (IsLoadingSave) return;
         Enum type = null;
-        bool lastBuildingWasMultipleType = LastBuildingObjectCreated != null && LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent);
+        bool lastBuildingWasMultipleType = LastBuildingObjectCreated != null && LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent _);
         if (lastBuildingWasMultipleType) {
             type = LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().Type;
         }
         LastBuildingObjectCreated = CreateNewBuildingGameObject(currentBuildingType);
-        if (LastBuildingObjectCreated.TryGetComponent(out multipleTypeBuildingComponent)) {
+        if (LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) {
             if (type != null) multipleTypeBuildingComponent.SetType(type);
         }
     }
@@ -185,16 +185,13 @@ public static class BuildingController {
     public static List<Building> GetBuildings() { return buildings; }
 
     public static void SetCurrentAction(Actions action) {
+        // if (CurrentAction == action) return;
         CurrentAction = action;
-        InputHandler.CursorType type = action switch {
-            Actions.PLACE => InputHandler.CursorType.Place,
-            Actions.DELETE => InputHandler.CursorType.Delete,
-            Actions.EDIT => InputHandler.CursorType.Pickup,
-            _ => InputHandler.CursorType.Default
-        };
-        GetInputHandler().SetCursor(type);
-        if (action == Actions.DELETE || action == Actions.EDIT) CurrentBuildingBeingPlaced.NoPreview();
-        else CurrentBuildingBeingPlaced.DoBuildingPreview();
+        GetInputHandler().SetCursorBasedOnCurrentAction(action);
+        // if (action == Actions.DELETE || action == Actions.EDIT ) CurrentBuildingBeingPlaced.NoPreview();
+        if (CurrentBuildingBeingPlaced == null) return;
+        if (action == Actions.PLACE) CurrentBuildingBeingPlaced.DoBuildingPreview();
+        else CurrentBuildingBeingPlaced.NoPreview();
         // else if ((CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) || CurrentBuildingBeingPlaced == null) CreateNewBuilding();//If there is a picked up building, dont create a new
     }
 

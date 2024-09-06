@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using System.Linq;
 using System;
+using UnityEngine.EventSystems;
 
 public class MoveablePanel : MonoBehaviour {
 
@@ -88,4 +89,15 @@ public class MoveablePanel : MonoBehaviour {
     public bool IsPanelOpen() {
         return panelState == PanelState.Open;
     }
+
+    // public void OnPointerEnter(PointerEventData eventData) {
+    //     if (BuildingController.CurrentAction == Actions.DO_NOTHING) return;
+    //     ActionBeforeEnteringSettings = BuildingController.CurrentAction;
+    //     BuildingController.SetCurrentAction(Actions.DO_NOTHING);
+    // }
+
+    // public void OnPointerExit(PointerEventData eventData) {
+    //     if (!(BuildingController.CurrentAction == Actions.DO_NOTHING)) return;
+    //     BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
+    // }
 }

@@ -18,6 +18,7 @@ public class TabGroup : MonoBehaviour {
 
     public void AddTabToTabGroup(TabButton tabButton) {
         tabButtons.Add(tabButton);
+        if (tabButton.isStartingTab) ChangeSelectedTab(tabButton);
     }
 
     public void ChangeSelectedTab(TabButton newSelectedTab) {

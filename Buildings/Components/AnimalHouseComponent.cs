@@ -94,7 +94,7 @@ public class AnimalHouseComponent : BuildingComponent {
         for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++) {
             Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
             // AddHoverEffect(addAnimalButton);
-            addAnimalButton.gameObject.AddComponent<ButtonSelfHandler>();
+            addAnimalButton.gameObject.AddComponent<UIElement>();
             addAnimalButton.onClick.AddListener(() => {
                 AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
             });
@@ -122,7 +122,7 @@ public class AnimalHouseComponent : BuildingComponent {
             AnimalsInBuilding.Remove(animal);
             Destroy(button);
         });
-        button.AddComponent<ButtonSelfHandler>();
+        button.AddComponent<UIElement>();
         // AddHoverEffect(button.GetComponent<Button>());
         button.transform.localScale = new Vector3(1, 1, 1);
     }
