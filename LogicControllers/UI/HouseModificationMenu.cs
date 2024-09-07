@@ -1,13 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HouseModificationMenu : MonoBehaviour {
 
     private Transform Content => transform.Find("TabContent");
+    public Action<int> spouseChanged;
 
     public void Start() {
+
+        var dropdown = Content.Find("Modifications").Find("Marriage").Find("spouse").Find("Dropdown").GetComponent<TMP_Dropdown>();
+        dropdown.onValueChanged.AddListener((int value) => {
+            spouseChanged?.Invoke(value);
+        });
 
         for (int wallpaperId = 0; wallpaperId < WallsComponent.TotalWallpaperTextures - 1; wallpaperId++) {
             GameObject wallpaperButton = Instantiate(Resources.Load<GameObject>("UI/WallpaperButton"), GetWallpaperContent());
@@ -28,6 +36,10 @@ public class HouseModificationMenu : MonoBehaviour {
                 BuildingController.SetCurrentAction(Actions.PLACE_FLOORING);
             });
         }
+    }
+
+    public void SetSpouseDropdownInteractability(bool interactable) {
+        Content.Find("Modifications").Find("Marriage").Find("spouse").Find("Dropdown").GetComponent<TMP_Dropdown>().interactable = interactable;
     }
 
     public Toggle GetMarriageToggle() {

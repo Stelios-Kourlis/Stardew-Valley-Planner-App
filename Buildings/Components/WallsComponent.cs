@@ -122,13 +122,13 @@ public class WallsComponent : BuildingComponent {
     public void ApplyCurrentWallpaper(Vector3Int point) {
         Wall wall = GetWallFromPoint(point);
         if (wall == null) {
-            Debug.Log($"No wall found at {point}");
+            // Debug.Log($"No wall found at {point}");
             foreach (Wall w in walls) {
-                Debug.Log($"Wall at {w.GetAllWallCordinates()}");
+                // Debug.Log($"Wall at {w.GetAllWallCordinates()}");
             }
             return;
         }
-        Debug.Log("Applying wallpaper to wall");
+        // Debug.Log("Applying wallpaper to wall");
         ApplyCurrentWallpaper(wall);
     }
 

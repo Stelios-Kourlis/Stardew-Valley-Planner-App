@@ -49,7 +49,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
     public EnterableBuildingComponent AddFloors(Dictionary<int, List<FlooringOrigin>> values) {
         floorsValues = values;
-        Debug.Log(floorsValues);
+        // Debug.Log(floorsValues);
         return this;
     }
 
@@ -96,7 +96,7 @@ public class EnterableBuildingComponent : BuildingComponent {
             floors.transform.SetParent(BuildingInterior.transform);
             floors.AddComponent<Tilemap>();
             floors.AddComponent<TilemapRenderer>().sortingOrder = -102;
-            Debug.Log(floorsValues);
+            // Debug.Log(floorsValues);
             gameObject.AddComponent<FlooringComponent>().SetFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier], floors.GetComponent<Tilemap>());
         }
 

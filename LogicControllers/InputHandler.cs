@@ -103,7 +103,7 @@ public class InputHandler : MonoBehaviour {
     }
 
     public void SetCursorBasedOnCurrentAction(Actions action) {
-        Debug.Log("Setting cursor to " + action);
+        // Debug.Log("Setting cursor to " + action);
         if (followCursorObject != null) {
             StopCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
             Destroy(followCursorObject);
@@ -185,7 +185,7 @@ public class InputHandler : MonoBehaviour {
                             Vector3 mousePositionInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3Int mousePositionInInteriorTilemap = component.wallPaperTilemap.WorldToCell(mousePositionInWorld);
                             mousePositionInInteriorTilemap.z = 0;
-                            Debug.Log("Applying to " + mousePositionInInteriorTilemap);
+                            // Debug.Log("Applying to " + mousePositionInInteriorTilemap);
                             component.ApplyCurrentWallpaper(mousePosition);
                         }
                         break;

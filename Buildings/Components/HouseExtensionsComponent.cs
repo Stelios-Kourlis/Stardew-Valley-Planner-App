@@ -25,26 +25,26 @@ public class HouseExtensionsComponent : BuildingComponent {
     }
 
     public enum MarriageCandidate {
+        Abigail,
+        Alex,
+        Elliot,
         Emily,
         Haley,
+        Harvey,
         Leah,
         Maru,
         Penny,
-        Abigail,
-        Alex,
-        Elliott,
-        Harvey,
         Sam,
         Sebastian,
         Shane,
-        Crobus
+        Krobus
     }
 
     public MarriageCandidate spouse;
     public bool isMarried;
     private Sprite spouseRoomSprite;
-    public GameObject ModificationMenu { get; private set; }
-    Tilemap modificationsTilemap;
+    public HouseModificationMenu ModificationMenu { get; private set; }
+    Tilemap spouseRoomTilemap;
     SpriteAtlas spriteAtlas;
     readonly Dictionary<string, Sprite> checkbox = new(2);
 
@@ -53,22 +53,25 @@ public class HouseExtensionsComponent : BuildingComponent {
     // Start is called before the first frame update
     void Start() {
         GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateModificationMenu;
-        GameObject modifications = new("Modifications");
-        modificationsTilemap = modifications.AddComponent<Tilemap>();
-        modifications.AddComponent<TilemapRenderer>().sortingOrder = 1;
-        modifications.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
+        GameObject spouseRoom = new("SpouseRoomTilemap");
+        spouseRoomTilemap = spouseRoom.AddComponent<Tilemap>();
+        spouseRoom.AddComponent<TilemapRenderer>().sortingOrder = -102;
+        spouseRoom.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
         spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
         checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
         checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
         spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
         CreateModificationMenu();
+        ChangeMarriedStatus(false);
+        SetSpouse(0);
     }
 
     void CreateModificationMenu() {
-        ModificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().InteriorButtonsParent.transform.parent);
+        ModificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().InteriorButtonsParent.transform.parent).GetComponent<HouseModificationMenu>();
         ModificationMenu.transform.position = Vector3.zero;
-        ModificationMenu.GetComponent<HouseModificationMenu>().GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
-        ModificationMenu.GetComponent<HouseModificationMenu>().GetCornerRoomToggle().onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
+        ModificationMenu.GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
+        ModificationMenu.spouseChanged += SetSpouse;
+        ModificationMenu.GetCornerRoomToggle().onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
     }
 
     public void ToggleModificationMenu() {
@@ -81,52 +84,58 @@ public class HouseExtensionsComponent : BuildingComponent {
         return GetComponent<TieredBuildingComponent>().Tier > 1; //to marry you need to upgrade the house at least once
     }
 
-    // Update is called once per frame
-    void Update() {
-
-    }
-
     public void ChangeMarriedStatus(bool isNowMarried) {
-        if (!isMarried && !IsMarriageElligible()) {
+        if (isNowMarried && !isMarried && !IsMarriageElligible()) {
             GetNotificationManager().SendNotification("You need to upgrade your house to at least tier 2 to get married", NotificationManager.Icons.ErrorIcon);
             return;
         }
         isMarried = isNowMarried;
         if (isMarried) {
             AddSpouseRoom();
-            ModificationMenu.transform.Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>().sprite = checkbox["On"];
+            ModificationMenu.GetMarriageToggle().transform.Find("Image").GetComponent<Image>().sprite = checkbox["On"];
+            ModificationMenu.SetSpouseDropdownInteractability(true);
         }
         else {
             RemoveSpouseRoom();
-            ModificationMenu.transform.Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>().sprite = checkbox["Off"];
+            ModificationMenu.GetMarriageToggle().transform.Find("Image").GetComponent<Image>().sprite = checkbox["Off"];
+            ModificationMenu.SetSpouseDropdownInteractability(false);
         }
-
-
-        //todo Destroy spouse room here
     }
 
     public void RemoveSpouseRoom() {
-        Vector3Int spouseRoomOrigin = GetComponent<TieredBuildingComponent>().Tier switch {
-            2 => new Vector3Int(29, 2, 0),
-            3 => new Vector3Int(29, 2, 0),//todo put correct origin
-            4 => new Vector3Int(29, 2, 0),
-            _ => new Vector3Int(0, 0, 0),
-        };
-        var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
-        foreach (Vector3Int tile in area) modificationsTilemap.SetTile(tile, null);
-        modificationsTilemap.CompressBounds();
+        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin();
+        Sprite spouseRoomRemoved = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoomRemoved");
+        Vector3Int[] area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomRemoved.textureRect.height / 16), (int)(spouseRoomRemoved.textureRect.width / 16)).ToArray();
+        BuildingInteriorTilemap.SetTiles(area, SplitSprite(spouseRoomRemoved));
+        BuildingInteriorTilemap.CompressBounds();
     }
 
     public void AddSpouseRoom() {
-        Vector3Int spouseRoomOrigin = GetComponent<TieredBuildingComponent>().Tier switch {
+        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin();
+        var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
+        BuildingInteriorTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoomSprite));
+        BuildingInteriorTilemap.CompressBounds();
+    }
+
+    public void SetSpouse(int candidate) {
+        spouse = (MarriageCandidate)candidate;
+        // if (!isMarried) return;
+
+        //Draw room
+        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin() + new Vector3Int(1, 0, 0);
+        Sprite spouseRoom = Resources.Load<SpriteAtlas>($"BuildingInsides/House/SpouseRoomAtlas").GetSprite(spouse.ToString());
+        var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoom.textureRect.height / 16), (int)(spouseRoom.textureRect.width / 16));
+        spouseRoomTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoom));
+        Debug.Log(spouse);
+    }
+
+    private Vector3Int GetSpouseRoomOrigin() {
+        return GetComponent<TieredBuildingComponent>().Tier switch {
             2 => new Vector3Int(29, 2, 0),
-            3 => new Vector3Int(29, 2, 0),//todo put correct origin
-            4 => new Vector3Int(29, 2, 0),
+            3 => new Vector3Int(34, 5, 0),//todo put correct origin
+            4 => new Vector3Int(34, 5, 0),
             _ => new Vector3Int(0, 0, 0),
         };
-        var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
-        modificationsTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoomSprite));
-        modificationsTilemap.CompressBounds();
     }
 
     public void RenovateHouse(HouseModifications modification, bool isOn) {

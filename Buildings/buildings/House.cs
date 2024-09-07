@@ -60,7 +60,7 @@ public class House : Building {
                     new FlooringOrigin(new Vector3Int(1, 0, 0), 6, 9, 47),
                     new FlooringOrigin(new Vector3Int(7, 0, 0), 11, 9),
                     new FlooringOrigin(new Vector3Int(18, 2, 0), 2, 2),
-                    new FlooringOrigin(new Vector3Int(20, 1, 0), 9, 10)
+                    new FlooringOrigin(new Vector3Int(20, 1, 0), 10, 10)
                     }
                 },
             {3, new(){
@@ -69,7 +69,7 @@ public class House : Building {
                     new FlooringOrigin(new Vector3Int(1, 15, 0), 12, 6, 1),
                     new FlooringOrigin(new Vector3Int(13, 15, 0), 15, 6, 31),
                     new FlooringOrigin(new Vector3Int(21, 5, 0), 2, 2),
-                    new FlooringOrigin(new Vector3Int(23, 1, 0), 11, 11)
+                    new FlooringOrigin(new Vector3Int(23, 1, 0), 12, 11)
                 }
             }
         });
