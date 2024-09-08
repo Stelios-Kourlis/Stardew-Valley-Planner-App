@@ -6,8 +6,10 @@ using static BuildingData;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using static Utility.ClassManager;
+using static Utility.InvalidTileLoader;
 using UnityEngine.UI;
 using UnityEngine.U2D;
+using System.Linq;
 
 public class HouseExtensionsComponent : BuildingComponent {
 
@@ -85,7 +87,7 @@ public class HouseExtensionsComponent : BuildingComponent {
     }
 
     public void ChangeMarriedStatus(bool isNowMarried) {
-        if (isNowMarried && !isMarried && !IsMarriageElligible()) {
+        if (!IsMarriageElligible()) {
             GetNotificationManager().SendNotification("You need to upgrade your house to at least tier 2 to get married", NotificationManager.Icons.ErrorIcon);
             return;
         }
@@ -108,6 +110,14 @@ public class HouseExtensionsComponent : BuildingComponent {
         Vector3Int[] area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomRemoved.textureRect.height / 16), (int)(spouseRoomRemoved.textureRect.width / 16)).ToArray();
         BuildingInteriorTilemap.SetTiles(area, SplitSprite(spouseRoomRemoved));
         BuildingInteriorTilemap.CompressBounds();
+
+        HashSet<Vector3Int> newInvalidTiles = GetInsideUnavailableCoordinates("SpouseRoomRemoved"); //todo place under room stays valid
+        newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().AddToInteriorUnavailableCoordinates(newInvalidTiles);
+        HashSet<Vector3Int> newNeutralTiles = GetInsideNeutralCoordinates("SpouseRoomRemoved");
+        newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().RemoveFromInteriorUnavailableCoordinates(newNeutralTiles);
+        MapController.UpdateAllCoordinates();
     }
 
     public void AddSpouseRoom() {
@@ -115,6 +125,14 @@ public class HouseExtensionsComponent : BuildingComponent {
         var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
         BuildingInteriorTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoomSprite));
         BuildingInteriorTilemap.CompressBounds();
+
+        HashSet<Vector3Int> newInvalidTiles = GetInsideUnavailableCoordinates("SpouseRoom"); //todo place under room stays valid
+        newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().AddToInteriorUnavailableCoordinates(newInvalidTiles);
+        HashSet<Vector3Int> newNeutralTiles = GetInsideNeutralCoordinates("SpouseRoom");
+        newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().RemoveFromInteriorUnavailableCoordinates(newNeutralTiles);
+        MapController.UpdateAllCoordinates();
     }
 
     public void SetSpouse(int candidate) {

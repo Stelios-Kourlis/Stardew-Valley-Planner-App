@@ -23,14 +23,14 @@ public class HUDButtonCotroller : MonoBehaviour {
         panelGameObject.transform.Find("CategoryButtons").Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             AddBuildingButtonsForPanel(content.transform);
-            panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
+            // GameObject.Find("BuildingSelect").transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(GameObject.Find("BuildingSelect").transform.Find("Search").GetComponent<InputField>().text);
         });
 
 
         panelGameObject.transform.Find("CategoryButtons").Find("PlaceablesButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             AddCraftablesButtonsForPanel(content.transform);
-            panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
+            // GameObject.Find("BuildingSelect").transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(GameObject.Find("BuildingSelect").transform.Find("Search").GetComponent<InputField>().text);
         });
 
         panelGameObject.transform.Find("CategoryButtons").Find("CropsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
@@ -42,7 +42,7 @@ public class HUDButtonCotroller : MonoBehaviour {
                 button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             }
             Destroy(temp);
-            panelGameObject.transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(panelGameObject.transform.Find("Search").GetComponent<InputField>().text);
+            // GameObject.Find("BuildingSelect").transform.Find("Search").GetComponent<SearchBar>().OnValueChanged(GameObject.Find("BuildingSelect").transform.Find("Search").GetComponent<InputField>().text);
         });
 
         panelGameObject.transform.Find("CategoryButtons").Find("BuildingsButton").gameObject.GetComponent<Button>().onClick.Invoke();

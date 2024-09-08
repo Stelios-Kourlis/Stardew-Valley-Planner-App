@@ -16,6 +16,7 @@ using Newtonsoft.Json.Linq;
 using static BuildingData;
 using static FlooringComponent;
 using static WallsComponent;
+using System.Collections.ObjectModel;
 
 [RequireComponent(typeof(Building))]
 public class EnterableBuildingComponent : BuildingComponent {
@@ -57,6 +58,26 @@ public class EnterableBuildingComponent : BuildingComponent {
         Building.BuildingPlaced += _ => AddBuildingInterior();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
+    }
+
+    public ReadOnlyCollection<Vector3Int> GetInteriorUnavailableCoordinates() {
+        return new ReadOnlyCollection<Vector3Int>(InteriorUnavailableCoordinates.ToList());
+    }
+
+    public void AddToInteriorUnavailableCoordinates(Vector3Int coordinate) {
+        InteriorUnavailableCoordinates.Add(coordinate);
+    }
+
+    public void AddToInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates) {
+        foreach (Vector3Int coordinate in coordinates) InteriorUnavailableCoordinates.Add(coordinate);
+    }
+
+    public void RemoveFromInteriorUnavailableCoordinates(Vector3Int coordinate) {
+        InteriorUnavailableCoordinates.Remove(coordinate);
+    }
+
+    public void RemoveFromInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates) {
+        foreach (Vector3Int coordinate in coordinates) InteriorUnavailableCoordinates.Remove(coordinate);
     }
 
     public void AddBuildingInterior() {
@@ -204,7 +225,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
         InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
-        GetMapController().UpdateAllCoordinates();
+        MapController.UpdateAllCoordinates();
     }
 
     public void ToggleEditBuildingInterior() {

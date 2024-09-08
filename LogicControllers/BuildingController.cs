@@ -50,13 +50,13 @@ public static class BuildingController {
     public static void AddToUnavailableCoordinates(Vector3Int[] coordinates) {
         if (!isInsideBuilding.Key) GetUnavailableCoordinates().UnionWith(coordinates);
         else isInsideBuilding.Value.InteriorUnavailableCoordinates.UnionWith(coordinates);
-        GetMapController().UpdateUnavailableCoordinates();
+        MapController.UpdateUnavailableCoordinates();
     }
 
     public static void RemoveFromUnavailableCoordinates(Vector3Int[] coordinates) {
         if (!isInsideBuilding.Key) GetUnavailableCoordinates().ExceptWith(coordinates);
         else isInsideBuilding.Value.InteriorUnavailableCoordinates.ExceptWith(coordinates);
-        GetMapController().UpdateUnavailableCoordinates();
+        MapController.UpdateUnavailableCoordinates();
     }
 
     /// <summary>
@@ -96,7 +96,6 @@ public static class BuildingController {
         CurrentBuildingBeingPlaced = newGameObject.GetComponent<Building>();
         return newGameObject;
     }
-
 
     public static void InitializeMap(int Housetier) {
 

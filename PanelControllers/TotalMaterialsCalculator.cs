@@ -20,7 +20,7 @@ public class TotalMaterialsCalculator : MonoBehaviour {
     private GameObject materialEntry;
 
     private Mode currentMode;
-    private Transform ContentPanelTransform => gameObject.transform.Find("ScrollArea").GetChild(0);
+    private Transform ContentPanelTransform => transform.Find("ScrollArea").Find("Content");
 
     public void Start() {
         materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
@@ -118,6 +118,8 @@ public class TotalMaterialsCalculator : MonoBehaviour {
     }
 
     private void ClearPanel() {
+        Debug.Log(transform.name);
+        Debug.Log(transform.Find("ScrollArea"));
         foreach (Transform child in ContentPanelTransform) Destroy(child.gameObject);
     }
 

@@ -16,7 +16,6 @@ namespace Utility {
                 }
             }
 
-            // Debug.Log($"Building {buildingName} has {UnavailableCoordinates.Count} unavailable coordinates");
             return UnavailableCoordinates;
         }
 
@@ -33,6 +32,21 @@ namespace Utility {
             }
 
             return PlantableCoordinates;
+        }
+
+        public static HashSet<Vector3Int> GetInsideNeutralCoordinates(string buildingName) {
+            HashSet<Vector3Int> NeutralCoordinates = new();
+            Texture2D image = Resources.Load<Texture2D>($"BuildingInsides/{buildingName}Invalid");
+            if (image == null) throw new System.Exception($"Invalid building name: {buildingName}");
+
+            for (int y = 0; y < image.height; y++) {
+                for (int x = 0; x < image.width; x++) {
+                    Color pixelColor = image.GetPixel(x, y);
+                    if (pixelColor == Color.white) NeutralCoordinates.Add(new Vector3Int(x, y, 0));
+                }
+            }
+
+            return NeutralCoordinates;
         }
     }
 }

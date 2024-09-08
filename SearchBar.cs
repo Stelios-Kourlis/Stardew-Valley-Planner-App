@@ -10,19 +10,33 @@ using static Utility.ClassManager;
 public class SearchBar : MonoBehaviour {
 
     [SerializeField] GameObject contentGameObject;
+    private int childCount;
+    [SerializeField] private Button clearButton;
     public void Awake() {
-        // if (gameObject.name == "Search") contentGameObject = transform.parent.GetChild(0).GetChild(0).gameObject;
-        // else if (gameObject.name == "TypeSearchBar") contentGameObject = GameObject.Find("TypeSelectBar").transform.GetChild(0).GetChild(0).gameObject;
+        //Listeners
         InputField inputField;
         inputField = GetComponent<InputField>();
         inputField.onValueChanged.AddListener(OnValueChanged);
         inputField.onEndEdit.AddListener(OnEndEdit);
+
+        //Set is searching to true on select
         EventTrigger trigger = inputField.gameObject.AddComponent<EventTrigger>();
         EventTrigger.Entry entry = new() {
             eventID = EventTriggerType.PointerClick
         };
         entry.callback.AddListener((data) => { OnSelect(); });
         trigger.triggers.Add(entry);
+
+        //Update on change
+        if (clearButton != null) clearButton.onClick.AddListener(() => { inputField.text = ""; });
+        // contentGameObject.childrenChanged += () => { OnValueChanged(inputField.text); };
+    }
+
+    public void Update() {
+        if (childCount != contentGameObject.transform.childCount) {
+            childCount = contentGameObject.transform.childCount;
+            OnValueChanged(GetComponent<InputField>().text);
+        }
     }
 
     public void OnValueChanged(string text) {

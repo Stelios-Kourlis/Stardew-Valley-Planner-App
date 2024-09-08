@@ -28,6 +28,8 @@ public class MoveablePanel : MonoBehaviour {
     [SerializeField] Vector3 closedPosition, openPosition, hiddenPosition;
     [SerializeField] private Button[] toggleButtons, openButtons, closeButtons;
     [SerializeField] private readonly Sprite[] toggleButtonSprites = new Sprite[2];
+    [SerializeField] private bool SetActionToNothingOnOpen = true;
+    private Actions actionBeforeOpeningPanel;
     private Vector3 CurrentPosition => gameObject.GetComponent<RectTransform>().localPosition;
 
     public void Start() {
@@ -61,6 +63,12 @@ public class MoveablePanel : MonoBehaviour {
         panelState = PanelState.Open;
         // Debug.Log(toggleButtonSprites[0]);
         if (invoker != null && toggleButtonSprites[0] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[0];
+
+        if (SetActionToNothingOnOpen) {
+            actionBeforeOpeningPanel = BuildingController.CurrentAction;
+            BuildingController.SetCurrentAction(Actions.DO_NOTHING);
+        }
+
         panelOpened?.Invoke();
     }
 
@@ -72,6 +80,11 @@ public class MoveablePanel : MonoBehaviour {
         else StartCoroutine(UIObjectMover.MoveObjectWithConstastSpeed(transform, CurrentPosition, closedPosition, moveSpeed));
         panelState = PanelState.Closed;
         if (invoker != null && toggleButtonSprites[1] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[1];
+
+        if (SetActionToNothingOnOpen) {
+            BuildingController.SetCurrentAction(actionBeforeOpeningPanel);
+        }
+
         panelClosed?.Invoke();
     }
 

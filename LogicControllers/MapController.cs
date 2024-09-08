@@ -34,10 +34,10 @@ public class MapController : MonoBehaviour {
     }
     private SpriteAtlas atlas;
     public MapTypes CurrentMapType { get; private set; }
-    Tile redTile;
-    Tile greenTile;
-    private bool unavailableCoordinatesAreVisible = false;
-    private bool plantableCoordinatesAreVisible = false;
+    static Tile redTile;
+    static Tile greenTile;
+    private static bool unavailableCoordinatesAreVisible = false;
+    private static bool plantableCoordinatesAreVisible = false;
     private Actions currentAction;
     private TileMode tileMode;
     private Vector3Int startTile;
@@ -189,7 +189,7 @@ public class MapController : MonoBehaviour {
         ToggleMapPlantableCoordinates();
     }
 
-    public void ToggleMapUnavailableCoordinates() {
+    public static void ToggleMapUnavailableCoordinates() {
         // if (BuildingController.isInsideBuilding.Key) { ToggleMapUnavailableCoordinatesForBuildingInside(); return; }
         HashSet<Vector3Int> unavailableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorUnavailableCoordinates.ToHashSet() : BuildingController.GetUnavailableCoordinates();
         Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
@@ -203,7 +203,7 @@ public class MapController : MonoBehaviour {
         unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
     }
 
-    public void ToggleMapPlantableCoordinates() {
+    public static void ToggleMapPlantableCoordinates() {
         HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
         Tilemap plantableCoordinatesTilemap = GameObject.FindWithTag("PlantableTilemap").GetComponent<Tilemap>();
         plantableCoordinatesTilemap.ClearAllTiles();
@@ -216,17 +216,17 @@ public class MapController : MonoBehaviour {
         plantableCoordinatesAreVisible = !plantableCoordinatesAreVisible;
     }
 
-    public void UpdatePlantableCoordinates() {
+    public static void UpdatePlantableCoordinates() {
         ToggleMapPlantableCoordinates();
         ToggleMapPlantableCoordinates(); //easiest way to update the tiles
     }
 
-    public void UpdateUnavailableCoordinates() {
+    public static void UpdateUnavailableCoordinates() {
         ToggleMapUnavailableCoordinates();
         ToggleMapUnavailableCoordinates(); //easiest way to update the tiles
     }
 
-    public void UpdateAllCoordinates() {
+    public static void UpdateAllCoordinates() {
         UpdatePlantableCoordinates();
         UpdateUnavailableCoordinates();
     }

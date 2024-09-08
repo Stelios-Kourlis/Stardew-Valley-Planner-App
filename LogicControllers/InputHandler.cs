@@ -33,10 +33,6 @@ public class InputHandler : MonoBehaviour {
 
     void Start() {
         SetCursorBasedOnCurrentAction(Actions.DO_NOTHING);
-
-        GameObject.Find("setCursorToWallpaper").GetComponent<Button>().onClick.AddListener(() => {
-            BuildingController.SetCurrentAction(Actions.PLACE_FLOORING);
-        });
     }
 
     void Update() {
@@ -57,12 +53,12 @@ public class InputHandler : MonoBehaviour {
         if (KeybindsForActionArePressed(KeybindHandler.Action.Redo)) UndoRedoController.RedoLastUndo();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)) {
-            GetMapController().ToggleMapUnavailableCoordinates();
+            MapController.ToggleMapUnavailableCoordinates();
             GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)) {
-            GetMapController().ToggleMapPlantableCoordinates();
+            MapController.ToggleMapPlantableCoordinates();
             GetNotificationManager().SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
