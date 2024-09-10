@@ -71,6 +71,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
             };
             SetType(type);
             button.AddComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
+            if (Building.GetType() == typeof(Floor)) Debug.Log($"SpriteName: {SpriteName}");
             button.GetComponent<Image>().preserveAspect = true;
             button.AddComponent<UIElement>();
             button.GetComponent<UIElement>().playSounds = true;

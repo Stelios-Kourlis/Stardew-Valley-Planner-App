@@ -109,14 +109,6 @@ public class Floor : Building, IConnectingBuilding {
         };
     }
 
-    public string GetExtraData() {
-        return $"{MultipleTypeBuildingComponent.Type}";
-    }
-
-    public void LoadExtraBuildingData(string[] data) {
-        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
-    }
-
     public void UpdateSelf() {
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }

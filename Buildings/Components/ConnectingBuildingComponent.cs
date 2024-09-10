@@ -18,9 +18,11 @@ public class ConnectingBuildingComponent : BuildingComponent {
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        if (Building is IConnectingBuilding connectingBuilding) connectingBuilding.UpdateSelf();
     }
 
     public int GetConnectingFlags(bool includeTop = true) {
+        if (Building.CurrentBuildingState != Building.BuildingState.PLACED) return 0;
         List<ConnectFlag> flags = new();
         Type buildingType = gameObject.GetComponent<Building>().GetType();
         Vector3Int position = gameObject.GetComponent<Building>().BaseCoordinates[0];
