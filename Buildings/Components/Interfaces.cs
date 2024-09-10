@@ -12,11 +12,8 @@ public interface IExtraActionBuilding {
     void PerformExtraActionsOnDeletePreview() { return; }
     void PerformExtraActionsOnPickup() { return; }
     void PerformExtraActionsOnPickupPreview() { return; }
-    string[] GetExtraData() { return null; }
-    void LoadExtraBuildingData(string[] data) { return; }
     string AddBeforeBuildingName() { return ""; }
     string AddToBuildingName() { return ""; }
-
 }
 
 public interface IConnectingBuilding {

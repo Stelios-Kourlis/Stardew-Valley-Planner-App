@@ -70,12 +70,4 @@ public class Crop : Building, IExtraActionBuilding {
             new($"{MultipleTypeBuildingComponent.Type} Seeds"),
         };
     }
-
-    public void LoadExtraBuildingData(string[] data) {
-        MultipleTypeBuildingComponent.SetType((Types)Enum.Parse(typeof(Types), data[0]));
-    }
-
-    public GameObject[] CreateButtonsForAllTypes() {
-        return MultipleTypeBuildingComponent.CreateButtonsForAllTypes();
-    }
 }

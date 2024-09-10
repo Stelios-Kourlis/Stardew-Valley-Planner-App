@@ -42,10 +42,12 @@ public class FlooringComponent : BuildingComponent {
                 if (position.x % 2 == 0 && position.y % 2 == 1) tilemap.SetTile(position, SplitSprite(floorSprite)[2]);
                 if (position.x % 2 == 1 && position.y % 2 == 1) tilemap.SetTile(position, SplitSprite(floorSprite)[3]);
             }
+
+            foreach (Sprite sprite in splitSprites) Destroy(sprite);
         }
 
         public IEnumerable<Vector3Int> GetFloorPositions() {
-            return GetAreaAroundPosition(lowerLeftCorner, height, width);
+            return GetRectAreaFromPoint(lowerLeftCorner, height, width);
         }
 
         public static Sprite GetFloorSprite(int textureId) {
@@ -115,7 +117,7 @@ public class FlooringComponent : BuildingComponent {
 
     public void AddFloor(FlooringOrigin origin) {
         Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID);
-        if (floors.Any(floor => floor.GetFloorPositions().Intersect(GetAreaAroundPosition(origin.lowerLeftCorner, origin.height, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
+        if (floors.Any(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
         floors.Add(floor);
         // ApplyCurrentFloorTexture(floor);
     }

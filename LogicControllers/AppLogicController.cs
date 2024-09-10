@@ -9,7 +9,9 @@ public class AppLogicController : MonoBehaviour {
     private readonly float LOGO_TOP_SIZE_SCALE = 75;
     private readonly float LOGO_BOTTOM_MOVE_SCALE = 100;
     public float BUTTON_SCALE_MODIFIER = 50;
+    private AudioSource audioSource;
     public void Start() {
+        if (!TryGetComponent(out audioSource)) audioSource = gameObject.AddComponent<AudioSource>();
         StartCoroutine(ShowLogo());
         GameObject buttonsParent = GameObject.Find("Buttons");
         for (int i = 0; i < buttonsParent.transform.childCount; i++) {
@@ -67,18 +69,23 @@ public class AppLogicController : MonoBehaviour {
     }
 
     private IEnumerator ShowButtonAnimation(GameObject button) {
+        AudioClip hoverSound = Resources.Load<AudioClip>("SoundEffects/ButtonAppear");
+        audioSource.clip = hoverSound;
+        audioSource.Play();
+
         button.GetComponent<RectTransform>().localScale = new Vector3(0, 0, 0);
         button.SetActive(true);
-        while (button.GetComponent<RectTransform>().localScale.magnitude < new Vector3(1.2f, 1.2f, 1.2f).magnitude) {
-            button.GetComponent<RectTransform>().localScale += BUTTON_SCALE_MODIFIER * Time.deltaTime * new Vector3(1, 1, 1);
-            yield return null;
-        }
-        button.GetComponent<RectTransform>().localScale = new Vector3(1.2f, 1.2f, 1.2f);
-        while (button.GetComponent<RectTransform>().localScale.magnitude > new Vector3(1, 1, 1).magnitude) {
-            button.GetComponent<RectTransform>().localScale -= BUTTON_SCALE_MODIFIER * Time.deltaTime * new Vector3(1, 1, 1);
-            yield return null;
-        }
+        // while (button.GetComponent<RectTransform>().localScale.magnitude < new Vector3(1.2f, 1.2f, 1.2f).magnitude) {
+        //     button.GetComponent<RectTransform>().localScale += BUTTON_SCALE_MODIFIER * Time.deltaTime * new Vector3(1, 1, 1);
+        //     yield return null;
+        // }
+        // button.GetComponent<RectTransform>().localScale = new Vector3(1.2f, 1.2f, 1.2f);
+        // while (button.GetComponent<RectTransform>().localScale.magnitude > new Vector3(1, 1, 1).magnitude) {
+        //     button.GetComponent<RectTransform>().localScale -= BUTTON_SCALE_MODIFIER * Time.deltaTime * new Vector3(1, 1, 1);
+        //     yield return null;
+        // }
         button.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
+        yield return null;
     }
     public void Quit() {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");

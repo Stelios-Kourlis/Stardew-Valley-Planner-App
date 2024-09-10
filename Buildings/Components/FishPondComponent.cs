@@ -90,7 +90,7 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public void SetWaterTilemapLocation(Vector3Int lowerLeftCorner) {
-        Vector3Int[] baseCoordinates = GetAreaAroundPosition(lowerLeftCorner, Building.BaseHeight, Building.Width).ToArray();
+        Vector3Int[] baseCoordinates = GetRectAreaFromPoint(lowerLeftCorner, Building.BaseHeight, Building.Width).ToArray();
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         waterTilemapObject.GetComponent<Tilemap>().SetTiles(baseCoordinates, SplitSprite(atlas.GetSprite("FishPondBottom")));
@@ -109,7 +109,7 @@ public class FishPondComponent : BuildingComponent {
 
     public void SetDecoTilemapLocation(Vector3Int lowerLeftCorner) {
         Vector3Int topRightCorner = lowerLeftCorner + new Vector3Int(0, 4, 0);
-        decoCoordinates = GetAreaAroundPosition(topRightCorner, 3, 5).ToArray();
+        decoCoordinates = GetRectAreaFromPoint(topRightCorner, 3, 5).ToArray();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));

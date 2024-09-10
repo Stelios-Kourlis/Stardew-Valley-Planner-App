@@ -35,9 +35,9 @@ public abstract class Building : TooltipableGameObject {
 
     [field: SerializeField] public string BuildingName { get; protected set; }
 
-    public Vector3Int[] SpriteCoordinates { get; private set; }
-
-    [field: SerializeField] public Vector3Int[] BaseCoordinates { get; protected set; }
+    [field: SerializeField] public Vector3Int Base { get; protected set; }
+    public Vector3Int[] SpriteCoordinates => GetRectAreaFromPoint(Base, Height, Width).ToArray();
+    public Vector3Int[] BaseCoordinates => GetRectAreaFromPoint(Base, BaseHeight, Width).ToArray();
 
     public int Height => Sprite != null ? (int)Sprite.textureRect.height / 16 : -1;
 
@@ -46,13 +46,11 @@ public abstract class Building : TooltipableGameObject {
     public int BaseHeight { get; protected set; } = 0;
 
     [field: SerializeField] public Sprite Sprite { get; protected set; } = null;
+    [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
-
     public TilemapRenderer TilemapRenderer => gameObject.GetComponent<TilemapRenderer>();
-
     public Transform Transform => gameObject.transform;
-
     public GameObject BuildingGameObject => gameObject;
 
 
@@ -60,7 +58,6 @@ public abstract class Building : TooltipableGameObject {
     public Action BuildingRemoved { get; set; }
     public Action BuildingPickedUp { get; set; }
     protected Action HidBuildingPreview { get; set; }
-    [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
 
     public override void OnAwake() {
         CurrentBuildingState = BuildingState.NOT_PLACED;
@@ -87,8 +84,6 @@ public abstract class Building : TooltipableGameObject {
             if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
         BuildingRemoved?.Invoke();
-
-        // Debug.Log("Destryong building " + BuildingName);
         BuildingController.anyBuildingPositionChanged?.Invoke();
         Destroy(TooltipGameObject);
         Destroy(gameObject);
@@ -108,10 +103,6 @@ public abstract class Building : TooltipableGameObject {
         }
     }
 
-    // public void StopBuildingPreview() {
-    //     Tilemap.color = OPAQUE;
-    //     StoppedBuildingPreview?.Invoke();
-    // }
 
     public abstract List<MaterialCostEntry> GetMaterialsNeeded();
 
@@ -156,15 +147,14 @@ public abstract class Building : TooltipableGameObject {
         Debug.Assert(Sprite != null, $"Sprite is null for {BuildingName}");
         (bool canBePlacedAtPosition, string errorMessage) = BuildingCanBePlacedAtPosition(position, this);
         if (!canBePlacedAtPosition) {
-            GetNotificationManager().SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon);
+            NotificationManager.Instance.SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon);
             Debug.Log($"Failed to place {BuildingName}: {errorMessage}");
             return false;
         }
         PlaceBuildingPreview(position);
         Tilemap.color = OPAQUE;
+        Base = position;
 
-        BaseCoordinates = GetAreaAroundPosition(position, BaseHeight, Width).ToArray();
-        SpriteCoordinates = GetAreaAroundPosition(position, Height, Width).ToArray();
         if (this is IExtraActionBuilding extraActionBuilding) {
             extraActionBuilding.PerformExtraActionsOnPlace(position);
             // if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.extraData);
@@ -179,8 +169,10 @@ public abstract class Building : TooltipableGameObject {
             GetComponent<BuildingSaverLoader>().LoadSavedComponents();
             BuildingController.SetCurrentAction(Actions.EDIT); //todo add BuildingData loading
         }
-        BuildingController.buildingGameObjects.Add(gameObject);
-        BuildingController.buildings.Add(this);
+        else {
+            BuildingController.buildingGameObjects.Add(gameObject);
+            BuildingController.buildings.Add(this);
+        }
         BuildingController.AddToUnavailableCoordinates(BaseCoordinates);
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
@@ -207,7 +199,7 @@ public abstract class Building : TooltipableGameObject {
         else Tilemap.color = SEMI_TRANSPARENT_INVALID;
 
         Tilemap.ClearAllTiles();
-        Vector3Int[] mouseoverEffectArea = GetAreaAroundPosition(position, Height, Width).ToArray();
+        Vector3Int[] mouseoverEffectArea = GetRectAreaFromPoint(position, Height, Width).ToArray();
         Tilemap.SetTiles(mouseoverEffectArea, SplitSprite(Sprite));
 
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPlacePreview(position);
@@ -234,23 +226,21 @@ public abstract class Building : TooltipableGameObject {
         Tilemap.SetTiles(SpriteCoordinates.ToArray(), buildingTiles);
     }
 
-    // public void HidePreview() {
-    //     Tilemap.ClearAllTiles();
-    // }
-
     /// <summary>
     /// Create a button that sets the current building to this building
     /// </summary>
     /// <returns>The game object of the button, with no parent, caller should use transform.SetParent()</returns>
     public virtual GameObject CreateBuildingButton() {
-        GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-        button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        button.name = $"{BuildingName}";
-        button.GetComponent<Image>().sprite = Sprite;
+        GameObject button = new($"{BuildingName}");
+        button.AddComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        button.AddComponent<Image>().sprite = Sprite;
+        button.GetComponent<Image>().preserveAspect = true;
         button.AddComponent<UIElement>();
+        button.GetComponent<UIElement>().playSounds = true;
+        button.GetComponent<UIElement>().ExpandOnHover = true;
 
         Type buildingType = GetType();
-        button.GetComponent<Button>().onClick.AddListener(() => {
+        button.AddComponent<Button>().onClick.AddListener(() => {
             Debug.Log($"Setting current building to {buildingType}");
             BuildingController.SetCurrentBuildingType(buildingType);
             BuildingController.SetCurrentAction(Actions.PLACE);

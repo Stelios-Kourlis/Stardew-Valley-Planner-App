@@ -31,7 +31,7 @@ public class Greenhouse : Building, IExtraActionBuilding {
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
         Vector3Int porchBottomRight = position + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
-        Vector3Int[] porchCoordinates = GetAreaAroundPosition(porchBottomRight, 2, 3).ToArray();
+        Vector3Int[] porchCoordinates = GetRectAreaFromPoint(porchBottomRight, 2, 3).ToArray();
         HashSet<Vector3Int> unavailableCoordinates = BuildingController.GetUnavailableCoordinates();
         if (unavailableCoordinates.Intersect(porchCoordinates).Count() > 0) return;
         porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
@@ -52,7 +52,7 @@ public class Greenhouse : Building, IExtraActionBuilding {
 
     public void PerformExtraActionsOnPlacePreview(Vector3Int position) {
         Vector3Int porchBottomRight = position + new Vector3Int(2, -2, 0);
-        Vector3Int[] porchCoordinates = GetAreaAroundPosition(porchBottomRight, 2, 3).ToArray();
+        Vector3Int[] porchCoordinates = GetRectAreaFromPoint(porchBottomRight, 2, 3).ToArray();
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
         porchTilemapObject.GetComponent<Tilemap>().color = Tilemap.color;

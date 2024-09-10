@@ -16,6 +16,7 @@ namespace Utility {
                 }
             }
 
+            // Resources.UnloadAsset(image);
             return UnavailableCoordinates;
         }
 
@@ -31,6 +32,7 @@ namespace Utility {
                 }
             }
 
+            // Resources.UnloadAsset(image);
             return PlantableCoordinates;
         }
 
@@ -46,6 +48,7 @@ namespace Utility {
                 }
             }
 
+            // Resources.UnloadAsset(image);
             return NeutralCoordinates;
         }
     }

@@ -120,23 +120,4 @@ public class Floor : Building, IConnectingBuilding {
     public void UpdateSelf() {
         UpdateTexture(MultipleTypeBuildingComponent.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
-
-    public GameObject[] CreateButtonsForAllTypes() {
-        List<GameObject> buttons = new();
-        foreach (Types type in Enum.GetValues(typeof(Types))) {
-            GameObject button = GameObject.Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-            button.name = $"{type}";
-            button.GetComponent<Image>().sprite = MultipleTypeBuildingComponent.Atlas.GetSprite($"{type}0");
-
-            Type buildingType = GetType();
-            button.GetComponent<Button>().onClick.AddListener(() => {
-                BuildingController.SetCurrentBuildingType(buildingType, type);
-                BuildingController.SetCurrentAction(Actions.PLACE);
-            });
-            buttons.Add(button);
-        }
-        return buttons.ToArray();
-    }
-
-    public int GetConnectingFlags(bool includeTop = true) => ConnectingBuildingComponent?.GetConnectingFlags() ?? 0;
 }

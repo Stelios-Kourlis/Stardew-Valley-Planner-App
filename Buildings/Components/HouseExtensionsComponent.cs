@@ -64,8 +64,6 @@ public class HouseExtensionsComponent : BuildingComponent {
         checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
         spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
         CreateModificationMenu();
-        ChangeMarriedStatus(false);
-        SetSpouse(0);
     }
 
     void CreateModificationMenu() {
@@ -88,7 +86,7 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     public void ChangeMarriedStatus(bool isNowMarried) {
         if (!IsMarriageElligible()) {
-            GetNotificationManager().SendNotification("You need to upgrade your house to at least tier 2 to get married", NotificationManager.Icons.ErrorIcon);
+            NotificationManager.Instance.SendNotification("You need to upgrade your house to at least tier 2 to get married", NotificationManager.Icons.ErrorIcon);
             return;
         }
         isMarried = isNowMarried;
@@ -107,9 +105,11 @@ public class HouseExtensionsComponent : BuildingComponent {
     public void RemoveSpouseRoom() {
         Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin();
         Sprite spouseRoomRemoved = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoomRemoved");
-        Vector3Int[] area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomRemoved.textureRect.height / 16), (int)(spouseRoomRemoved.textureRect.width / 16)).ToArray();
+        Vector3Int[] area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoomRemoved.textureRect.height / 16), (int)(spouseRoomRemoved.textureRect.width / 16)).ToArray();
         BuildingInteriorTilemap.SetTiles(area, SplitSprite(spouseRoomRemoved));
         BuildingInteriorTilemap.CompressBounds();
+
+        spouseRoomTilemap.ClearAllTiles();
 
         HashSet<Vector3Int> newInvalidTiles = GetInsideUnavailableCoordinates("SpouseRoomRemoved"); //todo place under room stays valid
         newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
@@ -122,7 +122,7 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     public void AddSpouseRoom() {
         Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin();
-        var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
+        var area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
         BuildingInteriorTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoomSprite));
         BuildingInteriorTilemap.CompressBounds();
 
@@ -132,17 +132,18 @@ public class HouseExtensionsComponent : BuildingComponent {
         HashSet<Vector3Int> newNeutralTiles = GetInsideNeutralCoordinates("SpouseRoom");
         newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
         GetComponent<EnterableBuildingComponent>().RemoveFromInteriorUnavailableCoordinates(newNeutralTiles);
+
+        SetSpouse((int)spouse); //Refresh spouse room
         MapController.UpdateAllCoordinates();
     }
 
     public void SetSpouse(int candidate) {
         spouse = (MarriageCandidate)candidate;
-        // if (!isMarried) return;
 
         //Draw room
         Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin() + new Vector3Int(1, 0, 0);
         Sprite spouseRoom = Resources.Load<SpriteAtlas>($"BuildingInsides/House/SpouseRoomAtlas").GetSprite(spouse.ToString());
-        var area = GetAreaAroundPosition(spouseRoomOrigin, (int)(spouseRoom.textureRect.height / 16), (int)(spouseRoom.textureRect.width / 16));
+        var area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoom.textureRect.height / 16), (int)(spouseRoom.textureRect.width / 16));
         spouseRoomTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoom));
         Debug.Log(spouse);
     }
@@ -158,7 +159,7 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     public void RenovateHouse(HouseModifications modification, bool isOn) {
         if (GetComponent<TieredBuildingComponent>().Tier < 3) {
-            GetNotificationManager().SendNotification("You need to upgrade your house to at least tier 3 to renovate it", NotificationManager.Icons.ErrorIcon);
+            NotificationManager.Instance.SendNotification("You need to upgrade your house to at least tier 3 to renovate it", NotificationManager.Icons.ErrorIcon);
             return;
         }
         Vector3Int origin;
@@ -174,7 +175,7 @@ public class HouseExtensionsComponent : BuildingComponent {
                 origin = new Vector3Int(27, 14, 0);
                 if (isOn) sprite = spriteAtlas.GetSprite("CornerRoomWalls");
                 else sprite = spriteAtlas.GetSprite("CornerRoomRemovedWalls");
-                BuildingInteriorTilemap.SetTiles(GetAreaAroundPosition(origin, (int)(sprite.textureRect.height / 16), (int)(sprite.textureRect.width / 16)).ToArray(), SplitSprite(sprite));
+                BuildingInteriorTilemap.SetTiles(GetRectAreaFromPoint(origin, (int)(sprite.textureRect.height / 16), (int)(sprite.textureRect.width / 16)).ToArray(), SplitSprite(sprite));
                 ModificationMenu.transform.Find("Renovations").Find("CornerRoom").Find("Button").GetComponent<Image>().sprite = isOn ? checkbox["On"] : checkbox["Off"];
                 break;
             case HouseModifications.ExpandedCornerRoom:

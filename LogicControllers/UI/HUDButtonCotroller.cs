@@ -36,7 +36,7 @@ public class HUDButtonCotroller : MonoBehaviour {
         panelGameObject.transform.Find("CategoryButtons").Find("CropsButton").gameObject.GetComponent<Button>().onClick.AddListener(() => {
             for (int i = 0; i < content.transform.childCount; i++) Destroy(content.transform.GetChild(i).gameObject);
             GameObject temp = new();
-            GameObject[] buttons = temp.AddComponent<Crop>().CreateButtonsForAllTypes();
+            GameObject[] buttons = temp.AddComponent<Crop>().GetComponent<MultipleTypeBuildingComponent>().CreateButtonsForAllTypes();
             foreach (GameObject button in buttons) {
                 button.transform.SetParent(content.transform);
                 button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);

@@ -14,16 +14,18 @@ using Newtonsoft.Json.Linq;
 [RequireComponent(typeof(Building))]
 [Serializable]
 public class AnimalHouseComponent : BuildingComponent {
-    public SpriteAtlas AnimalAtlas { get; private set; }
+    public static SpriteAtlas AnimalAtlas { get; private set; }
     private readonly GameObject[] UIElements = new GameObject[2];
-    private SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
+    private static SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
     [field: SerializeField] public List<Animals> AnimalsInBuilding { get; private set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
     public Dictionary<int, HashSet<Animals>> animalsPerTier;
 
+    // [SerializeField] private GameObject animalMenuPrefab;
+
     public void Awake() {
-        AnimalAtlas = Resources.Load($"{Building.GetType()}AnimalsAtlas") as SpriteAtlas;
-        animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
+        if (AnimalAtlas == null) AnimalAtlas = Resources.Load($"{Building.GetType()}AnimalsAtlas") as SpriteAtlas;
+        if (animalsInBuildingPanelBackgroundAtlas == null) animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
         AnimalsInBuilding = new List<Animals>();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
@@ -39,27 +41,21 @@ public class AnimalHouseComponent : BuildingComponent {
 
     public bool AddAnimal(Animals animal) {
         if (AnimalsInBuilding.Count >= MaxAnimalCapacity) {
-            GetNotificationManager().SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
+            NotificationManager.Instance.SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
             return false;
         }
-        if (!animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains(animal)) { GetNotificationManager().SendNotification($"Cannot add {animal} to Barn tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
+        if (!animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains(animal)) { NotificationManager.Instance.SendNotification($"Cannot add {animal} to {Building.BuildingName} tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
         AnimalsInBuilding.Add(animal);
         AddAnimalButton(animal);
         return true;
     }
 
     public void UpdateMaxAnimalCapacity(int tier) {
-        if (UIElements[1] != null) {
-            UIElements[1].GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{MaxAnimalCapacity}");
-            UIElements[1].GetComponent<RectTransform>().sizeDelta = new Vector2(620, 100 * tier + 100);
-            UIElements[1].transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = new Vector2(580, 100 * tier + 100 - 50);
-        }
-
         var animalsToRemove = AnimalsInBuilding.Where(animal => !animalsPerTier[tier].Contains(animal)).ToList();
 
         AnimalsInBuilding.RemoveAll(animal => animalsToRemove.Contains(animal));
 
-        if (AnimalsInBuilding.Count > MaxAnimalCapacity) GetNotificationManager().SendNotification($"Removed {AnimalsInBuilding.Count - MaxAnimalCapacity} animals that exceed the new capacity of {Building.BuildingName}", NotificationManager.Icons.InfoIcon);
+        if (AnimalsInBuilding.Count > MaxAnimalCapacity) NotificationManager.Instance.SendNotification($"Removed {AnimalsInBuilding.Count - MaxAnimalCapacity} animals that exceed the new capacity of {Building.BuildingName}", NotificationManager.Icons.InfoIcon);
         while (AnimalsInBuilding.Count > MaxAnimalCapacity) {
             AnimalsInBuilding.Remove(AnimalsInBuilding.Last());
         }
@@ -68,12 +64,9 @@ public class AnimalHouseComponent : BuildingComponent {
     }
 
     public void UpdateAnimals() {
-
         GameObject targetGameObject = gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0).gameObject;
 
-        // Step 2: Iterate through all its children
         foreach (Transform child in targetGameObject.transform) {
-            // Step 3: Destroy each child GameObject
             Destroy(child.gameObject);
         }
 
@@ -83,9 +76,14 @@ public class AnimalHouseComponent : BuildingComponent {
     }
 
     public void AddAnimalMenuObject() {
-        //Animal Add Panel (Upper)
+        UIElements[0] = CreateAnimalChoiceMenu();
+        UIElements[1] = CreateAnimalsInBuildingMenu();
+    }
+
+    private GameObject CreateAnimalChoiceMenu() {
         GameObject animalMenuPrefab = Resources.Load<GameObject>($"UI/{Building.GetType()}AnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
+        Resources.UnloadAsset(animalMenuPrefab);
         animalMenu.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);//this is the button to toggle the animal menu
         animalMenu.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y + 25);
         animalMenu.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
@@ -99,19 +97,18 @@ public class AnimalHouseComponent : BuildingComponent {
                 AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
             });
         }
+        return animalMenu;
+    }
 
-        //Animals In Building Panel (Lower)
-        GameObject animalInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
-        GameObject animalInBuilding = Instantiate(animalInBuildingMenuPrefab);
-        animalInBuilding.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);
-        animalInBuilding.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y - 25);
-        animalInBuilding.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        animalInBuilding.SetActive(false);
-
-        animalInBuilding.GetComponent<Image>().sprite = animalsInBuildingPanelBackgroundAtlas.GetSprite($"AnimalsInBuilding{MaxAnimalCapacity}");
-
-        UIElements[0] = animalMenu;
-        UIElements[1] = animalInBuilding;
+    private GameObject CreateAnimalsInBuildingMenu() {
+        GameObject animalsInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
+        GameObject animalsInBuilding = Instantiate(animalsInBuildingMenuPrefab);
+        Resources.UnloadAsset(animalsInBuildingMenuPrefab);
+        animalsInBuilding.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);
+        animalsInBuilding.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y - 25);
+        animalsInBuilding.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        animalsInBuilding.SetActive(false);
+        return animalsInBuilding;
     }
 
     private void AddAnimalButton(Animals animal) {
@@ -123,7 +120,6 @@ public class AnimalHouseComponent : BuildingComponent {
             Destroy(button);
         });
         button.AddComponent<UIElement>();
-        // AddHoverEffect(button.GetComponent<Button>());
         button.transform.localScale = new Vector3(1, 1, 1);
     }
 

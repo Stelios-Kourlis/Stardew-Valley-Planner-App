@@ -8,6 +8,7 @@ using static Utility.TilemapManager;
 using UnityEngine.U2D;
 using UnityEditor;
 using System;
+using UnityEngine.EventSystems;
 
 public class Craftables : Building, IExtraActionBuilding {
 
@@ -73,7 +74,7 @@ public class Craftables : Building, IExtraActionBuilding {
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
         if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.MiniObelisk) {
-            if (miniObeliskCount >= 2) { GetNotificationManager().SendNotification("You can only have 2 mini obelisks at a time", NotificationManager.Icons.ErrorIcon); return; }
+            if (miniObeliskCount >= 2) { NotificationManager.Instance.SendNotification("You can only have 2 mini obelisks at a time", NotificationManager.Icons.ErrorIcon); return; }
             else miniObeliskCount++;
         }
         RangeEffectBuildingComponent.HideEffectRange();
@@ -267,9 +268,9 @@ public class Craftables : Building, IExtraActionBuilding {
         SetType((Types)int.Parse(data[0]));
     }
 
-    public string GetExtraData() {
-        return $"{Convert.ToInt32(MultipleBuildingComponent.Type)}";
-    }
+    // public string GetExtraData() {
+    //     return $"{Convert.ToInt32(MultipleBuildingComponent.Type)}";
+    // }
 
     public void OnMouseEnter() {
         if (Convert.ToInt32(MultipleBuildingComponent.Type) == (int)Types.MushroomLog) RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(BaseCoordinates[0], 3).ToArray());

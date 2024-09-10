@@ -40,6 +40,9 @@ public class SearchBar : MonoBehaviour {
     }
 
     public void OnValueChanged(string text) {
+        if (text == "") clearButton.gameObject.SetActive(false);
+        else clearButton.gameObject.SetActive(true);
+
         for (int childIndex = 0; childIndex < contentGameObject.transform.childCount; childIndex++) {
             if (contentGameObject.transform.GetChild(childIndex).name.ToLower().Contains(text.ToLower())) {
                 contentGameObject.transform.GetChild(childIndex).gameObject.SetActive(true);
@@ -49,10 +52,10 @@ public class SearchBar : MonoBehaviour {
     }
 
     private void OnEndEdit(string text) {
-        GetInputHandler().IsSearching = false;
+        InputHandler.Instance.IsSearching = false;
     }
 
     private void OnSelect() {
-        GetInputHandler().IsSearching = true;
+        InputHandler.Instance.IsSearching = true;
     }
 }

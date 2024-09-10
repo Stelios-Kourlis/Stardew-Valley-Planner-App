@@ -64,14 +64,18 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     public virtual GameObject[] CreateButtonsForAllTypes() {
         List<GameObject> buttons = new();
         Enum currentTypeBackup = Type;
+        Type buildingType = Building.GetType();
         foreach (Enum type in Enum.GetValues(EnumType)) {
-            GameObject button = Instantiate(Resources.Load<GameObject>("UI/BuildingButton"));
-            button.name = $"{type}";
+            GameObject button = new() {
+                name = $"{type}",
+            };
             SetType(type);
-            button.GetComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
+            button.AddComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
+            button.GetComponent<Image>().preserveAspect = true;
             button.AddComponent<UIElement>();
-            Type buildingType = Building.GetType();
-            button.GetComponent<Button>().onClick.AddListener(() => {
+            button.GetComponent<UIElement>().playSounds = true;
+            button.GetComponent<UIElement>().ExpandOnHover = true;
+            button.AddComponent<Button>().onClick.AddListener(() => {
                 BuildingController.SetCurrentBuildingType(buildingType, type);
                 BuildingController.SetCurrentAction(Actions.PLACE);
             });
@@ -80,6 +84,30 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
         SetType(currentTypeBackup);
         return buttons.ToArray();
     }
+
+    // public static GameObject[] CreateButtonsForAllTypes(Type enumType, Type buildingType) { //can this even be made static?
+    //     List<GameObject> buttons = new();
+    //     // Enum currentTypeBackup = Type;
+    //     SpriteAtlas atlas = Resources.Load<SpriteAtlas>($"Buildings/{buildingType}Atlas");
+    //     foreach (Enum type in Enum.GetValues(enumType)) {
+    //         GameObject button = new() {
+    //             name = $"{type}",
+    //         };
+    //         button.AddComponent<Image>().sprite = atlas.GetSprite($"{type}"); ;
+    //         // SetType(type);
+    //         // button.GetComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
+    //         button.AddComponent<UIElement>();
+    //         // Type buildingType = Building.GetType();
+    //         button.AddComponent<Button>().onClick.AddListener(() => {
+    //             // BuildingController.SetCurrentBuildingType(buildingType, type);
+    //             BuildingController.SetCurrentAction(Actions.PLACE);
+    //         });
+    //         buttons.Add(button);
+    //     }
+    //     // SetType(currentTypeBackup);
+    //     Resources.UnloadAsset(atlas);
+    //     return buttons.ToArray();
+    // }
 
     public override BuildingData.ComponentData Save() {
         return new(typeof(MultipleTypeBuildingComponent),

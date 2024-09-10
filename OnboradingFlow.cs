@@ -23,9 +23,9 @@ public class OnboradingFlow : MonoBehaviour {
         else gameObject.SetActive(false);
     }
 
-    void Update() {
-        if (Input.GetKeyDown(KeyCode.J)) StartCoroutine(PopEffect(GameObject.FindWithTag("PlaceButton")));
-    }
+    // void Update() {
+    //     if (Input.GetKeyDown(KeyCode.J)) StartCoroutine(PopEffect(GameObject.FindWithTag("PlaceButton")));
+    // }
 
     public void StartOnboardingFlow() {
         gameObject.SetActive(true);

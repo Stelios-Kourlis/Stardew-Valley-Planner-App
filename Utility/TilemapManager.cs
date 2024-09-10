@@ -27,7 +27,7 @@ namespace Utility {
         /// 
         ///</param>
         ///<returns>An array of Vector3Int that containts every vector in the rectangle</returns>
-        public static List<Vector3Int> GetAreaAroundPosition(Vector3Int lowerLeftCorner, int height, int width, bool flipped = false) {
+        public static List<Vector3Int> GetRectAreaFromPoint(Vector3Int lowerLeftCorner, int height, int width, bool flipped = false) {
             if (lowerLeftCorner == null) throw new ArgumentNullException("Position cannot be null");
             if (height < 0 || width < 0) throw new ArgumentException($"Height and width must be positive, got {height} height and {width} width.");
             List<Vector3Int> area = new();
@@ -61,7 +61,7 @@ namespace Utility {
         }
 
         public static List<Vector3Int> GetAreaAroundPosition(Vector3Int middlePosition, int radius) {
-            return GetAreaAroundPosition(new Vector3Int(middlePosition.x - radius, middlePosition.y - radius, middlePosition.z), radius * 2 + 1, radius * 2 + 1);
+            return GetRectAreaFromPoint(new Vector3Int(middlePosition.x - radius, middlePosition.y - radius, middlePosition.z), radius * 2 + 1, radius * 2 + 1);
         }
 
         public static List<Vector3Int> GetCircleAroundPosition(Vector3Int center, int radius) {
@@ -77,15 +77,15 @@ namespace Utility {
         public static List<Vector3Int> GetRangeOfScarecrow(Vector3Int center) {
             HashSet<Vector3Int> coordinates = new();
             Vector3Int lowerLeft = new(center.x - 4, center.y - 8, center.z);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 17, 9, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 17, 9, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 15, 11, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 15, 11, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 13, 13, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 13, 13, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 11, 15, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 11, 15, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 9, 17, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 9, 17, true));
             coordinates.Remove(center);
             coordinates.Remove(new Vector3Int(center.x, center.y + 1, center.z));
             return coordinates.ToList();
@@ -94,23 +94,23 @@ namespace Utility {
         public static List<Vector3Int> GetRangeOfDeluxeScarecrow(Vector3Int center) {
             HashSet<Vector3Int> coordinates = new();
             Vector3Int lowerLeft = new(center.x - 5, center.y - 16, center.z);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 33, 11, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 33, 11, true));
             lowerLeft += new Vector3Int(-2, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 31, 15, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 31, 15, true));
             lowerLeft += new Vector3Int(-2, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 29, 19, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 29, 19, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 27, 21, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 27, 21, true));
             lowerLeft += new Vector3Int(-2, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 25, 25, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 25, 25, true));
             lowerLeft += new Vector3Int(-1, 2, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 21, 27, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 21, 27, true));
             lowerLeft += new Vector3Int(-1, 1, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 19, 29, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 19, 29, true));
             lowerLeft += new Vector3Int(-1, 2, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 15, 31, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 15, 31, true));
             lowerLeft += new Vector3Int(-1, 2, 0);
-            coordinates.UnionWith(GetAreaAroundPosition(lowerLeft, 11, 33, true));
+            coordinates.UnionWith(GetRectAreaFromPoint(lowerLeft, 11, 33, true));
             coordinates.Remove(center);
             coordinates.Remove(new Vector3Int(center.x, center.y + 1, center.z));
             return coordinates.ToList();

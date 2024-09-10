@@ -34,7 +34,7 @@ public class WoodTree : Building, IExtraActionBuilding {//the name wood tree is 
 
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
-        BaseCoordinates = new Vector3Int[] { position + new Vector3Int(1, 0, 0) };
+        // BaseCoordinates = new Vector3Int[] { position + new Vector3Int(1, 0, 0) };
     }
 
     public override void OnAwake() {
@@ -47,13 +47,5 @@ public class WoodTree : Building, IExtraActionBuilding {//the name wood tree is 
 
     public override List<MaterialCostEntry> GetMaterialsNeeded() {
         throw new System.NotImplementedException();
-    }
-
-    public string GetExtraData() {
-        return $"{MultipleTypeBuildingComponent.Type}";
-    }
-
-    public void LoadExtraBuildingData(string[] data) {
-        MultipleTypeBuildingComponent.SetType((Types)System.Enum.Parse(typeof(Types), data[0]));
     }
 }

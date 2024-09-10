@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static KeybindHandler;
-using static Utility.ClassManager;
+// using static Utility.ClassManager;
 using Action = KeybindHandler.Action;
 
 public class KeybindButton : MonoBehaviour {
@@ -22,7 +22,7 @@ public class KeybindButton : MonoBehaviour {
 
     public void Start() {
         SetUpButton();
-        GetKeybindHandler().AddButtonToList(this);
+        KeybindHandler.Instance.AddButtonToList(this);
     }
 
     private void SetUpButton() {
@@ -49,7 +49,7 @@ public class KeybindButton : MonoBehaviour {
     public void SetKeybindFromButton() {
         if (isButtonBeingRebound.Item1) isButtonBeingRebound.Item2.CancelRebind();
 
-        GetInputHandler().IsSearching = true;
+        InputHandler.Instance.IsSearching = true;
         isButtonBeingRebound = (true, this);
         StartCoroutine(GetButtonsCoroutine());
     }
@@ -62,8 +62,8 @@ public class KeybindButton : MonoBehaviour {
     public void ResetKeybind() {
         TMP_Text buttonText = KeybindButtonGameObject.GetComponentInChildren<TMP_Text>();
         Keybind defaultKeybind = GetDefaultKeybind(actionKeybindPair.Key);
-        if (!GetKeybindHandler().UpdateKeybind(actionKeybindPair.Key, defaultKeybind)) {
-            GetNotificationManager().SendNotification($"Default Keybind ({defaultKeybind}) already in use", NotificationManager.Icons.ErrorIcon);
+        if (!KeybindHandler.Instance.UpdateKeybind(actionKeybindPair.Key, defaultKeybind)) {
+            NotificationManager.Instance.SendNotification($"Default Keybind ({defaultKeybind}) already in use", NotificationManager.Icons.ErrorIcon);
             return;
         }
         string text = defaultKeybind.optionalSecondButton != KeyCode.None ? defaultKeybind.optionalSecondButton.ToString() + " - " : "";
@@ -83,7 +83,7 @@ public class KeybindButton : MonoBehaviour {
             if (cancelRebind) {
                 buttonText.text = text;
                 cancelRebind = false;
-                GetInputHandler().IsSearching = false;
+                InputHandler.Instance.IsSearching = false;
                 CancelRebindGameObject.SetActive(false);
                 yield break;
             }
@@ -104,8 +104,8 @@ public class KeybindButton : MonoBehaviour {
                 if (Input.GetKeyDown(keyCode)) {
                     string keyPressed = keyCode.ToString();
                     Keybind keybind = new(keyCode, optionalSecondButton);
-                    if (!GetKeybindHandler().UpdateKeybind(actionKeybindPair.Key, keybind)) {
-                        GetNotificationManager().SendNotification("Keybind already in use", NotificationManager.Icons.ErrorIcon);
+                    if (!KeybindHandler.Instance.UpdateKeybind(actionKeybindPair.Key, keybind)) {
+                        NotificationManager.Instance.SendNotification("Keybind already in use", NotificationManager.Icons.ErrorIcon);
                         buttonText.text = text;
                         isButtonBeingRebound = (false, null);
                         yield break;
@@ -116,7 +116,7 @@ public class KeybindButton : MonoBehaviour {
                     while (Input.GetKey(keyCode)) yield return null;
                     yield return null;
                     CancelRebindGameObject.SetActive(false);
-                    GetInputHandler().IsSearching = false;
+                    InputHandler.Instance.IsSearching = false;
                     isButtonBeingRebound = (false, null);
                     yield break;
                 }

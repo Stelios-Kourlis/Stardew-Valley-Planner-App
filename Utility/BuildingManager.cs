@@ -57,8 +57,8 @@ namespace Utility {
             HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
 
 
-            List<Vector3Int> baseCoordinates = GetAreaAroundPosition(position, building.BaseHeight, building.Width);
-            if (building is Greenhouse) baseCoordinates.AddRange(GetAreaAroundPosition(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
+            List<Vector3Int> baseCoordinates = GetRectAreaFromPoint(position, building.BaseHeight, building.Width);
+            if (building is Greenhouse) baseCoordinates.AddRange(GetRectAreaFromPoint(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
             if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) return (false, $"Can't place {building.BuildingName} outside of bounds");
 
@@ -119,23 +119,5 @@ namespace Utility {
             emission.SetBurst(0, newBurst);
             particleSystem.Play();
         }
-
-        // public static void AddHoverEffect(Button button) {
-        //     EventTrigger eventTrigger = button.gameObject.AddComponent<EventTrigger>();
-        //     EventTrigger.Entry pointerEnterEntry = new() {
-        //         eventID = EventTriggerType.PointerEnter
-        //     };
-        //     pointerEnterEntry.callback.AddListener((eventData) => {
-        //         button.transform.localScale = new Vector3(1.2f, 1.2f, 1);
-        //     });
-        //     eventTrigger.triggers.Add(pointerEnterEntry);
-        //     EventTrigger.Entry pointerExitEntry = new() {
-        //         eventID = EventTriggerType.PointerExit
-        //     };
-        //     pointerExitEntry.callback.AddListener((eventData) => {
-        //         button.transform.localScale = new Vector3(1, 1, 1);
-        //     });
-        //     eventTrigger.triggers.Add(pointerExitEntry);
-        // }
     }
 }

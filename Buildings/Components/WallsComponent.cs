@@ -113,7 +113,7 @@ public class WallsComponent : BuildingComponent {
 
     private void CreateWall(WallOrigin origin) {
         Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId);
-        if (walls.Any(wall => wall.GetAllWallCordinates().Intersect(GetAreaAroundPosition(origin.lowerLeftCorner, 3, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
+        if (walls.Any(wall => wall.GetAllWallCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
         walls.Add(wall);
         wallPaperTilemap.CompressBounds();
         // Debug.Log($"Created wall at {lowerLeftWallCorner} with width {widthTiles} in {gameObject.transform.parent.name}");

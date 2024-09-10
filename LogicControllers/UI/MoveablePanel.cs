@@ -29,8 +29,11 @@ public class MoveablePanel : MonoBehaviour {
     [SerializeField] private Button[] toggleButtons, openButtons, closeButtons;
     [SerializeField] private readonly Sprite[] toggleButtonSprites = new Sprite[2];
     [SerializeField] private bool SetActionToNothingOnOpen = true;
+    [SerializeField] private bool IsFullFocusPanel;
     private Actions actionBeforeOpeningPanel;
     private Vector3 CurrentPosition => gameObject.GetComponent<RectTransform>().localPosition;
+    public static bool panelWithNoActionRequirementIsOpen;
+    public static (bool, MoveablePanel) FullFocusPanelIsOpen;
 
     public void Start() {
         if (toggleButtons != null) foreach (Button button in toggleButtons) button.onClick.AddListener(() => TogglePanel(button.gameObject));
@@ -67,6 +70,12 @@ public class MoveablePanel : MonoBehaviour {
         if (SetActionToNothingOnOpen) {
             actionBeforeOpeningPanel = BuildingController.CurrentAction;
             BuildingController.SetCurrentAction(Actions.DO_NOTHING);
+            panelWithNoActionRequirementIsOpen = true;
+        }
+
+        if (IsFullFocusPanel) {
+            // if (FullFocusPanelIsOpen.Item1) FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
+            FullFocusPanelIsOpen = (true, this);
         }
 
         panelOpened?.Invoke();
@@ -81,8 +90,13 @@ public class MoveablePanel : MonoBehaviour {
         panelState = PanelState.Closed;
         if (invoker != null && toggleButtonSprites[1] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[1];
 
-        if (SetActionToNothingOnOpen) {
+        if (SetActionToNothingOnOpen && BuildingController.CurrentAction == Actions.DO_NOTHING) {
             BuildingController.SetCurrentAction(actionBeforeOpeningPanel);
+            panelWithNoActionRequirementIsOpen = false;
+        }
+
+        if (IsFullFocusPanel) {
+            FullFocusPanelIsOpen = (false, null);
         }
 
         panelClosed?.Invoke();

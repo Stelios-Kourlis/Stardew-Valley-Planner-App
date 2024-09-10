@@ -60,18 +60,6 @@ public class Coop : Building {
         };
     }
 
-    public string GetExtraData() {
-        string animals = "";
-        foreach (Animals animal in AnimalHouseComponent.AnimalsInBuilding) animals += $"|{(int)animal}";
-        return $"{TieredBuildingComponent.Tier}|{AnimalHouseComponent.AnimalsInBuilding.Count}{animals}";
-    }
-
-    public void LoadExtraBuildingData(string[] data) {
-        TieredBuildingComponent.SetTier(int.Parse(data[0]));
-        int animalCount = int.Parse(data[1]);
-        for (int i = 0; i < animalCount; i++) AnimalHouseComponent.AddAnimal((Animals)Enum.Parse(typeof(Animals), data[i + 2]));
-    }
-
 
 
 }

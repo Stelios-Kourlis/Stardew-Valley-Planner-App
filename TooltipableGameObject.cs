@@ -30,14 +30,14 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
 
     protected void StartTooltipCountdown() {
         if (TooltipMessage == "") return;
-        if (GetNotificationManager().IsShowingTooltip) return;
-        GetNotificationManager().StartTooltipCountdown(this);
+        if (TooltipManager.Instance.IsShowingTooltip) return;
+        TooltipManager.Instance.StartTooltipCountdown(this);
     }
     public void OnPointerEnter(PointerEventData eventData) {
         // if (BuildingController.CurrentAction == Actions.DO_NOTHING) return;
         // ActionBeforeEnteringSettings = BuildingController.CurrentAction;
         // BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-        StartTooltipCountdown();
+        // StartTooltipCountdown();
     }
 
     public void OnPointerExit(PointerEventData eventData) {

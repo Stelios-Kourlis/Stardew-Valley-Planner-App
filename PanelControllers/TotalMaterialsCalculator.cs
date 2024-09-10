@@ -15,17 +15,14 @@ public class TotalMaterialsCalculator : MonoBehaviour {
     }
 
     private List<MaterialCostEntry> materialsNeeded;
-    private SpriteAtlas materialAtlas;
-    private GameObject buildingCostPrefab;
-    private GameObject materialEntry;
+    [SerializeField] private SpriteAtlas materialAtlas;
+    [SerializeField] private GameObject buildingCostPrefab;
+    [SerializeField] private GameObject materialEntryPrefab;
 
     private Mode currentMode;
     private Transform ContentPanelTransform => transform.Find("ScrollArea").Find("Content");
 
     public void Start() {
-        materialAtlas = Resources.Load<SpriteAtlas>("Materials/MaterialAtlas");
-        buildingCostPrefab = Resources.Load<GameObject>("UI/BuildingCost");
-        materialEntry = Resources.Load<GameObject>("UI/MaterialEntry");
         GetComponent<MoveablePanel>().panelOpened += RecalculateMaterials;
     }
 
@@ -100,7 +97,7 @@ public class TotalMaterialsCalculator : MonoBehaviour {
     }
 
     private void CreateTextGameObject(MaterialCostEntry material, Transform parent) {
-        GameObject entryGameObject = Instantiate(materialEntry);
+        GameObject entryGameObject = Instantiate(materialEntryPrefab);
         entryGameObject.transform.SetParent(parent);
         GameObject textGameObject = entryGameObject.transform.Find("Text").gameObject;
         textGameObject.GetComponent<Text>().text = $"{material.amount:N0}x {material.EntryText}";

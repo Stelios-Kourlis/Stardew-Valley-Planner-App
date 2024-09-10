@@ -34,7 +34,7 @@ public class Notification : MonoBehaviour {
     }
 
     public void OnDestroy() {
-        GetNotificationManager().notifications.Remove(this);
+        NotificationManager.Instance.notifications.Remove(this);
         StopAllCoroutines();
     }
 }

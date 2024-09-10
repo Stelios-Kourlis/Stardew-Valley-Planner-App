@@ -85,7 +85,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
-        InteriorAreaCoordinates = GetAreaAroundPosition(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
+        InteriorAreaCoordinates = GetRectAreaFromPoint(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
         BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
         BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = -100;
@@ -137,7 +137,7 @@ public class EnterableBuildingComponent : BuildingComponent {
             closeButton.AddComponent<UIElement>();
             closeButton.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
             closeButton.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-            closeButton.AddComponent<Image>().sprite = Resources.Load<Sprite>("UI/CloseFoldingMenu");
+            closeButton.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite("CloseFoldingMenu");
             closeButton.AddComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
 
 
@@ -148,7 +148,7 @@ public class EnterableBuildingComponent : BuildingComponent {
                 button.AddComponent<UIElement>();
                 button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
                 button.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-                button.AddComponent<Image>().sprite = Resources.Load<Sprite>($"UI/{type}");
+                button.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{type}");
                 switch (type) {
                     case ButtonTypes.TIER_ONE:
                         button.AddComponent<Button>().onClick.AddListener(() => {
@@ -213,14 +213,14 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         BuildingInterior.GetComponent<Tilemap>().ClearAllTiles();
         interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
-        InteriorAreaCoordinates = GetAreaAroundPosition(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
+        InteriorAreaCoordinates = GetRectAreaFromPoint(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
         BuildingInterior.GetComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
         BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         GetCamera().GetComponent<CameraController>().UpdateTilemapBounds();
 
-        gameObject.GetComponent<WallsComponent>().UpdateWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier]);
+        if (wallsValues != null) gameObject.GetComponent<WallsComponent>().UpdateWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
-        gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
+        if (floorsValues != null) gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();

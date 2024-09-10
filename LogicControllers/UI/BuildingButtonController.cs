@@ -16,11 +16,13 @@ public class BuildingButtonController : MonoBehaviour {
 
     readonly float BUTTON_SIZE = 75;
 
-    private GameObject buttonPrefab;
+    public static BuildingButtonController Instance { get; private set; }
+    [field: SerializeField] public SpriteAtlas ButtonTypesAtlas { get; private set; }
+    [SerializeField] private GameObject buttonPrefab;
 
     void Awake() {
-        buttonPrefab = Resources.Load<GameObject>("UI/Button");
-        // Debug.Log(buttonPrefab == null);
+        if (Instance == null) Instance = this;
+        else Destroy(this);
     }
 
     /// <summary>
@@ -43,12 +45,11 @@ public class BuildingButtonController : MonoBehaviour {
         int buttonNumber = 1;
         Vector3 middleOfBuildingScreen = Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building));
         foreach (ButtonTypes buttonType in buttonTypes) {
-            Vector3 buttonPositionScreen = CalculatePositionOfButton(numberOfButtons, buttonNumber, middleOfBuildingScreen);
+            // Vector3 buttonPositionScreen = CalculatePositionOfButton(numberOfButtons, buttonNumber, middleOfBuildingScreen);
             GameObject button = CreateInteractionButton(buttonType, building);
             button.transform.SetParent(buttonParent.transform);
             buttonNumber++;
         }
-        // UpdateButtonPositionsAndScaleForBuilding(building);
         return buttonParent;
     }
 
@@ -66,16 +67,16 @@ public class BuildingButtonController : MonoBehaviour {
     private GameObject CreateInteractionButton(ButtonTypes type, Building building) {
         GameObject button = Instantiate(buttonPrefab);
         button.name = type.ToString();
-        // button.AddComponent<ButtonSelfHandler>();
-        button.GetComponent<Image>().sprite = Resources.Load<Sprite>($"UI/{type}");
-        // button.transform.position = buttonPositionScreen;
+        button.GetComponent<Image>().sprite = ButtonTypesAtlas.GetSprite($"{type}");
 
         if (type == ButtonTypes.PLACE_FISH) { // Add the fish icon to the button
             GameObject fishIcon = new("FishIcon");
             fishIcon.transform.SetParent(button.transform);
             fishIcon.transform.position = new Vector3(0, 0, 0);
             fishIcon.transform.localScale = new Vector3(0.4f, 0.4f, 1);
-            fishIcon.AddComponent<Image>().sprite = Resources.Load<SpriteAtlas>("Fish/FishAtlas").GetSprite("PLACE_FISH");//i prefer the old
+            SpriteAtlas fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
+            fishIcon.AddComponent<Image>().sprite = fishAtlas.GetSprite("PLACE_FISH");
+            Resources.UnloadAsset(fishAtlas);
         }
 
         button.GetComponent<RectTransform>().sizeDelta = new Vector2(BUTTON_SIZE, BUTTON_SIZE);
@@ -103,11 +104,11 @@ public class BuildingButtonController : MonoBehaviour {
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out EnterableBuildingComponent enterableBuildingComponent)) enterableBuildingComponent.ToggleEditBuildingInterior();
-                    else GetNotificationManager().SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
+                    // else NotificationManager.Instance.SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
                 });
                 break;
             case ButtonTypes.PAINT:
-                button.onClick.AddListener(() => { GetNotificationManager().SendNotification("Not Implemented yet", NotificationManager.Icons.ErrorIcon); });//todo add building painting support
+                button.onClick.AddListener(() => { NotificationManager.Instance.SendNotification("Not Implemented yet", NotificationManager.Icons.ErrorIcon); });//todo add building painting support
                 break;
             case ButtonTypes.PLACE_FISH:
                 button.onClick.AddListener(() => {

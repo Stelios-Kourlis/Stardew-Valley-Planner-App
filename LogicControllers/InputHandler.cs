@@ -13,6 +13,7 @@ using System.Diagnostics.Eventing.Reader;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.CodeDom;
+using UnityEngine.U2D;
 
 public class InputHandler : MonoBehaviour {
 
@@ -25,14 +26,32 @@ public class InputHandler : MonoBehaviour {
         PlaceFlooring
     }
 
+    [Serializable]
+    private class CursorTexture {
+        [SerializeField] private Actions action;
+        [SerializeField] private Texture2D texture;
+
+        public Actions Action { get => action; }
+        public Texture2D Texture { get => texture; }
+    }
+
+    public static InputHandler Instance { get; private set; }
+
     public bool IsSearching { get; set; } = false;
     bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
     Building hoveredBuilding;
     GameObject followCursorObject;
+    Vector3Int mouseTileOnPreviousFrame;
+    [SerializeField] private List<CursorTexture> cursorTextures;
+    [SerializeField] private GameObject wallpaperButtonPrefab;
+    [SerializeField] private GameObject flooringButtonPrefab;
 
     void Start() {
-        SetCursorBasedOnCurrentAction(Actions.DO_NOTHING);
+        if (Instance == null) Instance = this;
+        else Destroy(this);
+
+        mouseTileOnPreviousFrame = GetMousePositionInTilemap();
     }
 
     void Update() {
@@ -41,7 +60,12 @@ public class InputHandler : MonoBehaviour {
 
         if (IsSearching) return;
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) GetSettingsModal().GetComponent<MoveablePanel>().TogglePanel();
+        // if (Input.GetKeyDown(KeyCode.Escape)) if (MoveablePanel.FullFocusPanelIsOpen.Item1) MoveablePanel.FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) {
+            if (MoveablePanel.FullFocusPanelIsOpen.Item1) MoveablePanel.FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
+            else GetSettingsModal().GetComponent<MoveablePanel>().TogglePanel();
+        }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Quit)) {
             GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
@@ -54,12 +78,12 @@ public class InputHandler : MonoBehaviour {
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)) {
             MapController.ToggleMapUnavailableCoordinates();
-            GetNotificationManager().SendNotification("Toggled unavailable coordinates visibility", NotificationManager.Icons.InfoIcon);
+            NotificationManager.Instance.SendNotification("Toggled unavailable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)) {
             MapController.ToggleMapPlantableCoordinates();
-            GetNotificationManager().SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
+            NotificationManager.Instance.SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) BuildingController.Save();
@@ -68,22 +92,24 @@ public class InputHandler : MonoBehaviour {
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Place)) {
             BuildingController.SetCurrentAction(Actions.PLACE);
-            GetNotificationManager().SendNotification("Set mode to placement", NotificationManager.Icons.InfoIcon);
+            NotificationManager.Instance.SendNotification("Set mode to placement", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)) {
             BuildingController.SetCurrentAction(Actions.EDIT);
-            GetNotificationManager().SendNotification("Set mode to edit", NotificationManager.Icons.InfoIcon);
+            NotificationManager.Instance.SendNotification("Set mode to edit", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Delete)) {
             BuildingController.SetCurrentAction(Actions.DELETE);
-            GetNotificationManager().SendNotification("Set mode to delete", NotificationManager.Icons.InfoIcon);
+            NotificationManager.Instance.SendNotification("Set mode to delete", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("ConfirmDeleteAll").GetComponent<MoveablePanel>().SetPanelToOpenPosition();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.OpenBuildingMenu)) GameObject.Find("BuildingSelect").GetComponent<MoveablePanel>().TogglePanel();
+
+        if (KeybindsForActionArePressed(KeybindHandler.Action.OpenTotalCost)) GameObject.Find("TotalMaterialsNeeded").GetComponent<MoveablePanel>().TogglePanel();
     }
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action) {
@@ -105,45 +131,31 @@ public class InputHandler : MonoBehaviour {
             Destroy(followCursorObject);
             followCursorObject = null;
         }
-        switch (action) {
-            case Actions.DO_NOTHING:
-                Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
-                break;
-            case Actions.DELETE:
-                Cursor.SetCursor(Resources.Load("UI/CursorDelete") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
-                break;
-            case Actions.PLACE:
-                Cursor.SetCursor(Resources.Load("UI/CursorPlace") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
-                break;
-            case Actions.EDIT:
-                Cursor.SetCursor(Resources.Load("UI/CursorHand") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
-                break;
-            case Actions.PLACE_WALLPAPER:
-                Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
-                GameObject wallpaperPreview = Resources.Load("UI/WallpaperButton") as GameObject;
-                followCursorObject = Instantiate(wallpaperPreview, GetCanvasGameObject().transform);
-                followCursorObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = WallsComponent.SelectedWallpaperSprite;
-                StartCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
-                break;
-            case Actions.PLACE_FLOORING:
-                Cursor.SetCursor(Resources.Load("UI/Cursor") as Texture2D, Vector2.zero, CursorMode.ForceSoftware);
-                GameObject floorPreview = Resources.Load("UI/FlooringButton") as GameObject;
-                followCursorObject = Instantiate(floorPreview, GetCanvasGameObject().transform);
-                followCursorObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = FlooringComponent.SelectedFloorSprite;
-                StartCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
-                break;
+        Texture2D cursorTexture = cursorTextures.First(cursorTexture => cursorTexture.Action == action).Texture;
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.ForceSoftware);
+        if (action == Actions.PLACE_WALLPAPER) {
+            followCursorObject = Instantiate(wallpaperButtonPrefab, GetCanvasGameObject().transform);
+            followCursorObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = WallsComponent.SelectedWallpaperSprite;
         }
+        else if (action == Actions.PLACE_FLOORING) {
+            followCursorObject = Instantiate(flooringButtonPrefab, GetCanvasGameObject().transform);
+            followCursorObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = FlooringComponent.SelectedFloorSprite;
+        }
+
+        if (followCursorObject != null) StartCoroutine(MakeGameObjectFollowCursorButtomRight(followCursorObject));
     }
 
     private IEnumerator MakeGameObjectFollowCursorButtomRight(GameObject gameObjectFollowing) {
+        if (gameObjectFollowing == null) yield break;
         followCursorObject.GetComponent<RectTransform>().localScale = new Vector3(0.75f, 0.75f, 0.75f);
-        while (true) {
-            if (gameObjectFollowing != null) gameObjectFollowing.GetComponent<RectTransform>().position = Input.mousePosition - new Vector3(-48, 48);
+        while (gameObjectFollowing != null) {
+            gameObjectFollowing.GetComponent<RectTransform>().position = Input.mousePosition - new Vector3(-48, 48);
             yield return null;
         }
     }
 
     private void HandleMouseActions() {
+
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
             mouseIsHeld = true;
             mousePositionWhenHoldStarted = GetMousePositionInTilemap();
@@ -204,6 +216,9 @@ public class InputHandler : MonoBehaviour {
             if (building != null)
                 if (building.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) interactableBuildingComponent.OnMouseRightClick();
         }
+
+        if (mouseTileOnPreviousFrame == mousePosition) return;
+        mouseTileOnPreviousFrame = mousePosition;
 
         // //Every Frame
         if (BuildingController.CurrentAction == Actions.PLACE) {

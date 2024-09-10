@@ -13,10 +13,11 @@ public class UpdateChecker : MonoBehaviour {
 
     public void Start() {
         gameObject.transform.parent.Find("GoToGitHub").GetComponent<Button>().onClick.AddListener(() => Application.OpenURL("https://github.com/Stelios-Kourlis/Stardew-Valley-Planner-App"));
+        GetComponent<Button>().onClick.AddListener(CheckForUpdate);
 
-        currentVerGameObject = gameObject.transform.parent.Find("CurrentVer").gameObject;
-        newestVerGameObject = gameObject.transform.parent.Find("NewestVer").gameObject;
-        updateAvailableGameObject = gameObject.transform.parent.Find("UpdateAvailable").gameObject;
+        currentVerGameObject = gameObject.transform.parent.parent.Find("CurrentVer").gameObject;
+        newestVerGameObject = gameObject.transform.parent.parent.Find("NewestVer").gameObject;
+        updateAvailableGameObject = gameObject.transform.parent.parent.Find("UpdateAvailable").gameObject;
         currentVerGameObject.GetComponent<Text>().text = "Current Version: " + currentVersion;
         newestVerGameObject.GetComponent<Text>().text = "Newest Version: -";
         updateAvailableGameObject.SetActive(false);
@@ -51,12 +52,12 @@ public class UpdateChecker : MonoBehaviour {
                 if (newestVersion != currentVersion) {
                     updateAvailableGameObject.GetComponent<Text>().color = Color.green;
                     updateAvailableGameObject.GetComponent<Text>().text = "Update Available!";
-                    GameObject.FindGameObjectWithTag("UpdateIcon").GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/SettingsUpdate");
+                    // GameObject.FindGameObjectWithTag("UpdateIcon").GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/SettingsUpdate");
                 }
                 else {
                     updateAvailableGameObject.GetComponent<Text>().color = Color.red;
                     updateAvailableGameObject.GetComponent<Text>().text = "No Updates Available :(";
-                    GameObject.FindGameObjectWithTag("UpdateIcon").GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/NoSettingsUpdate");
+                    // GameObject.FindGameObjectWithTag("UpdateIcon").GetComponent<Image>().sprite = Resources.Load<Sprite>("UI/NoSettingsUpdate");
                 }
                 updateAvailable = newestVersion != currentVersion;
                 break;

@@ -9,6 +9,8 @@ public class HouseModificationMenu : MonoBehaviour {
 
     private Transform Content => transform.Find("TabContent");
     public Action<int> spouseChanged;
+    [SerializeField] private GameObject wallpaperButtonPrefab;
+    [SerializeField] private GameObject flooringButtonPrefab;
 
     public void Start() {
 
@@ -18,7 +20,7 @@ public class HouseModificationMenu : MonoBehaviour {
         });
 
         for (int wallpaperId = 0; wallpaperId < WallsComponent.TotalWallpaperTextures - 1; wallpaperId++) {
-            GameObject wallpaperButton = Instantiate(Resources.Load<GameObject>("UI/WallpaperButton"), GetWallpaperContent());
+            GameObject wallpaperButton = Instantiate(wallpaperButtonPrefab, GetWallpaperContent());
             wallpaperButton.transform.Find("Mask").Find("WallpaperImage").GetComponent<Image>().sprite = WallsComponent.GetWallpaperSprite(wallpaperId);
             int id = wallpaperId;
             wallpaperButton.GetComponent<Button>().onClick.AddListener(() => {
@@ -28,7 +30,7 @@ public class HouseModificationMenu : MonoBehaviour {
         }
 
         for (int floorId = 0; floorId < FlooringComponent.TotalFloorTextures - 1; floorId++) {
-            GameObject flooringButton = Instantiate(Resources.Load<GameObject>("UI/FlooringButton"), GetFlooringContent());
+            GameObject flooringButton = Instantiate(flooringButtonPrefab, GetFlooringContent());
             flooringButton.transform.Find("Mask").Find("FlooringImage").GetComponent<Image>().sprite = FlooringComponent.GetFloorSprite(floorId);
             int id = floorId;
             flooringButton.GetComponent<Button>().onClick.AddListener(() => {

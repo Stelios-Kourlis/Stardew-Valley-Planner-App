@@ -30,7 +30,7 @@ public class JunimoHut : Building, IExtraActionBuilding {
     }
 
     protected void PerformExtraActionsOnPlacePreview(Vector3Int position) {
-        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(position.x - 7, position.y - 8, 0), 17, 17).ToArray());
+        RangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(position.x - 7, position.y - 8, 0), 17, 17).ToArray());
     }
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
@@ -39,7 +39,7 @@ public class JunimoHut : Building, IExtraActionBuilding {
 
     public void OnMouseEnter() {
         Vector3Int lowerLeftCorner = BaseCoordinates[0];
-        RangeEffectBuildingComponent.ShowEffectRange(GetAreaAroundPosition(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
+        RangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(lowerLeftCorner.x - 7, lowerLeftCorner.y - 8, 0), 17, 17).ToArray());
     }
 
     public void OnMouseExit() {

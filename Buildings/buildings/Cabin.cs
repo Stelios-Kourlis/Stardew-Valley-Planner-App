@@ -99,7 +99,7 @@ public class Cabin : Building, IExtraActionBuilding {
 
     public void PerformExtraActionsOnPlace(Vector3Int position) {
         if (cabinTypeIsPlaced[Convert.ToInt32(Type)]) {//this check is not enforced
-            GetNotificationManager().SendNotification("You can only have one of each type of cabin", NotificationManager.Icons.ErrorIcon);
+            NotificationManager.Instance.SendNotification("You can only have one of each type of cabin", NotificationManager.Icons.ErrorIcon);
             return;
         }
         cabinTypeIsPlaced[Convert.ToInt32(Type)] = true;

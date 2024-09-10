@@ -20,7 +20,8 @@ public class KeybindHandler : MonoBehaviour {
         Load,
         Undo,
         Redo,
-        OpenBuildingMenu
+        OpenBuildingMenu,
+        OpenTotalCost
     }
 
     public class Keybind {
@@ -54,10 +55,15 @@ public class KeybindHandler : MonoBehaviour {
         }
     }
 
+    public static KeybindHandler Instance { get; private set; }
+
     private static Dictionary<Action, Keybind> keybinds = null;
     private static readonly List<KeybindButton> keybindButtons = new();
 
-    public void Start() {
+    public void Awake() {
+        if (Instance == null) Instance = this;
+        else Destroy(this);
+
         LoadKeybinds();
     }
 
@@ -107,6 +113,7 @@ public class KeybindHandler : MonoBehaviour {
             Action.Undo => new Keybind(KeyCode.Z, KeyCode.LeftControl),
             Action.Redo => new Keybind(KeyCode.Y, KeyCode.LeftControl),
             Action.OpenBuildingMenu => new Keybind(KeyCode.B),
+            Action.OpenTotalCost => new Keybind(KeyCode.T),
             _ => throw new Exception("Action not found"),
         };
     }

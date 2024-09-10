@@ -26,6 +26,8 @@ public static class BuildingController {
     public static Building LastBuildingCreated => LastBuildingObjectCreated != null ? LastBuildingObjectCreated.GetComponent<Building>() : null;
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
+
+    public static Action<Type> currentBuildingTypeChanged;
     public static Action anyBuildingPositionChanged;
 
     public static void CreateNewBuilding() {
@@ -69,6 +71,8 @@ public static class BuildingController {
         GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated; //Backup is needed because if we destroy it now this script terminates
         LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
         UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
+        currentBuildingType = newType;
+        currentBuildingTypeChanged?.Invoke(newType);
     }
 
     /// <summary>
@@ -85,6 +89,7 @@ public static class BuildingController {
         // Building building = (Building)LastBuildingObjectCreated.GetComponent(newType);
         // Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
         LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().SetType(variant);
+        currentBuildingTypeChanged?.Invoke(newType);
 
         UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
     }
@@ -159,7 +164,7 @@ public static class BuildingController {
             building.DeleteBuilding(force);
         }
         // buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
-        GetNotificationManager().SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
+        NotificationManager.Instance.SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
     }
 
     public static void PlaceSavedBuilding(BuildingData buildingData) {
@@ -186,7 +191,7 @@ public static class BuildingController {
     public static void SetCurrentAction(Actions action) {
         // if (CurrentAction == action) return;
         CurrentAction = action;
-        GetInputHandler().SetCursorBasedOnCurrentAction(action);
+        InputHandler.Instance.SetCursorBasedOnCurrentAction(action);
         // if (action == Actions.DELETE || action == Actions.EDIT ) CurrentBuildingBeingPlaced.NoPreview();
         if (CurrentBuildingBeingPlaced == null) return;
         if (action == Actions.PLACE) CurrentBuildingBeingPlaced.DoBuildingPreview();

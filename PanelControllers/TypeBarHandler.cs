@@ -11,35 +11,22 @@ using System.Reflection;
 using Utility;
 
 public class TypeBarHandler : MonoBehaviour {
-    private readonly Sprite[] arrowButtons = new Sprite[2];
-    private Type lastType;
-    private Type currentBuildingType;
-    private GameObject searchBar;
+    [SerializeField] private GameObject typeBar;
 
     // Start is called before the first frame update
     void Start() {
-        gameObject.transform.position = new Vector3(Screen.width + 300, 5, 0);
-        arrowButtons[0] = Sprite.Create(Resources.Load("UI/TypeBarUnhide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        arrowButtons[1] = Sprite.Create(Resources.Load("UI/TypeBarHide") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-
-        lastType = BuildingController.GetCurrentBuildingType();
-
-        searchBar = GameObject.FindGameObjectWithTag("TypeSearchBar");
+        BuildingController.currentBuildingTypeChanged += EvalueateIfTypeBarShouldBeShown;
+        EvalueateIfTypeBarShouldBeShown(BuildingController.currentBuildingType);
     }
 
-    void Update() {
-        lastType = currentBuildingType;
-        currentBuildingType = BuildingController.GetCurrentBuildingType();
-        if (currentBuildingType == lastType) return;
-        bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(currentBuildingType);
+    private void EvalueateIfTypeBarShouldBeShown(Type newBuildingType) {
+        bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(newBuildingType);
         if (isCurrentlyBuildingMultipleTypeBuilding) {
-            if (!GetComponent<MoveablePanel>().IsPanelOpen()) {
-                GetComponent<MoveablePanel>().SetPanelToOpenPosition();
-                searchBar.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
-            }
-            Transform typeBarContent = transform.GetChild(0).GetChild(0);
+            typeBar.GetComponent<MoveablePanel>().SetPanelToOpenPosition();
+
+            Transform typeBarContent = typeBar.transform.GetChild(0).GetChild(0);
             GameObject temp = new();
-            Building buildingTemp = temp.AddComponent(currentBuildingType) as Building;
+            Building buildingTemp = temp.AddComponent(newBuildingType) as Building;
             GameObject[] buttons = buildingTemp.GetComponent<MultipleTypeBuildingComponent>().CreateButtonsForAllTypes();
             Destroy(temp);
             for (int i = 0; i < typeBarContent.childCount; i++) Destroy(typeBarContent.GetChild(i).gameObject);
@@ -48,10 +35,7 @@ public class TypeBarHandler : MonoBehaviour {
                 button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             }
         }
-        else if (!isCurrentlyBuildingMultipleTypeBuilding && GetComponent<MoveablePanel>().IsPanelOpen()) {
-            GetComponent<MoveablePanel>().SetPanelToHiddenPosition();
-            searchBar.GetComponent<MoveablePanel>().SetPanelToHiddenPosition();
-        }
+        else typeBar.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
     }
 
     public bool IsMultipleTypeBuilding(Type type) {

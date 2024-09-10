@@ -64,7 +64,7 @@ public class MapController : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)) {
 #if UNITY_EDITOR
             tileMode = (TileMode)(((int)tileMode + 1) % Enum.GetValues(typeof(TileMode)).Length);
-            GetNotificationManager().SendNotification($"Mode set to {tileMode}", NotificationManager.Icons.InfoIcon);
+            NotificationManager.Instance.SendNotification($"Mode set to {tileMode}", NotificationManager.Icons.InfoIcon);
             Debug.Log($"Mode set to {tileMode}");
             if (tileMode == TileMode.nothing) {
                 unavailableCoordinatesAreVisible = true;
@@ -152,7 +152,7 @@ public class MapController : MonoBehaviour {
         Vector3Int mapPos = new(-27, -36, 0);
         Sprite mapTexture = atlas.GetSprite(map.name);
 
-        Vector3Int[] spriteArrayCoordinates = GetAreaAroundPosition(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
+        Vector3Int[] spriteArrayCoordinates = GetRectAreaFromPoint(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
         TileBuildingData dataScript = map.AddComponent(typeof(TileBuildingData)) as TileBuildingData;
         dataScript.AddInvalidTilesData(mapType);
