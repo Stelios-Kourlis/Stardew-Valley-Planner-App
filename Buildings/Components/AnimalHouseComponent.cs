@@ -16,7 +16,6 @@ using Newtonsoft.Json.Linq;
 public class AnimalHouseComponent : BuildingComponent {
     public static SpriteAtlas AnimalAtlas { get; private set; }
     private readonly GameObject[] UIElements = new GameObject[2];
-    private static SpriteAtlas animalsInBuildingPanelBackgroundAtlas;
     [field: SerializeField] public List<Animals> AnimalsInBuilding { get; private set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
     public Dictionary<int, HashSet<Animals>> animalsPerTier;
@@ -24,8 +23,7 @@ public class AnimalHouseComponent : BuildingComponent {
     // [SerializeField] private GameObject animalMenuPrefab;
 
     public void Awake() {
-        if (AnimalAtlas == null) AnimalAtlas = Resources.Load($"{Building.GetType()}AnimalsAtlas") as SpriteAtlas;
-        if (animalsInBuildingPanelBackgroundAtlas == null) animalsInBuildingPanelBackgroundAtlas = Resources.Load("UI/AnimalsInBuildingAtlas") as SpriteAtlas;
+        if (AnimalAtlas == null) AnimalAtlas = Resources.Load("AnimalsAtlas") as SpriteAtlas;
         AnimalsInBuilding = new List<Animals>();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
@@ -60,10 +58,11 @@ public class AnimalHouseComponent : BuildingComponent {
             AnimalsInBuilding.Remove(AnimalsInBuilding.Last());
         }
 
-        UpdateAnimals();
+        UpdateAnimalInBuildingButtons();
+        UpdateAddAnimalButtonsBasedOnTier(UIElements[0]);
     }
 
-    public void UpdateAnimals() {
+    public void UpdateAnimalInBuildingButtons() {
         GameObject targetGameObject = gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0).gameObject;
 
         foreach (Transform child in targetGameObject.transform) {
@@ -81,29 +80,32 @@ public class AnimalHouseComponent : BuildingComponent {
     }
 
     private GameObject CreateAnimalChoiceMenu() {
-        GameObject animalMenuPrefab = Resources.Load<GameObject>($"UI/{Building.GetType()}AnimalMenu");
+        GameObject animalMenuPrefab = Resources.Load<GameObject>($"UI/AddAnimalMenu");
         GameObject animalMenu = Instantiate(animalMenuPrefab);
-        Resources.UnloadAsset(animalMenuPrefab);
+        CreateAddAnimalButtons(animalMenu);
         animalMenu.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);//this is the button to toggle the animal menu
         animalMenu.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y + 25);
         animalMenu.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         animalMenu.SetActive(false);
-        GameObject animalMenuContent = animalMenu.transform.GetChild(0).gameObject;
-        for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++) {
-            Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-            // AddHoverEffect(addAnimalButton);
-            addAnimalButton.gameObject.AddComponent<UIElement>();
-            addAnimalButton.onClick.AddListener(() => {
-                AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
-            });
-        }
+        // GameObject animalMenuContent = animalMenu.transform.gameObject;
+        // for (int childIndex = 0; childIndex < animalMenuContent.transform.childCount; childIndex++) {
+        //     Button addAnimalButton = animalMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
+        //     // AddHoverEffect(addAnimalButton);
+        //     // addAnimalButton.gameObject.AddComponent<UIElement>().SetActionToNothingOnEnter = false;
+        //     // addAnimalButton.onClick.AddListener(() => {
+        //     //     Debug.Log($"Clicked {addAnimalButton.gameObject.name}");
+        //     //     AddAnimal((Animals)Enum.Parse(typeof(Animals), addAnimalButton.gameObject.name));
+        //     // });
+        // }
+
+        UpdateAddAnimalButtonsBasedOnTier(animalMenu);
         return animalMenu;
     }
 
     private GameObject CreateAnimalsInBuildingMenu() {
         GameObject animalsInBuildingMenuPrefab = Resources.Load<GameObject>("UI/AnimalsInBuilding");
         GameObject animalsInBuilding = Instantiate(animalsInBuildingMenuPrefab);
-        Resources.UnloadAsset(animalsInBuildingMenuPrefab);
+        // Resources.UnloadAsset(animalsInBuildingMenuPrefab);
         animalsInBuilding.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").transform);
         animalsInBuilding.GetComponent<RectTransform>().position = new(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.x - 100, gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.position.y - 25);
         animalsInBuilding.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
@@ -111,6 +113,34 @@ public class AnimalHouseComponent : BuildingComponent {
         return animalsInBuilding;
     }
 
+    private void CreateAddAnimalButtons(GameObject animalMenu) {
+        // for (int tier = 1; tier < GetComponent<TieredBuildingComponent>().MaxTier; tier++) {
+        foreach (Animals animal in animalsPerTier[GetComponent<TieredBuildingComponent>().MaxTier]) {
+            GameObject button = new(animal.ToString());
+            button.transform.SetParent(animalMenu.transform);
+            button.AddComponent<RectTransform>().sizeDelta = new Vector3(100, 100, 1);
+            button.gameObject.AddComponent<UIElement>().SetActionToNothingOnEnter = false;
+            button.AddComponent<Image>().sprite = AnimalAtlas.GetSprite(animal.ToString());
+            Animals typeOfAnimal = animal; //Capture it outside of lamda expression
+            button.AddComponent<Button>().onClick.AddListener(() => {
+                AddAnimal(animal);
+            });
+        }
+        // }
+    }
+    private void UpdateAddAnimalButtonsBasedOnTier(GameObject animalMenu) {
+        foreach (Transform animalButton in animalMenu.transform) {
+            Button button = animalButton.GetComponent<Button>();
+            UIElement uiElement = animalButton.GetComponent<UIElement>();
+
+            bool isAnimalAllowed = animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains((Animals)Enum.Parse(typeof(Animals), button.gameObject.name));
+
+            button.interactable = isAnimalAllowed;
+            uiElement.ExpandOnHover = isAnimalAllowed;
+            uiElement.playSounds = isAnimalAllowed;
+
+        }
+    }
     private void AddAnimalButton(Animals animal) {
         GameObject button = new(animal.ToString());
         button.transform.SetParent(gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.Find("ADD_ANIMAL").GetChild(1).GetChild(0));

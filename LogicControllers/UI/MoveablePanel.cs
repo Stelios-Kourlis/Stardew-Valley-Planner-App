@@ -59,12 +59,14 @@ public class MoveablePanel : MonoBehaviour {
     }
 
     public void SetPanelToOpenPosition(GameObject invoker = null) {
+        if (FullFocusPanelIsOpen.Item1 && IsFullFocusPanel) return; //only 1 full focus panel can be open at a time
         if (panelState == PanelState.Open || panelState == PanelState.Moving) return;
         panelState = PanelState.Moving;
+        if (IsFullFocusPanel) FullFocusPanelIsOpen = (true, this);
+        panelState = PanelState.Open;
         if (moveType == MoveType.ConstantTime) StartCoroutine(UIObjectMover.MoveObjectInConstantTime(transform, CurrentPosition, openPosition, moveTime));
         else StartCoroutine(UIObjectMover.MoveObjectWithConstastSpeed(transform, CurrentPosition, openPosition, moveSpeed));
-        panelState = PanelState.Open;
-        // Debug.Log(toggleButtonSprites[0]);
+
         if (invoker != null && toggleButtonSprites[0] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[0];
 
         if (SetActionToNothingOnOpen) {
@@ -73,30 +75,22 @@ public class MoveablePanel : MonoBehaviour {
             panelWithNoActionRequirementIsOpen = true;
         }
 
-        if (IsFullFocusPanel) {
-            // if (FullFocusPanelIsOpen.Item1) FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
-            FullFocusPanelIsOpen = (true, this);
-        }
-
         panelOpened?.Invoke();
     }
 
     public void SetPanelToClosedPosition(GameObject invoker = null) {
         if (panelState == PanelState.Closed || panelState == PanelState.Moving) return;
-        // Debug.Log($"Closing {gameObject.name}");
         panelState = PanelState.Moving;
+        if (IsFullFocusPanel) FullFocusPanelIsOpen = (false, null);
+        panelState = PanelState.Closed;
         if (moveType == MoveType.ConstantTime) StartCoroutine(UIObjectMover.MoveObjectInConstantTime(transform, CurrentPosition, closedPosition, moveTime));
         else StartCoroutine(UIObjectMover.MoveObjectWithConstastSpeed(transform, CurrentPosition, closedPosition, moveSpeed));
-        panelState = PanelState.Closed;
+
         if (invoker != null && toggleButtonSprites[1] != null) invoker.GetComponent<Image>().sprite = toggleButtonSprites[1];
 
         if (SetActionToNothingOnOpen && BuildingController.CurrentAction == Actions.DO_NOTHING) {
             BuildingController.SetCurrentAction(actionBeforeOpeningPanel);
             panelWithNoActionRequirementIsOpen = false;
-        }
-
-        if (IsFullFocusPanel) {
-            FullFocusPanelIsOpen = (false, null);
         }
 
         panelClosed?.Invoke();
@@ -116,15 +110,4 @@ public class MoveablePanel : MonoBehaviour {
     public bool IsPanelOpen() {
         return panelState == PanelState.Open;
     }
-
-    // public void OnPointerEnter(PointerEventData eventData) {
-    //     if (BuildingController.CurrentAction == Actions.DO_NOTHING) return;
-    //     ActionBeforeEnteringSettings = BuildingController.CurrentAction;
-    //     BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-    // }
-
-    // public void OnPointerExit(PointerEventData eventData) {
-    //     if (!(BuildingController.CurrentAction == Actions.DO_NOTHING)) return;
-    //     BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
-    // }
 }

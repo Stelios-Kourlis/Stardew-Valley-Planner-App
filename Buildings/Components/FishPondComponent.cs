@@ -19,19 +19,22 @@ public class FishPondComponent : BuildingComponent {
     protected readonly Color OPAQUE = new(1, 1, 1, 1);
 
 
-    private SpriteAtlas fishAtlas;
+    private static SpriteAtlas fishAtlas;
     private GameObject waterTilemapObject;
     private GameObject decoTilemapObject;
     private int decoIndex = 0;
     private Vector3Int[] decoCoordinates;
     private SpriteAtlas atlas;
-    private GameObject fishMenu;
+    private static GameObject fishMenu;
     public Fish fish;
+
+    private static GameObject fishMenuPrefab;
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
-        atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
+        if (fishMenuPrefab == null) fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
+        if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
+        if (atlas == null) atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.PLACE_FISH);
@@ -71,18 +74,19 @@ public class FishPondComponent : BuildingComponent {
         fishMenu.GetComponent<RectTransform>().localPosition = Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).position - new Vector3(75, 0, 0);
         fishMenu.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         fishMenu.SetActive(false);
-        GameObject fishMenuContent = fishMenu.transform.GetChild(0).GetChild(0).gameObject;
+        GameObject fishMenuContent = fishMenu.transform.Find("Fish").Find("ScrollArea").Find("Content").gameObject;
         for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++) {
             Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();
-            fishButton.gameObject.AddComponent<UIElement>();
+            fishButton.gameObject.AddComponent<UIElement>().ExpandOnHover = true;
+            fishButton.gameObject.GetComponent<UIElement>().playSounds = true;
+            fishButton.gameObject.GetComponent<UIElement>().SetActionToNothingOnEnter = false;
             fishButton.onClick.AddListener(() => {
                 Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
                 SetFishImage(fishType);
-                // Debug.Log($"Set fish to {fishType}");
             });
         }
 
-        fishMenu.transform.GetChild(1).GetComponent<Button>().onClick.AddListener(() => RemoveFish());
+        fishMenu.transform.Find("RemoveFish").GetComponent<Button>().onClick.AddListener(() => RemoveFish());
     }
 
     public void ToggleFishMenu() {
