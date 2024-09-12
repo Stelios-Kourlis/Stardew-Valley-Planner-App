@@ -60,24 +60,24 @@ public class EnterableBuildingComponent : BuildingComponent {
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
     }
 
-    public ReadOnlyCollection<Vector3Int> GetInteriorUnavailableCoordinates() {
-        return new ReadOnlyCollection<Vector3Int>(InteriorUnavailableCoordinates.ToList());
-    }
-
     public void AddToInteriorUnavailableCoordinates(Vector3Int coordinate) {
         InteriorUnavailableCoordinates.Add(coordinate);
+        MapController.UpdateAllCoordinates();
     }
 
     public void AddToInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates) {
         foreach (Vector3Int coordinate in coordinates) InteriorUnavailableCoordinates.Add(coordinate);
+        MapController.UpdateAllCoordinates();
     }
 
     public void RemoveFromInteriorUnavailableCoordinates(Vector3Int coordinate) {
         InteriorUnavailableCoordinates.Remove(coordinate);
+        MapController.UpdateAllCoordinates();
     }
 
     public void RemoveFromInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates) {
         foreach (Vector3Int coordinate in coordinates) InteriorUnavailableCoordinates.Remove(coordinate);
+        MapController.UpdateAllCoordinates();
     }
 
     public void AddBuildingInterior() {

@@ -6,7 +6,7 @@ namespace Utility {
     public static class InvalidTileLoader {
         public static HashSet<Vector3Int> GetInsideUnavailableCoordinates(string buildingName) {
             HashSet<Vector3Int> UnavailableCoordinates = new();
-            Texture2D image = Resources.Load<Texture2D>($"BuildingInsides/{buildingName}Invalid");
+            Texture2D image = Resources.Load<Texture2D>($"InvalidTiles/{buildingName}Invalid");
             if (image == null) throw new System.Exception($"Invalid building name: {buildingName}");
 
             for (int y = 0; y < image.height; y++) {
@@ -22,7 +22,7 @@ namespace Utility {
 
         public static HashSet<Vector3Int> GetInsidePlantableCoordinates(string buildingName) {
             HashSet<Vector3Int> PlantableCoordinates = new();
-            Texture2D image = Resources.Load<Texture2D>($"BuildingInsides/{buildingName}Invalid");
+            Texture2D image = Resources.Load<Texture2D>($"InvalidTiles/{buildingName}Invalid");
             if (image == null) throw new System.Exception($"Invalid building name: {buildingName}");
 
             for (int y = 0; y < image.height; y++) {
@@ -38,7 +38,7 @@ namespace Utility {
 
         public static HashSet<Vector3Int> GetInsideNeutralCoordinates(string buildingName) {
             HashSet<Vector3Int> NeutralCoordinates = new();
-            Texture2D image = Resources.Load<Texture2D>($"BuildingInsides/{buildingName}Invalid");
+            Texture2D image = Resources.Load<Texture2D>($"InvalidTiles/{buildingName}Invalid");
             if (image == null) throw new System.Exception($"Invalid building name: {buildingName}");
 
             for (int y = 0; y < image.height; y++) {

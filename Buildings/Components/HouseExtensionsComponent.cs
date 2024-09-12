@@ -112,10 +112,10 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseRoomTilemap.ClearAllTiles();
 
         HashSet<Vector3Int> newInvalidTiles = GetInsideUnavailableCoordinates("SpouseRoomRemoved"); //todo place under room stays valid
-        newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin - new Vector3Int(0, 2, 0)).ToHashSet();
         GetComponent<EnterableBuildingComponent>().AddToInteriorUnavailableCoordinates(newInvalidTiles);
         HashSet<Vector3Int> newNeutralTiles = GetInsideNeutralCoordinates("SpouseRoomRemoved");
-        newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin - new Vector3Int(0, 2, 0)).ToHashSet();
         GetComponent<EnterableBuildingComponent>().RemoveFromInteriorUnavailableCoordinates(newNeutralTiles);
         MapController.UpdateAllCoordinates();
     }
@@ -126,26 +126,35 @@ public class HouseExtensionsComponent : BuildingComponent {
         BuildingInteriorTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoomSprite));
         BuildingInteriorTilemap.CompressBounds();
 
-        HashSet<Vector3Int> newInvalidTiles = GetInsideUnavailableCoordinates("SpouseRoom"); //todo place under room stays valid
-        newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
-        GetComponent<EnterableBuildingComponent>().AddToInteriorUnavailableCoordinates(newInvalidTiles);
         HashSet<Vector3Int> newNeutralTiles = GetInsideNeutralCoordinates("SpouseRoom");
-        newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        newNeutralTiles = newNeutralTiles.Select(tile => tile + spouseRoomOrigin - new Vector3Int(0, 2, 0)).ToHashSet();
         GetComponent<EnterableBuildingComponent>().RemoveFromInteriorUnavailableCoordinates(newNeutralTiles);
+
+        HashSet<Vector3Int> newInvalidTiles = GetInsideUnavailableCoordinates("SpouseRoom"); //todo place under room stays valid
+        newInvalidTiles = newInvalidTiles.Select(tile => tile + spouseRoomOrigin - new Vector3Int(0, 2, 0)).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().AddToInteriorUnavailableCoordinates(newInvalidTiles);
 
         SetSpouse((int)spouse); //Refresh spouse room
         MapController.UpdateAllCoordinates();
     }
 
     public void SetSpouse(int candidate) {
+        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin() + new Vector3Int(1, 0, 0);
+
+        HashSet<Vector3Int> oldSpouseSpecificInvalidTiles = GetInsideUnavailableCoordinates(spouse.ToString()); //clear old spouse room invalid coords
+        oldSpouseSpecificInvalidTiles = oldSpouseSpecificInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().RemoveFromInteriorUnavailableCoordinates(oldSpouseSpecificInvalidTiles);
+
         spouse = (MarriageCandidate)candidate;
 
         //Draw room
-        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin() + new Vector3Int(1, 0, 0);
         Sprite spouseRoom = Resources.Load<SpriteAtlas>($"BuildingInsides/House/SpouseRoomAtlas").GetSprite(spouse.ToString());
         var area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoom.textureRect.height / 16), (int)(spouseRoom.textureRect.width / 16));
         spouseRoomTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoom));
-        Debug.Log(spouse);
+
+        HashSet<Vector3Int> newSpouseSpecificInvalidTiles = GetInsideUnavailableCoordinates(spouse.ToString());
+        newSpouseSpecificInvalidTiles = newSpouseSpecificInvalidTiles.Select(tile => tile + spouseRoomOrigin).ToHashSet();
+        GetComponent<EnterableBuildingComponent>().AddToInteriorUnavailableCoordinates(newSpouseSpecificInvalidTiles);
     }
 
     private Vector3Int GetSpouseRoomOrigin() {
