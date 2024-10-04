@@ -108,7 +108,7 @@ public class TypeBarHandler : MonoBehaviour {
             }
             GameObject temp = new();
             Building buildingTemp = (Building)temp.AddComponent(type);
-            GameObject button = buildingTemp.CreateBuildingButton();//todo Floor/Fence are missing icons
+            GameObject button = buildingTemp.CreateBuildingButton();
             button.transform.SetParent(buildingSelectContent);
             button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
             Destroy(temp);

@@ -24,8 +24,8 @@ public class TileBuildingData : MonoBehaviour {
             int z = int.Parse(nums[2]);
             tempList.Add(new Vector3Int(x, y, z));
         }
-        BuildingController.GetUnavailableCoordinates().Clear();
-        foreach (Vector3Int vec in tempList) BuildingController.GetUnavailableCoordinates().Add(vec);
+        BuildingController.specialCoordinates.ClearAll();
+        BuildingController.specialCoordinates.AddSpecialTileSet(new($"{farm}Invalid", tempList, TileType.Invalid));
     }
 
     public void AddPlantableTilesData(MapController.MapTypes farm) {
@@ -43,8 +43,8 @@ public class TileBuildingData : MonoBehaviour {
             tempList.Add(new Vector3Int(x, y, z));
             // Debug.Log("Added " + x + " " + y + " " + z);
         }
-        BuildingController.GetPlantableCoordinates().Clear();
-        foreach (Vector3Int vec in tempList) BuildingController.GetPlantableCoordinates().Add(vec);
+        BuildingController.specialCoordinates.ClearAll();
+        BuildingController.specialCoordinates.AddSpecialTileSet(new($"{farm}Plantable", tempList, TileType.Plantable));
     }
 
     public void RemoveAllDuplicates() {

@@ -7,6 +7,8 @@ using UnityEngine.U2D;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using System.Linq;
+using static BuildingData;
+using Newtonsoft.Json.Linq;
 
 public class FlooringComponent : BuildingComponent {
 
@@ -81,29 +83,22 @@ public class FlooringComponent : BuildingComponent {
         floors = new();
         this.flooringTilemap = flooringTilemap;
 
-        // int oldFloorId = selectedFloorTextureID;
-        // SetSelectedFloor(0, false);
-
         foreach (FlooringOrigin origin in origins) {
             AddFloor(origin);
         }
 
-        // SetSelectedFloor(oldFloorId, false);
     }
 
     public void UpdateFloors(List<FlooringOrigin> origins) {
         flooringTilemap.ClearAllTiles();
         floors = new();
 
-        // int oldFloorId = selectedFloorTextureID;
-        // SetSelectedFloor(0, false);
-
         foreach (FlooringOrigin origin in origins) {
             AddFloor(origin);
         }
 
-        // SetSelectedFloor(oldFloorId, false);
     }
+
 
     public static Sprite GetFloorSprite(int textureId) {
         return Flooring.GetFloorSprite(textureId);
@@ -119,7 +114,14 @@ public class FlooringComponent : BuildingComponent {
         Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID);
         if (floors.Any(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
         floors.Add(floor);
-        // ApplyCurrentFloorTexture(floor);
+    }
+
+    public void RemoveFloor(Vector3Int floorPosition) {
+        Flooring floor = floors.Find(floor => floor.GetFloorPositions().Contains(floorPosition));
+        if (floor == null) return;
+        floors.Remove(floor);
+        foreach (Vector3Int position in floor.GetFloorPositions()) flooringTilemap.SetTile(position, null);
+
     }
 
     public void ApplyCurrentFloorTexture(Vector3Int floorPosition) {
@@ -132,11 +134,46 @@ public class FlooringComponent : BuildingComponent {
         floor.ApplyFloorTexture(selectedFloorTextureID);
     }
 
-    public override void Load(BuildingData.ComponentData data) {
-        throw new System.NotImplementedException();
+    public override void Load(ComponentData data) {
+        for (int i = 0; i < floors.Count; i++) {
+            RemoveFloor(floors[i].GetFloorPositions().First());
+        }
+
+        foreach (var property in data.componentData) {
+            JObject buildingData = (JObject)property.Value;
+            Vector3Int lowerLeftCorner = new(
+                buildingData["Origin"][0].Value<int>(),
+                buildingData["Origin"][1].Value<int>(),
+                0
+            );
+            int width = buildingData["Width"].Value<int>();
+            int height = buildingData["Height"].Value<int>();
+            int wallpaperId = buildingData["WallpaperId"].Value<int>();
+
+            FlooringOrigin origin = new(lowerLeftCorner, width, height, wallpaperId);
+            AddFloor(origin);
+        }
     }
 
-    public override BuildingData.ComponentData Save() {
-        throw new System.NotImplementedException();
+    public override ComponentData Save() {
+        // return null;
+        ComponentData data = new(typeof(FlooringComponent), new());
+        int index = 0;
+
+        foreach (Flooring floor in floors) {
+            FlooringOrigin origin = new(floor.GetFloorPositions().First(), floor.width, floor.height, floor.floorTextureID);
+            JProperty floorProperty = new JProperty(index.ToString(),
+                new JObject(
+                    new JProperty("Origin", new JArray(origin.lowerLeftCorner.x, origin.lowerLeftCorner.y)),
+                    new JProperty("Width", origin.width),
+                    new JProperty("Height", origin.height),
+                    new JProperty("WallpaperId", origin.floorTextureID)
+                )
+            );
+
+            data.componentData.Add(floorProperty);
+        }
+
+        return data;
     }
 }

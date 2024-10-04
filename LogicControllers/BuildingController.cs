@@ -12,8 +12,9 @@ using UnityEngine.UI;
 
 public static class BuildingController {
     /// <summary> A coordinate is unavailable if it is occupied by a building or if its out of bounds for the current map </summary>
-    private static readonly HashSet<Vector3Int> unavailableCoordinates = new();
-    private static readonly HashSet<Vector3Int> plantableCoordinates = new();
+    // private static readonly HashSet<Vector3Int> unavailableCoordinates = new();
+    // private static readonly HashSet<Vector3Int> plantableCoordinates = new();
+    public static readonly SpecialCoordinatesCollection specialCoordinates = new();
     public static readonly List<Building> buildings = new();
     public static Type currentBuildingType = typeof(FishPond);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE_WALLPAPER;
@@ -49,17 +50,17 @@ public static class BuildingController {
         CurrentBuildingBeingPlaced.DeleteBuilding();
     }
 
-    public static void AddToUnavailableCoordinates(Vector3Int[] coordinates) {
-        if (!isInsideBuilding.Key) GetUnavailableCoordinates().UnionWith(coordinates);
-        else isInsideBuilding.Value.InteriorUnavailableCoordinates.UnionWith(coordinates);
-        MapController.UpdateUnavailableCoordinates();
-    }
+    // public static void AddToUnavailableCoordinates(Vector3Int[] coordinates) {
+    //     if (!isInsideBuilding.Key) GetUnavailableCoordinates().UnionWith(coordinates);
+    //     else isInsideBuilding.Value.InteriorUnavailableCoordinates.UnionWith(coordinates);
+    //     InvalidTilesManager.Instance.UpdateUnavailableCoordinates();
+    // }
 
-    public static void RemoveFromUnavailableCoordinates(Vector3Int[] coordinates) {
-        if (!isInsideBuilding.Key) GetUnavailableCoordinates().ExceptWith(coordinates);
-        else isInsideBuilding.Value.InteriorUnavailableCoordinates.ExceptWith(coordinates);
-        MapController.UpdateUnavailableCoordinates();
-    }
+    // public static void RemoveFromUnavailableCoordinates(Vector3Int[] coordinates) {
+    //     if (!isInsideBuilding.Key) GetUnavailableCoordinates().ExceptWith(coordinates);
+    //     else isInsideBuilding.Value.InteriorUnavailableCoordinates.ExceptWith(coordinates);
+    //     InvalidTilesManager.Instance.UpdateUnavailableCoordinates();
+    // }
 
     /// <summary>
     /// Set the type of the building that is currently being placed
@@ -102,55 +103,47 @@ public static class BuildingController {
         return newGameObject;
     }
 
-    public static void InitializeMap(int Housetier) {
-
-        static void PlaceHouse(int tier) {
-            MapController mapController = GetMapController();
-            Vector3Int housePos = mapController.GetCurrentMapType() switch {
-                MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-                MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
-                _ => new Vector3Int(32, 12, 0),
-            };
-            GameObject houseGameObject = new("House");
-            houseGameObject.transform.parent = CurrentTilemapTransform;
-            houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
-            houseGameObject.GetComponent<House>().SetTier(tier);
-            houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
-        }
-
-        static void PlaceBin() {
-            MapController mapController = GetMapController();
-            Vector3Int binPos = mapController.GetCurrentMapType() switch {
-                // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-                // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
-                _ => new Vector3Int(44, 14, 0),
-            };
-            GameObject houseGameObject = new("ShippingBin");
-            houseGameObject.transform.parent = CurrentTilemapTransform;
-            houseGameObject.AddComponent<ShippingBin>().PlaceBuilding(binPos);
-            houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
-        }
-
-        static void PlaceGreenhouse() {
-            MapController mapController = GetMapController();
-            Vector3Int binPos = mapController.GetCurrentMapType() switch {
-                // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-                // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
-                _ => new Vector3Int(-2, 13, 0),
-            };
-            GameObject houseGameObject = new("Greenhouse");
-            houseGameObject.transform.parent = CurrentTilemapTransform;
-            houseGameObject.AddComponent<Greenhouse>().PlaceBuilding(binPos);
-            houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
-        }
-
+    public static void InitializeMap(out Building house, out Building shippingBin, out Building greenhouse) {
         IsLoadingSave = true;
-        PlaceHouse(Housetier);
-        PlaceBin();
-        PlaceGreenhouse();
+        PlaceHouse(out house);
+        PlaceBin(out shippingBin);
+        PlaceGreenhouse(out greenhouse);
         IsLoadingSave = false;
         CreateNewBuilding();
     }
+
+    public static void PlaceHouse(out Building house) {
+        MapController mapController = GetMapController();
+        Vector3Int housePos = mapController.GetHousePosition();
+        GameObject houseGameObject = new("House");
+        houseGameObject.transform.parent = CurrentTilemapTransform;
+        houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
+        houseGameObject.GetComponent<House>().SetTier(1);
+        houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        house = houseGameObject.GetComponent<House>();
+
+    }
+
+    public static void PlaceBin(out Building shippingBin) {
+        MapController mapController = GetMapController();
+        Vector3Int binPos = mapController.GetShippingBinPosition();
+        GameObject houseGameObject = new("ShippingBin");
+        houseGameObject.transform.parent = CurrentTilemapTransform;
+        houseGameObject.AddComponent<ShippingBin>().PlaceBuilding(binPos);
+        houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        shippingBin = houseGameObject.GetComponent<ShippingBin>();
+    }
+
+    public static void PlaceGreenhouse(out Building greenhouse) {
+        MapController mapController = GetMapController();
+        Vector3Int binPos = mapController.GetGreenhousePosition();
+        GameObject houseGameObject = new("Greenhouse");
+        houseGameObject.transform.parent = CurrentTilemapTransform;
+        houseGameObject.AddComponent<Greenhouse>().PlaceBuilding(binPos);
+        houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        greenhouse = houseGameObject.GetComponent<Greenhouse>();
+    }
+
 
     /// <summary>
     /// Deletes all buildings except the house
@@ -184,8 +177,8 @@ public static class BuildingController {
     }
 
     public static Type GetCurrentBuildingType() { return currentBuildingType; }
-    public static HashSet<Vector3Int> GetUnavailableCoordinates() { return unavailableCoordinates; }
-    public static HashSet<Vector3Int> GetPlantableCoordinates() { return plantableCoordinates; }
+    // public static HashSet<Vector3Int> GetUnavailableCoordinates() { return unavailableCoordinates; }
+    // public static HashSet<Vector3Int> GetPlantableCoordinates() { return plantableCoordinates; }
     public static List<Building> GetBuildings() { return buildings; }
 
     public static void SetCurrentAction(Actions action) {

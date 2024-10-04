@@ -27,17 +27,7 @@ public class Cabin : Building, IExtraActionBuilding {
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
     private EnterableBuildingComponent EnterableBuildingComponent => gameObject.GetComponent<EnterableBuildingComponent>();
 
-    public Enum Type => gameObject.GetComponent<MultipleTypeBuildingComponent>()?.Type;
-
-    // public static Types CurrentType { get; private set; }
-
-    public HashSet<ButtonTypes> BuildingInteractions => InteractableBuildingComponent.BuildingInteractions;
-
-    public GameObject ButtonParentGameObject => InteractableBuildingComponent.ButtonParentGameObject;
-
-    public HashSet<Vector3Int> InteriorUnavailableCoordinates => EnterableBuildingComponent.InteriorUnavailableCoordinates;
-
-    public HashSet<Vector3Int> InteriorPlantableCoordinates => EnterableBuildingComponent.InteriorPlantableCoordinates;
+    public Enum Type => GetComponent<MultipleTypeBuildingComponent>().Type;
 
     public override void OnAwake() {
         BaseHeight = 3;

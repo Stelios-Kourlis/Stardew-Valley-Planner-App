@@ -36,14 +36,16 @@ public class MapController : MonoBehaviour {
     public MapTypes CurrentMapType { get; private set; }
     static Tile redTile;
     static Tile greenTile;
-    private static bool unavailableCoordinatesAreVisible = false;
-    private static bool plantableCoordinatesAreVisible = false;
     private Actions currentAction;
     private TileMode tileMode;
     private Vector3Int startTile;
     public Scene MapScene { get; private set; }
 
+    public static MapController Instance { get; private set; }
+
     void Start() {
+        Instance = this;
+
         atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
         SetMap(MapTypes.Normal);
 
@@ -55,9 +57,7 @@ public class MapController : MonoBehaviour {
         greenTile = LoadTile("GreenTile");
 
         tileMode = TileMode.nothing;
-        EnterableBuildingComponent.EnteredOrExitedBuilding += UpdateAllCoordinates;
 
-        BuildingController.anyBuildingPositionChanged += UpdateAllCoordinates;
     }
 
     public void Update() {//this is for adding invlid tiles and plantable tiles, should never be accesible to the user
@@ -67,15 +67,15 @@ public class MapController : MonoBehaviour {
             NotificationManager.Instance.SendNotification($"Mode set to {tileMode}", NotificationManager.Icons.InfoIcon);
             Debug.Log($"Mode set to {tileMode}");
             if (tileMode == TileMode.nothing) {
-                unavailableCoordinatesAreVisible = true;
-                plantableCoordinatesAreVisible = true;
-                ToggleAllCoordinates();
+                // unavailableCoordinatesAreVisible = true;
+                // plantableCoordinatesAreVisible = true;
+                InvalidTilesManager.Instance.ToggleAllCoordinates();
                 BuildingController.SetCurrentAction(currentAction);
             }
             else {
-                unavailableCoordinatesAreVisible = false;
-                plantableCoordinatesAreVisible = false;
-                ToggleAllCoordinates();
+                // unavailableCoordinatesAreVisible = false;
+                // plantableCoordinatesAreVisible = false;
+                InvalidTilesManager.Instance.ToggleAllCoordinates();
                 currentAction = BuildingController.CurrentAction;
                 BuildingController.SetCurrentAction(Actions.DO_NOTHING);
             }
@@ -90,59 +90,19 @@ public class MapController : MonoBehaviour {
             Vector3Int currentCell = GetMousePositionInTilemap();
             Vector3Int[] tileList;
             if (startTile != currentCell) tileList = GetAllCoordinatesInArea(startTile, currentCell).ToArray();
-            else tileList = new Vector3Int[] { currentCell };
-            if (tileMode == TileMode.addingInvalidTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapInvalidTiles(tile);
-            else if (tileMode == TileMode.addingPlantableTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapPlantableTiles(tile);
-            else if (tileMode == TileMode.removingInvalidTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapInvalidTiles(tile);
-            else if (tileMode == TileMode.removingPlantableTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapPlantableTiles(tile);
+            // else tileList = new Vector3Int[] { currentCell };
+            // if (tileMode == TileMode.addingInvalidTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapInvalidTiles(tile);
+            // else if (tileMode == TileMode.addingPlantableTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapPlantableTiles(tile);
+            // else if (tileMode == TileMode.removingInvalidTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapInvalidTiles(tile);
+            // else if (tileMode == TileMode.removingPlantableTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapPlantableTiles(tile);
             else if (tileMode == TileMode.showMouseCoordinates) Debug.Log(currentCell);
         }
-    }
-
-    private void AddTileToCurrentMapInvalidTiles(Vector3Int tile) {
-        string path = $"Assets/Resources/Maps/{CurrentMapType}.txt";
-        File.AppendAllText(path, $"{tile.x} {tile.y} {tile.z}\n");
-        Debug.Log($"Added {tile.x} {tile.y} {tile.z} to {CurrentMapType} invalid tiles");
-        BuildingController.GetUnavailableCoordinates().Add(tile);
-        UpdateUnavailableCoordinates();
-    }
-
-    private void AddTileToCurrentMapPlantableTiles(Vector3Int tile) {
-        string path = $"Assets/Resources/Maps/{CurrentMapType}P.txt";
-        File.AppendAllText(path, $"{tile.x} {tile.y} {tile.z}\n");
-        Debug.Log($"Added {tile.x} {tile.y} {tile.z} to {CurrentMapType} plantable tiles");
-        BuildingController.GetPlantableCoordinates().Add(tile);
-        UpdatePlantableCoordinates();
-    }
-
-    private void RemoveTileFromCurrentMapInvalidTiles(Vector3Int tile) {
-        string path = $"Assets/Resources/Maps/{CurrentMapType}.txt";
-        string vectorToRemove = $"{tile.x} {tile.y} {tile.z}";
-        List<string> tiles = File.ReadAllText(path).Split('\n').ToList();
-        tiles.Remove(vectorToRemove);
-        string newText = string.Join("\n", tiles);
-        File.WriteAllText(path, newText);
-        Debug.Log($"Removed {tile.x} {tile.y} {tile.z} from {CurrentMapType} invalid tiles");
-        BuildingController.GetUnavailableCoordinates().Remove(tile);
-        UpdateUnavailableCoordinates();
-    }
-
-    private void RemoveTileFromCurrentMapPlantableTiles(Vector3Int tile) {
-        string path = $"Assets/Resources/Maps/{CurrentMapType}P.txt";
-        string vectorToRemove = $"{tile.x} {tile.y} {tile.z}";
-        List<string> tiles = File.ReadAllText(path).Split('\n').ToList();
-        tiles.Remove(vectorToRemove);
-        string newText = string.Join("\n", tiles);
-        File.WriteAllText(path, newText);
-        Debug.Log($"Removed {tile.x} {tile.y} {tile.z} from {CurrentMapType} plantable tiles");
-        BuildingController.GetPlantableCoordinates().Remove(tile);
-        UpdatePlantableCoordinates();
     }
 
     public void SetMap(MapTypes mapType) {
         CurrentMapType = mapType;
         BuildingController.DeleteAllBuildings(true);
-        BuildingController.GetUnavailableCoordinates().Clear();
+        BuildingController.specialCoordinates.ClearAll();
 
         MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
 
@@ -160,9 +120,9 @@ public class MapController : MonoBehaviour {
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
         mapTilemap.ClearAllTiles();
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
-        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(1);
+        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(out _, out _, out _);
         // GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
-        UpdateAllCoordinates();
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
 
         GameObject grid = new("Grid");
         grid.AddComponent<Grid>();
@@ -184,51 +144,28 @@ public class MapController : MonoBehaviour {
         SetMap(mapTypeEnum);
     }
 
-    public void ToggleAllCoordinates() {
-        ToggleMapUnavailableCoordinates();
-        ToggleMapPlantableCoordinates();
+    public Vector3Int GetHousePosition() {
+        return CurrentMapType switch {
+            MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+            MapTypes.Beach => new Vector3Int(32, 57, 0),
+            _ => new Vector3Int(32, 12, 0),
+        };
     }
 
-    public static void ToggleMapUnavailableCoordinates() {
-        // if (BuildingController.isInsideBuilding.Key) { ToggleMapUnavailableCoordinatesForBuildingInside(); return; }
-        HashSet<Vector3Int> unavailableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorUnavailableCoordinates.ToHashSet() : BuildingController.GetUnavailableCoordinates();
-        Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
-        unavailableCoordinatesTilemap.ClearAllTiles();
-        if (unavailableCoordinatesAreVisible) {
-            foreach (Vector3Int coordinate in unavailableCoordinates) unavailableCoordinatesTilemap.SetTile(coordinate, null);
-        }
-        else {
-            foreach (Vector3Int coordinate in unavailableCoordinates) unavailableCoordinatesTilemap.SetTile(coordinate, redTile);
-        }
-        unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
+    public Vector3Int GetShippingBinPosition() {
+        return CurrentMapType switch {
+            // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+            // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+            _ => new Vector3Int(44, 14, 0),
+        };
     }
 
-    public static void ToggleMapPlantableCoordinates() {
-        HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
-        Tilemap plantableCoordinatesTilemap = GameObject.FindWithTag("PlantableTilemap").GetComponent<Tilemap>();
-        plantableCoordinatesTilemap.ClearAllTiles();
-        if (plantableCoordinatesAreVisible) {
-            foreach (Vector3Int coordinate in plantableCoordinates) plantableCoordinatesTilemap.SetTile(coordinate, null);
-        }
-        else {
-            foreach (Vector3Int coordinate in plantableCoordinates) plantableCoordinatesTilemap.SetTile(coordinate, greenTile);
-        }
-        plantableCoordinatesAreVisible = !plantableCoordinatesAreVisible;
-    }
-
-    public static void UpdatePlantableCoordinates() {
-        ToggleMapPlantableCoordinates();
-        ToggleMapPlantableCoordinates(); //easiest way to update the tiles
-    }
-
-    public static void UpdateUnavailableCoordinates() {
-        ToggleMapUnavailableCoordinates();
-        ToggleMapUnavailableCoordinates(); //easiest way to update the tiles
-    }
-
-    public static void UpdateAllCoordinates() {
-        UpdatePlantableCoordinates();
-        UpdateUnavailableCoordinates();
+    public Vector3Int GetGreenhousePosition() {
+        return CurrentMapType switch {
+            // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
+            // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+            _ => new Vector3Int(-2, 13, 0),
+        };
     }
 
     public MapTypes GetCurrentMapType() { return CurrentMapType; }

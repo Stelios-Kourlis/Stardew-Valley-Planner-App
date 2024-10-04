@@ -79,7 +79,7 @@ public abstract class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) {
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
-            BuildingController.RemoveFromUnavailableCoordinates(BaseCoordinates);
+            BuildingController.specialCoordinates.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
             UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
             if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
@@ -122,7 +122,7 @@ public abstract class Building : TooltipableGameObject {
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
         UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetComponent<BuildingSaverLoader>().SaveBuilding()));
-        BuildingController.RemoveFromUnavailableCoordinates(BaseCoordinates);
+        BuildingController.specialCoordinates.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
         CurrentBuildingState = BuildingState.PICKED_UP;
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
         BuildingPickedUp?.Invoke();
@@ -173,7 +173,7 @@ public abstract class Building : TooltipableGameObject {
             BuildingController.buildingGameObjects.Add(gameObject);
             BuildingController.buildings.Add(this);
         }
-        BuildingController.AddToUnavailableCoordinates(BaseCoordinates);
+        BuildingController.specialCoordinates.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates, TileType.Invalid));
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
@@ -241,7 +241,7 @@ public abstract class Building : TooltipableGameObject {
 
         Type buildingType = GetType();
         button.AddComponent<Button>().onClick.AddListener(() => {
-            Debug.Log($"Setting current building to {buildingType}");
+            // Debug.Log($"Setting current building to {buildingType}");
             BuildingController.SetCurrentBuildingType(buildingType);
             BuildingController.SetCurrentAction(Actions.PLACE);
         });

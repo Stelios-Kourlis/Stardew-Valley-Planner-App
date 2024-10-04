@@ -1,136 +1,143 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using static Utility.ClassManager;
+using static Utility.TilemapManager;
 
 public class OnboradingFlow : MonoBehaviour {
 
-    private readonly float SCALE_CHANGE_RATE = 2.5f;
-    private GameObject introText;
-    private GameObject actionText;
-    private GameObject settingsAndMaterialsText;
-    private GameObject buildingText;
-    private GameObject generalTipText;
-    Transform parentOfActionButtons = null;
-    Transform parentOfArrowButton = null;
-    void Start() {
-        introText = gameObject.transform.GetChild(1).gameObject;
-        actionText = gameObject.transform.GetChild(2).gameObject;
-        settingsAndMaterialsText = gameObject.transform.GetChild(3).gameObject;
-        buildingText = gameObject.transform.GetChild(4).gameObject;
-        generalTipText = gameObject.transform.GetChild(5).gameObject;
-        if (PlayerPrefs.GetInt("HasDoneIntro") == 0) StartOnboardingFlow();
-        else gameObject.SetActive(false);
-    }
+    [SerializeField] private GameObject tutorialText;
+    public bool IsInTutorial { get; private set; }
 
-    // void Update() {
-    //     if (Input.GetKeyDown(KeyCode.J)) StartCoroutine(PopEffect(GameObject.FindWithTag("PlaceButton")));
-    // }
+    void Start() {
+        if (PlayerPrefs.GetInt("HasDoneIntro") == 0) StartOnboardingFlow();
+        IsInTutorial = false;
+    }
 
     public void StartOnboardingFlow() {
-        gameObject.SetActive(true);
-        GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
-        GameObject buildingPanel = GameObject.FindGameObjectWithTag("Panel");
-        settingsModal.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
-        buildingPanel.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
-        // IToggleablePanel.PanelsCurrentlyOpen++;
+
+        IEnumerator OnboardingFlow() {
+            BuildingController.DeleteAllBuildings(true);
+            float cameraMoveTime = 2f;
+            float delay = 0.25f;
+
+            CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetGreenhousePosition() + new Vector3Int(3, 3, 0)), cameraMoveTime);
+            yield return new WaitForSecondsRealtime(cameraMoveTime);
+            BuildingController.PlaceGreenhouse(out _);
+            yield return new WaitForSecondsRealtime(delay);
+
+            CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetShippingBinPosition() + new Vector3Int(1, 0, 0)), cameraMoveTime);
+            yield return new WaitForSecondsRealtime(cameraMoveTime);
+            BuildingController.PlaceBin(out _);
+            yield return new WaitForSecondsRealtime(delay);
+
+            CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetHousePosition() + new Vector3Int(4, 5, 0)), cameraMoveTime);
+            yield return new WaitForSecondsRealtime(cameraMoveTime);
+            BuildingController.PlaceHouse(out _);
+            yield return new WaitForSecondsRealtime(delay);
+
+            GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+            text.GetComponentInChildren<TMP_Text>().text = "When creating a new farm, the\n-Greenhouse\n-House\n-Shipping Bin\nare always placed automatically.";
+            text.GetComponentInChildren<Button>().onClick.AddListener(() => {
+                Destroy(text);
+                ShowHowToMoveCamera();
+            });
+        }
+
+        MoveablePanel.CloseAllPanels?.Invoke();
+        IsInTutorial = true;
         BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-
-        introText.SetActive(true);
-        actionText.SetActive(false);
-        settingsAndMaterialsText.SetActive(false);
-        buildingText.SetActive(false);
-        generalTipText.SetActive(false);
+        GetCanvasGameObject().transform.Find("TopRightButtons").gameObject.SetActive(false);
+        GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").gameObject.SetActive(false);
+        StartCoroutine(OnboardingFlow());
     }
 
-    public void ShowHowToChangeAction() {
-        GameObject placeButton = GameObject.FindWithTag("PlaceButton");
-        GameObject editButton = GameObject.FindWithTag("PickupButton");
-        GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
-        parentOfActionButtons = placeButton.transform.parent;
-        placeButton.transform.SetParent(gameObject.transform);
-        editButton.transform.SetParent(gameObject.transform);
-        deleteButton.transform.SetParent(gameObject.transform);
-        introText.SetActive(false);
-        actionText.SetActive(true);
-        StartCoroutine(PopEffect(placeButton));
-        StartCoroutine(PopEffect(editButton));
-        StartCoroutine(PopEffect(deleteButton));
-    }
+    public void ShowHowToMoveCamera() {
 
-    public void ShowSettingAndMaterials() {
-        GameObject placeButton = GameObject.FindWithTag("PlaceButton");
-        GameObject editButton = GameObject.FindWithTag("PickupButton");
-        GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
-        placeButton.transform.SetParent(parentOfActionButtons);
-        editButton.transform.SetParent(parentOfActionButtons);
-        deleteButton.transform.SetParent(parentOfActionButtons);
-        actionText.SetActive(false);
-        settingsAndMaterialsText.SetActive(true);
-        GameObject settingsButton = GameObject.Find("settingsButton");
-        GameObject materialsButton = GameObject.Find("ShowTotalMaterials");
-        settingsButton.transform.SetParent(gameObject.transform);
-        materialsButton.transform.SetParent(gameObject.transform);
-        StartCoroutine(PopEffect(settingsButton));
-        StartCoroutine(PopEffect(materialsButton));
-    }
+        IEnumerator CheckCameraMoved() {
+            Vector3 cameraPosition = CameraController.Instance.GetPosition();
+            float cameraZoom = CameraController.Instance.GetZoom();
 
-    public void ShowHowToChangeBuilding() {
-        GameObject settingsButton = GameObject.Find("settingsButton");
-        GameObject materialsButton = GameObject.Find("ShowTotalMaterials");
-        settingsButton.transform.SetParent(parentOfActionButtons);
-        materialsButton.transform.SetParent(parentOfActionButtons);
-        settingsAndMaterialsText.SetActive(false);
-        buildingText.SetActive(true);
-        GameObject arrowButton = GameObject.Find("ArrowButton");
-        parentOfArrowButton = arrowButton.transform.parent;
-        arrowButton.transform.SetParent(gameObject.transform);
-        StartCoroutine(PopEffect(arrowButton));
-    }
+            GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+            text.GetComponentInChildren<TMP_Text>().text = "Move the camera by moving the mouse and holding middle mouse button.\nZoom in and out by scrolling.\nTry it out!";
+            text.transform.GetChild(1).gameObject.SetActive(false);
 
-    public void ShowGeneralTip() {
-        GameObject arrowButton = GameObject.Find("ArrowButton");
-        arrowButton.transform.SetParent(parentOfArrowButton);
-        buildingText.SetActive(false);
-        generalTipText.SetActive(true);
-    }
+            bool movedCamera = false, changedZoom = false;
+            while (true) {
+                if (Vector3.Distance(cameraPosition, CameraController.Instance.GetPosition()) >= 10) movedCamera = true;
+                if (Mathf.Abs(cameraZoom - CameraController.Instance.GetZoom()) >= 3) changedZoom = true;
 
-    public void EndOnboardingFlow() {
-        if (parentOfActionButtons != null) {
-            GameObject placeButton = GameObject.FindWithTag("PlaceButton");
-            GameObject editButton = GameObject.FindWithTag("PickupButton");
-            GameObject deleteButton = GameObject.FindWithTag("DeleteButton");
-            placeButton.transform.SetParent(parentOfActionButtons);
-            editButton.transform.SetParent(parentOfActionButtons);
-            deleteButton.transform.SetParent(parentOfActionButtons);
-            GameObject settingsButton = GameObject.Find("settingsButton");
-            GameObject materialsButton = GameObject.Find("ShowTotalMaterials");
-            settingsButton.transform.SetParent(parentOfActionButtons);
-            materialsButton.transform.SetParent(parentOfActionButtons);
-        }
-        if (parentOfArrowButton != null) {
-            GameObject arrowButton = GameObject.Find("ArrowButton");
-            arrowButton.transform.SetParent(parentOfArrowButton);
+                if (movedCamera && changedZoom) break;
+                yield return null;
+            }
+
+            text.transform.GetChild(1).gameObject.SetActive(true);
+            text.GetComponentInChildren<Button>().onClick.AddListener(() => {
+                Destroy(text);
+                ShowHowToPlaceBuilding();
+            });
+
         }
 
-        // IToggleablePanel.PanelsCurrentlyOpen--;
-
-        GameObject settingsModal = GameObject.FindGameObjectWithTag("SettingsModal");
-        settingsModal.SetActive(true);
-        BuildingController.SetCurrentAction(Actions.PLACE);
-        gameObject.SetActive(false);
-        PlayerPrefs.SetInt("HasDoneIntro", 1);
-
+        StartCoroutine(CheckCameraMoved());
     }
 
-    public IEnumerator PopEffect(GameObject gameObj) {
-        while (gameObj.transform.localScale.x < 1.5) {
-            gameObj.transform.localScale += new Vector3(SCALE_CHANGE_RATE * Time.deltaTime, SCALE_CHANGE_RATE * Time.deltaTime);
-            yield return null;
+    public void ShowHowToPlaceBuilding() {
+        GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").gameObject.SetActive(true);
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        text.GetComponentInChildren<TMP_Text>().text = "To select a building to place press the button on the top left corner. Try placing a building!";
+        text.transform.GetChild(1).gameObject.SetActive(false);
+
+        void onBuildingSelectOpen() {
+            Destroy(text);
+            GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").GetComponent<Button>().onClick.RemoveListener(onBuildingSelectOpen);
         }
-        while (gameObj.transform.localScale.x > 1) {
-            gameObj.transform.localScale -= new Vector3(SCALE_CHANGE_RATE * Time.deltaTime, SCALE_CHANGE_RATE * Time.deltaTime);
-            yield return null;
-        }
+        GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").GetComponent<Button>().onClick.AddListener(onBuildingSelectOpen);
+        BuildingController.anyBuildingPositionChanged += ShowActions;
     }
+
+    public void ShowActions() {
+        // if (!IsInTutorial) return;
+        // if (!hasSeenHowToPlaceBuildings) return;
+        BuildingController.anyBuildingPositionChanged -= ShowActions;
+
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        GameObject topRightButtons = GetCanvasGameObject().transform.Find("TopRightButtons").gameObject;
+        topRightButtons.SetActive(true);
+        topRightButtons.transform.Find("settingsButton").gameObject.SetActive(false);
+        topRightButtons.transform.Find("ShowTotalMaterials").gameObject.SetActive(false);
+        text.GetComponentInChildren<TMP_Text>().text = "Click the top right arrow to open the actions menu.\nFrom there you can select different actions to perform.";
+
+        void onActionButtonClick() {
+            Destroy(text);
+            ShowWhatActionsDo();
+            topRightButtons.transform.Find("ActionButtons").Find("CloseMenuButton").GetComponent<Button>().onClick.RemoveListener(onActionButtonClick);
+        }
+
+        topRightButtons.transform.Find("ActionButtons").Find("CloseMenuButton").GetComponent<Button>().onClick.AddListener(onActionButtonClick);
+    }
+
+    public void ShowWhatActionsDo() {
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        text.GetComponentInChildren<TMP_Text>().text = "The Actions you can do are:\n-Place\n-Pick Up\n-Delete\nTry one of them on the building you just placed!";
+
+        void onBuildingPlaced() {
+            Destroy(text);
+            BuildingController.anyBuildingPositionChanged -= onBuildingPlaced;
+            ShowHowToInteractWithBuildings();
+        }
+
+        BuildingController.anyBuildingPositionChanged += onBuildingPlaced;
+    }
+
+    public void ShowHowToInteractWithBuildings() {
+        BuildingController.anyBuildingPositionChanged -= ShowHowToInteractWithBuildings;
+        CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetGreenhousePosition() + new Vector3Int(3, 3, 0)), 1f);
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        text.GetComponentInChildren<TMP_Text>().text = "Some buildings can be interacted with.\nRight Click on the Greenhouse to see what you can do with it!";
+    }
+
 }

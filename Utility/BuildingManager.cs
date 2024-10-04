@@ -53,8 +53,8 @@ namespace Utility {
         public static (bool, string) BuildingCanBePlacedAtPosition(Vector3Int position, Building building) {
             // Debug.Log(BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0)));
             if (building.CurrentBuildingState == Building.BuildingState.PLACED) return (false, "Building has already been placed");
-            HashSet<Vector3Int> unavailableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorUnavailableCoordinates.ToHashSet() : BuildingController.GetUnavailableCoordinates();
-            HashSet<Vector3Int> plantableCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorPlantableCoordinates.ToHashSet() : BuildingController.GetPlantableCoordinates();
+            HashSet<Vector3Int> unavailableCoordinates = InvalidTilesManager.Instance.AllInvalidTiles;
+            HashSet<Vector3Int> plantableCoordinates = InvalidTilesManager.Instance.AllPlantableTiles;
 
 
             List<Vector3Int> baseCoordinates = GetRectAreaFromPoint(position, building.BaseHeight, building.Width);
@@ -92,8 +92,9 @@ namespace Utility {
         }
 
         private static bool CoordinateIsWithinBounds(Vector3Int coordinate, IEnumerable<Vector3Int> bounds) {
-            bool isWithinX = coordinate.x >= bounds.Min(coord => coord.x) && coordinate.x <= bounds.Max(coord => coord.x);
-            bool isWithinY = coordinate.y >= bounds.Min(coord => coord.y) && coordinate.y <= bounds.Max(coord => coord.y);
+            bool isWithinX = bounds.Any(coord => coord.x <= coordinate.x && coord.y == coordinate.y) && bounds.Any(coord => coord.x >= coordinate.x && coord.y == coordinate.y);
+            bool isWithinY = bounds.Any(coord => coord.y <= coordinate.y && coord.x == coordinate.x) && bounds.Any(coord => coord.y >= coordinate.y && coord.x == coordinate.x);
+
             return isWithinX && isWithinY;
         }
 

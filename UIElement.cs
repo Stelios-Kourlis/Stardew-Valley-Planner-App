@@ -34,7 +34,7 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
             }
         }
 
-        if (ExpandOnHover) StartCoroutine(UIObjectMover.ScaleObjectInConstantTime(transform, GetComponent<RectTransform>().localScale, originalScale + transformScaleChange, 0.1f));
+        if (ExpandOnHover) StartCoroutine(ObjectMover.ScaleUIObjectInConstantTime(transform, GetComponent<RectTransform>().localScale, originalScale + transformScaleChange, 0.1f));
 
         if (!playSounds) return;
 
@@ -52,7 +52,7 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
         }
 
 
-        if (ExpandOnHover) StartCoroutine(UIObjectMover.ScaleObjectInConstantTime(transform, GetComponent<RectTransform>().localScale, originalScale, 0.1f));
+        if (ExpandOnHover) StartCoroutine(ObjectMover.ScaleUIObjectInConstantTime(transform, GetComponent<RectTransform>().localScale, originalScale, 0.1f));
     }
 
     public override void OnUpdate() { }

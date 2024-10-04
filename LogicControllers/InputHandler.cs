@@ -77,12 +77,12 @@ public class InputHandler : MonoBehaviour {
         if (KeybindsForActionArePressed(KeybindHandler.Action.Redo)) UndoRedoController.RedoLastUndo();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUnavailableTiles)) {
-            MapController.ToggleMapUnavailableCoordinates();
+            InvalidTilesManager.Instance.ToggleMapUnavailableCoordinates();
             NotificationManager.Instance.SendNotification("Toggled unavailable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.TogglePlantableTiles)) {
-            MapController.ToggleMapPlantableCoordinates();
+            InvalidTilesManager.Instance.ToggleMapPlantableCoordinates();
             NotificationManager.Instance.SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 

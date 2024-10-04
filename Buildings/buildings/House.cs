@@ -17,7 +17,6 @@ public class House : Building {
     public HashSet<ButtonTypes> BuildingInteractions => gameObject.GetComponent<InteractableBuildingComponent>().BuildingInteractions;
 
     public GameObject ButtonParentGameObject => gameObject.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
-    // private MarriageCandidate? spouse = null;//todo implement marriage
 
     public override void OnAwake() {
         BaseHeight = 6;

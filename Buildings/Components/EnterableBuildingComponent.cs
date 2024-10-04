@@ -16,15 +16,16 @@ using Newtonsoft.Json.Linq;
 using static BuildingData;
 using static FlooringComponent;
 using static WallsComponent;
-using System.Collections.ObjectModel;
+using UnityEngine.WSA;
 
 [RequireComponent(typeof(Building))]
 public class EnterableBuildingComponent : BuildingComponent {
     public GameObject BuildingInterior { get; private set; }
     public Sprite interriorSprite;
     public Vector3Int[] InteriorAreaCoordinates { get; private set; }
-    public HashSet<Vector3Int> InteriorUnavailableCoordinates { get; private set; }
-    public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
+    public SpecialCoordinatesCollection InteriorSpecialTiles { get; private set; }
+    // public HashSet<Vector3Int> InteriorUnavailableCoordinates { get; private set; }
+    // public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
     public static Action EnteredOrExitedBuilding { get; set; }
     public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
     public GameObject InteriorButtonsParent { get; private set; }
@@ -58,26 +59,32 @@ public class EnterableBuildingComponent : BuildingComponent {
         Building.BuildingPlaced += _ => AddBuildingInterior();
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
+
+        InteriorSpecialTiles = new SpecialCoordinatesCollection();
     }
 
-    public void AddToInteriorUnavailableCoordinates(Vector3Int coordinate) {
-        InteriorUnavailableCoordinates.Add(coordinate);
-        MapController.UpdateAllCoordinates();
+    public void OnDestroy() {
+        if (BuildingInteriorScene.name != null) SceneManager.UnloadSceneAsync(BuildingInteriorScene);
     }
 
-    public void AddToInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates) {
-        foreach (Vector3Int coordinate in coordinates) InteriorUnavailableCoordinates.Add(coordinate);
-        MapController.UpdateAllCoordinates();
+    // public void AddToInteriorUnavailableCoordinates(Vector3Int coordinate) {
+    //     InteriorUnavailableCoordinates.Add(coordinate);
+    //     InvalidTilesManager.Instance.UpdateAllCoordinates();
+    // }
+
+    public void AddToInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates, string identifier) {
+        InteriorSpecialTiles.AddSpecialTileSet(new(identifier, coordinates.ToHashSet(), TileType.Invalid));
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
-    public void RemoveFromInteriorUnavailableCoordinates(Vector3Int coordinate) {
-        InteriorUnavailableCoordinates.Remove(coordinate);
-        MapController.UpdateAllCoordinates();
-    }
+    // public void RemoveFromInteriorUnavailableCoordinates(Vector3Int coordinate) {
+    //     InteriorUnavailableCoordinates.Remove(coordinate);
+    //     InvalidTilesManager.Instance.UpdateAllCoordinates();
+    // }
 
-    public void RemoveFromInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates) {
-        foreach (Vector3Int coordinate in coordinates) InteriorUnavailableCoordinates.Remove(coordinate);
-        MapController.UpdateAllCoordinates();
+    public void RemoveFromInteriorUnavailableCoordinates(string identifier) {
+        InteriorSpecialTiles.RemoveSpecialTileSet(identifier);
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
     public void AddBuildingInterior() {
@@ -176,7 +183,7 @@ public class EnterableBuildingComponent : BuildingComponent {
                         break;
                     case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
                         button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();
+                            // Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();//todo remove comment
                         });
                         break;
                     default:
@@ -196,8 +203,10 @@ public class EnterableBuildingComponent : BuildingComponent {
         SceneManager.MoveGameObjectToScene(canvas, BuildingInteriorScene);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
-        InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
-        InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
+        var invalidCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Invalid).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
+        var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
 
         // Debug.Log("added interior");
     }
@@ -223,9 +232,11 @@ public class EnterableBuildingComponent : BuildingComponent {
         if (floorsValues != null) gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
-        InteriorUnavailableCoordinates = GetInsideUnavailableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
-        InteriorPlantableCoordinates = GetInsidePlantableCoordinates(BuildingName).Select(coordinate => coordinate + InteriorAreaCoordinates[0]).ToHashSet();
-        MapController.UpdateAllCoordinates();
+        var invalidCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Invalid).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
+        var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
     public void ToggleEditBuildingInterior() {
@@ -314,6 +325,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         ComponentData data = new(typeof(EnterableBuildingComponent), new());
         int index = 0;
         foreach (Transform building in BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0)) {
+            if (building.GetComponent<Building>() == null) continue;
             if (building.GetComponent<Building>().CurrentBuildingState != Building.BuildingState.PLACED) continue; //only save placed buildings
             JProperty jproperty = new(index.ToString(), building.GetComponent<BuildingSaverLoader>().SaveBuilding().ToJson());
             data.AddProperty(jproperty);

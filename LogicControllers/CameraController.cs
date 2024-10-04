@@ -8,6 +8,8 @@ using UnityEngine.UI;
 using Utility;
 
 public class CameraController : MonoBehaviour {
+
+    public static CameraController Instance { get; private set; }
     private Camera mainCamera;
     private Tilemap mapTilemap;
     private Slider scrollScaleSlider;
@@ -21,6 +23,8 @@ public class CameraController : MonoBehaviour {
     public float blurMultiplier;
 
     void Start() {
+        Instance = this;
+
         isMouseDown = false;
         mainCamera = gameObject.GetComponent<Camera>();
         oldMousePosition = Input.mousePosition;
@@ -133,11 +137,18 @@ public class CameraController : MonoBehaviour {
         mainCamera.transform.position = new Vector3(position.x, position.y, -10);
     }
 
+    public void SetPositionSmooth(Vector3 position, float totalTime) {
+        position.z = -10;
+        StartCoroutine(ObjectMover.MoveWorldObjectInConstantTime(transform, transform.position, position, totalTime));
+    }
+
     public void SetSize(float size) {
         mainCamera.orthographicSize = size;
     }
 
     public Vector3 GetPosition() { return mainCamera.transform.position; }
+
+    public float GetZoom() { return mainCamera.orthographicSize; }
 
     public void TakePictureOfMap() {
         TilemapManager.TakePictureOfMap();

@@ -28,7 +28,7 @@ public class FoldingMenuGroup : MonoBehaviour {
         for (int childIndex = 0; childIndex < transform.childCount; childIndex++) {
             if (transform.GetChild(childIndex).GetComponent<FoldingMenuItem>().isAnchorButton) continue;
             Vector3 endPosition = startPosition - new Vector3((buttonWidth + 10) * menuItems.IndexOf(transform.GetChild(childIndex).GetComponent<FoldingMenuItem>()), 0, 0);
-            StartCoroutine(UIObjectMover.MoveObjectInConstantTime(transform.GetChild(childIndex).transform, startPosition, endPosition, 0.5f));
+            StartCoroutine(ObjectMover.MoveUIObjectInConstantTime(transform.GetChild(childIndex).transform, startPosition, endPosition, 0.5f));
         }
         isOpen = true;
     }
@@ -38,7 +38,7 @@ public class FoldingMenuGroup : MonoBehaviour {
         for (int childIndex = 0; childIndex < transform.childCount; childIndex++) {
             if (transform.GetChild(childIndex).GetComponent<FoldingMenuItem>().isAnchorButton) continue;
             Vector3 startPosition = transform.GetChild(childIndex).GetComponent<RectTransform>().localPosition;
-            StartCoroutine(UIObjectMover.MoveObjectInConstantTime(transform.GetChild(childIndex).transform, startPosition, endPosition, 0.5f));
+            StartCoroutine(ObjectMover.MoveUIObjectInConstantTime(transform.GetChild(childIndex).transform, startPosition, endPosition, 0.5f));
         }
         isOpen = false;
     }

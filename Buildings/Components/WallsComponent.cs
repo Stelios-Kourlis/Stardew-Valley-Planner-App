@@ -7,6 +7,8 @@ using UnityEngine.U2D;
 using static Utility.SpriteManager;
 using static Utility.TilemapManager;
 using System.Linq;
+using static BuildingData;
+using Newtonsoft.Json.Linq;
 
 public class WallsComponent : BuildingComponent {
 
@@ -25,6 +27,8 @@ public class WallsComponent : BuildingComponent {
     }
 
     private class Wall {
+
+        public int Width => strips.Count;
 
         private List<WallStrip> strips;
         public int wallpaperId;
@@ -111,12 +115,19 @@ public class WallsComponent : BuildingComponent {
         return Wall.GetSpriteFromWallpaperID(wallpaperId);
     }
 
-    private void CreateWall(WallOrigin origin) {
+    public void CreateWall(WallOrigin origin) {
         Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId);
-        if (walls.Any(wall => wall.GetAllWallCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
+        if (walls.Any(wall => wall.GetAllWallCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any())) throw new Exception($"Walls overlap trigger: {origin.lowerLeftCorner}");
         walls.Add(wall);
         wallPaperTilemap.CompressBounds();
         // Debug.Log($"Created wall at {lowerLeftWallCorner} with width {widthTiles} in {gameObject.transform.parent.name}");
+    }
+
+    public void RemoveWall(Vector3Int point) {
+        Wall wall = GetWallFromPoint(point);
+        if (wall == null) return;
+        walls.Remove(wall);
+        foreach (Vector3Int cordinate in wall.GetAllWallCordinates()) wallPaperTilemap.SetTile(cordinate, null);
     }
 
     public void ApplyCurrentWallpaper(Vector3Int point) {
@@ -145,11 +156,44 @@ public class WallsComponent : BuildingComponent {
         return walls.FirstOrDefault(wall => wall.WallContains(point));
     }
 
-    public override void Load(BuildingData.ComponentData data) {
-        throw new System.NotImplementedException();
+    public override void Load(ComponentData data) {
+        for (int i = 0; i < walls.Count; i++) {
+            RemoveWall(walls[i].GetAllWallCordinates().First());
+        }
+
+        foreach (var property in data.componentData) {
+            JObject buildingData = (JObject)property.Value;
+            Vector3Int lowerLeftCorner = new(
+                buildingData["Origin"][0].Value<int>(),
+                buildingData["Origin"][1].Value<int>(),
+                0
+            );
+            int width = buildingData["Width"].Value<int>();
+            int wallpaperId = buildingData["WallpaperId"].Value<int>();
+
+            WallOrigin origin = new(lowerLeftCorner, width, wallpaperId);
+            CreateWall(origin);
+        }
     }
 
-    public override BuildingData.ComponentData Save() {
-        throw new System.NotImplementedException();
+    public override ComponentData Save() {
+        ComponentData data = new(typeof(WallsComponent), new());
+        int index = 0;
+
+        foreach (Wall wall in walls) {
+            WallOrigin origin = new(wall.GetAllWallCordinates().First(), wall.Width, wall.wallpaperId);
+            JProperty wallProperty = new(index.ToString(),
+                new JObject(
+                    new JProperty("Origin", new JArray(origin.lowerLeftCorner.x, origin.lowerLeftCorner.y)),
+                    new JProperty("Width", origin.width),
+                    new JProperty("WallpaperId", origin.wallpaperId)
+                )
+            );
+
+            data.componentData.Add(wallProperty);
+            index++;
+        }
+
+        return data;
     }
 }
