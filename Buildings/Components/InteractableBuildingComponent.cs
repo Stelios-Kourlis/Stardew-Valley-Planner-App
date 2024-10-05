@@ -12,6 +12,7 @@ public class InteractableBuildingComponent : BuildingComponent {
     [field: SerializeField] public HashSet<ButtonTypes> BuildingInteractions { get; set; }
     public GameObject ButtonParentGameObject { get; private set; } = null;
     public Action ButtonsCreated;
+    public static Action BuildingWasRightClicked { get; set; }
     bool wereButtonOpenOnBuildingPickup = false;
 
     public void Awake() {
@@ -72,6 +73,7 @@ public class InteractableBuildingComponent : BuildingComponent {
 
     public void OnMouseRightClick() {
         if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+        BuildingWasRightClicked?.Invoke();
     }
 
     public override BuildingData.ComponentData Save() {

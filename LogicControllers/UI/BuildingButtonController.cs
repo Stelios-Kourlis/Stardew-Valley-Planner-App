@@ -19,6 +19,7 @@ public class BuildingButtonController : MonoBehaviour {
     public static BuildingButtonController Instance { get; private set; }
     [field: SerializeField] public SpriteAtlas ButtonTypesAtlas { get; private set; }
     [SerializeField] private GameObject buttonPrefab;
+    public static Action anyActionWasClicked;
 
     void Awake() {
         if (Instance == null) Instance = this;
@@ -89,21 +90,25 @@ public class BuildingButtonController : MonoBehaviour {
             case ButtonTypes.TIER_ONE:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent TieredBuildingComponent)) TieredBuildingComponent.SetTier(1);
+                    anyActionWasClicked?.Invoke();
                 });
                 break;
             case ButtonTypes.TIER_TWO:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent TieredBuildingComponent)) TieredBuildingComponent.SetTier(2);
+                    anyActionWasClicked?.Invoke();
                 });
                 break;
             case ButtonTypes.TIER_THREE:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent TieredBuildingComponent)) TieredBuildingComponent.SetTier(3);
+                    anyActionWasClicked?.Invoke();
                 });
                 break;
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out EnterableBuildingComponent enterableBuildingComponent)) enterableBuildingComponent.ToggleEditBuildingInterior();
+                    anyActionWasClicked?.Invoke();
                     // else NotificationManager.Instance.SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
                 });
                 break;
@@ -113,16 +118,19 @@ public class BuildingButtonController : MonoBehaviour {
             case ButtonTypes.PLACE_FISH:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out FishPondComponent fishPondComponent)) fishPondComponent.ToggleFishMenu();
+                    anyActionWasClicked?.Invoke();
                 });
                 break;
             case ButtonTypes.CHANGE_FISH_POND_DECO:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out FishPondComponent fishPondComponent)) fishPondComponent.CycleFishPondDeco();
+                    anyActionWasClicked?.Invoke();
                 });
                 break;
             case ButtonTypes.ADD_ANIMAL:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out AnimalHouseComponent animalHouseComponent)) animalHouseComponent.ToggleAnimalMenu();
+                    anyActionWasClicked?.Invoke();
                 });
                 break;
             default:

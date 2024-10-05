@@ -10,6 +10,7 @@ using static Utility.TilemapManager;
 public class OnboradingFlow : MonoBehaviour {
 
     [SerializeField] private GameObject tutorialText;
+    [SerializeField] private GameObject interactionLegend;
     public bool IsInTutorial { get; private set; }
 
     void Start() {
@@ -100,8 +101,6 @@ public class OnboradingFlow : MonoBehaviour {
     }
 
     public void ShowActions() {
-        // if (!IsInTutorial) return;
-        // if (!hasSeenHowToPlaceBuildings) return;
         BuildingController.anyBuildingPositionChanged -= ShowActions;
 
         GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
@@ -110,6 +109,7 @@ public class OnboradingFlow : MonoBehaviour {
         topRightButtons.transform.Find("settingsButton").gameObject.SetActive(false);
         topRightButtons.transform.Find("ShowTotalMaterials").gameObject.SetActive(false);
         text.GetComponentInChildren<TMP_Text>().text = "Click the top right arrow to open the actions menu.\nFrom there you can select different actions to perform.";
+        text.transform.GetChild(1).gameObject.SetActive(false);
 
         void onActionButtonClick() {
             Destroy(text);
@@ -123,6 +123,7 @@ public class OnboradingFlow : MonoBehaviour {
     public void ShowWhatActionsDo() {
         GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
         text.GetComponentInChildren<TMP_Text>().text = "The Actions you can do are:\n-Place\n-Pick Up\n-Delete\nTry one of them on the building you just placed!";
+        text.transform.GetChild(1).gameObject.SetActive(false);
 
         void onBuildingPlaced() {
             Destroy(text);
@@ -135,9 +136,59 @@ public class OnboradingFlow : MonoBehaviour {
 
     public void ShowHowToInteractWithBuildings() {
         BuildingController.anyBuildingPositionChanged -= ShowHowToInteractWithBuildings;
-        CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetGreenhousePosition() + new Vector3Int(3, 3, 0)), 1f);
+        CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetHousePosition() + new Vector3Int(4, 5, 0)), 1f);
         GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
-        text.GetComponentInChildren<TMP_Text>().text = "Some buildings can be interacted with.\nRight Click on the Greenhouse to see what you can do with it!";
+        text.GetComponentInChildren<TMP_Text>().text = "Some buildings can be interacted with.\nRight Click on the House to see what you can do with it!";
+
+        void onBuildingRightClick() {
+            Destroy(text);
+            InteractableBuildingComponent.BuildingWasRightClicked -= onBuildingRightClick;
+            ShowWhatInteractionsDo();
+        }
+
+        InteractableBuildingComponent.BuildingWasRightClicked += onBuildingRightClick;
+    }
+
+    public void ShowWhatInteractionsDo() {
+        GameObject legend = Instantiate(interactionLegend, GameObject.FindGameObjectWithTag("Canvas").transform);
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        text.GetComponentInChildren<TMP_Text>().text = "These are the all available interactions, different buildings have different interactions.";
+        text.transform.GetChild(1).gameObject.SetActive(false);
+
+        void onBuildingInteraction() {
+            Destroy(text);
+            Destroy(legend);
+            BuildingButtonController.anyActionWasClicked -= onBuildingInteraction;
+            ShowSettingsAndTotalMaterialCost();
+        }
+        BuildingButtonController.anyActionWasClicked += onBuildingInteraction;
+    }
+
+    public void ShowSettingsAndTotalMaterialCost() {
+        GameObject topRightButtons = GetCanvasGameObject().transform.Find("TopRightButtons").gameObject;
+        topRightButtons.transform.Find("settingsButton").gameObject.SetActive(true);
+        topRightButtons.transform.Find("ShowTotalMaterials").gameObject.SetActive(true);
+
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        text.GetComponentInChildren<TMP_Text>().text = "Lastly you can open the settings or see the total cost of your farm by pressing the buttons on the top right corner.";
+        text.GetComponentInChildren<Button>().onClick.AddListener(() => {
+            Destroy(text);
+            EndOnboardingFlow();
+        });
+    }
+
+    public void EndOnboardingFlow() {
+        GameObject topRightButtons = GetCanvasGameObject().transform.Find("TopRightButtons").gameObject;
+        topRightButtons.SetActive(true);
+        topRightButtons.transform.Find("settingsButton").gameObject.SetActive(true);
+        topRightButtons.transform.Find("ShowTotalMaterials").gameObject.SetActive(true);
+        GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").gameObject.SetActive(true);
+
+        GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
+        text.GetComponentInChildren<TMP_Text>().text = "That's all! Start building and experimenting with your farm! You can always redo the tutorial through the settings.";
+        text.GetComponentInChildren<Button>().onClick.AddListener(() => {
+            Destroy(text);
+        });
     }
 
 }
