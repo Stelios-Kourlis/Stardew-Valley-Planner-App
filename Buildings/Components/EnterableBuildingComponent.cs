@@ -204,9 +204,9 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         var invalidCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Invalid).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
         var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
 
         // Debug.Log("added interior");
     }
@@ -233,9 +233,9 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
         var invalidCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Invalid).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
         var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateSet($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
+        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 

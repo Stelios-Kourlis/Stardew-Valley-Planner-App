@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,82 +12,63 @@ public enum TileType {
     Neutral,
 }
 
-public class SpecialCoordinateSet : IEnumerable<Vector3Int>, ICollection<Vector3Int> {
+public class SpecialCoordinateRect {
     public readonly string identifier;
-    public HashSet<Vector3Int> tiles;
-    public readonly TileType type;
+    private readonly TileType[,] tiles;
+    public Vector3Int offset = Vector3Int.zero;
+    public int Width => tiles.GetLength(1);
+    public int Height => tiles.GetLength(0);
 
-    public int Count => tiles.Count;
-
-    public bool IsReadOnly => false;
-
-    public SpecialCoordinateSet(string identifier, IEnumerable<Vector3Int> tiles, TileType type) {
+    public SpecialCoordinateRect(string identifier, TileType[,] tiles) {
         this.identifier = identifier;
-        this.tiles = tiles.ToHashSet();
-        this.type = type;
+        this.tiles = tiles;
     }
 
-    public SpecialCoordinateSet(string identifier, TileType type) {
+    public SpecialCoordinateRect(string identifier, TileType[,] tiles, Vector3Int offset) {
         this.identifier = identifier;
-        tiles = new HashSet<Vector3Int>();
-        this.type = type;
+        this.tiles = tiles;
+        this.offset = offset;
     }
 
-    public SpecialCoordinateSet(string identifier, Vector3Int tiles, TileType type) {
-        this.identifier = identifier;
-        this.tiles = new HashSet<Vector3Int> { tiles };
-        this.type = type;
+    public HashSet<Vector3Int> ToHashSet() {
+        HashSet<Vector3Int> coordinates = new();
+        for (int y = 0; y < Height; y++) {
+            for (int x = 0; x < Width; x++) {
+                coordinates.Add(new Vector3Int(x + offset.x, y + offset.y, 0));
+            }
+        }
+        return coordinates;
     }
 
-    public void AddTiles(IEnumerable<Vector3Int> tiles) {
-        this.tiles.UnionWith(tiles);
-    }
-
-    public IEnumerator<Vector3Int> GetEnumerator() {
-        return tiles.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() {
-        return GetEnumerator();
-    }
-
-    public void Add(Vector3Int item) {
-        tiles.Add(item);
-    }
-
-    public void Clear() {
-        tiles.Clear();
-    }
-
-    public bool Contains(Vector3Int item) {
-        return tiles.Contains(item);
-    }
-
-    public void CopyTo(Vector3Int[] array, int arrayIndex) {
-        throw new System.NotImplementedException();
-    }
-
-    public bool Remove(Vector3Int item) {
-        return tiles.Remove(item);
+    public HashSet<Vector3Int> ToHashSet(TileType type) {
+        HashSet<Vector3Int> coordinates = new();
+        for (int y = 0; y < Height; y++) {
+            for (int x = 0; x < Width; x++) {
+                if (tiles[x, y] == type) coordinates.Add(new Vector3Int(x + offset.x, y + offset.y, 0));
+            }
+        }
+        return coordinates;
     }
 }
 
 public class SpecialCoordinatesCollection {
-    private readonly List<SpecialCoordinateSet> specialTileSets = new();
+    private readonly List<SpecialCoordinateRect> specialTileSets = new();
 
     public HashSet<Vector3Int> GetTilesOfType(TileType type) {
         HashSet<Vector3Int> tiles = new();
-        foreach (SpecialCoordinateSet specialTileSet in specialTileSets) {
-            if (specialTileSet.type == type) tiles.UnionWith(specialTileSet.tiles);
+        HashSet<Vector3Int> invalidList = new();
+        foreach (SpecialCoordinateRect specialTileSet in specialTileSets.Reverse<SpecialCoordinateRect>()) {
+            HashSet<Vector3Int> specialTiles = specialTileSet.ToHashSet(type);
+            foreach (Vector3Int tile in specialTiles) {
+                if (tiles.Contains(tile)) invalidList.Add(tile);
+                else if (!invalidList.Contains(tile)) tiles.Add(tile);
+            }
         }
         return tiles;
     }
 
-    public void AddSpecialTileSet(SpecialCoordinateSet specialTileSet) {
-        if (specialTileSets.Any(specialTile => specialTile.identifier == specialTileSet.identifier))
-            specialTileSets.First(specialTile => specialTile.identifier == specialTileSet.identifier).AddTiles(specialTileSet.tiles);
-
-        else specialTileSets.Add(specialTileSet);
+    public void AddSpecialTileSet(SpecialCoordinateRect specialTileSet) {
+        specialTileSets.Add(specialTileSet);
 
     }
 
@@ -100,8 +82,13 @@ public class SpecialCoordinatesCollection {
 
     public HashSet<Vector3Int> GetAllCoordinates() {
         HashSet<Vector3Int> allCoordinates = new();
-        foreach (SpecialCoordinateSet specialTileSet in specialTileSets) {
-            allCoordinates.UnionWith(specialTileSet.tiles);
+        HashSet<Vector3Int> invalidList = new();
+        foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
+            HashSet<Vector3Int> specialTiles = specialTileSet.ToHashSet();
+            foreach (Vector3Int tile in specialTiles) {
+                if (allCoordinates.Contains(tile)) invalidList.Add(tile);
+                else if (!invalidList.Contains(tile)) allCoordinates.Add(tile);
+            }
         }
         return allCoordinates;
     }
