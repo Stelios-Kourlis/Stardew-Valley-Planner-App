@@ -10,6 +10,7 @@ using UnityEngine.U2D;
 using System.IO;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using static Utility.InvalidTileLoader;
 
 public class MapController : MonoBehaviour {
     public enum MapTypes {
@@ -53,8 +54,8 @@ public class MapController : MonoBehaviour {
         redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
         redTile.sprite = redTileSprite;
 
-        redTile = LoadTile("RedTile");
-        greenTile = LoadTile("GreenTile");
+        redTile = LoadTile(Utility.Tiles.Red);
+        greenTile = LoadTile(Utility.Tiles.Green);
 
         tileMode = TileMode.nothing;
 
@@ -114,14 +115,29 @@ public class MapController : MonoBehaviour {
 
         Vector3Int[] spriteArrayCoordinates = GetRectAreaFromPoint(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
-        TileBuildingData dataScript = map.AddComponent(typeof(TileBuildingData)) as TileBuildingData;
-        dataScript.AddInvalidTilesData(mapType);
-        dataScript.AddPlantableTilesData(mapType);
+        SpecialCoordinateRect specialCoordinates = GetSpecialCoordinateSet(map.name);
+        BuildingController.specialCoordinates.ClearAll();
+
+
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
         mapTilemap.ClearAllTiles();
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
+        mapTilemap.CompressBounds();
         if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(out _, out _, out _);
-        // GetCamera().GetComponent<CameraController>().UpdateCameraBounds();
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
+
+        BoundsInt bounds = mapTilemap.cellBounds;
+        Vector3Int lowerLeft = new(int.MaxValue, int.MaxValue, 0);
+        foreach (var pos in bounds.allPositionsWithin) {
+            if (mapTilemap.HasTile(pos)) {
+                if (pos.x < lowerLeft.x || (pos.x == lowerLeft.x && pos.y < lowerLeft.y)) {
+                    lowerLeft = pos;
+                }
+            }
+        }
+
+        specialCoordinates.AddOffset(lowerLeft);
+        BuildingController.specialCoordinates.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
         GameObject grid = new("Grid");

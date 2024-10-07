@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static Utility.TilemapManager;
+using static Utility.SpriteManager;
 
 public enum TileType {
     Invalid,
@@ -12,41 +14,42 @@ public enum TileType {
     Neutral,
 }
 
+public class SpecialCoordinate {
+    public Vector3Int position;
+    public TileType type;
+
+    public SpecialCoordinate(Vector3Int position, TileType type) {
+        this.position = position;
+        this.type = type;
+    }
+}
+
 public class SpecialCoordinateRect {
     public readonly string identifier;
-    private readonly TileType[,] tiles;
-    public Vector3Int offset = Vector3Int.zero;
-    public int Width => tiles.GetLength(1);
-    public int Height => tiles.GetLength(0);
+    HashSet<SpecialCoordinate> specialCoordinates;
 
-    public SpecialCoordinateRect(string identifier, TileType[,] tiles) {
+    public SpecialCoordinateRect(string identifier, HashSet<SpecialCoordinate> specialCoordinates) {
         this.identifier = identifier;
-        this.tiles = tiles;
+        this.specialCoordinates = specialCoordinates;
     }
 
-    public SpecialCoordinateRect(string identifier, TileType[,] tiles, Vector3Int offset) {
+    public SpecialCoordinateRect(string identifier, HashSet<Vector3Int> coordinates, TileType type) {
         this.identifier = identifier;
-        this.tiles = tiles;
-        this.offset = offset;
+        specialCoordinates = new HashSet<SpecialCoordinate>();
+        foreach (Vector3Int specialCoordinate in coordinates) specialCoordinates.Add(new SpecialCoordinate(specialCoordinate, type));
     }
 
-    public HashSet<Vector3Int> ToHashSet() {
-        HashSet<Vector3Int> coordinates = new();
-        for (int y = 0; y < Height; y++) {
-            for (int x = 0; x < Width; x++) {
-                coordinates.Add(new Vector3Int(x + offset.x, y + offset.y, 0));
-            }
-        }
-        return coordinates;
+    public HashSet<SpecialCoordinate> GetSpecialCoordinates() {
+        return specialCoordinates;
     }
 
-    public HashSet<Vector3Int> ToHashSet(TileType type) {
-        HashSet<Vector3Int> coordinates = new();
-        for (int y = 0; y < Height; y++) {
-            for (int x = 0; x < Width; x++) {
-                if (tiles[x, y] == type) coordinates.Add(new Vector3Int(x + offset.x, y + offset.y, 0));
-            }
-        }
+    public void AddOffset(Vector3Int offset) {
+        foreach (SpecialCoordinate specialCoordinate in specialCoordinates) specialCoordinate.position += offset;
+    }
+
+    public HashSet<SpecialCoordinate> GetSpecialCoordinates(TileType type) {
+        HashSet<SpecialCoordinate> coordinates = new();
+        foreach (SpecialCoordinate specialCoordinate in specialCoordinates) if (specialCoordinate.type == type) coordinates.Add(specialCoordinate);
         return coordinates;
     }
 }
@@ -54,43 +57,37 @@ public class SpecialCoordinateRect {
 public class SpecialCoordinatesCollection {
     private readonly List<SpecialCoordinateRect> specialTileSets = new();
 
-    public HashSet<Vector3Int> GetTilesOfType(TileType type) {
+    public HashSet<Vector3Int> GetAllCoordinatesOfType(TileType type) {
         HashSet<Vector3Int> tiles = new();
         HashSet<Vector3Int> invalidList = new();
         foreach (SpecialCoordinateRect specialTileSet in specialTileSets.Reverse<SpecialCoordinateRect>()) {
-            HashSet<Vector3Int> specialTiles = specialTileSet.ToHashSet(type);
-            foreach (Vector3Int tile in specialTiles) {
-                if (tiles.Contains(tile)) invalidList.Add(tile);
-                else if (!invalidList.Contains(tile)) tiles.Add(tile);
-            }
+            var allCoords = specialTileSet.GetSpecialCoordinates();
+            var coordsOfCorrentType = specialTileSet.GetSpecialCoordinates(type);
+
+            foreach (SpecialCoordinate specialCoordinate in coordsOfCorrentType) tiles.Add(specialCoordinate.position);
+            foreach (SpecialCoordinate specialCoordinate in allCoords) invalidList.Add(specialCoordinate.position);
         }
         return tiles;
     }
 
     public void AddSpecialTileSet(SpecialCoordinateRect specialTileSet) {
+        if (specialTileSet.GetSpecialCoordinates().Count == 0) throw new Exception($"Tried to add tileset with no tiles");
         specialTileSets.Add(specialTileSet);
-
     }
 
     public void RemoveSpecialTileSet(string identifier) {
+        if (specialTileSets.Any(specialTileSet => specialTileSet.identifier == identifier)) Debug.Log($"Removed {identifier}");
+        Debug.Log(specialTileSets.Count);
         specialTileSets.RemoveAll(specialTileSet => specialTileSet.identifier == identifier);
+        Debug.Log(specialTileSets.Count);
     }
 
     public void ClearAll() {
         specialTileSets.Clear();
     }
 
-    public HashSet<Vector3Int> GetAllCoordinates() {
-        HashSet<Vector3Int> allCoordinates = new();
-        HashSet<Vector3Int> invalidList = new();
-        foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
-            HashSet<Vector3Int> specialTiles = specialTileSet.ToHashSet();
-            foreach (Vector3Int tile in specialTiles) {
-                if (allCoordinates.Contains(tile)) invalidList.Add(tile);
-                else if (!invalidList.Contains(tile)) allCoordinates.Add(tile);
-            }
-        }
-        return allCoordinates;
+    public int Count() {
+        return specialTileSets.Count;
     }
 
 }
@@ -104,14 +101,16 @@ public class InvalidTilesManager : MonoBehaviour {
     public static InvalidTilesManager Instance { get; private set; }
     public HashSet<Vector3Int> AllInvalidTiles {
         get {
-            if (BuildingController.isInsideBuilding.Key) return BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetTilesOfType(TileType.Invalid);
-            else return BuildingController.specialCoordinates.GetTilesOfType(TileType.Invalid);
+            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Invalid) : BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Invalid);
+            // if (BuildingController.isInsideBuilding.Key) return BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Invalid);
+            // else return BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Invalid);
         }
     }
     public HashSet<Vector3Int> AllPlantableTiles {
         get {
-            if (BuildingController.isInsideBuilding.Key) return BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetTilesOfType(TileType.Plantable);
-            else return BuildingController.specialCoordinates.GetTilesOfType(TileType.Plantable);
+            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable) : BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
+            // if (BuildingController.isInsideBuilding.Key) return BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable);
+            // else return BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
         }
     }
 
@@ -123,28 +122,25 @@ public class InvalidTilesManager : MonoBehaviour {
         BuildingController.anyBuildingPositionChanged += UpdateAllCoordinates;
     }
     public void ToggleMapUnavailableCoordinates() {
-        // if (BuildingController.isInsideBuilding.Key) { ToggleMapUnavailableCoordinatesForBuildingInside(); return; }
-        SpecialCoordinatesCollection currentCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles : BuildingController.specialCoordinates;
         Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
         unavailableCoordinatesTilemap.ClearAllTiles();
         if (unavailableCoordinatesAreVisible) {
-            foreach (Vector3Int coordinate in currentCoordinates.GetTilesOfType(TileType.Invalid)) unavailableCoordinatesTilemap.SetTile(coordinate, null);
+            foreach (Vector3Int coordinate in AllInvalidTiles) unavailableCoordinatesTilemap.SetTile(coordinate, null);
         }
         else {
-            foreach (Vector3Int coordinate in currentCoordinates.GetTilesOfType(TileType.Invalid)) unavailableCoordinatesTilemap.SetTile(coordinate, redTileSprite);
+            foreach (Vector3Int coordinate in AllInvalidTiles) GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>().SetTile(coordinate, redTileSprite);
         }
         unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
     }
 
     public void ToggleMapPlantableCoordinates() {
-        SpecialCoordinatesCollection currentCoordinates = BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles : BuildingController.specialCoordinates;
         Tilemap plantableCoordinatesTilemap = GameObject.FindWithTag("PlantableTilemap").GetComponent<Tilemap>();
         plantableCoordinatesTilemap.ClearAllTiles();
         if (plantableCoordinatesAreVisible) {
-            foreach (Vector3Int coordinate in currentCoordinates.GetTilesOfType(TileType.Plantable)) plantableCoordinatesTilemap.SetTile(coordinate, null);
+            foreach (Vector3Int coordinate in AllPlantableTiles) plantableCoordinatesTilemap.SetTile(coordinate, null);
         }
         else {
-            foreach (Vector3Int coordinate in currentCoordinates.GetTilesOfType(TileType.Plantable)) plantableCoordinatesTilemap.SetTile(coordinate, greenTileSprite);
+            foreach (Vector3Int coordinate in AllPlantableTiles) plantableCoordinatesTilemap.SetTile(coordinate, greenTileSprite);
         }
         plantableCoordinatesAreVisible = !plantableCoordinatesAreVisible;
     }

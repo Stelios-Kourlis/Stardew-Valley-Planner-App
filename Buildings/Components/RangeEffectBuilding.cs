@@ -20,7 +20,7 @@ public class RangeEffectBuilding {
         rangeEffectGameObject.transform.SetParent(Building.transform);
         rangeEffectGameObject.AddComponent<TilemapRenderer>().sortingOrder = building.TilemapRenderer.sortingOrder - 1;
         if (rangeEffectGameObject.GetComponent<Tilemap>() == null) rangeEffectGameObject.AddComponent<Tilemap>();
-        greenTile = LoadTile("GreenTile");
+        greenTile = LoadTile(Utility.Tiles.Green);
     }
 
     public void ShowEffectRange(Vector3Int[] rangeArea) {

@@ -118,7 +118,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         BuildingInteriorTilemap.CompressBounds();
 
         SpecialCoordinateRect spouseSpecialTileSet = GetSpecialCoordinateSet("SpouseRoom");
-        spouseSpecialTileSet.offset = spouseRoomOrigin - new Vector3Int(0, 1, 0);
+        spouseSpecialTileSet.AddOffset(spouseRoomOrigin - new Vector3Int(0, 1, 0));
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
 
         SetSpouse((int)spouse); //Refresh spouse room
@@ -139,7 +139,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseRoomTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoom));
 
         SpecialCoordinateRect spouseSpecialTileSet = GetSpecialCoordinateSet(spouse.ToString());
-        spouseSpecialTileSet.offset = spouseRoomOrigin;
+        spouseSpecialTileSet.AddOffset(spouseRoomOrigin);
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
     }
 
@@ -189,7 +189,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         if (isOn) {
             sprite = spriteAtlas.GetSprite(modificationName);
             SpecialCoordinateRect cornerRoomSpecialTileSet = GetSpecialCoordinateSet(modificationName);
-            cornerRoomSpecialTileSet.offset = origin;
+            cornerRoomSpecialTileSet.AddOffset(origin);
             GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(cornerRoomSpecialTileSet);
         }
         else {

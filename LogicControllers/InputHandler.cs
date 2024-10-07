@@ -110,6 +110,8 @@ public class InputHandler : MonoBehaviour {
         if (KeybindsForActionArePressed(KeybindHandler.Action.OpenBuildingMenu)) GameObject.Find("BuildingSelect").GetComponent<MoveablePanel>().TogglePanel();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.OpenTotalCost)) GameObject.Find("TotalMaterialsNeeded").GetComponent<MoveablePanel>().TogglePanel();
+
+        if (Input.GetKeyDown(KeyCode.F12)) DebugCoordinates.ToggleDebugMode();
     }
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action) {
@@ -228,7 +230,7 @@ public class InputHandler : MonoBehaviour {
                 mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                 Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects()[3].transform.Find("MassDeletePreview").GetComponent<Tilemap>();
                 massDeleteTilemap.ClearAllTiles();
-                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile("GreenTile"));
+                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile(Utility.Tiles.Red));
             }
         }
 

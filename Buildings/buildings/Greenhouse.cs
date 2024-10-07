@@ -32,7 +32,7 @@ public class Greenhouse : Building, IExtraActionBuilding {
     public void PerformExtraActionsOnPlace(Vector3Int position) {
         Vector3Int porchBottomRight = position + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
         Vector3Int[] porchCoordinates = GetRectAreaFromPoint(porchBottomRight, 2, 3).ToArray();
-        HashSet<Vector3Int> unavailableCoordinates = BuildingController.specialCoordinates.GetTilesOfType(TileType.Invalid);
+        HashSet<Vector3Int> unavailableCoordinates = BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Invalid);
         if (unavailableCoordinates.Intersect(porchCoordinates).Count() > 0) return;
         porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();

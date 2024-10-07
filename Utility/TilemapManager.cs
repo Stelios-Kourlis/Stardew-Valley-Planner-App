@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SFB;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
@@ -285,8 +286,38 @@ namespace Utility {
 
         public static Vector3Int GetMousePositionInTilemap() {
             Vector3Int pos = GetGridTilemap().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-            pos.z = 0; //for some reason it returned z as -10????
+            pos.z = 0;
             return pos;
+        }
+
+        [MenuItem("Assets/Create/Tile from Sprite")]
+        public static void CreateTileFromSprite() {
+            // Get selected sprite
+            Sprite selectedSprite = Selection.activeObject as Sprite;
+
+            if (selectedSprite == null) {
+                Debug.LogError("Please select a sprite to create a tile.");
+                return;
+            }
+
+            // Create a new Tile
+            Tile tile = ScriptableObject.CreateInstance<Tile>();
+
+            // Set the sprite of the tile
+            tile.sprite = selectedSprite;
+
+            // Create a path to save the tile asset
+            string path = EditorUtility.SaveFilePanelInProject("Save Tile", selectedSprite.name + "Tile", "asset", "Save tile as asset");
+
+            if (path == "") {
+                return; // User canceled the save
+            }
+
+            // Save the tile as an asset
+            AssetDatabase.CreateAsset(tile, path);
+            AssetDatabase.SaveAssets();
+
+            Debug.Log("Tile created successfully: " + path);
         }
 
     }

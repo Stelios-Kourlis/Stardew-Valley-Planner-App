@@ -12,18 +12,21 @@ namespace Utility {
 
         public static SpecialCoordinateRect GetSpecialCoordinateSet(string buildingName) {
             Texture2D image = Resources.Load<Texture2D>($"InvalidTiles/{buildingName}Special");
-            if (image == null) return new($"{buildingName}", new TileType[0, 0]);
+            if (image == null) {
+                Debug.LogError($"Could not find {buildingName}Special in Resources/InvalidTiles");
+                return new($"{buildingName}", new HashSet<SpecialCoordinate>());
+            }
 
             // SpecialCoordinateRect specialCoordinateSet = new($"{buildingName}{tileType}", tileType);
-            TileType[,] tiles = new TileType[image.height, image.width];
+            HashSet<SpecialCoordinate> tiles = new();
             for (int y = 0; y < image.height; y++) {
                 for (int x = 0; x < image.width; x++) {
                     Color pixelColor = image.GetPixel(x, y);
-                    if (pixelColor == INVALID_COLOR) tiles[y, x] = TileType.Invalid;
-                    else if (pixelColor == PLANTABLE_COLOR) tiles[y, x] = TileType.Plantable;
-                    else if (pixelColor == NEUTRAL_COLOR) tiles[y, x] = TileType.Neutral;
-                    else if (pixelColor == NEUTRAL_TREE_DISABLED_COLOR) tiles[y, x] = TileType.NeutralTreeDisabled;
-                    else throw new System.Exception($"Invalid color found in {buildingName}Special image");
+                    if (pixelColor == INVALID_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.Invalid));
+                    else if (pixelColor == PLANTABLE_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.Plantable));
+                    else if (pixelColor == NEUTRAL_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.Neutral));
+                    else if (pixelColor == NEUTRAL_TREE_DISABLED_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.NeutralTreeDisabled));
+                    else throw new System.Exception($"Invalid color found in {buildingName}Special image. Color {pixelColor} in {x},{y}");
                 }
             }
 

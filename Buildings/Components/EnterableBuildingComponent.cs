@@ -41,6 +41,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
     public EnterableBuildingComponent AddInteriorInteractions(HashSet<ButtonTypes> interiorInteractions) {
         InteriorInteractions = interiorInteractions;
+        InteriorInteractions.Add(ButtonTypes.ENTER);
         return this;
     }
 
@@ -183,7 +184,13 @@ public class EnterableBuildingComponent : BuildingComponent {
                         break;
                     case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
                         button.AddComponent<Button>().onClick.AddListener(() => {
-                            // Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();//todo remove comment
+                            Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();
+                        });
+                        break;
+                    case ButtonTypes.ENTER:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            closeButton.transform.parent.GetComponent<FoldingMenuGroup>().CloseMenu();
+                            Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
                         });
                         break;
                     default:
@@ -203,10 +210,11 @@ public class EnterableBuildingComponent : BuildingComponent {
         SceneManager.MoveGameObjectToScene(canvas, BuildingInteriorScene);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
-        var invalidCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Invalid).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
-        var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
+        var specialCoordinates = GetSpecialCoordinateSet(BuildingName);
+        specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
+        // var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
+        // InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
 
         // Debug.Log("added interior");
     }
@@ -232,10 +240,10 @@ public class EnterableBuildingComponent : BuildingComponent {
         if (floorsValues != null) gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
         string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
-        var invalidCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Invalid).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Invalid", invalidCoordinates, TileType.Invalid));
-        var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
+        var specialCoordinates = GetSpecialCoordinateSet(BuildingName);
+        specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.ClearAll();
+        InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 

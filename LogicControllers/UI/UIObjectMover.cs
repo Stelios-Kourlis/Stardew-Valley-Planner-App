@@ -5,7 +5,6 @@ using UnityEngine;
 public static class ObjectMover {
 
     public static IEnumerator MoveUIObjectInConstantTime(Transform obj, Vector3 startPosition, Vector3 endPosition, float totalTime) {
-        Debug.Log($"Moving {obj.name} in constant time {totalTime}");
         float time = 0;
         while (time < totalTime) {
             float t = time / totalTime; // Normalize time to range [0, 1]
@@ -41,7 +40,6 @@ public static class ObjectMover {
 
 
     public static IEnumerator MoveWorldObjectInConstantTime(Transform obj, Vector3 startPosition, Vector3 endPosition, float totalTime) {
-        Debug.Log($"Moving {obj.name} in constant time {totalTime}");
         float time = 0;
         while (time < totalTime) {
             float t = time / totalTime; // Normalize time to range [0, 1]

@@ -173,7 +173,9 @@ public abstract class Building : TooltipableGameObject {
             BuildingController.buildingGameObjects.Add(gameObject);
             BuildingController.buildings.Add(this);
         }
-        BuildingController.specialCoordinates.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates, TileType.Invalid));
+
+        // Debug.Log($"Adding special coords for {BuildingName}, width: {Width}, BHeight: {BaseHeight}");
+        BuildingController.specialCoordinates.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates.ToHashSet(), TileType.Invalid));
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));

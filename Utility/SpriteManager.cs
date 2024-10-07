@@ -1,10 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Utility {
+
+    public enum Tiles {
+        Red,
+        Green
+    }
     public static class SpriteManager {
         public static Tile[] SplitSprite(Sprite sprite) {
             List<Tile> tiles = new();
@@ -22,7 +28,8 @@ namespace Utility {
             return tiles.ToArray();
         }
 
-        public static Tile LoadTile(string path) {
+        public static Tile LoadTile(Tiles tilesType) {
+            string path = $"{tilesType}TileSprite";
             Sprite tileTexture = Resources.Load<Sprite>(path);
             Debug.Assert(tileTexture != null, "Tile texture is null");
             Tile tile = SplitSprite(tileTexture)[0];

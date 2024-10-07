@@ -14,7 +14,7 @@ public static class BuildingController {
     /// <summary> A coordinate is unavailable if it is occupied by a building or if its out of bounds for the current map </summary>
     // private static readonly HashSet<Vector3Int> unavailableCoordinates = new();
     // private static readonly HashSet<Vector3Int> plantableCoordinates = new();
-    public static readonly SpecialCoordinatesCollection specialCoordinates = new();
+    public static SpecialCoordinatesCollection specialCoordinates = new();
     public static readonly List<Building> buildings = new();
     public static Type currentBuildingType = typeof(FishPond);
     public static Actions CurrentAction { get; private set; } = Actions.PLACE_WALLPAPER;
