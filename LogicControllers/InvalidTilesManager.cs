@@ -108,9 +108,13 @@ public class InvalidTilesManager : MonoBehaviour {
     }
     public HashSet<Vector3Int> AllPlantableTiles {
         get {
-            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable) : BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
-            // if (BuildingController.isInsideBuilding.Key) return BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable);
-            // else return BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
+            // return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable) : BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
+            HashSet<Vector3Int> plantableCoordinates;
+            if (BuildingController.isInsideBuilding.Key) plantableCoordinates = BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable);
+            else plantableCoordinates = BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
+            var invalidCoordinates = AllInvalidTiles;
+            plantableCoordinates.RemoveWhere(coord => invalidCoordinates.Contains(coord));
+            return plantableCoordinates;
         }
     }
 
@@ -128,7 +132,7 @@ public class InvalidTilesManager : MonoBehaviour {
             foreach (Vector3Int coordinate in AllInvalidTiles) unavailableCoordinatesTilemap.SetTile(coordinate, null);
         }
         else {
-            foreach (Vector3Int coordinate in AllInvalidTiles) GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>().SetTile(coordinate, redTileSprite);
+            foreach (Vector3Int coordinate in AllInvalidTiles) unavailableCoordinatesTilemap.SetTile(coordinate, redTileSprite);
         }
         unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
     }

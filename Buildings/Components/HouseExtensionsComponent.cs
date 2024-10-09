@@ -108,6 +108,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseRoomTilemap.ClearAllTiles();
 
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet("SpouseRoom");
+        GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(spouse.ToString());
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
@@ -141,6 +142,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         SpecialCoordinateRect spouseSpecialTileSet = GetSpecialCoordinateSet(spouse.ToString());
         spouseSpecialTileSet.AddOffset(spouseRoomOrigin);
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
     private Vector3Int GetSpouseRoomOrigin() {

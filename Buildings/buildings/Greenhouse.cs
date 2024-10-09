@@ -37,11 +37,13 @@ public class Greenhouse : Building, IExtraActionBuilding {
         porchTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
+        BuildingController.specialCoordinates.AddSpecialTileSet(new("GreenhousePorch", porchCoordinates.ToHashSet(), TileType.Invalid));
         porchTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
     }
 
     public void PerformExtraActionsOnPickup() {
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+        BuildingController.specialCoordinates.RemoveSpecialTileSet("GreenhousePorch");
     }
 
     public void NoPreviewPortch() {
