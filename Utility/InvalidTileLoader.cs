@@ -17,7 +17,13 @@ namespace Utility {
                 return new($"{buildingName}", new HashSet<SpecialCoordinate>());
             }
 
-            // SpecialCoordinateRect specialCoordinateSet = new($"{buildingName}{tileType}", tileType);
+            SpecialCoordinateRect specialCoordinateSet = GetSpecialCoordinateSet(image);
+
+            Resources.UnloadAsset(image);
+            return specialCoordinateSet;
+        }
+
+        public static SpecialCoordinateRect GetSpecialCoordinateSet(Texture2D image) {
             HashSet<SpecialCoordinate> tiles = new();
             for (int y = 0; y < image.height; y++) {
                 for (int x = 0; x < image.width; x++) {
@@ -26,12 +32,12 @@ namespace Utility {
                     else if (pixelColor == PLANTABLE_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.Plantable));
                     else if (pixelColor == NEUTRAL_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.Neutral));
                     else if (pixelColor == NEUTRAL_TREE_DISABLED_COLOR) tiles.Add(new(new Vector3Int(x, y, 0), TileType.NeutralTreeDisabled));
-                    else throw new System.Exception($"Invalid color found in {buildingName}Special image. Color {pixelColor} in {x},{y}");
+                    else if (pixelColor.a == 0) continue;
+                    else throw new System.Exception($"Invalid color found in {image.name} image. Color {pixelColor} in {x},{y}");
                 }
             }
 
-            Resources.UnloadAsset(image);
-            return new SpecialCoordinateRect($"{buildingName}", tiles);
+            return new SpecialCoordinateRect($"{image.name.Substring(0, image.name.Length - "Special".Length)}", tiles);
         }
 
 

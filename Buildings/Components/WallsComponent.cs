@@ -29,6 +29,7 @@ public class WallsComponent : BuildingComponent {
     private class Wall {
 
         public int Width => strips.Count;
+        public Vector3Int LowerLeftCorner => GetAllWallCordinates().ToList()[0];
 
         private List<WallStrip> strips;
         public int wallpaperId;
@@ -66,6 +67,18 @@ public class WallsComponent : BuildingComponent {
             return strips.Any(strip => strip.StripContains(point));
         }
 
+        public void MoveWall(Vector3Int lowerLeftCorner, int width, int wallpaperId = 0) {
+            foreach (Vector3Int oldTile in GetAllWallCordinates()) {
+                wallpaperTilemap.SetTile(oldTile, null);
+            }
+
+            strips = new();
+            for (int x = lowerLeftCorner.x; x <= lowerLeftCorner.x + width - 1; x++) {
+                strips.Add(new WallStrip(new Vector3Int(x, lowerLeftCorner.y, 0)));
+            }
+            ApplyWallpaper(wallpaperId);
+        }
+
         public static Sprite GetSpriteFromWallpaperID(int wallpaperId) {
             return wallpaperAtlas.GetSprite($"Walls_{wallpaperId}");
         }
@@ -75,6 +88,7 @@ public class WallsComponent : BuildingComponent {
         }
     }
 
+    [Serializable]
     public class WallOrigin {
         public Vector3Int lowerLeftCorner;
         public int width;
@@ -84,7 +98,15 @@ public class WallsComponent : BuildingComponent {
             this.width = width;
             this.wallpaperId = wallpaperId;
         }
+
+        // public bool IsWhole() {
+        //     if (lowerLeftCorner == null) return false;
+        //     if (width == null) return false;
+        //     if (wallpaperId == null) return true;
+        //     return false;
+        // }
     }
+
     private List<Wall> walls = new();
     public Tilemap wallPaperTilemap;
     public static Sprite SelectedWallpaperSprite => Wall.GetSpriteFromWallpaperID(selectedWallpaperId);
@@ -98,7 +120,7 @@ public class WallsComponent : BuildingComponent {
 
         wallPaperTilemap = wallpaperTilemap;
         foreach (WallOrigin origin in origins) {
-            CreateWall(origin);
+            AddWall(origin);
         }
     }
 
@@ -107,7 +129,7 @@ public class WallsComponent : BuildingComponent {
         walls = new();
 
         foreach (WallOrigin origin in origins) {
-            CreateWall(origin);
+            AddWall(origin);
         }
     }
 
@@ -115,12 +137,27 @@ public class WallsComponent : BuildingComponent {
         return Wall.GetSpriteFromWallpaperID(wallpaperId);
     }
 
-    public void CreateWall(WallOrigin origin) {
+    public void AddWall(WallOrigin origin) {
+        // if (!origin.IsWhole()) return;
         Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId);
         if (walls.Any(wall => wall.GetAllWallCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any())) throw new Exception($"Walls overlap trigger: {origin.lowerLeftCorner}");
         walls.Add(wall);
+
+        Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(new($"Wall{origin.lowerLeftCorner}", wall.GetAllWallCordinates().ToHashSet(), TileType.Wall));
+        // Debug.Log($"Adding Wall{origin.lowerLeftCorner} to specialCoordintaes new length = {Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.Count()}");
         wallPaperTilemap.CompressBounds();
         // Debug.Log($"Created wall at {lowerLeftWallCorner} with width {widthTiles} in {gameObject.transform.parent.name}");
+    }
+
+    /// <summary>
+    /// Move a wall from an old position to a new while keeping some of its values
+    /// </summary>
+    /// <param name="oldWall">Any point on the old wall</param>
+    /// <param name="newOrigin">This will be ADDED as an OFFSET to the current wall, this means a width of 1 will increase the old wall width by 1 etc. Wallpaper ID works normally. Use -1 ID to keep old wallpaper</param>
+    public void MoveWall(Vector3Int oldWall, WallOrigin newOrigin) {
+        Wall wall = GetWallFromPoint(oldWall);
+        if (wall == null) return;
+        wall.MoveWall(wall.LowerLeftCorner + newOrigin.lowerLeftCorner, wall.Width + newOrigin.width, newOrigin.wallpaperId == -1 ? wall.wallpaperId : newOrigin.wallpaperId);
     }
 
     public void RemoveWall(Vector3Int point) {
@@ -172,7 +209,7 @@ public class WallsComponent : BuildingComponent {
             int wallpaperId = buildingData["WallpaperId"].Value<int>();
 
             WallOrigin origin = new(lowerLeftCorner, width, wallpaperId);
-            CreateWall(origin);
+            AddWall(origin);
         }
     }
 

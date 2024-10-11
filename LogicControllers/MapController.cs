@@ -123,7 +123,6 @@ public class MapController : MonoBehaviour {
         mapTilemap.ClearAllTiles();
         mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
         mapTilemap.CompressBounds();
-        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(out _, out _, out _);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
         BoundsInt bounds = mapTilemap.cellBounds;
@@ -139,6 +138,8 @@ public class MapController : MonoBehaviour {
         specialCoordinates.AddOffset(lowerLeft);
         BuildingController.specialCoordinates.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
+
+        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(out _, out _, out _);
 
         GameObject grid = new("Grid");
         grid.AddComponent<Grid>();

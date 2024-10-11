@@ -61,6 +61,7 @@ public class FlooringComponent : BuildingComponent {
         }
     }
 
+    [Serializable]
     public class FlooringOrigin {
         public Vector3Int lowerLeftCorner;
         public int width;

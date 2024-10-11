@@ -50,18 +50,6 @@ public static class BuildingController {
         CurrentBuildingBeingPlaced.DeleteBuilding();
     }
 
-    // public static void AddToUnavailableCoordinates(Vector3Int[] coordinates) {
-    //     if (!isInsideBuilding.Key) GetUnavailableCoordinates().UnionWith(coordinates);
-    //     else isInsideBuilding.Value.InteriorUnavailableCoordinates.UnionWith(coordinates);
-    //     InvalidTilesManager.Instance.UpdateUnavailableCoordinates();
-    // }
-
-    // public static void RemoveFromUnavailableCoordinates(Vector3Int[] coordinates) {
-    //     if (!isInsideBuilding.Key) GetUnavailableCoordinates().ExceptWith(coordinates);
-    //     else isInsideBuilding.Value.InteriorUnavailableCoordinates.ExceptWith(coordinates);
-    //     InvalidTilesManager.Instance.UpdateUnavailableCoordinates();
-    // }
-
     /// <summary>
     /// Set the type of the building that is currently being placed
     /// </summary>

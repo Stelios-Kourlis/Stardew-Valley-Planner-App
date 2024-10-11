@@ -10,6 +10,9 @@ using static Utility.InvalidTileLoader;
 using UnityEngine.UI;
 using UnityEngine.U2D;
 using System.Linq;
+using Utility;
+using static WallsComponent;
+using static FlooringComponent;
 
 public class HouseExtensionsComponent : BuildingComponent {
 
@@ -45,7 +48,8 @@ public class HouseExtensionsComponent : BuildingComponent {
     private Sprite spouseRoomSprite;
     public bool isMarried;
     public HouseModificationMenu ModificationMenu { get; private set; }
-    Tilemap spouseRoomTilemap;
+    Tilemap spouseRoomTilemap, frontTilemap;
+    // Tilemap spouseRoomWallsTilemap;
     SpriteAtlas spriteAtlas;
     readonly Dictionary<string, Sprite> checkbox = new(2);
 
@@ -58,6 +62,12 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseRoomTilemap = spouseRoom.AddComponent<Tilemap>();
         spouseRoom.AddComponent<TilemapRenderer>().sortingOrder = -102;
         spouseRoom.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
+
+        GameObject frontTilemapGameObj = new("SpouseRoomWallsTilemap");
+        frontTilemap = frontTilemapGameObj.AddComponent<Tilemap>();
+        frontTilemapGameObj.AddComponent<TilemapRenderer>().sortingOrder = BuildingInteriorTilemap.GetComponent<TilemapRenderer>().sortingOrder + 1;
+        frontTilemapGameObj.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
+
         spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
         checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
         checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
@@ -71,6 +81,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         ModificationMenu.GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
         ModificationMenu.spouseChanged += SetSpouse;
         ModificationMenu.GetCornerRoomToggle().onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
+        ModificationMenu.GetAtticToggle().onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
     }
 
     public void ToggleModificationMenu() {
@@ -159,46 +170,41 @@ public class HouseExtensionsComponent : BuildingComponent {
             NotificationManager.Instance.SendNotification("You need to upgrade your house to at least tier 3 to renovate it", NotificationManager.Icons.ErrorIcon);
             return;
         }
-        Vector3Int origin = new();
-        string modificationName = "";
-        switch (modification) {
-            case HouseModifications.RemoveCrib:
-                break;
-            case HouseModifications.OpenBedroom:
-                break;
-            case HouseModifications.SouthernRoom:
-                break;
-            case HouseModifications.CornerRoom:
-                origin = new Vector3Int(27, 11, 0);
-                modificationName = "CornerRoom";
-                ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find("CornerRoom").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
-                break;
-            case HouseModifications.ExpandedCornerRoom:
-                break;
-            case HouseModifications.Attic:
-                break;
-            case HouseModifications.Cubby:
-                break;
-            case HouseModifications.DiningRoom:
-                break;
-            case HouseModifications.OpenDiningRoom:
-                break;
-            default:
-                break;
-        }
 
-        Sprite sprite;
+        Debug.Log($"BuildingInsides/House/{modification}");
+        HouseModificationScriptableObject values = (HouseModificationScriptableObject)Resources.Load<ScriptableObject>($"BuildingInsides/House/{modification}");
+        List<Vector3Int> positions = GetRectAreaFromPoint(values.spriteOrigin, (int)(values.backSprite.textureRect.height / 16), (int)(values.backSprite.textureRect.width / 16));
         if (isOn) {
-            sprite = spriteAtlas.GetSprite(modificationName);
-            SpecialCoordinateRect cornerRoomSpecialTileSet = GetSpecialCoordinateSet(modificationName);
-            cornerRoomSpecialTileSet.AddOffset(origin);
+            SpecialCoordinateRect cornerRoomSpecialTileSet = GetSpecialCoordinateSet(values.type.ToString());
+            cornerRoomSpecialTileSet.AddOffset(values.spriteOrigin);
             GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(cornerRoomSpecialTileSet);
+            Tile[] removedTiles = SplitSprite(values.backRemoved);
+            for (int i = 0; i < positions.Count; i++) {
+                if (removedTiles[i] != null) {
+                    BuildingInteriorTilemap.SetTile(positions[i], null);
+                }
+            }
+            SetTilesOnlyNonNull(SplitSprite(values.backSprite), positions.ToArray(), BuildingInteriorTilemap);
+            SetTilesOnlyNonNull(SplitSprite(values.frontSprite), positions.ToArray(), frontTilemap);
+            foreach (WallOrigin origin in values.wallOrigins) GetComponent<WallsComponent>().AddWall(origin);
+            foreach (FlooringOrigin origin in values.floorOrigins) GetComponent<FlooringComponent>().AddFloor(origin);
+            foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.newWall);
         }
         else {
-            sprite = spriteAtlas.GetSprite($"{modificationName}Removed");
-            GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(modificationName);
+            GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(values.type.ToString());
+            SetTilesOnlyNonNull(SplitSprite(values.backRemoved), positions.ToArray(), BuildingInteriorTilemap);
+            foreach (Vector3Int position in positions) frontTilemap.SetTile(position, null);
+            foreach (WallOrigin origin in values.wallOrigins) GetComponent<WallsComponent>().RemoveWall(origin.lowerLeftCorner);
+            foreach (FlooringOrigin origin in values.floorOrigins) GetComponent<FlooringComponent>().RemoveFloor(origin.lowerLeftCorner);
+            foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.GetReverseModification());
         }
-        BuildingInteriorTilemap.SetTiles(GetRectAreaFromPoint(origin, (int)(sprite.textureRect.height / 16), (int)(sprite.textureRect.width / 16)).ToArray(), SplitSprite(sprite));
+
+        ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{modification}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
+        InvalidTilesManager.Instance.UpdateAllCoordinates();
+    }
+
+    private void ResolveConflicts() {
+
     }
 
     public override void Load(ComponentData data) {

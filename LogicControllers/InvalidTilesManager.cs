@@ -12,6 +12,7 @@ public enum TileType {
     Plantable,
     NeutralTreeDisabled, // there are for use in interiors where although the tile  is neutral, trees cant be planted
     Neutral,
+    Wall
 }
 
 public class SpecialCoordinate {
@@ -24,9 +25,10 @@ public class SpecialCoordinate {
     }
 }
 
+[Serializable]
 public class SpecialCoordinateRect {
-    public readonly string identifier;
-    HashSet<SpecialCoordinate> specialCoordinates;
+    [SerializeField] public string identifier;
+    private readonly HashSet<SpecialCoordinate> specialCoordinates;
 
     public SpecialCoordinateRect(string identifier, HashSet<SpecialCoordinate> specialCoordinates) {
         this.identifier = identifier;
@@ -54,17 +56,26 @@ public class SpecialCoordinateRect {
     }
 }
 
+[Serializable]
 public class SpecialCoordinatesCollection {
-    private readonly List<SpecialCoordinateRect> specialTileSets = new();
+    [SerializeField] private List<SpecialCoordinateRect> specialTileSets = new();
 
     public HashSet<Vector3Int> GetAllCoordinatesOfType(TileType type) {
         HashSet<Vector3Int> tiles = new();
         HashSet<Vector3Int> invalidList = new();
-        foreach (SpecialCoordinateRect specialTileSet in specialTileSets.Reverse<SpecialCoordinateRect>()) {
+        // List<SpecialCoordinateRect> reversedSpecialTileSet = specialTileSets.Reverse<SpecialCoordinateRect>().ToList();
+        // string text = "";
+        // foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
+        //     text += $"{specialTileSet.identifier} in {reversedSpecialTileSet.IndexOf(specialTileSet)}";
+
+        // }
+        // Debug.Log(text);
+        foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
+            // Debug.Log("Checking " + specialTileSet.identifier);
             var allCoords = specialTileSet.GetSpecialCoordinates();
             var coordsOfCorrentType = specialTileSet.GetSpecialCoordinates(type);
 
-            foreach (SpecialCoordinate specialCoordinate in coordsOfCorrentType) tiles.Add(specialCoordinate.position);
+            foreach (SpecialCoordinate specialCoordinate in coordsOfCorrentType) if (!invalidList.Contains(specialCoordinate.position)) tiles.Add(specialCoordinate.position);
             foreach (SpecialCoordinate specialCoordinate in allCoords) invalidList.Add(specialCoordinate.position);
         }
         return tiles;
@@ -72,7 +83,7 @@ public class SpecialCoordinatesCollection {
 
     public void AddSpecialTileSet(SpecialCoordinateRect specialTileSet) {
         if (specialTileSet.GetSpecialCoordinates().Count == 0) throw new Exception($"Tried to add tileset with no tiles");
-        specialTileSets.Add(specialTileSet);
+        specialTileSets.Insert(0, specialTileSet);
     }
 
     public void RemoveSpecialTileSet(string identifier) {
@@ -84,6 +95,20 @@ public class SpecialCoordinatesCollection {
 
     public void ClearAll() {
         specialTileSets.Clear();
+    }
+
+    /// <summary>
+    /// Get the type of a tile
+    /// </summary>
+    /// <param name="position"></param>
+    /// <returns>The type of the tile requested, null if no tile is found at that position</returns>
+    public TileType? GetTypeOfTile(Vector3Int position) {
+        foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
+            var specialSet = specialTileSet.GetSpecialCoordinates();
+            if (specialSet.Any(tile => tile.position == position)) return specialSet.First(tile => tile.position == position).type;
+            // Debug.Log($"Tile {position} not found in {specialTileSet.identifier}");
+        }
+        return null;
     }
 
     public int Count() {
@@ -99,20 +124,20 @@ public class InvalidTilesManager : MonoBehaviour {
     private bool unavailableCoordinatesAreVisible = false;
     private bool plantableCoordinatesAreVisible = false;
     public static InvalidTilesManager Instance { get; private set; }
+    public SpecialCoordinatesCollection CurrentCoordinateSet {
+        get {
+            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles : BuildingController.specialCoordinates;
+        }
+    }
     public HashSet<Vector3Int> AllInvalidTiles {
         get {
-            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Invalid) : BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Invalid);
-            // if (BuildingController.isInsideBuilding.Key) return BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Invalid);
-            // else return BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Invalid);
+            return CurrentCoordinateSet.GetAllCoordinatesOfType(TileType.Invalid);
         }
     }
     public HashSet<Vector3Int> AllPlantableTiles {
         get {
-            // return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable) : BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
-            HashSet<Vector3Int> plantableCoordinates;
-            if (BuildingController.isInsideBuilding.Key) plantableCoordinates = BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.GetAllCoordinatesOfType(TileType.Plantable);
-            else plantableCoordinates = BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Plantable);
-            var invalidCoordinates = AllInvalidTiles;
+            HashSet<Vector3Int> plantableCoordinates = CurrentCoordinateSet.GetAllCoordinatesOfType(TileType.Plantable);
+            HashSet<Vector3Int> invalidCoordinates = AllInvalidTiles;
             plantableCoordinates.RemoveWhere(coord => invalidCoordinates.Contains(coord));
             return plantableCoordinates;
         }
@@ -125,6 +150,12 @@ public class InvalidTilesManager : MonoBehaviour {
         EnterableBuildingComponent.EnteredOrExitedBuilding += UpdateAllCoordinates;
         BuildingController.anyBuildingPositionChanged += UpdateAllCoordinates;
     }
+
+    public TileType? GetTypeOfTile(Vector3Int position) {
+        position.z = 0;
+        return CurrentCoordinateSet.GetTypeOfTile(position);
+    }
+
     public void ToggleMapUnavailableCoordinates() {
         Tilemap unavailableCoordinatesTilemap = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>();
         unavailableCoordinatesTilemap.ClearAllTiles();

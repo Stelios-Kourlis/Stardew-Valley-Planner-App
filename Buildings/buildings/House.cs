@@ -46,7 +46,7 @@ public class House : Building {
                     new WallOrigin(new Vector3Int(1, 20, 0), 12, 11),
                     new WallOrigin(new Vector3Int(13, 18, 0), 2, 61),
                     new WallOrigin(new Vector3Int(15, 20, 0), 13, 61),
-                    new WallOrigin(new Vector3Int(21, 7, 0), 2),
+                    new WallOrigin(new Vector3Int(21, 6, 0), 2),
                     new WallOrigin(new Vector3Int(23, 11, 0), 11),
                 }
             }

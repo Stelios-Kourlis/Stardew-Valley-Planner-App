@@ -8,11 +8,13 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 
 public class DebugCoordinates : MonoBehaviour {
-    TMP_Text text;
+    TMP_Text posText;
+    TMP_Text typeText;
     static GameObject coordLog;
     static bool debugModeinOn;
     void Start() {
-        text = transform.GetChild(0).GetComponent<TMP_Text>();
+        posText = transform.GetChild(0).GetComponent<TMP_Text>();
+        typeText = transform.GetChild(1).GetComponent<TMP_Text>();
         coordLog = transform.gameObject;
         debugModeinOn = false;
         gameObject.SetActive(false);
@@ -28,8 +30,12 @@ public class DebugCoordinates : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         if (!debugModeinOn) return;
-        Vector3Int pos = GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        text.text = $"{pos.x},{pos.y}";
-        // GameObject.FindWithTag("InvalidTilemap").GetComponent<Tilemap>().SetTile(pos, LoadTile("RedTile"));
+        Vector3Int pos = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        posText.text = $"{pos.x},{pos.y}";
+
+        TileType? tileType = InvalidTilesManager.Instance.GetTypeOfTile(pos);
+        if (tileType != null) typeText.text = tileType.ToString();
+        else typeText.text = "N/A";
+
     }
 }

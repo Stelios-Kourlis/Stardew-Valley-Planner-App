@@ -21,11 +21,9 @@ using UnityEngine.WSA;
 [RequireComponent(typeof(Building))]
 public class EnterableBuildingComponent : BuildingComponent {
     public GameObject BuildingInterior { get; private set; }
-    public Sprite interriorSprite;
+    public Sprite interiorSprite;
     public Vector3Int[] InteriorAreaCoordinates { get; private set; }
-    public SpecialCoordinatesCollection InteriorSpecialTiles { get; private set; }
-    // public HashSet<Vector3Int> InteriorUnavailableCoordinates { get; private set; }
-    // public HashSet<Vector3Int> InteriorPlantableCoordinates { get; private set; }
+    [field: SerializeField] public SpecialCoordinatesCollection InteriorSpecialTiles { get; private set; }
     public static Action EnteredOrExitedBuilding { get; set; }
     public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
     public GameObject InteriorButtonsParent { get; private set; }
@@ -91,12 +89,17 @@ public class EnterableBuildingComponent : BuildingComponent {
     public void AddBuildingInterior() {
         if (BuildingInteriorScene.name != null) return; //failsafe
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");
-        interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
+        interiorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
         BuildingInterior = new GameObject($"{Building.BuildingName} Interior");
-        InteriorAreaCoordinates = GetRectAreaFromPoint(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
-        BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
+        InteriorAreaCoordinates = GetRectAreaFromPoint(Vector3Int.zero, (int)interiorSprite.textureRect.height / 16, (int)interiorSprite.textureRect.width / 16).ToArray();
+        BuildingInterior.AddComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interiorSprite));
         BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         BuildingInterior.AddComponent<TilemapRenderer>().sortingOrder = -100;
+
+        string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
+        var specialCoordinates = GetSpecialCoordinateSet(BuildingName);
+        specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
 
         GameObject grid = new("Grid");
         grid.SetActive(false);
@@ -208,11 +211,6 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
         SceneManager.MoveGameObjectToScene(canvas, BuildingInteriorScene);
-
-        string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
-        var specialCoordinates = GetSpecialCoordinateSet(BuildingName);
-        specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
         // var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
         // InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
 
@@ -229,28 +227,28 @@ public class EnterableBuildingComponent : BuildingComponent {
         }
 
         BuildingInterior.GetComponent<Tilemap>().ClearAllTiles();
-        interriorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
-        InteriorAreaCoordinates = GetRectAreaFromPoint(Vector3Int.zero, (int)interriorSprite.textureRect.height / 16, (int)interriorSprite.textureRect.width / 16).ToArray();
-        BuildingInterior.GetComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interriorSprite));
+        interiorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
+        InteriorAreaCoordinates = GetRectAreaFromPoint(Vector3Int.zero, (int)interiorSprite.textureRect.height / 16, (int)interiorSprite.textureRect.width / 16).ToArray();
+        BuildingInterior.GetComponent<Tilemap>().SetTiles(InteriorAreaCoordinates, SplitSprite(interiorSprite));
         BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         GetCamera().GetComponent<CameraController>().UpdateTilemapBounds();
+        InteriorSpecialTiles.ClearAll();
+        string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
+        var specialCoordinates = GetSpecialCoordinateSet(BuildingName);
+        specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
+        InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
 
         if (wallsValues != null) gameObject.GetComponent<WallsComponent>().UpdateWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
         if (floorsValues != null) gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
 
-        string BuildingName = GetComponent<InteractableBuildingComponent>().GetBuildingInsideSpriteName();
-        var specialCoordinates = GetSpecialCoordinateSet(BuildingName);
-        specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
-        InteriorSpecialTiles.ClearAll();
-        InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
     public void ToggleEditBuildingInterior() {
         if (BuildingInterior == null) AddBuildingInterior(); //failsafe
 
-        if (interriorSprite.name != InteractableBuildingComponent.GetBuildingInsideSpriteName()) { //In case interior need to be updates
+        if (interiorSprite.name != InteractableBuildingComponent.GetBuildingInsideSpriteName()) { //In case interior need to be updates
             UpdateBuildingInterior();
         }
 

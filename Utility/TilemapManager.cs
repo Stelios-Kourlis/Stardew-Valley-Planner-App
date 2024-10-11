@@ -320,6 +320,14 @@ namespace Utility {
             Debug.Log("Tile created successfully: " + path);
         }
 
+        public static void SetTilesOnlyNonNull(Tile[] tiles, Vector3Int[] positions, Tilemap tilemap) {
+            for (int i = 0; i < positions.Length; i++) {
+                if (tiles[i] != null) {
+                    tilemap.SetTile(positions[i], tiles[i]);
+                }
+            }
+        }
+
     }
 }
 
