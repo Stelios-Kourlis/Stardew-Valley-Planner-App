@@ -87,10 +87,7 @@ public class SpecialCoordinatesCollection {
     }
 
     public void RemoveSpecialTileSet(string identifier) {
-        if (specialTileSets.Any(specialTileSet => specialTileSet.identifier == identifier)) Debug.Log($"Removed {identifier}");
-        Debug.Log(specialTileSets.Count);
         specialTileSets.RemoveAll(specialTileSet => specialTileSet.identifier == identifier);
-        Debug.Log(specialTileSets.Count);
     }
 
     public void ClearAll() {

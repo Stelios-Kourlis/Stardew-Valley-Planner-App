@@ -56,6 +56,10 @@ public class HouseModificationMenu : MonoBehaviour {
         return Content.Find("Modifications").Find("Renovations").Find("Attic").GetComponent<Toggle>();
     }
 
+    public Toggle GetModificationToggle(string modificationName) {
+        return Content.Find("Modifications").Find("Renovations").Find(modificationName).GetComponent<Toggle>();
+    }
+
     private Transform GetWallpaperContent() {
         return Content.Find("Wallpaper").Find("Content");
     }

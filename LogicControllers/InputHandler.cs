@@ -230,6 +230,14 @@ public class InputHandler : MonoBehaviour {
                 mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                 Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects()[3].transform.Find("MassDeletePreview").GetComponent<Tilemap>();
                 massDeleteTilemap.ClearAllTiles();
+                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile(Utility.Tiles.Green));
+            }
+        }
+        else if (BuildingController.CurrentAction == Actions.DELETE) {
+            if (mouseIsHeld) {
+                mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
+                Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects()[3].transform.Find("MassDeletePreview").GetComponent<Tilemap>();
+                massDeleteTilemap.ClearAllTiles();
                 if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile(Utility.Tiles.Red));
             }
         }
