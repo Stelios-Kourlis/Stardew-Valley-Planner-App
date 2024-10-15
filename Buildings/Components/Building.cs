@@ -249,4 +249,10 @@ public abstract class Building : TooltipableGameObject {
         });
         return button;
     }
+
+    public void LoadFromScriptableObject(BuildingScriptableObject bso) {
+        BuildingName = bso.buildingName;
+        BaseHeight = bso.baseHeight;
+        CanBeMassPlaced = bso.canBeMassPlaced;
+    }
 }

@@ -75,6 +75,8 @@ public class HouseExtensionsComponent : BuildingComponent {
         spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
         modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
         CreateModificationMenu();
+
+        GetComponent<TieredBuildingComponent>().tierChanged += newTier => BuildingTierChange(newTier);
     }
 
     void CreateModificationMenu() {
@@ -82,9 +84,20 @@ public class HouseExtensionsComponent : BuildingComponent {
         ModificationMenu.transform.position = Vector3.zero;
         ModificationMenu.GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
         ModificationMenu.spouseChanged += SetSpouse;
+
+
+
         ModificationMenu.GetModificationToggle("CornerRoom").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
         ModificationMenu.GetModificationToggle("Attic").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
         ModificationMenu.GetModificationToggle("Crib").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Crib, isOn));
+        ModificationMenu.GetModificationToggle("Cubby").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Cubby, isOn));
+    }
+
+    private void BuildingTierChange(int newTier) {
+        if (newTier != 3) return;
+        RenovateHouse(HouseModifications.Crib, true);
+        ModificationMenu.GetModificationToggle("Crib").isOn = true;
+        ModificationMenu.SetAllToglesToOff();
     }
 
     public void ToggleModificationMenu() {
@@ -250,15 +263,25 @@ public class HouseExtensionsComponent : BuildingComponent {
         }
 
         ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{modification}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
+        ResolveConflicts();
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
+    //
     private void ResolveConflicts() {
 
     }
 
-    private void CreateWarning() {
-
+    private void CreateWarning(IEnumerable<Vector3Int> positions) {
+        // GameObject warning = Instantiate(modificationWarning, GetCanvasGameObject().transform);
+        // warning.SetActive(true);
+        // warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
+        //     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
+        //     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
+        //     ApplyRenovation(modification, isOn, values, positions);
+        //     Destroy(warning);
+        // });
+        // warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
     }
 
     public override void Load(ComponentData data) {

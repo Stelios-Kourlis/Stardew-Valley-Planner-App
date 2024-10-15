@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa875f34fc5caf946a600a91c04ea73f, type: 3}
+  m_Name: Cabin
+  m_EditorClassIdentifier: 
+  buildingName: Cabin
+  baseHeight: 4
+  canBeMassPlaced: 0
+  isMultipleType: 1
+  types:
+  - Log
+  - Stone
+  defaultSprite: {fileID: -6478964507943517800, guid: edf7ae920ec80bc41ba38fba258743de, type: 3}
+  isTiered: 1
+  maxTier: 4
+  isAnimalHouse: 0
+  animalsPerTier: []
+  isConnecting: 0
+  isFishPond: 0
+  isEnterable: 1
+  interiorInteractions: 0100000002000000030000000a000000
+  interiorWalls:
+  - tier: 1
+    wallOrigins:
+    - lowerLeftCorner: {x: 1, y: 8, z: 0}
+      width: 10
+      wallpaperId: 0
+  - tier: 2
+    wallOrigins:
+    - lowerLeftCorner: {x: 1, y: 8, z: 0}
+      width: 17
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 18, y: 3, z: 0}
+      width: 2
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 20, y: 8, z: 0}
+      width: 9
+      wallpaperId: 0
+  - tier: 3
+    wallOrigins:
+    - lowerLeftCorner: {x: 1, y: 11, z: 0}
+      width: 10
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 13, y: 11, z: 0}
+      width: 8
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 1, y: 20, z: 0}
+      width: 12
+      wallpaperId: 11
+    - lowerLeftCorner: {x: 13, y: 18, z: 0}
+      width: 2
+      wallpaperId: 61
+    - lowerLeftCorner: {x: 15, y: 20, z: 0}
+      width: 13
+      wallpaperId: 61
+    - lowerLeftCorner: {x: 21, y: 6, z: 0}
+      width: 2
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 23, y: 11, z: 0}
+      width: 11
+      wallpaperId: 0
+  - tier: 4
+    wallOrigins:
+    - lowerLeftCorner: {x: 1, y: 11, z: 0}
+      width: 10
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 13, y: 11, z: 0}
+      width: 8
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 1, y: 20, z: 0}
+      width: 12
+      wallpaperId: 11
+    - lowerLeftCorner: {x: 13, y: 18, z: 0}
+      width: 2
+      wallpaperId: 61
+    - lowerLeftCorner: {x: 15, y: 20, z: 0}
+      width: 13
+      wallpaperId: 61
+    - lowerLeftCorner: {x: 21, y: 6, z: 0}
+      width: 2
+      wallpaperId: 0
+    - lowerLeftCorner: {x: 23, y: 11, z: 0}
+      width: 11
+      wallpaperId: 0
+  interiorFlooring:
+  - tier: 1
+    floorOrigins:
+    - lowerLeftCorner: {x: 1, y: 0, z: 0}
+      width: 10
+      height: 9
+      floorTextureID: 0
+  - tier: 2
+    floorOrigins:
+    - lowerLeftCorner: {x: 1, y: 0, z: 0}
+      width: 6
+      height: 9
+      floorTextureID: 47
+    - lowerLeftCorner: {x: 7, y: 0, z: 0}
+      width: 11
+      height: 9
+      floorTextureID: 0
+    - lowerLeftCorner: {x: 18, y: 2, z: 0}
+      width: 2
+      height: 2
+      floorTextureID: 0
+    - lowerLeftCorner: {x: 20, y: 1, z: 0}
+      width: 10
+      height: 10
+      floorTextureID: 0
+  - tier: 3
+    floorOrigins:
+    - lowerLeftCorner: {x: 1, y: 1, z: 0}
+      width: 9
+      height: 12
+      floorTextureID: 47
+    - lowerLeftCorner: {x: 10, y: 3, z: 0}
+      width: 11
+      height: 11
+      floorTextureID: 0
+    - lowerLeftCorner: {x: 1, y: 15, z: 0}
+      width: 12
+      height: 6
+      floorTextureID: 1
+    - lowerLeftCorner: {x: 13, y: 15, z: 0}
+      width: 15
+      height: 6
+      floorTextureID: 31
+    - lowerLeftCorner: {x: 21, y: 5, z: 0}
+      width: 2
+      height: 2
+      floorTextureID: 0
+    - lowerLeftCorner: {x: 23, y: 1, z: 0}
+      width: 12
+      height: 11
+      floorTextureID: 0
+  - tier: 4
+    floorOrigins:
+    - lowerLeftCorner: {x: 1, y: 1, z: 0}
+      width: 9
+      height: 12
+      floorTextureID: 47
+    - lowerLeftCorner: {x: 10, y: 3, z: 0}
+      width: 11
+      height: 11
+      floorTextureID: 0
+    - lowerLeftCorner: {x: 1, y: 15, z: 0}
+      width: 12
+      height: 6
+      floorTextureID: 1
+    - lowerLeftCorner: {x: 13, y: 15, z: 0}
+      width: 15
+      height: 6
+      floorTextureID: 31
+    - lowerLeftCorner: {x: 21, y: 5, z: 0}
+      width: 2
+      height: 2
+      floorTextureID: 0
+    - lowerLeftCorner: {x: 23, y: 1, z: 0}
+      width: 12
+      height: 11
+      floorTextureID: 0
+  hasInteriorExtensions: 1

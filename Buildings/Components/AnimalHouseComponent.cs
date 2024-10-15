@@ -11,6 +11,12 @@ using static Utility.ClassManager;
 using static BuildingData;
 using Newtonsoft.Json.Linq;
 
+[Serializable]
+public class AnimalTiers {
+    public int tier;
+    public Animals[] animalAllowed;
+}
+
 [RequireComponent(typeof(Building))]
 [Serializable]
 public class AnimalHouseComponent : BuildingComponent {

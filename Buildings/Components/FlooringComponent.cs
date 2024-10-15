@@ -12,13 +12,14 @@ using Newtonsoft.Json.Linq;
 
 public class FlooringComponent : BuildingComponent {
 
-    private class Flooring {
+    public class Flooring {
         public Vector3Int lowerLeftCorner;
         public int width;
         public int height;
         public int floorTextureID;
         private static readonly SpriteAtlas floorAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/FloorsAtlas");
         private readonly Tilemap tilemap;
+        public Action<int> floorTextureChanged;
 
         public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, int floorTextureID = 0) {
             this.lowerLeftCorner = lowerLeftCorner;
@@ -26,6 +27,23 @@ public class FlooringComponent : BuildingComponent {
             this.height = height;
             this.tilemap = tilemap;
             ApplyFloorTexture(floorTextureID);
+        }
+
+        /// <summary>
+        /// Create a linked floor, Changing the floor texture of one will change the texture for the other as well
+        /// </summary>
+        /// <param name="lowerLeftCorner"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="tilemap"></param>
+        /// <param name="parentFloor"></param>
+        public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, Flooring linkedFloor) {
+            this.lowerLeftCorner = lowerLeftCorner;
+            this.width = width;
+            this.height = height;
+            this.tilemap = tilemap;
+            ApplyFloorTexture(linkedFloor.floorTextureID);
+            linkedFloor.floorTextureChanged += newFloorTextureID => ApplyFloorTexture(newFloorTextureID);
         }
 
         public void ApplyFloorTexture(int floorTextureID) {
@@ -46,6 +64,7 @@ public class FlooringComponent : BuildingComponent {
             }
 
             foreach (Sprite sprite in splitSprites) Destroy(sprite);
+            floorTextureChanged?.Invoke(floorTextureID);
         }
 
         public IEnumerable<Vector3Int> GetFloorPositions() {
@@ -67,11 +86,19 @@ public class FlooringComponent : BuildingComponent {
         public int width;
         public int height;
         public int floorTextureID;
+        public Flooring linkedFloor;
         public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.height = height;
             this.floorTextureID = floorTextureID;
+        }
+
+        public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, Flooring linkedFloor) {
+            this.lowerLeftCorner = lowerLeftCorner;
+            this.width = width;
+            this.height = height;
+            this.linkedFloor = linkedFloor;
         }
     }
     private List<Flooring> floors = new();

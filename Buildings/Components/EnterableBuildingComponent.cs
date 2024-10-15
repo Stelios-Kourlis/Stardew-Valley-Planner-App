@@ -16,7 +16,19 @@ using Newtonsoft.Json.Linq;
 using static BuildingData;
 using static FlooringComponent;
 using static WallsComponent;
-using UnityEngine.WSA;
+
+[Serializable]
+public class WallsPerTier {
+    public int tier;
+    public WallOrigin[] wallOrigins;
+}
+
+[Serializable]
+public class FlooringPerTier {
+    public int tier;
+    public FlooringOrigin[] floorOrigins;
+}
+
 
 [RequireComponent(typeof(Building))]
 public class EnterableBuildingComponent : BuildingComponent {

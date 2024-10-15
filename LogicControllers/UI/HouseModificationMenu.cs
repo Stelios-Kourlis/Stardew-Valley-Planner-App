@@ -60,6 +60,14 @@ public class HouseModificationMenu : MonoBehaviour {
         return Content.Find("Modifications").Find("Renovations").Find(modificationName).GetComponent<Toggle>();
     }
 
+    public void SetAllToglesToOff() {
+        Sprite offSprite = Resources.Load<Sprite>("UI/CheckBoxOff");
+        foreach (Transform toggle in Content.Find("Modifications").Find("Renovations")) {
+            if (toggle.TryGetComponent<Toggle>(out _)) toggle.Find("Button").GetComponent<Image>().sprite = offSprite;
+        }
+        Resources.UnloadAsset(offSprite);
+    }
+
     private Transform GetWallpaperContent() {
         return Content.Find("Wallpaper").Find("Content");
     }
