@@ -57,7 +57,7 @@ public class InteractableBuildingComponent : BuildingComponent {
         name += $"{Building.type}";
         if (Building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) name += $"{tieredBuildingComponent.Tier}";
         if (Building.BuildingGameObject.TryGetComponent(out ConnectingBuildingComponent connectingBuildingComponent)) name += $"{connectingBuildingComponent.GetConnectingFlags()}";
-        Debug.Log($"Generated name {name} for {Building.BuildingName}");
+        // Debug.Log($"Generated name {name} for {Building.BuildingName}");
         return name;
     }
 
@@ -66,7 +66,7 @@ public class InteractableBuildingComponent : BuildingComponent {
         name += $"{Building.type}";
         if (name.Contains("Cabin")) name = "House";
         if (Building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) name += $"{tieredBuildingComponent.Tier}";
-        Debug.Log($"Generated name {name} for {Building.BuildingName} Interior");
+        // Debug.Log($"Generated name {name} for {Building.BuildingName} Interior");
         return name;
     }
 

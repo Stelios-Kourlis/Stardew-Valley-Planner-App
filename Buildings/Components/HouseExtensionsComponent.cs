@@ -101,9 +101,9 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     private void BuildingTierChange(int newTier) {
         if (newTier != 3) return;
-        RenovateHouse(HouseModifications.RemoveCrib, true);
+        // RenovateHouse(HouseModifications.RemoveCrib, true);
         ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).isOn = true;
-        ModificationMenu.SetAllToglesToOff();
+        ModificationMenu.SetAllToglesSpritesToOff();
     }
 
     public void ToggleModificationMenu() {
@@ -210,12 +210,12 @@ public class HouseExtensionsComponent : BuildingComponent {
                 warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
                     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
                     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
-                    ApplyRenovation(modification, isOn, values, positions);
+                    ApplyRenovation(values, isOn);
                     Destroy(warning);
                 });
                 warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
             }
-            else ApplyRenovation(modification, isOn, values, positions);
+            else ApplyRenovation(values, isOn);
         }
         else {
             // List<Vector3Int> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
@@ -226,12 +226,12 @@ public class HouseExtensionsComponent : BuildingComponent {
                 warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
                     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any()).ToList();
                     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
-                    ApplyRenovation(modification, isOn, values, positions);
+                    ApplyRenovation(values, isOn);
                     Destroy(warning);
                 });
                 warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
             }
-            else ApplyRenovation(modification, isOn, values, positions);
+            else ApplyRenovation(values, isOn);
 
             // foreach (Vector3Int pos in positions.Except(newInvalidPositions)) {
             //     BuildingInteriorTilemap.SetTile(pos, LoadTile(Tiles.Green));
@@ -242,7 +242,8 @@ public class HouseExtensionsComponent : BuildingComponent {
 
 
 
-    private void ApplyRenovation(HouseModifications modification, bool isOn, HouseModificationScriptableObject values, List<Vector3Int> positions) {
+    private void ApplyRenovation(HouseModificationScriptableObject values, bool isOn) {
+        List<Vector3Int> positions = GetRectAreaFromPoint(values.spriteOrigin, (int)(values.backSprite.textureRect.height / 16), (int)(values.backSprite.textureRect.width / 16));
         if (isOn) {
             SpecialCoordinateRect modificationSpecialTiles = GetSpecialCoordinateSet(values.type.ToString());
             modificationSpecialTiles.AddOffset(values.spriteOrigin);
@@ -268,7 +269,9 @@ public class HouseExtensionsComponent : BuildingComponent {
             foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.GetReverseModification());
         }
 
-        ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{modification}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
+        // Debug.Log($"{values.type} set to {isOn}");
+        if (values.type == HouseModifications.RemoveCrib) ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{values.type}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "Off" : "On"];
+        else ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{values.type}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
         ResolveConflicts();
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
