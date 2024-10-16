@@ -56,8 +56,8 @@ public class HouseModificationMenu : MonoBehaviour {
         return Content.Find("Modifications").Find("Renovations").Find("Attic").GetComponent<Toggle>();
     }
 
-    public Toggle GetModificationToggle(string modificationName) {
-        return Content.Find("Modifications").Find("Renovations").Find(modificationName).GetComponent<Toggle>();
+    public Toggle GetModificationToggle(HouseExtensionsComponent.HouseModifications modificationName) {
+        return Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).GetComponent<Toggle>();
     }
 
     public void SetAllToglesToOff() {

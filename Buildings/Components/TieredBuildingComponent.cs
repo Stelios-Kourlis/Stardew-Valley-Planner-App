@@ -8,17 +8,25 @@ using UnityEngine;
 using UnityEngine.U2D;
 using static Utility.ClassManager;
 
+[Serializable]
+public class BuildingTier {
+    public int tier;
+    public List<MaterialCostEntry> costToUpgradeToThatTier;
+}
+
 [RequireComponent(typeof(Building))]
 public class TieredBuildingComponent : BuildingComponent {
 
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
     [field: SerializeField] public int Tier { get; set; } = 1;
-    [field: SerializeField] public int MaxTier { get; private set; } = 1;
+    public int MaxTier => tiers.Count();
     private SpriteAtlas atlas;
     public Action<int> tierChanged;
+    public BuildingTier[] tiers;
 
-    public TieredBuildingComponent SetMaxTier(int maxTier) {
-        MaxTier = maxTier;
+
+    public TieredBuildingComponent SetTierData(BuildingTier[] tiers) {
+        this.tiers = tiers;
         for (int tier = 1; tier <= MaxTier; tier++) {
             string tierStr = tier switch {
                 1 => "ONE",
@@ -34,18 +42,24 @@ public class TieredBuildingComponent : BuildingComponent {
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.GetType()}Atlas");
-        Debug.Assert(atlas != null, $"Could not load atlas for {Building.GetType()} ({Building.GetType()}Atlas)");
+        atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
+        Debug.Assert(atlas != null, $"Could not load atlas for {Building.type} ({Building.GetType()}Atlas)");
         SetTier(1);
+    }
+
+    public List<MaterialCostEntry> GetMaterialsNeeded() {
+        return tiers[Tier - 1].costToUpgradeToThatTier;
     }
 
 
     public virtual void SetTier(int tier) {
-        // if (MaxTier == 1) Building.OnAwake();
-        // if (tier < 0 || tier > MaxTier) throw new System.ArgumentException($"Tier for {Building.GetType()} must be between 1 and {MaxTier} (got {tier})");
         Tier = tier;
         tierChanged?.Invoke(tier);
         Building.UpdateTexture(atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+    }
+
+    public void Load(BuildingScriptableObject bso) {
+        SetTierData(bso.tiers);
     }
 
     public override BuildingData.ComponentData Save() {

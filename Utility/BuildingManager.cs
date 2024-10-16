@@ -59,36 +59,36 @@ namespace Utility {
 
 
             List<Vector3Int> baseCoordinates = GetRectAreaFromPoint(position, building.BaseHeight, building.Width);
-            if (building is Greenhouse) baseCoordinates.AddRange(GetRectAreaFromPoint(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
+            if (building.type is BuildingType.Greenhouse) baseCoordinates.AddRange(GetRectAreaFromPoint(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
             if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) return (false, $"Can't place {building.BuildingName} outside of bounds");
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
-            HashSet<Type> actualBuildings = new(){
-                typeof(Barn),
-                typeof(Cabin),
-                typeof(Coop),
-                typeof(FishPond),
-                typeof(GoldClock),
-                typeof(Greenhouse),
-                typeof(House),
-                typeof(JunimoHut),
-                typeof(Mill),
-                typeof(Obelisk),
-                typeof(Shed),
-                typeof(ShippingBin),
-                typeof(Silo),
-                typeof(SlimeHutch),
-                typeof(Stable),
-                typeof(Well),
-                typeof(PetBowl)
+            HashSet<BuildingType> actualBuildings = new(){
+                BuildingType.Barn,
+                BuildingType.Cabin,
+                BuildingType.Coop,
+                BuildingType.FishPond,
+                BuildingType.GoldClock,
+                BuildingType.Greenhouse,
+                BuildingType.House,
+                BuildingType.JunimoHut,
+                BuildingType.Mill,
+                BuildingType.Obelisk,
+                BuildingType.Shed,
+                BuildingType.ShippingBin,
+                BuildingType.Silo,
+                BuildingType.SlimeHutch,
+                BuildingType.Stable,
+                BuildingType.Well,
+                BuildingType.PetBowl
             };
             // Debug.Log($"{GetMousePositionInTilemap()} - {BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0))} - {BuildingController.GetUnavailableCoordinates().Contains(GetMousePositionInTilemap())}");
-            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
+            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.type)) return (false, $"{building.GetType()} can't be placed on Ginger Island");
 
-            if ((building.GetType() == typeof(Crop) || building.GetType() == typeof(WoodTree)) && !plantableCoordinates.Contains(position)) return (false, "Can't place a Crop/Tree there");
+            if ((building.type == BuildingType.Crop || building.type == BuildingType.Tree) && !plantableCoordinates.Contains(position)) return (false, "Can't place a Crop/Tree there");
 
-            if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
+            if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.type)) return (false, "Can't place a building inside another building");
             return (true, null);
         }
 

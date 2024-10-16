@@ -13,11 +13,12 @@ using System.Linq;
 using Utility;
 using static WallsComponent;
 using static FlooringComponent;
+using System;
 
 public class HouseExtensionsComponent : BuildingComponent {
 
     public enum HouseModifications {
-        Crib,
+        RemoveCrib,
         OpenBedroom,
         SouthernRoom,
         CornerRoom,
@@ -49,6 +50,7 @@ public class HouseExtensionsComponent : BuildingComponent {
     private Sprite spouseRoomSprite;
     public bool isMarried;
     public HouseModificationMenu ModificationMenu { get; private set; }
+    private Dictionary<HouseModifications, bool> houseModificationsActive;
     Tilemap spouseRoomTilemap, frontTilemap;
     // Tilemap spouseRoomWallsTilemap;
     SpriteAtlas spriteAtlas;
@@ -77,6 +79,10 @@ public class HouseExtensionsComponent : BuildingComponent {
         CreateModificationMenu();
 
         GetComponent<TieredBuildingComponent>().tierChanged += newTier => BuildingTierChange(newTier);
+
+        houseModificationsActive = new();
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) houseModificationsActive.Add(modification, false);
+
     }
 
     void CreateModificationMenu() {
@@ -87,16 +93,16 @@ public class HouseExtensionsComponent : BuildingComponent {
 
 
 
-        ModificationMenu.GetModificationToggle("CornerRoom").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
-        ModificationMenu.GetModificationToggle("Attic").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
-        ModificationMenu.GetModificationToggle("Crib").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Crib, isOn));
-        ModificationMenu.GetModificationToggle("Cubby").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Cubby, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.CornerRoom).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.Attic).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.RemoveCrib, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.Cubby).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Cubby, isOn));
     }
 
     private void BuildingTierChange(int newTier) {
         if (newTier != 3) return;
-        RenovateHouse(HouseModifications.Crib, true);
-        ModificationMenu.GetModificationToggle("Crib").isOn = true;
+        RenovateHouse(HouseModifications.RemoveCrib, true);
+        ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).isOn = true;
         ModificationMenu.SetAllToglesToOff();
     }
 
@@ -282,6 +288,42 @@ public class HouseExtensionsComponent : BuildingComponent {
         //     Destroy(warning);
         // });
         // warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
+    }
+
+    public List<MaterialCostEntry> GetMaterialsNeeded() {
+        List<MaterialCostEntry> totalMaterials = new();
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
+            if (!houseModificationsActive[modification]) continue;
+            switch (modification) {
+                case HouseModifications.RemoveCrib:
+                    break;
+                case HouseModifications.OpenBedroom:
+                    totalMaterials.Add(new(10_000, Materials.Coins));
+                    break;
+                case HouseModifications.SouthernRoom:
+                    totalMaterials.Add(new(30_000, Materials.Coins));
+                    break;
+                case HouseModifications.CornerRoom:
+                    totalMaterials.Add(new(20_000, Materials.Coins));
+                    break;
+                case HouseModifications.ExpandedCornerRoom:
+                    totalMaterials.Add(new(100_000, Materials.Coins));
+                    break;
+                case HouseModifications.Attic:
+                    totalMaterials.Add(new(60_000, Materials.Coins));
+                    break;
+                case HouseModifications.Cubby:
+                    totalMaterials.Add(new(10_000, Materials.Coins));
+                    break;
+                case HouseModifications.DiningRoom:
+                    totalMaterials.Add(new(150_000, Materials.Coins));
+                    break;
+                case HouseModifications.OpenDiningRoom:
+                    totalMaterials.Add(new(10_000, Materials.Coins));
+                    break;
+            }
+        }
+        return totalMaterials;
     }
 
     public override void Load(ComponentData data) {

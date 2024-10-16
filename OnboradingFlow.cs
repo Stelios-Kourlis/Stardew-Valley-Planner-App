@@ -27,17 +27,17 @@ public class OnboradingFlow : MonoBehaviour {
 
             CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetGreenhousePosition() + new Vector3Int(3, 3, 0)), cameraMoveTime);
             yield return new WaitForSecondsRealtime(cameraMoveTime);
-            BuildingController.PlaceGreenhouse(out _);
+            BuildingController.PlaceGreenhouse();
             yield return new WaitForSecondsRealtime(delay);
 
             CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetShippingBinPosition() + new Vector3Int(1, 0, 0)), cameraMoveTime);
             yield return new WaitForSecondsRealtime(cameraMoveTime);
-            BuildingController.PlaceBin(out _);
+            BuildingController.PlaceBin();
             yield return new WaitForSecondsRealtime(delay);
 
             CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetHousePosition() + new Vector3Int(4, 5, 0)), cameraMoveTime);
             yield return new WaitForSecondsRealtime(cameraMoveTime);
-            BuildingController.PlaceHouse(out _);
+            BuildingController.PlaceHouse();
             yield return new WaitForSecondsRealtime(delay);
 
             GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);

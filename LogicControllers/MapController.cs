@@ -139,7 +139,7 @@ public class MapController : MonoBehaviour {
         BuildingController.specialCoordinates.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
-        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap(out _, out _, out _);
+        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap();
 
         GameObject grid = new("Grid");
         grid.AddComponent<Grid>();

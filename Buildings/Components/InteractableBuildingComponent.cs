@@ -50,20 +50,23 @@ public class InteractableBuildingComponent : BuildingComponent {
     }
 
     public string GetBuildingSpriteName() {
+        Debug.Log($"Generating name for {Building.BuildingName} ({Building.type})");
         string name = "";
         // if (Building is IMultipleTypeBuilding multipleTypeBuildingTemp && Building is ITieredBuilding && multipleTypeBuildingTemp?.Type == null) Debug.LogWarning("If building is tiered and multiple type, add the type component before the tier component");
-        if (Building.BuildingGameObject.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) name += $"{multipleTypeBuildingComponent.Type}";
-        name += $"{Building.GetType()}";
+        if (Building.BuildingGameObject.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) name += $"{multipleTypeBuildingComponent.CurrentType}";
+        name += $"{Building.type}";
         if (Building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) name += $"{tieredBuildingComponent.Tier}";
         if (Building.BuildingGameObject.TryGetComponent(out ConnectingBuildingComponent connectingBuildingComponent)) name += $"{connectingBuildingComponent.GetConnectingFlags()}";
+        Debug.Log($"Generated name {name} for {Building.BuildingName}");
         return name;
     }
 
     public string GetBuildingInsideSpriteName() {
         string name = "";
-        name += $"{Building.GetType()}";
+        name += $"{Building.type}";
         if (name.Contains("Cabin")) name = "House";
         if (Building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) name += $"{tieredBuildingComponent.Tier}";
+        Debug.Log($"Generated name {name} for {Building.BuildingName} Interior");
         return name;
     }
 

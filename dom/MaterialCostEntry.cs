@@ -1,13 +1,15 @@
+using System;
 using UnityEngine;
 using UnityEngine.U2D;
 
+[Serializable]
 public class MaterialCostEntry {
     public int amount;
-    public readonly Materials? name;
-    public bool IsSpecial { get { return name == null; } }
+    public Materials name;
+    public bool IsSpecial { get { return name == Materials.DummyMaterial; } }
 
     /// <summary> in case a player need to perform an action rather than give a material, ex. obtaining rarecrows, Greenhouse write a 1 sentence instruction here </summary>
-    public readonly string howToGet;
+    public string howToGet;
 
     public string EntryText => IsSpecial ? howToGet : name.ToString();
 
@@ -20,7 +22,7 @@ public class MaterialCostEntry {
 
     public MaterialCostEntry(string howToGet) {
         amount = 1;
-        name = null;
+        name = Materials.DummyMaterial;
         this.howToGet = howToGet;
     }
 

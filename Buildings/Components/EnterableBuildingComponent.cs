@@ -44,10 +44,11 @@ public class EnterableBuildingComponent : BuildingComponent {
     private Scene BuildingInteriorScene;
     private InteractableBuildingComponent InteractableBuildingComponent => gameObject.GetComponent<InteractableBuildingComponent>();
     private Scene MapScene => GetMapController().MapScene;
+    public int Tier => GetComponent<TieredBuildingComponent>().Tier;
     private Transform mapTransform;
 
-    Dictionary<int, List<WallOrigin>> wallsValues;
-    Dictionary<int, List<FlooringOrigin>> floorsValues;
+    WallsPerTier[] wallsValues;
+    FlooringPerTier[] floorsValues;
 
     public EnterableBuildingComponent AddInteriorInteractions(HashSet<ButtonTypes> interiorInteractions) {
         InteriorInteractions = interiorInteractions;
@@ -55,12 +56,12 @@ public class EnterableBuildingComponent : BuildingComponent {
         return this;
     }
 
-    public EnterableBuildingComponent AddWalls(Dictionary<int, List<WallOrigin>> values) {
+    public EnterableBuildingComponent AddWalls(WallsPerTier[] values) {
         wallsValues = values;
         return this;
     }
 
-    public EnterableBuildingComponent AddFloors(Dictionary<int, List<FlooringOrigin>> values) {
+    public EnterableBuildingComponent AddFloors(FlooringPerTier[] values) {
         floorsValues = values;
         // Debug.Log(floorsValues);
         return this;
@@ -127,21 +128,21 @@ public class EnterableBuildingComponent : BuildingComponent {
         canvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
         canvas.AddComponent<GraphicRaycaster>();
 
-        if (wallsValues != null) {
+        if (wallsValues != null && wallsValues.Count() > 0) {
             GameObject walls = new("Walls");
             walls.transform.SetParent(BuildingInterior.transform);
             walls.AddComponent<Tilemap>();
             walls.AddComponent<TilemapRenderer>().sortingOrder = -101;
-            gameObject.AddComponent<WallsComponent>().SetWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier], walls.GetComponent<Tilemap>());
+            gameObject.AddComponent<WallsComponent>().SetWalls(wallsValues.First(val => val.tier == Tier).wallOrigins.ToList(), walls.GetComponent<Tilemap>());
         }
 
-        if (floorsValues != null) {
+        if (floorsValues != null && floorsValues.Count() > 0) {
             GameObject floors = new("Floors");
             floors.transform.SetParent(BuildingInterior.transform);
             floors.AddComponent<Tilemap>();
             floors.AddComponent<TilemapRenderer>().sortingOrder = -102;
             // Debug.Log(floorsValues);
-            gameObject.AddComponent<FlooringComponent>().SetFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier], floors.GetComponent<Tilemap>());
+            gameObject.AddComponent<FlooringComponent>().SetFloors(floorsValues.First(val => val.tier == Tier).floorOrigins.ToList(), floors.GetComponent<Tilemap>());
         }
 
         if (InteriorInteractions.Count > 0) {
@@ -250,9 +251,9 @@ public class EnterableBuildingComponent : BuildingComponent {
         specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
         InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
 
-        if (wallsValues != null) gameObject.GetComponent<WallsComponent>().UpdateWalls(wallsValues[GetComponent<TieredBuildingComponent>().Tier]);
+        if (wallsValues != null && wallsValues.Count() > 0) gameObject.GetComponent<WallsComponent>().UpdateWalls(wallsValues.First(val => val.tier == Tier).wallOrigins.ToList());
 
-        if (floorsValues != null) gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues[GetComponent<TieredBuildingComponent>().Tier]);
+        if (floorsValues != null && floorsValues.Count() > 0) gameObject.GetComponent<FlooringComponent>().UpdateFloors(floorsValues.First(val => val.tier == Tier).floorOrigins.ToList());
 
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
@@ -335,6 +336,12 @@ public class EnterableBuildingComponent : BuildingComponent {
         EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(GetGridTilemap().transform);
 
+    }
+
+    public void Load(BuildingScriptableObject bso) {
+        AddInteriorInteractions(bso.interiorInteractions.ToHashSet());
+        AddFloors(bso.interiorFlooring);
+        AddWalls(bso.interiorWalls);
     }
 
     public override ComponentData Save() {

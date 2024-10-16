@@ -8,15 +8,18 @@ using static WallsComponent;
 public class BuildingScriptableObject : ScriptableObject {
 
     public string buildingName;
+    public BuildingType typeName;
     public int baseHeight;
     public bool canBeMassPlaced;
-
-    public bool isMultipleType;
-    public string[] types;
+    public List<MaterialCostEntry> materialsNeeded;
     public Sprite defaultSprite;
 
+    public bool isMultipleType;
+    public BuildingVariant[] variants;
+
+
     public bool isTiered;
-    public int maxTier;
+    public BuildingTier[] tiers;
 
     public bool isAnimalHouse;
     public AnimalTiers[] animalsPerTier;
@@ -29,7 +32,6 @@ public class BuildingScriptableObject : ScriptableObject {
     public ButtonTypes[] interiorInteractions;
     public WallsPerTier[] interiorWalls;
     public FlooringPerTier[] interiorFlooring;
-
     public bool hasInteriorExtensions;
 
 }
