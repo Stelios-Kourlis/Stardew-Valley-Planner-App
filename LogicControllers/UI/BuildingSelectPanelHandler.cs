@@ -97,6 +97,7 @@ public class TypeBarHandler : MonoBehaviour {
                     craftableButton.transform.SetParent(buildingSelectContent);
                     craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
                 }
+                continue;
             }
             GameObject button = Building.CreateBuildingButton(type);
             button.transform.SetParent(buildingSelectContent);

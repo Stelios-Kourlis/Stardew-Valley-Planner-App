@@ -75,16 +75,17 @@ public static class BuildingController {
     public static void SetCurrentBuildingType(BuildingType buildingType, int typeIndex) {
         // if (newType is not IMultipleTypeBuilding) throw new ArgumentException("newType must be a IMultipleTypeBuilding, else use SetCurrentBuildingType(Type newType)");
         // Debug.Assert(variant != null, $"Type is null in SetCurrentBuildingType");
-        GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
+        // GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
         LastBuildingObjectCreated = CreateNewBuildingGameObject(buildingType);
         CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
         currentBuildingType = buildingType;
         // Building building = (Building)LastBuildingObjectCreated.GetComponent(newType);
         // Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
         LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().SetType(typeIndex);
+        Debug.Log($"Set current building type to {buildingType} with type {LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().CurrentType}");
         currentBuildingTypeChanged?.Invoke(buildingType);
 
-        UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
+        // UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
     }
 
     public static GameObject CreateNewBuildingGameObject(BuildingType buildingType) {

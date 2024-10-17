@@ -150,7 +150,7 @@
 //     //             new(8, Materials.Coal),
 //     //         },
 //     //         Types.CharcoalKiln => new List<MaterialCostEntry>(){
-//     //             new(20, Materials.CopperBar),
+//     //             new(20, Materials.Wood),
 //     //             new(2, Materials.CopperBar),
 //     //         },
 //     //         Types.LightningRod => new List<MaterialCostEntry>(){
@@ -179,7 +179,7 @@
 //     //             new(3, Materials.GoldBar),
 //     //         },
 //     //         Types.FarmComputer => new List<MaterialCostEntry>(){
-//     //             new(50, Materials.DwarfGadget),
+//     //             new(1, Materials.DwarfGadget),
 //     //             new(1, Materials.BatteryPack),
 //     //             new(10, Materials.RefinedQuartz),
 //     //         },

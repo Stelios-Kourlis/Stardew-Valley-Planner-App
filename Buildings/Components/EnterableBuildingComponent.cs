@@ -46,6 +46,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     private Scene MapScene => GetMapController().MapScene;
     public int Tier => GetComponent<TieredBuildingComponent>().Tier;
     private Transform mapTransform;
+    public Action InteriorAdded { get; set; }
 
     WallsPerTier[] wallsValues;
     FlooringPerTier[] floorsValues;
@@ -224,6 +225,8 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
         SceneManager.MoveGameObjectToScene(canvas, BuildingInteriorScene);
+
+        InteriorAdded?.Invoke();
         // var PlantableCoordinates = GetSpecialCoordinateSet(BuildingName, TileType.Plantable).Select(coordinate => coordinate + InteriorAreaCoordinates[0]);
         // InteriorSpecialTiles.AddSpecialTileSet(new SpecialCoordinateRect($"{BuildingName}Plantable", PlantableCoordinates, TileType.Plantable));
 

@@ -61,6 +61,23 @@ public class HouseExtensionsComponent : BuildingComponent {
     // Start is called before the first frame update
     void Start() {
         GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateModificationMenu;
+        GetComponent<EnterableBuildingComponent>().InteriorAdded += AddTilemaps;
+
+        spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
+        checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
+        checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
+        spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
+        modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
+        // CreateModificationMenu();
+
+        GetComponent<TieredBuildingComponent>().tierChanged += newTier => BuildingTierChange(newTier);
+
+        houseModificationsActive = new();
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) houseModificationsActive.Add(modification, false);
+
+    }
+
+    private void AddTilemaps() {
         GameObject spouseRoom = new("SpouseRoomTilemap");
         spouseRoomTilemap = spouseRoom.AddComponent<Tilemap>();
         spouseRoom.AddComponent<TilemapRenderer>().sortingOrder = -102;
@@ -70,19 +87,6 @@ public class HouseExtensionsComponent : BuildingComponent {
         frontTilemap = frontTilemapGameObj.AddComponent<Tilemap>();
         frontTilemapGameObj.AddComponent<TilemapRenderer>().sortingOrder = BuildingInteriorTilemap.GetComponent<TilemapRenderer>().sortingOrder + 1;
         frontTilemapGameObj.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
-
-        spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
-        checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
-        checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
-        spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
-        modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
-        CreateModificationMenu();
-
-        GetComponent<TieredBuildingComponent>().tierChanged += newTier => BuildingTierChange(newTier);
-
-        houseModificationsActive = new();
-        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) houseModificationsActive.Add(modification, false);
-
     }
 
     void CreateModificationMenu() {

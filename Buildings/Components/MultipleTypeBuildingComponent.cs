@@ -52,7 +52,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
 
     public void SetType(int newTypeIndex) {
         CurrentVariantIndex = newTypeIndex;
-        Sprite sprite = Atlas.GetSprite($"{SpriteName}");
+        Sprite sprite = variants[CurrentVariantIndex].variantSprite;
         if (sprite != null) Building.UpdateTexture(sprite);
     }
 
