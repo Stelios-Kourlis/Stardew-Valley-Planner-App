@@ -13,11 +13,12 @@ using System.Linq;
 using Utility;
 using static WallsComponent;
 using static FlooringComponent;
+using System;
 
 public class HouseExtensionsComponent : BuildingComponent {
 
     public enum HouseModifications {
-        Crib,
+        RemoveCrib,
         OpenBedroom,
         SouthernRoom,
         CornerRoom,
@@ -49,6 +50,7 @@ public class HouseExtensionsComponent : BuildingComponent {
     private Sprite spouseRoomSprite;
     public bool isMarried;
     public HouseModificationMenu ModificationMenu { get; private set; }
+    private Dictionary<HouseModifications, bool> houseModificationsActive;
     Tilemap spouseRoomTilemap, frontTilemap;
     // Tilemap spouseRoomWallsTilemap;
     SpriteAtlas spriteAtlas;
@@ -59,6 +61,23 @@ public class HouseExtensionsComponent : BuildingComponent {
     // Start is called before the first frame update
     void Start() {
         GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateModificationMenu;
+        GetComponent<EnterableBuildingComponent>().InteriorAdded += AddTilemaps;
+
+        spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
+        checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
+        checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
+        spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
+        modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
+        // CreateModificationMenu();
+
+        GetComponent<TieredBuildingComponent>().tierChanged += newTier => BuildingTierChange(newTier);
+
+        houseModificationsActive = new();
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) houseModificationsActive.Add(modification, false);
+
+    }
+
+    private void AddTilemaps() {
         GameObject spouseRoom = new("SpouseRoomTilemap");
         spouseRoomTilemap = spouseRoom.AddComponent<Tilemap>();
         spouseRoom.AddComponent<TilemapRenderer>().sortingOrder = -102;
@@ -68,13 +87,6 @@ public class HouseExtensionsComponent : BuildingComponent {
         frontTilemap = frontTilemapGameObj.AddComponent<Tilemap>();
         frontTilemapGameObj.AddComponent<TilemapRenderer>().sortingOrder = BuildingInteriorTilemap.GetComponent<TilemapRenderer>().sortingOrder + 1;
         frontTilemapGameObj.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
-
-        spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
-        checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
-        checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
-        spriteAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/House/InteriorModificationsAtlas");
-        modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
-        CreateModificationMenu();
     }
 
     void CreateModificationMenu() {
@@ -82,9 +94,20 @@ public class HouseExtensionsComponent : BuildingComponent {
         ModificationMenu.transform.position = Vector3.zero;
         ModificationMenu.GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
         ModificationMenu.spouseChanged += SetSpouse;
-        ModificationMenu.GetModificationToggle("CornerRoom").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
-        ModificationMenu.GetModificationToggle("Attic").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
-        ModificationMenu.GetModificationToggle("Crib").onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Crib, isOn));
+
+
+
+        ModificationMenu.GetModificationToggle(HouseModifications.CornerRoom).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.Attic).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.RemoveCrib, isOn));
+        ModificationMenu.GetModificationToggle(HouseModifications.Cubby).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Cubby, isOn));
+    }
+
+    private void BuildingTierChange(int newTier) {
+        if (newTier != 3) return;
+        // RenovateHouse(HouseModifications.RemoveCrib, true);
+        ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).isOn = true;
+        ModificationMenu.SetAllToglesSpritesToOff();
     }
 
     public void ToggleModificationMenu() {
@@ -191,12 +214,12 @@ public class HouseExtensionsComponent : BuildingComponent {
                 warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
                     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
                     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
-                    ApplyRenovation(modification, isOn, values, positions);
+                    ApplyRenovation(values, isOn);
                     Destroy(warning);
                 });
                 warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
             }
-            else ApplyRenovation(modification, isOn, values, positions);
+            else ApplyRenovation(values, isOn);
         }
         else {
             // List<Vector3Int> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
@@ -207,12 +230,12 @@ public class HouseExtensionsComponent : BuildingComponent {
                 warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
                     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any()).ToList();
                     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
-                    ApplyRenovation(modification, isOn, values, positions);
+                    ApplyRenovation(values, isOn);
                     Destroy(warning);
                 });
                 warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
             }
-            else ApplyRenovation(modification, isOn, values, positions);
+            else ApplyRenovation(values, isOn);
 
             // foreach (Vector3Int pos in positions.Except(newInvalidPositions)) {
             //     BuildingInteriorTilemap.SetTile(pos, LoadTile(Tiles.Green));
@@ -223,7 +246,8 @@ public class HouseExtensionsComponent : BuildingComponent {
 
 
 
-    private void ApplyRenovation(HouseModifications modification, bool isOn, HouseModificationScriptableObject values, List<Vector3Int> positions) {
+    private void ApplyRenovation(HouseModificationScriptableObject values, bool isOn) {
+        List<Vector3Int> positions = GetRectAreaFromPoint(values.spriteOrigin, (int)(values.backSprite.textureRect.height / 16), (int)(values.backSprite.textureRect.width / 16));
         if (isOn) {
             SpecialCoordinateRect modificationSpecialTiles = GetSpecialCoordinateSet(values.type.ToString());
             modificationSpecialTiles.AddOffset(values.spriteOrigin);
@@ -249,16 +273,64 @@ public class HouseExtensionsComponent : BuildingComponent {
             foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.GetReverseModification());
         }
 
-        ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{modification}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
+        // Debug.Log($"{values.type} set to {isOn}");
+        if (values.type == HouseModifications.RemoveCrib) ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{values.type}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "Off" : "On"];
+        else ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{values.type}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
+        ResolveConflicts();
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
+    //
     private void ResolveConflicts() {
 
     }
 
-    private void CreateWarning() {
+    private void CreateWarning(IEnumerable<Vector3Int> positions) {
+        // GameObject warning = Instantiate(modificationWarning, GetCanvasGameObject().transform);
+        // warning.SetActive(true);
+        // warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
+        //     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
+        //     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
+        //     ApplyRenovation(modification, isOn, values, positions);
+        //     Destroy(warning);
+        // });
+        // warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
+    }
 
+    public List<MaterialCostEntry> GetMaterialsNeeded() {
+        List<MaterialCostEntry> totalMaterials = new();
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
+            if (!houseModificationsActive[modification]) continue;
+            switch (modification) {
+                case HouseModifications.RemoveCrib:
+                    break;
+                case HouseModifications.OpenBedroom:
+                    totalMaterials.Add(new(10_000, Materials.Coins));
+                    break;
+                case HouseModifications.SouthernRoom:
+                    totalMaterials.Add(new(30_000, Materials.Coins));
+                    break;
+                case HouseModifications.CornerRoom:
+                    totalMaterials.Add(new(20_000, Materials.Coins));
+                    break;
+                case HouseModifications.ExpandedCornerRoom:
+                    totalMaterials.Add(new(100_000, Materials.Coins));
+                    break;
+                case HouseModifications.Attic:
+                    totalMaterials.Add(new(60_000, Materials.Coins));
+                    break;
+                case HouseModifications.Cubby:
+                    totalMaterials.Add(new(10_000, Materials.Coins));
+                    break;
+                case HouseModifications.DiningRoom:
+                    totalMaterials.Add(new(150_000, Materials.Coins));
+                    break;
+                case HouseModifications.OpenDiningRoom:
+                    totalMaterials.Add(new(10_000, Materials.Coins));
+                    break;
+            }
+        }
+        return totalMaterials;
     }
 
     public override void Load(ComponentData data) {

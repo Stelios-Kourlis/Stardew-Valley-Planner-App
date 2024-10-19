@@ -56,8 +56,19 @@ public class HouseModificationMenu : MonoBehaviour {
         return Content.Find("Modifications").Find("Renovations").Find("Attic").GetComponent<Toggle>();
     }
 
-    public Toggle GetModificationToggle(string modificationName) {
-        return Content.Find("Modifications").Find("Renovations").Find(modificationName).GetComponent<Toggle>();
+    public Toggle GetModificationToggle(HouseExtensionsComponent.HouseModifications modificationName) {
+        return Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).GetComponent<Toggle>();
+    }
+
+    public void SetAllToglesSpritesToOff() {
+        Sprite offSprite = Resources.Load<Sprite>("UI/CheckBoxOff");
+        foreach (Transform toggle in Content.Find("Modifications").Find("Renovations")) {
+            if (toggle.TryGetComponent<Toggle>(out Toggle toggleComponent)) {
+                // toggleComponent.isOn = false;
+                toggle.Find("Button").GetComponent<Image>().sprite = offSprite;
+            }
+        }
+        Resources.UnloadAsset(offSprite);
     }
 
     private Transform GetWallpaperContent() {

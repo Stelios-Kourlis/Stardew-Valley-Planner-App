@@ -103,7 +103,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     public static bool LoadFromFile() {
         string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
         var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
-        Type currentType = BuildingController.currentBuildingType;
+        BuildingType currentType = BuildingController.currentBuildingType;
         if (paths.Length > 0) {
             string directoryPath = Path.GetDirectoryName(paths[0]);
             PlayerPrefs.SetString("DefaultLoadPath", directoryPath);

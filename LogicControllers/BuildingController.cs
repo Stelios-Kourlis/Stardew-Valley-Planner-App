@@ -16,8 +16,8 @@ public static class BuildingController {
     // private static readonly HashSet<Vector3Int> plantableCoordinates = new();
     public static SpecialCoordinatesCollection specialCoordinates = new();
     public static readonly List<Building> buildings = new();
-    public static Type currentBuildingType = typeof(FishPond);
-    public static Actions CurrentAction { get; private set; } = Actions.PLACE_WALLPAPER;
+    public static BuildingType currentBuildingType = BuildingType.ShippingBin;
+    public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
     public static Transform CurrentTilemapTransform { get; private set; }
@@ -28,20 +28,21 @@ public static class BuildingController {
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
 
-    public static Action<Type> currentBuildingTypeChanged;
+    public static Action<BuildingType> currentBuildingTypeChanged;
     public static Action anyBuildingPositionChanged;
 
     public static void CreateNewBuilding() {
         // Debug.Log("Creating new building");
         if (IsLoadingSave) return;
-        Enum type = null;
+        int type = -1;
         bool lastBuildingWasMultipleType = LastBuildingObjectCreated != null && LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent _);
         if (lastBuildingWasMultipleType) {
-            type = LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().Type;
+            type = LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().CurrentVariantIndex;
         }
         LastBuildingObjectCreated = CreateNewBuildingGameObject(currentBuildingType);
+        CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
         if (LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) {
-            if (type != null) multipleTypeBuildingComponent.SetType(type);
+            if (type != -1) multipleTypeBuildingComponent.SetType(type);
         }
     }
 
@@ -53,15 +54,17 @@ public static class BuildingController {
     /// <summary>
     /// Set the type of the building that is currently being placed
     /// </summary>
-    public static void SetCurrentBuildingType(Type newType) {
+    public static void SetCurrentBuildingType(BuildingType buildingType) {
         if (CurrentAction == Actions.PLACE && CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) {
             CurrentBuildingBeingPlaced.GetComponent<BuildingSaverLoader>().LoadSelf();
         }
         GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated; //Backup is needed because if we destroy it now this script terminates
-        LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
+        LastBuildingObjectCreated = CreateNewBuildingGameObject(buildingType);
+        CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
         UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
-        currentBuildingType = newType;
-        currentBuildingTypeChanged?.Invoke(newType);
+        currentBuildingType = buildingType;
+        // Debug.Log($"Set current building type to {buildingType}");
+        currentBuildingTypeChanged?.Invoke(buildingType);
     }
 
     /// <summary>
@@ -69,67 +72,73 @@ public static class BuildingController {
     /// </summary>
     /// <param name="newType">The type of the building, MUST be a IMultipleTypeBuilding</param>
     /// <param name="variant">The variant of the multiple type building</param>
-    public static void SetCurrentBuildingType(Type newType, Enum variant) {
+    public static void SetCurrentBuildingType(BuildingType buildingType, int typeIndex) {
         // if (newType is not IMultipleTypeBuilding) throw new ArgumentException("newType must be a IMultipleTypeBuilding, else use SetCurrentBuildingType(Type newType)");
-        Debug.Assert(variant != null, $"Type is null in SetCurrentBuildingType");
-        GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
-        LastBuildingObjectCreated = CreateNewBuildingGameObject(newType);
-        //Set the variant
+        // Debug.Assert(variant != null, $"Type is null in SetCurrentBuildingType");
+        // GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated;
+        LastBuildingObjectCreated = CreateNewBuildingGameObject(buildingType);
+        CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
+        currentBuildingType = buildingType;
         // Building building = (Building)LastBuildingObjectCreated.GetComponent(newType);
         // Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
-        LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().SetType(variant);
-        currentBuildingTypeChanged?.Invoke(newType);
+        LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().SetType(typeIndex);
+        Debug.Log($"Set current building type to {buildingType} with type {LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().CurrentType}");
+        currentBuildingTypeChanged?.Invoke(buildingType);
 
-        UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
+        // UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
     }
 
-    private static GameObject CreateNewBuildingGameObject(Type newType) {
-        currentBuildingType = newType;
-        GameObject newGameObject = new GameObject(currentBuildingType.Name).AddComponent(newType).gameObject;
+    public static GameObject CreateNewBuildingGameObject(BuildingType buildingType) {
+        BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{buildingType}");
+        GameObject newGameObject = new GameObject($"{buildingType}").AddComponent<Building>().LoadFromScriptableObject(bso).gameObject;
         newGameObject.transform.SetParent(CurrentTilemapTransform);
-        CurrentBuildingBeingPlaced = newGameObject.GetComponent<Building>();
         return newGameObject;
     }
 
-    public static void InitializeMap(out Building house, out Building shippingBin, out Building greenhouse) {
+    public static void InitializeMap() {
         IsLoadingSave = true;
-        PlaceHouse(out house);
-        PlaceBin(out shippingBin);
-        PlaceGreenhouse(out greenhouse);
+        PlaceHouse();
+        PlaceBin();
+        PlaceGreenhouse();
         IsLoadingSave = false;
         CreateNewBuilding();
     }
 
-    public static void PlaceHouse(out Building house) {
+    public static void PlaceHouse() {
         MapController mapController = GetMapController();
         Vector3Int housePos = mapController.GetHousePosition();
         GameObject houseGameObject = new("House");
         houseGameObject.transform.parent = CurrentTilemapTransform;
-        houseGameObject.AddComponent<House>().PlaceBuilding(housePos);
-        houseGameObject.GetComponent<House>().SetTier(1);
+        BuildingScriptableObject house = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/House");
+        houseGameObject.AddComponent<Building>().LoadFromScriptableObject(house);
+        houseGameObject.GetComponent<Building>().PlaceBuilding(housePos);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
-        house = houseGameObject.GetComponent<House>();
+        Resources.UnloadAsset(house);
 
     }
 
-    public static void PlaceBin(out Building shippingBin) {
+    public static void PlaceBin() {
         MapController mapController = GetMapController();
         Vector3Int binPos = mapController.GetShippingBinPosition();
         GameObject houseGameObject = new("ShippingBin");
         houseGameObject.transform.parent = CurrentTilemapTransform;
-        houseGameObject.AddComponent<ShippingBin>().PlaceBuilding(binPos);
+        BuildingScriptableObject bin = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/ShippingBin");
+        houseGameObject.AddComponent<Building>().LoadFromScriptableObject(bin);
+        houseGameObject.GetComponent<Building>().PlaceBuilding(binPos);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
-        shippingBin = houseGameObject.GetComponent<ShippingBin>();
+        Resources.UnloadAsset(bin);
     }
 
-    public static void PlaceGreenhouse(out Building greenhouse) {
+    public static void PlaceGreenhouse() {
         MapController mapController = GetMapController();
-        Vector3Int binPos = mapController.GetGreenhousePosition();
+        Vector3Int greenhousePos = mapController.GetGreenhousePosition();
         GameObject houseGameObject = new("Greenhouse");
         houseGameObject.transform.parent = CurrentTilemapTransform;
-        houseGameObject.AddComponent<Greenhouse>().PlaceBuilding(binPos);
+        BuildingScriptableObject greenhouse = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/Greenhouse");
+        houseGameObject.AddComponent<Building>().LoadFromScriptableObject(greenhouse);
+        houseGameObject.GetComponent<Building>().PlaceBuilding(greenhousePos);
         houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
-        greenhouse = houseGameObject.GetComponent<Greenhouse>();
+        Resources.UnloadAsset(greenhouse);
     }
 
 
@@ -164,7 +173,7 @@ public static class BuildingController {
 
     }
 
-    public static Type GetCurrentBuildingType() { return currentBuildingType; }
+    public static BuildingType GetCurrentBuildingType() { return currentBuildingType; }
     // public static HashSet<Vector3Int> GetUnavailableCoordinates() { return unavailableCoordinates; }
     // public static HashSet<Vector3Int> GetPlantableCoordinates() { return plantableCoordinates; }
     public static List<Building> GetBuildings() { return buildings; }

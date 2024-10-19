@@ -2,17 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Utility;
 using static Utility.SpriteManager;
 
 /// <summary>
 /// Methods to handle buildings with an effect that has a range ex. Scarecrows, JunimoHuts etc...
 /// </summary>
-[RequireComponent(typeof(Building))]
 public class RangeEffectBuilding {
     private Building Building { get; set; }
     private Vector3Int[] RangeArea { get; set; }
     private GameObject rangeEffectGameObject;
-    private Tile greenTile;
+    private readonly Tile greenTile;
+    private readonly Tile redTile;
 
     public RangeEffectBuilding(Building building) {
         Building = building;
@@ -20,14 +21,15 @@ public class RangeEffectBuilding {
         rangeEffectGameObject.transform.SetParent(Building.transform);
         rangeEffectGameObject.AddComponent<TilemapRenderer>().sortingOrder = building.TilemapRenderer.sortingOrder - 1;
         if (rangeEffectGameObject.GetComponent<Tilemap>() == null) rangeEffectGameObject.AddComponent<Tilemap>();
-        greenTile = LoadTile(Utility.Tiles.Green);
+        greenTile = LoadTile(Tiles.Green);
+        redTile = LoadTile(Tiles.Red);
     }
 
-    public void ShowEffectRange(Vector3Int[] rangeArea) {
+    public void ShowEffectRange(Vector3Int[] rangeArea, Tiles tileType = Tiles.Green) {
         if (RangeArea != null) HideEffectRange();
         RangeArea = rangeArea;
         foreach (Vector3Int position in RangeArea) {
-            rangeEffectGameObject.GetComponent<Tilemap>().SetTile(position, greenTile);
+            rangeEffectGameObject.GetComponent<Tilemap>().SetTile(position, tileType == Tiles.Green ? greenTile : redTile);
         }
     }
 

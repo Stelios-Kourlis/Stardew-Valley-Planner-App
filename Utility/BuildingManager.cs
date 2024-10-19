@@ -50,46 +50,48 @@ namespace Utility {
         /// <param name="building"> The building you want to place </param>
         /// </summary>
         /// <returns> If the position is unavailable return (false, reason), with reason being a string with the issue, else returns (true, null)</returns>
-        public static (bool, string) BuildingCanBePlacedAtPosition(Vector3Int position, Building building) {
+        public static bool BuildingCanBePlacedAtPosition(Vector3Int position, Building building, out string errorMessage) {
             //todo rewrite this to better utilize the new coordinate system
             // Debug.Log(BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0)));
-            if (building.CurrentBuildingState == Building.BuildingState.PLACED) return (false, "Building has already been placed");
+            if (!building.BuildingSpecificPlacementPreconditionsAreMet(position, out errorMessage)) return false;
+            if (building.CurrentBuildingState == Building.BuildingState.PLACED) { errorMessage = "Building has already been placed"; return false; }
             HashSet<Vector3Int> unavailableCoordinates = InvalidTilesManager.Instance.AllInvalidTiles;
             HashSet<Vector3Int> plantableCoordinates = InvalidTilesManager.Instance.AllPlantableTiles;
 
 
             List<Vector3Int> baseCoordinates = GetRectAreaFromPoint(position, building.BaseHeight, building.Width);
-            if (building is Greenhouse) baseCoordinates.AddRange(GetRectAreaFromPoint(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
-            if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) return (false, $"Can't place {building.BuildingName} there");
-            if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) return (false, $"Can't place {building.BuildingName} outside of bounds");
+            // if (building.type is BuildingType.Greenhouse) baseCoordinates.AddRange(GetRectAreaFromPoint(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
+            if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) { errorMessage = $"Can't place {building.BuildingName} there"; return false; }
+            if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) { errorMessage = $"Can't place {building.BuildingName} outside of bounds"; return false; }
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
-            HashSet<Type> actualBuildings = new(){
-                typeof(Barn),
-                typeof(Cabin),
-                typeof(Coop),
-                typeof(FishPond),
-                typeof(GoldClock),
-                typeof(Greenhouse),
-                typeof(House),
-                typeof(JunimoHut),
-                typeof(Mill),
-                typeof(Obelisk),
-                typeof(Shed),
-                typeof(ShippingBin),
-                typeof(Silo),
-                typeof(SlimeHutch),
-                typeof(Stable),
-                typeof(Well),
-                typeof(PetBowl)
+            HashSet<BuildingType> actualBuildings = new(){
+                BuildingType.Barn,
+                BuildingType.Cabin,
+                BuildingType.Coop,
+                BuildingType.FishPond,
+                BuildingType.GoldClock,
+                BuildingType.Greenhouse,
+                BuildingType.House,
+                BuildingType.JunimoHut,
+                BuildingType.Mill,
+                BuildingType.Obelisk,
+                BuildingType.Shed,
+                BuildingType.ShippingBin,
+                BuildingType.Silo,
+                BuildingType.SlimeHutch,
+                BuildingType.Stable,
+                BuildingType.Well,
+                BuildingType.PetBowl
             };
             // Debug.Log($"{GetMousePositionInTilemap()} - {BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0))} - {BuildingController.GetUnavailableCoordinates().Contains(GetMousePositionInTilemap())}");
-            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.GetType())) return (false, $"{building.GetType()} can't be placed on Ginger Island");
+            if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.type)) { errorMessage = $"{building.type} can't be placed on Ginger Island"; return false; }
 
-            if ((building.GetType() == typeof(Crop) || building.GetType() == typeof(WoodTree)) && !plantableCoordinates.Contains(position)) return (false, "Can't place a Crop/Tree there");
+            if ((building.type == BuildingType.Crop || building.type == BuildingType.Tree) && !plantableCoordinates.Contains(position)) { errorMessage = $"Can't place a {building.type} there"; return false; }
 
-            if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.GetType())) return (false, "Can't place a building inside another building");
-            return (true, null);
+            if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.type)) { errorMessage = "Can't place a building inside another building"; return false; }
+            errorMessage = "";
+            return true;
         }
 
         private static bool CoordinateIsWithinBounds(Vector3Int coordinate, IEnumerable<Vector3Int> bounds) {

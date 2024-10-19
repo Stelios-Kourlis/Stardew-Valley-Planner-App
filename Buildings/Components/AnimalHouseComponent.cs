@@ -11,6 +11,12 @@ using static Utility.ClassManager;
 using static BuildingData;
 using Newtonsoft.Json.Linq;
 
+[Serializable]
+public class AnimalTiers {
+    public int tier;
+    public Animals[] animalsAllowed;
+}
+
 [RequireComponent(typeof(Building))]
 [Serializable]
 public class AnimalHouseComponent : BuildingComponent {
@@ -18,7 +24,8 @@ public class AnimalHouseComponent : BuildingComponent {
     private readonly GameObject[] UIElements = new GameObject[2];
     [field: SerializeField] public List<Animals> AnimalsInBuilding { get; private set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
-    public Dictionary<int, HashSet<Animals>> animalsPerTier;
+    public AnimalTiers[] animalsPerTier;
+    private int Tier => GetComponent<TieredBuildingComponent>().Tier;
 
     // [SerializeField] private GameObject animalMenuPrefab;
 
@@ -32,8 +39,8 @@ public class AnimalHouseComponent : BuildingComponent {
         gameObject.GetComponent<TieredBuildingComponent>().tierChanged += UpdateMaxAnimalCapacity;
     }
 
-    public AnimalHouseComponent SetAllowedAnimalsPerTier(Dictionary<int, HashSet<Animals>> allowedAnimalsPerTier) {
-        animalsPerTier = allowedAnimalsPerTier;
+    public AnimalHouseComponent SetAllowedAnimalsPerTier(AnimalTiers[] animalsPerTier) {
+        this.animalsPerTier = animalsPerTier;
         return this;
     }
 
@@ -42,14 +49,14 @@ public class AnimalHouseComponent : BuildingComponent {
             NotificationManager.Instance.SendNotification($"{Building.GetType()} is full ({AnimalsInBuilding.Count}/{MaxAnimalCapacity}), cannot add {animal}", NotificationManager.Icons.ErrorIcon);
             return false;
         }
-        if (!animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains(animal)) { NotificationManager.Instance.SendNotification($"Cannot add {animal} to {Building.BuildingName} tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
+        if (!animalsPerTier.First(apt => apt.tier == Tier).animalsAllowed.Contains(animal)) { NotificationManager.Instance.SendNotification($"Cannot add {animal} to {Building.BuildingName} tier {GetComponent<TieredBuildingComponent>().Tier}", NotificationManager.Icons.ErrorIcon); return false; }
         AnimalsInBuilding.Add(animal);
         AddAnimalButton(animal);
         return true;
     }
 
     public void UpdateMaxAnimalCapacity(int tier) {
-        var animalsToRemove = AnimalsInBuilding.Where(animal => !animalsPerTier[tier].Contains(animal)).ToList();
+        var animalsToRemove = AnimalsInBuilding.Where(animal => !animalsPerTier.First(apt => apt.tier == Tier).animalsAllowed.Contains(animal)).ToList();
 
         AnimalsInBuilding.RemoveAll(animal => animalsToRemove.Contains(animal));
 
@@ -77,6 +84,48 @@ public class AnimalHouseComponent : BuildingComponent {
     public void AddAnimalMenuObject() {
         UIElements[0] = CreateAnimalChoiceMenu();
         UIElements[1] = CreateAnimalsInBuildingMenu();
+    }
+
+    public List<MaterialCostEntry> GetMaterialsNeeded() {
+        List<MaterialCostEntry> animalCosts = new();
+        foreach (Animals animal in AnimalsInBuilding) {
+            switch (animal) {
+                case Animals.Chicken:
+                    animalCosts.Add(new(800, Materials.Coins));
+                    break;
+                case Animals.Cow:
+                    animalCosts.Add(new(1500, Materials.Coins));
+                    break;
+                case Animals.Goat:
+                    animalCosts.Add(new(4000, Materials.Coins));
+                    break;
+                case Animals.Duck:
+                    animalCosts.Add(new(1200, Materials.Coins));
+                    break;
+                case Animals.Sheep:
+                    animalCosts.Add(new(8000, Materials.Coins));
+                    break;
+                case Animals.Rabbit:
+                    animalCosts.Add(new(8000, Materials.Coins));
+                    break;
+                case Animals.Pig:
+                    animalCosts.Add(new(16000, Materials.Coins));
+                    break;
+                case Animals.Dinosaur:
+                    animalCosts.Add(new(800, Materials.DinosaurEgg));
+                    break;
+                case Animals.GoldenChicken:
+                    animalCosts.Add(new(800, Materials.GoldenEgg));
+                    break;
+                case Animals.VoidChicken:
+                    animalCosts.Add(new(800, Materials.VoidEgg));
+                    break;
+                case Animals.Ostrich:
+                    animalCosts.Add(new(1, Materials.OstrichEgg));
+                    break;
+            }
+        }
+        return animalCosts;
     }
 
     private GameObject CreateAnimalChoiceMenu() {
@@ -115,7 +164,7 @@ public class AnimalHouseComponent : BuildingComponent {
 
     private void CreateAddAnimalButtons(GameObject animalMenu) {
         // for (int tier = 1; tier < GetComponent<TieredBuildingComponent>().MaxTier; tier++) {
-        foreach (Animals animal in animalsPerTier[GetComponent<TieredBuildingComponent>().MaxTier]) {
+        foreach (Animals animal in animalsPerTier.First(apt => apt.tier == Tier).animalsAllowed) {
             GameObject button = new(animal.ToString());
             button.transform.SetParent(animalMenu.transform);
             button.AddComponent<RectTransform>().sizeDelta = new Vector3(100, 100, 1);
@@ -133,7 +182,7 @@ public class AnimalHouseComponent : BuildingComponent {
             Button button = animalButton.GetComponent<Button>();
             UIElement uiElement = animalButton.GetComponent<UIElement>();
 
-            bool isAnimalAllowed = animalsPerTier[GetComponent<TieredBuildingComponent>().Tier].Contains((Animals)Enum.Parse(typeof(Animals), button.gameObject.name));
+            bool isAnimalAllowed = animalsPerTier.First(apt => apt.tier == Tier).animalsAllowed.Contains((Animals)Enum.Parse(typeof(Animals), button.gameObject.name));
 
             button.interactable = isAnimalAllowed;
             uiElement.ExpandOnHover = isAnimalAllowed;
@@ -156,6 +205,10 @@ public class AnimalHouseComponent : BuildingComponent {
     public void ToggleAnimalMenu() {
         UIElements[0].SetActive(!UIElements[0].activeSelf);
         UIElements[1].SetActive(!UIElements[1].activeSelf);
+    }
+
+    public void Load(BuildingScriptableObject bso) {
+        animalsPerTier = bso.animalsPerTier;
     }
 
     public override ComponentData Save() {

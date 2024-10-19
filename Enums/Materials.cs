@@ -1,4 +1,4 @@
-public enum Materials{
+public enum Materials {
 
     DummyMaterial,//should not be used but compiler at TotalMaterialCalculator needs it
     Coins,
@@ -27,6 +27,9 @@ public enum Materials{
     IridiumOre,
     Coal,
     OstrichEgg,
+    DinosaurEgg,
+    VoidEgg,
+    GoldenEgg,
     MapleSyrup,
     OakResin,
     PineTar,

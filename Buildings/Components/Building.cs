@@ -11,12 +11,13 @@ using System.Linq;
 using UnityEngine.UI;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.U2D;
 
 [Serializable]
-public abstract class Building : TooltipableGameObject {
-    protected readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
-    protected readonly Color SEMI_TRANSPARENT_INVALID = new(1, 0.5f, 0.5f, 0.5f);
-    protected readonly Color OPAQUE = new(1, 1, 1, 1);
+public class Building : TooltipableGameObject {
+    public static readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
+    public static readonly Color SEMI_TRANSPARENT_INVALID = new(1, 0.5f, 0.5f, 0.5f);
+    public static readonly Color OPAQUE = new(1, 1, 1, 1);
     public override string TooltipMessage {
         get {
             string tooltip = BuildingName;
@@ -34,6 +35,17 @@ public abstract class Building : TooltipableGameObject {
     [field: SerializeField] public BuildingState CurrentBuildingState { get; protected set; } = BuildingState.NOT_PLACED;
 
     [field: SerializeField] public string BuildingName { get; protected set; }
+    public string FullName {
+        get {
+            string fullName = "";
+            if (TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) fullName += "Tier " + tieredBuildingComponent.Tier + " ";
+            if (TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) fullName += multipleTypeBuildingComponent.CurrentType + " ";
+            fullName += BuildingName;
+            return fullName;
+        }
+    }
+    public BuildingType type;
+    public List<MaterialCostEntry> materialsNeeded;
 
     [field: SerializeField] public Vector3Int Base { get; protected set; }
     public Vector3Int[] SpriteCoordinates => GetRectAreaFromPoint(Base, Height, Width).ToArray();
@@ -46,7 +58,10 @@ public abstract class Building : TooltipableGameObject {
     public int BaseHeight { get; protected set; } = 0;
 
     [field: SerializeField] public Sprite Sprite { get; protected set; } = null;
+    public SpriteAtlas Atlas { get; private set; }
+    public Sprite DefaultSprite { get; private set; }
     [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
+    private BuildingBehaviourExtension behaviourExtension;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
     public TilemapRenderer TilemapRenderer => gameObject.GetComponent<TilemapRenderer>();
@@ -64,15 +79,18 @@ public abstract class Building : TooltipableGameObject {
         if (!gameObject.TryGetComponent<Tilemap>(out _)) gameObject.AddComponent<Tilemap>();
         if (!gameObject.TryGetComponent<TilemapRenderer>(out _)) gameObject.AddComponent<TilemapRenderer>();
         if (!gameObject.TryGetComponent<BuildingSaverLoader>(out _)) gameObject.AddComponent<BuildingSaverLoader>();
-        Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
+        // Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
+        Sprite = DefaultSprite;
+
     }
 
     public void OnDestroy() {
         Destroy(gameObject.GetComponent<InteractableBuildingComponent>());
+        behaviourExtension?.OnDestroy();
     }
 
     public void DeleteBuilding(bool force = false) {
-        if ((this is Greenhouse || this is House) && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
+        if ((type is BuildingType.Greenhouse || type is BuildingType.House) && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
 
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
 
@@ -85,6 +103,7 @@ public abstract class Building : TooltipableGameObject {
         }
         BuildingRemoved?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
+        behaviourExtension?.OnDelete();
         Destroy(TooltipGameObject);
         Destroy(gameObject);
     }
@@ -101,10 +120,35 @@ public abstract class Building : TooltipableGameObject {
                 DeleteBuildingPreview();
                 break;
         }
+        behaviourExtension?.OnMouseEnter();
     }
 
 
-    public abstract List<MaterialCostEntry> GetMaterialsNeeded();
+    public List<MaterialCostEntry> GetMaterialsNeeded() {
+        List<MaterialCostEntry> totalCost = new();
+        if (materialsNeeded != null) totalCost.AddRange(materialsNeeded);
+        if (TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) totalCost.AddRange(tieredBuildingComponent.GetMaterialsNeeded());
+        if (TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) totalCost.AddRange(multipleTypeBuildingComponent.GetMaterialsNeeded());
+        if (TryGetComponent(out AnimalHouseComponent animalHouseComponent)) totalCost.AddRange(animalHouseComponent.GetMaterialsNeeded());
+        if (TryGetComponent(out HouseExtensionsComponent houseExtensionsComponent)) totalCost.AddRange(houseExtensionsComponent.GetMaterialsNeeded());
+        return CompressList(totalCost);
+    }
+
+    private List<MaterialCostEntry> CompressList(List<MaterialCostEntry> list) {
+        List<MaterialCostEntry> compressedList = new();
+        List<Materials> compressedItems = new();
+        foreach (MaterialCostEntry entry in list) {
+            if (compressedItems.Contains(entry.materialType)) continue;
+            if (entry.IsSpecial) {
+                compressedList.Add(entry);
+                continue;
+            }
+            int totalAmount = list.Where(item => item.materialType == entry.materialType).Select(item => item.amount).Sum();
+            compressedList.Add(new(totalAmount, entry.materialType));
+            compressedItems.Add(entry.materialType);
+        }
+        return compressedList;
+    }
 
     public override void OnUpdate() {
         // if (this is Shed) Debug.Log($"{IsPickedUp.Item1} ({BaseCoordinates?[0].x}, {BaseCoordinates?[0].y})");
@@ -115,6 +159,8 @@ public abstract class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) Tilemap.color = OPAQUE;
         else Tilemap.ClearAllTiles();
         HidBuildingPreview?.Invoke();
+        behaviourExtension?.NoPreview();
+        behaviourExtension?.OnMouseExit();
     }
 
     public bool PickupBuilding() {
@@ -127,6 +173,7 @@ public abstract class Building : TooltipableGameObject {
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
         BuildingPickedUp?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
+        behaviourExtension?.OnPickup();
         return true;
     }
 
@@ -136,7 +183,7 @@ public abstract class Building : TooltipableGameObject {
             return;
         }
         Tilemap.color = SEMI_TRANSPARENT;
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickupPreview();
+        behaviourExtension?.OnPickupPreview();
     }
 
     /// <summary>
@@ -145,7 +192,7 @@ public abstract class Building : TooltipableGameObject {
     /// <returns> Whether the placement succeded or not </returns>
     public bool PlaceBuilding(Vector3Int position) {
         Debug.Assert(Sprite != null, $"Sprite is null for {BuildingName}");
-        (bool canBePlacedAtPosition, string errorMessage) = BuildingCanBePlacedAtPosition(position, this);
+        bool canBePlacedAtPosition = BuildingCanBePlacedAtPosition(position, this, out string errorMessage);
         if (!canBePlacedAtPosition) {
             NotificationManager.Instance.SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon);
             Debug.Log($"Failed to place {BuildingName}: {errorMessage}");
@@ -155,10 +202,7 @@ public abstract class Building : TooltipableGameObject {
         Tilemap.color = OPAQUE;
         Base = position;
 
-        if (this is IExtraActionBuilding extraActionBuilding) {
-            extraActionBuilding.PerformExtraActionsOnPlace(position);
-            // if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.extraData);
-        }
+        behaviourExtension?.OnPlace(position);
 
         PlayParticleEffect(this, true);
         BuildingController.buildingGameObjects.Add(gameObject);
@@ -197,14 +241,14 @@ public abstract class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) return;
         TilemapRenderer.sortingOrder = -position.y + 50;
 
-        if (BuildingCanBePlacedAtPosition(position, this).Item1) Tilemap.color = SEMI_TRANSPARENT;
+        if (BuildingCanBePlacedAtPosition(position, this, out _)) Tilemap.color = SEMI_TRANSPARENT;
         else Tilemap.color = SEMI_TRANSPARENT_INVALID;
 
         Tilemap.ClearAllTiles();
         Vector3Int[] mouseoverEffectArea = GetRectAreaFromPoint(position, Height, Width).ToArray();
         Tilemap.SetTiles(mouseoverEffectArea, SplitSprite(Sprite));
 
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPlacePreview(position);
+        behaviourExtension?.OnPlacePreview(position);
     }
 
     public void DeleteBuildingPreview() {
@@ -213,14 +257,21 @@ public abstract class Building : TooltipableGameObject {
             return;
         }
         Tilemap.color = SEMI_TRANSPARENT_INVALID;
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDeletePreview();
+        behaviourExtension?.OnDeletePreview();
     }
+
+    public bool BuildingSpecificPlacementPreconditionsAreMet(Vector3Int position, out string errorMessage) {
+        errorMessage = "";
+        return behaviourExtension?.BuildingSpecificPlacementPreconditionsAreMet(position, out errorMessage) ?? true;
+    }
+
+    // public void 
 
     /// <summary>
     /// Update the sprite of the building
     /// </summary>
     public void UpdateTexture(Sprite newSprite) {
-        Debug.Assert(newSprite != null, $"UpdateTexture called for {GetType()} with null sprite/Called from: {new System.Diagnostics.StackTrace()}");
+        Debug.Assert(newSprite != null, $"UpdateTexture called for {BuildingName} with null sprite/Called from: {new System.Diagnostics.StackTrace()}");
         // Debug.Log($"Updating texture to {newSprite.name} for {BuildingName}");
         Sprite = newSprite;
         if (CurrentBuildingState != BuildingState.PLACED) return;
@@ -228,25 +279,63 @@ public abstract class Building : TooltipableGameObject {
         Tilemap.SetTiles(SpriteCoordinates.ToArray(), buildingTiles);
     }
 
-    /// <summary>
-    /// Create a button that sets the current building to this building
-    /// </summary>
-    /// <returns>The game object of the button, with no parent, caller should use transform.SetParent()</returns>
-    public virtual GameObject CreateBuildingButton() {
-        GameObject button = new($"{BuildingName}");
+
+    public static GameObject CreateBuildingButton(BuildingScriptableObject bso) {
+        GameObject button = new($"{bso.buildingName}");
         button.AddComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        button.AddComponent<Image>().sprite = Sprite;
+        button.AddComponent<Image>().sprite = bso.defaultSprite;
         button.GetComponent<Image>().preserveAspect = true;
         button.AddComponent<UIElement>();
         button.GetComponent<UIElement>().playSounds = true;
         button.GetComponent<UIElement>().ExpandOnHover = true;
 
-        Type buildingType = GetType();
         button.AddComponent<Button>().onClick.AddListener(() => {
-            // Debug.Log($"Setting current building to {buildingType}");
-            BuildingController.SetCurrentBuildingType(buildingType);
+            BuildingController.SetCurrentBuildingType(bso.typeName);
             BuildingController.SetCurrentAction(Actions.PLACE);
         });
         return button;
+    }
+
+    public static GameObject CreateBuildingButton(BuildingType type) {
+        BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{type}");
+        if (bso == null) {
+            Debug.LogWarning($"BSO for {type} not made yet");
+            return null;
+        }
+        GameObject button = CreateBuildingButton(bso);
+        Resources.UnloadAsset(bso);
+        return button;
+    }
+
+    public Building LoadFromScriptableObject(BuildingScriptableObject bso) {
+        BuildingName = bso.buildingName;
+        type = bso.typeName;
+        BaseHeight = bso.baseHeight;
+        CanBeMassPlaced = bso.canBeMassPlaced;
+        materialsNeeded = bso.materialsNeeded;
+        DefaultSprite = bso.defaultSprite;
+        Sprite = bso.defaultSprite;
+        Atlas = bso.atlas;
+
+        if (bso.isMultipleType) gameObject.AddComponent<MultipleTypeBuildingComponent>().Load(bso);
+
+        if (bso.isTiered) gameObject.AddComponent<TieredBuildingComponent>().Load(bso);
+
+        if (bso.isAnimalHouse) gameObject.AddComponent<AnimalHouseComponent>().Load(bso);
+
+        if (bso.isConnecting) gameObject.AddComponent<ConnectingBuildingComponent>().Load(bso);
+
+        if (bso.isFishPond) gameObject.AddComponent<FishPondComponent>();
+
+        if (bso.isEnterable) gameObject.AddComponent<EnterableBuildingComponent>().Load(bso);
+
+        if (bso.hasInteriorExtensions) gameObject.AddComponent<HouseExtensionsComponent>();
+
+        if (bso.extraBehaviourScript != null) {
+            behaviourExtension = (BuildingBehaviourExtension)Activator.CreateInstance(bso.extraBehaviourScript.GetClass());
+            behaviourExtension?.OnStart(this);
+        }
+
+        return this;
     }
 }
