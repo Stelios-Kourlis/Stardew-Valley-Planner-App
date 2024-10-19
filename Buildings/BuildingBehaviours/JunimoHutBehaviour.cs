@@ -8,9 +8,8 @@ using static Utility.TilemapManager;
 public class JunimoHutBehaviour : BuildingBehaviourExtension {
 
     private RangeEffectBuilding rangeEffectBuildingComponent;
-    private Building building;
     public override void OnStart(Building building) {
-        this.building = building;
+        Building = building;
         rangeEffectBuildingComponent = new(building);
         Debug.Log("building assigned");
     }
@@ -20,11 +19,11 @@ public class JunimoHutBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnDeletePreview() {
-        rangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(building.Base.x - 7, building.Base.y - 8, 0), 17, 17).ToArray(), Utility.Tiles.Red);
+        rangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(Building.Base.x - 7, Building.Base.y - 8, 0), 17, 17).ToArray(), Utility.Tiles.Red);
     }
 
     public override void OnMouseEnter() {
-        rangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(building.Base.x - 7, building.Base.y - 8, 0), 17, 17).ToArray(), Utility.Tiles.Green);
+        rangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(Building.Base.x - 7, Building.Base.y - 8, 0), 17, 17).ToArray(), Utility.Tiles.Green);
     }
 
     public override void OnMouseExit() {
@@ -40,7 +39,7 @@ public class JunimoHutBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnPickupPreview() {
-        rangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(building.Base.x - 7, building.Base.y - 8, 0), 17, 17).ToArray(), Utility.Tiles.Green);
+        rangeEffectBuildingComponent.ShowEffectRange(GetRectAreaFromPoint(new Vector3Int(Building.Base.x - 7, Building.Base.y - 8, 0), 17, 17).ToArray(), Utility.Tiles.Green);
     }
 
     public override void OnPlace(Vector3Int lowerLeftCorner) {

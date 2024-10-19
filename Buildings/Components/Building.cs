@@ -15,9 +15,9 @@ using UnityEngine.U2D;
 
 [Serializable]
 public class Building : TooltipableGameObject {
-    protected readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
-    protected readonly Color SEMI_TRANSPARENT_INVALID = new(1, 0.5f, 0.5f, 0.5f);
-    protected readonly Color OPAQUE = new(1, 1, 1, 1);
+    public static readonly Color SEMI_TRANSPARENT = new(1, 1, 1, 0.5f);
+    public static readonly Color SEMI_TRANSPARENT_INVALID = new(1, 0.5f, 0.5f, 0.5f);
+    public static readonly Color OPAQUE = new(1, 1, 1, 1);
     public override string TooltipMessage {
         get {
             string tooltip = BuildingName;
@@ -120,6 +120,7 @@ public class Building : TooltipableGameObject {
                 DeleteBuildingPreview();
                 break;
         }
+        behaviourExtension?.OnMouseEnter();
     }
 
 
@@ -159,6 +160,7 @@ public class Building : TooltipableGameObject {
         else Tilemap.ClearAllTiles();
         HidBuildingPreview?.Invoke();
         behaviourExtension?.NoPreview();
+        behaviourExtension?.OnMouseExit();
     }
 
     public bool PickupBuilding() {
@@ -190,7 +192,7 @@ public class Building : TooltipableGameObject {
     /// <returns> Whether the placement succeded or not </returns>
     public bool PlaceBuilding(Vector3Int position) {
         Debug.Assert(Sprite != null, $"Sprite is null for {BuildingName}");
-        (bool canBePlacedAtPosition, string errorMessage) = BuildingCanBePlacedAtPosition(position, this);
+        bool canBePlacedAtPosition = BuildingCanBePlacedAtPosition(position, this, out string errorMessage);
         if (!canBePlacedAtPosition) {
             NotificationManager.Instance.SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon);
             Debug.Log($"Failed to place {BuildingName}: {errorMessage}");
@@ -239,7 +241,7 @@ public class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) return;
         TilemapRenderer.sortingOrder = -position.y + 50;
 
-        if (BuildingCanBePlacedAtPosition(position, this).Item1) Tilemap.color = SEMI_TRANSPARENT;
+        if (BuildingCanBePlacedAtPosition(position, this, out _)) Tilemap.color = SEMI_TRANSPARENT;
         else Tilemap.color = SEMI_TRANSPARENT_INVALID;
 
         Tilemap.ClearAllTiles();
@@ -257,6 +259,13 @@ public class Building : TooltipableGameObject {
         Tilemap.color = SEMI_TRANSPARENT_INVALID;
         behaviourExtension?.OnDeletePreview();
     }
+
+    public bool BuildingSpecificPlacementPreconditionsAreMet(Vector3Int position, out string errorMessage) {
+        errorMessage = "";
+        return behaviourExtension?.BuildingSpecificPlacementPreconditionsAreMet(position, out errorMessage) ?? true;
+    }
+
+    // public void 
 
     /// <summary>
     /// Update the sprite of the building

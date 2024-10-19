@@ -261,6 +261,7 @@ public class InputHandler : MonoBehaviour {
         if (BuildingUnderMouse != null && !isInsideBuilding) {
             hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
             hoveredBuilding.DoBuildingPreview();
+            // hoveredBuilding.beha
             // if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
             //     interactableBuildingComponent.OnMouseEnter();
             // }
