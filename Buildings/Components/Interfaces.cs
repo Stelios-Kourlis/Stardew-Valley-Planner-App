@@ -16,6 +16,6 @@ public interface IExtraActionBuilding {
     string AddToBuildingName() { return ""; }
 }
 
-public interface IConnectingBuilding {
-    void UpdateSelf();
-}
+// public interface IConnectingBuilding {
+//     void UpdateSelf();
+// }

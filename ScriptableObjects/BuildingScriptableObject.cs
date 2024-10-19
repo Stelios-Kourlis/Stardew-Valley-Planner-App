@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.U2D;
 using static FlooringComponent;
 using static WallsComponent;
 
@@ -13,6 +16,7 @@ public class BuildingScriptableObject : ScriptableObject {
     public bool canBeMassPlaced;
     public List<MaterialCostEntry> materialsNeeded;
     public Sprite defaultSprite;
+    public SpriteAtlas atlas;
 
     public bool isMultipleType;
     public BuildingVariant[] variants;
@@ -25,6 +29,7 @@ public class BuildingScriptableObject : ScriptableObject {
     public AnimalTiers[] animalsPerTier;
 
     public bool isConnecting;
+    public bool connectsToTop;
 
     public bool isFishPond;
 
@@ -33,5 +38,7 @@ public class BuildingScriptableObject : ScriptableObject {
     public WallsPerTier[] interiorWalls;
     public FlooringPerTier[] interiorFlooring;
     public bool hasInteriorExtensions;
+
+    public MonoScript extraBehaviourScript;
 
 }

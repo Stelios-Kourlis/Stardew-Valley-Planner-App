@@ -50,7 +50,7 @@ public class InteractableBuildingComponent : BuildingComponent {
     }
 
     public string GetBuildingSpriteName() {
-        Debug.Log($"Generating name for {Building.BuildingName} ({Building.type})");
+        // Debug.Log($"Generating name for {Building.BuildingName} ({Building.type})");
         string name = "";
         // if (Building is IMultipleTypeBuilding multipleTypeBuildingTemp && Building is ITieredBuilding && multipleTypeBuildingTemp?.Type == null) Debug.LogWarning("If building is tiered and multiple type, add the type component before the tier component");
         if (Building.BuildingGameObject.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) name += $"{multipleTypeBuildingComponent.CurrentType}";

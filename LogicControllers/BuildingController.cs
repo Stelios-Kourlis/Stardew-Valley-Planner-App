@@ -17,7 +17,7 @@ public static class BuildingController {
     public static SpecialCoordinatesCollection specialCoordinates = new();
     public static readonly List<Building> buildings = new();
     public static BuildingType currentBuildingType = BuildingType.ShippingBin;
-    public static Actions CurrentAction { get; private set; } = Actions.PLACE_WALLPAPER;
+    public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
     public static Transform CurrentTilemapTransform { get; private set; }
@@ -63,7 +63,7 @@ public static class BuildingController {
         CurrentBuildingBeingPlaced = LastBuildingObjectCreated.GetComponent<Building>();
         UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);
         currentBuildingType = buildingType;
-        Debug.Log($"Set current building type to {buildingType}");
+        // Debug.Log($"Set current building type to {buildingType}");
         currentBuildingTypeChanged?.Invoke(buildingType);
     }
 

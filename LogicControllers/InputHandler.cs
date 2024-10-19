@@ -51,6 +51,7 @@ public class InputHandler : MonoBehaviour {
         if (Instance == null) Instance = this;
         else Destroy(this);
 
+        BuildingController.SetCurrentAction(Actions.PLACE);
         mouseTileOnPreviousFrame = GetMousePositionInTilemap();
     }
 

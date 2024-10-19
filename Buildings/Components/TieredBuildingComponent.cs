@@ -20,7 +20,7 @@ public class TieredBuildingComponent : BuildingComponent {
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
     [field: SerializeField] public int Tier { get; set; } = 1;
     public int MaxTier => tiers.Count();
-    private SpriteAtlas atlas;
+    // private SpriteAtlas atlas;
     public Action<int> tierChanged;
     public BuildingTier[] tiers;
 
@@ -42,8 +42,8 @@ public class TieredBuildingComponent : BuildingComponent {
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
-        Debug.Assert(atlas != null, $"Could not load atlas for {Building.type} ({Building.GetType()}Atlas)");
+        // atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
+        // Debug.Assert(atlas != null, $"Could not load atlas for {Building.type} ({Building.GetType()}Atlas)");
         SetTier(1);
     }
 
@@ -55,7 +55,7 @@ public class TieredBuildingComponent : BuildingComponent {
     public virtual void SetTier(int tier) {
         Tier = tier;
         tierChanged?.Invoke(tier);
-        Building.UpdateTexture(atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+        Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
 
     public void Load(BuildingScriptableObject bso) {

@@ -24,7 +24,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     public BuildingVariant[] variants;
     public int CurrentVariantIndex { get; private set; }
     public string CurrentType => variants[CurrentVariantIndex].variantName;
-    public SpriteAtlas Atlas { get; private set; }
+    // public SpriteAtlas Atlas { get; private set; }
     // public Sprite DefaultSprite { get; set; }
     private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
 
@@ -40,8 +40,8 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
-        Debug.Assert(Atlas != null, $"Atlas \"{Building.type}Atlas\" was not found");
+        // Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
+        // Debug.Assert(Atlas != null, $"Atlas \"{Building.type}Atlas\" was not found");
 
     }
 
@@ -69,6 +69,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
             button.AddComponent<Image>().sprite = variant.variantSprite;
             button.GetComponent<Image>().preserveAspect = true;
             button.AddComponent<UIElement>();
+            button.GetComponent<UIElement>().tooltipMessage = $"{variant.variantName} {bso.typeName}";
             button.GetComponent<UIElement>().playSounds = true;
             button.GetComponent<UIElement>().ExpandOnHover = true;
             button.AddComponent<Button>().onClick.AddListener(() => {

@@ -16,12 +16,13 @@ public enum ConnectFlag {
 [RequireComponent(typeof(Building))]
 public class ConnectingBuildingComponent : BuildingComponent {
 
+    private bool connectsToTop;
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        if (Building is IConnectingBuilding connectingBuilding) connectingBuilding.UpdateSelf();
+        // if (Building is IConnectingBuilding connectingBuilding) connectingBuilding.UpdateSelf();
     }
 
-    public int GetConnectingFlags(bool includeTop = true) {
+    public int GetConnectingFlags() {
         if (Building.CurrentBuildingState != Building.BuildingState.PLACED) return 0;
         List<ConnectFlag> flags = new();
         Type buildingType = gameObject.GetComponent<Building>().GetType();
@@ -31,8 +32,12 @@ public class ConnectingBuildingComponent : BuildingComponent {
         if (otherBuildings.Contains(neighbors[0])) flags.Add(ConnectFlag.LEFT_ATTACHED);
         if (otherBuildings.Contains(neighbors[1])) flags.Add(ConnectFlag.RIGHT_ATTACHED);
         if (otherBuildings.Contains(neighbors[2])) flags.Add(ConnectFlag.BOTTOM_ATTACHED);
-        if (includeTop) if (otherBuildings.Contains(neighbors[3])) flags.Add(ConnectFlag.TOP_ATTACHED);
+        if (connectsToTop) if (otherBuildings.Contains(neighbors[3])) flags.Add(ConnectFlag.TOP_ATTACHED);
         return flags.Cast<int>().Sum();
+    }
+
+    public void Load(BuildingScriptableObject bso) {
+        connectsToTop = bso.connectsToTop;
     }
 
     public override void Load(BuildingData.ComponentData data) { //No saving/load function in this component
@@ -43,11 +48,15 @@ public class ConnectingBuildingComponent : BuildingComponent {
         return null;
     }
 
+    public void UpdateSelf() {
+        Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+    }
+
     public void UpdateAllOtherBuildingOfSameType() {
         Type buildingType = gameObject.GetComponent<Building>().GetType();
-        List<Building> otherBuildingsOfSameType = BuildingController.buildings.Where(b => b.GetType() == buildingType).ToList();//All buildings of same type except self
+        List<Building> otherBuildingsOfSameType = BuildingController.buildings.Where(b => b.type == Building.type && b.transform != transform).ToList();//All buildings of same type except self
         foreach (Building building in otherBuildingsOfSameType) {
-            building.GetComponent<IConnectingBuilding>().UpdateSelf();
+            building.GetComponent<ConnectingBuildingComponent>().UpdateSelf();
         }
     }
 }

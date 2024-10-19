@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine.UI;
 using System;
 using System.Threading.Tasks;
+using UnityEngine.U2D;
 
 [Serializable]
 public class Building : TooltipableGameObject {
@@ -34,6 +35,15 @@ public class Building : TooltipableGameObject {
     [field: SerializeField] public BuildingState CurrentBuildingState { get; protected set; } = BuildingState.NOT_PLACED;
 
     [field: SerializeField] public string BuildingName { get; protected set; }
+    public string FullName {
+        get {
+            string fullName = "";
+            if (TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) fullName += "Tier " + tieredBuildingComponent.Tier + " ";
+            if (TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) fullName += multipleTypeBuildingComponent.CurrentType + " ";
+            fullName += BuildingName;
+            return fullName;
+        }
+    }
     public BuildingType type;
     public List<MaterialCostEntry> materialsNeeded;
 
@@ -48,8 +58,10 @@ public class Building : TooltipableGameObject {
     public int BaseHeight { get; protected set; } = 0;
 
     [field: SerializeField] public Sprite Sprite { get; protected set; } = null;
+    public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; private set; }
     [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
+    private BuildingBehaviourExtension behaviourExtension;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
     public TilemapRenderer TilemapRenderer => gameObject.GetComponent<TilemapRenderer>();
@@ -69,10 +81,12 @@ public class Building : TooltipableGameObject {
         if (!gameObject.TryGetComponent<BuildingSaverLoader>(out _)) gameObject.AddComponent<BuildingSaverLoader>();
         // Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
         Sprite = DefaultSprite;
+
     }
 
     public void OnDestroy() {
         Destroy(gameObject.GetComponent<InteractableBuildingComponent>());
+        behaviourExtension?.OnDestroy();
     }
 
     public void DeleteBuilding(bool force = false) {
@@ -89,6 +103,7 @@ public class Building : TooltipableGameObject {
         }
         BuildingRemoved?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
+        behaviourExtension?.OnDelete();
         Destroy(TooltipGameObject);
         Destroy(gameObject);
     }
@@ -122,14 +137,14 @@ public class Building : TooltipableGameObject {
         List<MaterialCostEntry> compressedList = new();
         List<Materials> compressedItems = new();
         foreach (MaterialCostEntry entry in list) {
-            if (compressedItems.Contains(entry.name)) continue;
+            if (compressedItems.Contains(entry.materialType)) continue;
             if (entry.IsSpecial) {
                 compressedList.Add(entry);
                 continue;
             }
-            int totalAmount = list.Where(item => item.name == entry.name).Select(item => item.amount).Sum();
-            compressedList.Add(new(totalAmount, entry.name));
-            compressedItems.Add(entry.name);
+            int totalAmount = list.Where(item => item.materialType == entry.materialType).Select(item => item.amount).Sum();
+            compressedList.Add(new(totalAmount, entry.materialType));
+            compressedItems.Add(entry.materialType);
         }
         return compressedList;
     }
@@ -143,6 +158,7 @@ public class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) Tilemap.color = OPAQUE;
         else Tilemap.ClearAllTiles();
         HidBuildingPreview?.Invoke();
+        behaviourExtension?.NoPreview();
     }
 
     public bool PickupBuilding() {
@@ -155,6 +171,7 @@ public class Building : TooltipableGameObject {
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
         BuildingPickedUp?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
+        behaviourExtension?.OnPickup();
         return true;
     }
 
@@ -164,7 +181,7 @@ public class Building : TooltipableGameObject {
             return;
         }
         Tilemap.color = SEMI_TRANSPARENT;
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickupPreview();
+        behaviourExtension?.OnPickupPreview();
     }
 
     /// <summary>
@@ -183,10 +200,7 @@ public class Building : TooltipableGameObject {
         Tilemap.color = OPAQUE;
         Base = position;
 
-        if (this is IExtraActionBuilding extraActionBuilding) {
-            extraActionBuilding.PerformExtraActionsOnPlace(position);
-            // if (IsPickedUp.Item1) extraActionBuilding.LoadExtraBuildingData(IsPickedUp.Item2.extraData);
-        }
+        behaviourExtension?.OnPlace(position);
 
         PlayParticleEffect(this, true);
         BuildingController.buildingGameObjects.Add(gameObject);
@@ -232,7 +246,7 @@ public class Building : TooltipableGameObject {
         Vector3Int[] mouseoverEffectArea = GetRectAreaFromPoint(position, Height, Width).ToArray();
         Tilemap.SetTiles(mouseoverEffectArea, SplitSprite(Sprite));
 
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPlacePreview(position);
+        behaviourExtension?.OnPlacePreview(position);
     }
 
     public void DeleteBuildingPreview() {
@@ -241,7 +255,7 @@ public class Building : TooltipableGameObject {
             return;
         }
         Tilemap.color = SEMI_TRANSPARENT_INVALID;
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDeletePreview();
+        behaviourExtension?.OnDeletePreview();
     }
 
     /// <summary>
@@ -292,6 +306,7 @@ public class Building : TooltipableGameObject {
         materialsNeeded = bso.materialsNeeded;
         DefaultSprite = bso.defaultSprite;
         Sprite = bso.defaultSprite;
+        Atlas = bso.atlas;
 
         if (bso.isMultipleType) gameObject.AddComponent<MultipleTypeBuildingComponent>().Load(bso);
 
@@ -299,13 +314,18 @@ public class Building : TooltipableGameObject {
 
         if (bso.isAnimalHouse) gameObject.AddComponent<AnimalHouseComponent>().Load(bso);
 
-        if (bso.isConnecting) gameObject.AddComponent<ConnectingBuildingComponent>();
+        if (bso.isConnecting) gameObject.AddComponent<ConnectingBuildingComponent>().Load(bso);
 
         if (bso.isFishPond) gameObject.AddComponent<FishPondComponent>();
 
         if (bso.isEnterable) gameObject.AddComponent<EnterableBuildingComponent>().Load(bso);
 
         if (bso.hasInteriorExtensions) gameObject.AddComponent<HouseExtensionsComponent>();
+
+        if (bso.extraBehaviourScript != null) {
+            behaviourExtension = (BuildingBehaviourExtension)Activator.CreateInstance(bso.extraBehaviourScript.GetClass());
+            behaviourExtension?.OnStart(this);
+        }
 
         return this;
     }

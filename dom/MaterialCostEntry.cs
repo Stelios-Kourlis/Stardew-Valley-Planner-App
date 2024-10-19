@@ -3,31 +3,40 @@ using UnityEngine;
 using UnityEngine.U2D;
 
 [Serializable]
-public class MaterialCostEntry {
+public class MaterialCostEntry : ICloneable {
     public int amount;
-    public Materials name;
-    public bool IsSpecial { get { return name == Materials.DummyMaterial; } }
+    public Materials materialType;
 
     /// <summary> in case a player need to perform an action rather than give a material, ex. obtaining rarecrows, Greenhouse write a 1 sentence instruction here </summary>
     public string howToGet;
+    public bool IsSpecial { get { return materialType == Materials.DummyMaterial; } }
 
-    public string EntryText => IsSpecial ? howToGet : name.ToString();
+    public string EntryText => IsSpecial ? howToGet : materialType.ToString();
 
+    public MaterialCostEntry() { }
 
     public MaterialCostEntry(int amount, Materials name) {
         this.amount = amount;
         howToGet = null;
-        this.name = name;
+        this.materialType = name;
     }
 
     public MaterialCostEntry(string howToGet) {
         amount = 1;
-        name = Materials.DummyMaterial;
+        materialType = Materials.DummyMaterial;
         this.howToGet = howToGet;
     }
 
     public override string ToString() {
         if (IsSpecial) return "SpecialMat";
-        else return name.ToString();
+        else return materialType.ToString();
+    }
+
+    public object Clone() {
+        return new MaterialCostEntry {
+            materialType = materialType,
+            amount = amount,
+            howToGet = howToGet
+        };
     }
 }

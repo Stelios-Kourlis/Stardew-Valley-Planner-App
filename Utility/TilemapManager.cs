@@ -204,6 +204,7 @@ namespace Utility {
             int width = building.Width;
             int height = building.Height;
             Vector3 result = new(-1, -1);
+            if (building.BaseHeight == 1 && building.Width == 1) return building.BaseCoordinates[0];
             // Debug.Log(building.BaseCoordinates[0].x);
             if (width % 2 != 0) {
                 Vector3Int leftMiddle = new(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2.0f), 0, 0);

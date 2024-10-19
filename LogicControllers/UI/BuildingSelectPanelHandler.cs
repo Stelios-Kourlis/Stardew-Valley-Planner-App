@@ -43,7 +43,7 @@ public class TypeBarHandler : MonoBehaviour {
 
     private void EvalueateIfTypeBarShouldBeShown(BuildingType newBuildingType) {
         BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{newBuildingType}");
-        Debug.Log($"EvalueateIfTypeBarShouldBeShown for {newBuildingType}");
+        // Debug.Log($"EvalueateIfTypeBarShouldBeShown for {newBuildingType}");
         bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(bso);
         if (isCurrentlyBuildingMultipleTypeBuilding) {
             typeBar.GetComponent<MoveablePanel>().SetPanelToOpenPosition();
