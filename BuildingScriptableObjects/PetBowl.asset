@@ -12,15 +12,41 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: PetBowl
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 14
+  baseHeight: 2
   canBeMassPlaced: 0
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  defaultSprite: {fileID: -1164657177, guid: e8e545c698db7f840837c5979078284a, type: 3}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Wood
+    variantSprite: {fileID: -1164657177, guid: e8e545c698db7f840837c5979078284a, type: 3}
+    variantCost:
+    - amount: 5000
+      materialType: 1
+      howToGet: 
+    - amount: 25
+      materialType: 11
+      howToGet: 
+  - variantName: Stone
+    variantSprite: {fileID: -1657007154, guid: e8e545c698db7f840837c5979078284a, type: 3}
+    variantCost:
+    - amount: 5000
+      materialType: 1
+      howToGet: 
+    - amount: 25
+      materialType: 11
+      howToGet: 
+  - variantName: Hay
+    variantSprite: {fileID: 518350367, guid: e8e545c698db7f840837c5979078284a, type: 3}
+    variantCost:
+    - amount: 5000
+      materialType: 1
+      howToGet: 
+    - amount: 25
+      materialType: 11
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0

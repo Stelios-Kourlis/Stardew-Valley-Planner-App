@@ -12,15 +12,149 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Crop
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
-  canBeMassPlaced: 0
+  typeName: 4
+  baseHeight: 1
+  canBeMassPlaced: 1
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  defaultSprite: {fileID: 3048937005348815756, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Parsnip
+    variantSprite: {fileID: 3048937005348815756, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: BlueJazz
+    variantSprite: {fileID: -8212930081969480023, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Carrot
+    variantSprite: {fileID: -9177457062998269095, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Cauliflower
+    variantSprite: {fileID: -7474529693045490863, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: CoffeeBean
+    variantSprite: {fileID: -2429173937118502567, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Garlic
+    variantSprite: {fileID: 3225213848598672445, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: GreenBean
+    variantSprite: {fileID: 1640555460866966840, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Kale
+    variantSprite: {fileID: 354162863218615001, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Potato
+    variantSprite: {fileID: -1010118597598872900, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Rhubarb
+    variantSprite: {fileID: -8800576670314286437, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Strawberry
+    variantSprite: {fileID: -291167813904186154, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Tulip
+    variantSprite: {fileID: -6535896555791932063, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: UnmilledRice
+    variantSprite: {fileID: 568712722439862651, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Blueberry
+    variantSprite: {fileID: 4437813026912723317, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Corn
+    variantSprite: {fileID: 8224592552397400518, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Hops
+    variantSprite: {fileID: 2683288208970150335, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: HotPepper
+    variantSprite: {fileID: -8566547230339426620, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Melon
+    variantSprite: {fileID: -7911878910390060541, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Poppy
+    variantSprite: {fileID: 9097839083451968670, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Radish
+    variantSprite: {fileID: 5731952611729170081, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: RedCabbage
+    variantSprite: {fileID: -3911487379921220410, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Starfruit
+    variantSprite: {fileID: 5507455356034643388, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: SummerSpangle
+    variantSprite: {fileID: 2580307749077769709, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: SummerSquash
+    variantSprite: {fileID: 92264684534740810, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Sunflower
+    variantSprite: {fileID: -8963637610061471851, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Tomato
+    variantSprite: {fileID: 5751050027487728627, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Wheat
+    variantSprite: {fileID: -3087722540913972952, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Amaranth
+    variantSprite: {fileID: 8954413170907878631, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Artichoke
+    variantSprite: {fileID: -3035954457510803908, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Beet
+    variantSprite: {fileID: -5774877164156790999, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: BokChoy
+    variantSprite: {fileID: -9129538434356760513, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Broccoli
+    variantSprite: {fileID: 1524892664962734932, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Cranberries
+    variantSprite: {fileID: -2584793599262434737, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Eggplant
+    variantSprite: {fileID: -1319403273844478748, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: FairyRose
+    variantSprite: {fileID: -2244004397112234398, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Grape
+    variantSprite: {fileID: 4727212774405997460, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Pumpkin
+    variantSprite: {fileID: -5350684271723168704, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Yam
+    variantSprite: {fileID: 7113927244362079390, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Powdermelon
+    variantSprite: {fileID: -260985584823223675, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: AncientFruit
+    variantSprite: {fileID: 4150229347420907923, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: CactusFruit
+    variantSprite: {fileID: -4295922051358563201, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: Pineapple
+    variantSprite: {fileID: -7264623449321555839, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: TaroRoot
+    variantSprite: {fileID: 6088432766868391303, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: SweetGemBerry
+    variantSprite: {fileID: -8124274317607321232, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
+  - variantName: TeaLeaves
+    variantSprite: {fileID: -7859090893774279306, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
+    variantCost: []
   isTiered: 0
   tiers: []
   isAnimalHouse: 0

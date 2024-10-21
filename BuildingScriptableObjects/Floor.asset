@@ -12,21 +12,104 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Floor
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
-  canBeMassPlaced: 0
+  typeName: 7
+  baseHeight: 1
+  canBeMassPlaced: 1
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
-  atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  defaultSprite: {fileID: 7245686505636927267, guid: ea2e238c94191f4478c51eeae1a4aa2b, type: 3}
+  atlas: {fileID: 4343727234628468602, guid: 53035314bbf12164098e87f8c8cefe50, type: 2}
+  isMultipleType: 1
+  variants:
+  - variantName: WOOD_FLOOR
+    variantSprite: {fileID: 5713933281591533700, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 2
+      howToGet: 
+  - variantName: RUSTIC_PLANK_FLOOR
+    variantSprite: {fileID: 4527199122365230992, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 2
+      howToGet: 
+  - variantName: STRAW_FLOOR
+    variantSprite: {fileID: 3259441769610150685, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 2
+      howToGet: 
+    - amount: 1
+      materialType: 13
+      howToGet: 
+  - variantName: WEATHERED_FLOOR
+    variantSprite: {fileID: -1402001467817559097, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 2
+      howToGet: 
+  - variantName: CRYSTAL_FLOOR
+    variantSprite: {fileID: 3883459964559833822, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 9
+      howToGet: 
+  - variantName: STONE_FLOOR
+    variantSprite: {fileID: 7140424609736466115, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 3
+      howToGet: 
+  - variantName: STONE_WALKWAY_FLOOR
+    variantSprite: {fileID: 2058737392835490226, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 3
+      howToGet: 
+  - variantName: BRICK_FLOOR
+    variantSprite: {fileID: 8592741879282099978, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 2
+      materialType: 7
+      howToGet: 
+    - amount: 5
+      materialType: 3
+      howToGet: 
+  - variantName: WOOD_PATH
+    variantSprite: {fileID: -8299744093176783549, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 2
+      howToGet: 
+  - variantName: GRAVEL_PATH
+    variantSprite: {fileID: -6124682831201566997, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 3
+      howToGet: 
+  - variantName: COBBLESTONE_PATH
+    variantSprite: {fileID: -336586960844471779, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 3
+      howToGet: 
+  - variantName: STEPPING_STONE_PATH
+    variantSprite: {fileID: 5024937565602041509, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 3
+      howToGet: 
+  - variantName: CRYSTAL_PATH
+    variantSprite: {fileID: -5419837756620938993, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 9
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0
   animalsPerTier: []
-  isConnecting: 0
-  connectsToTop: 0
+  isConnecting: 1
+  connectsToTop: 1
   isFishPond: 0
   isEnterable: 0
   interiorInteractions: 

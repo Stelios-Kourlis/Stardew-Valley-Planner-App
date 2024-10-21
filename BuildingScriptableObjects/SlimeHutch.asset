@@ -12,12 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: SlimeHutch
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 19
+  baseHeight: 4
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 10000
+    materialType: 1
+    howToGet: 
+  - amount: 500
+    materialType: 3
+    howToGet: 
+  - amount: 10
+    materialType: 9
+    howToGet: 
+  - amount: 1
+    materialType: 10
+    howToGet: 
+  defaultSprite: {fileID: 21300000, guid: c2ed439d777e1054e9d2cdbdba1f1fde, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []
@@ -28,7 +39,7 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
-  isEnterable: 0
+  isEnterable: 1
   interiorInteractions: 
   interiorWalls: []
   interiorFlooring: []

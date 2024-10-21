@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -10,7 +11,11 @@ using static WallsComponent;
 [CreateAssetMenu(fileName = "building", menuName = "ScriptableObjects/Building", order = 1)]
 public class BuildingScriptableObject : ScriptableObject {
 
-    public string buildingName;
+    public string BuildingName {
+        get {
+            return Regex.Replace(typeName.ToString(), "(?<!^)([A-Z])", " $1");
+        }
+    }
     public BuildingType typeName;
     public int baseHeight;
     public bool canBeMassPlaced;

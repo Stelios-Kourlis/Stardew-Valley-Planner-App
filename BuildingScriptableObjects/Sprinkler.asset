@@ -12,15 +12,131 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Sprinkler
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
-  canBeMassPlaced: 0
+  typeName: 20
+  baseHeight: 1
+  canBeMassPlaced: 1
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  defaultSprite: {fileID: 4372326508361963676, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Normal
+    variantSprite: {fileID: 4372326508361963676, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 8
+      howToGet: 
+  - variantName: Quality
+    variantSprite: {fileID: -1636696720658244475, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 9
+      howToGet: 
+  - variantName: Iridium
+    variantSprite: {fileID: 3575824548718760738, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 10
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 23
+      howToGet: 
+  - variantName: NormalPressureNozzle
+    variantSprite: {fileID: 4991494446366915262, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 8
+      howToGet: 
+    - amount: 1
+      materialType: 0
+      howToGet: Pressure Nozzle
+  - variantName: QualityPressureNozzle
+    variantSprite: {fileID: 398629189307340736, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 9
+      howToGet: 
+    - amount: 1
+      materialType: 0
+      howToGet: Pressure Nozzle
+  - variantName: IridiumPressureNozzle
+    variantSprite: {fileID: 9062080534116335299, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 10
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 23
+      howToGet: 
+    - amount: 1
+      materialType: 0
+      howToGet: Pressure Nozzle
+  - variantName: NormalEnricher
+    variantSprite: {fileID: -3057193649948781188, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 8
+      howToGet: 
+    - amount: 1
+      materialType: 0
+      howToGet: Enricher
+  - variantName: QualityEnricher
+    variantSprite: {fileID: -2995117680705949839, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 9
+      howToGet: 
+    - amount: 1
+      materialType: 0
+      howToGet: Enricher
+  - variantName: IridiumEnricher
+    variantSprite: {fileID: -9028981324591490947, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 10
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 23
+      howToGet: 
+    - amount: 1
+      materialType: 0
+      howToGet: Enricher
   isTiered: 0
   tiers: []
   isAnimalHouse: 0
@@ -33,4 +149,4 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourScript: {fileID: 11500000, guid: a90a7a545ea568a498058b411b46b4ff, type: 3}

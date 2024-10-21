@@ -12,12 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Stable
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 21
+  baseHeight: 2
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 10000
+    materialType: 1
+    howToGet: 
+  - amount: 100
+    materialType: 11
+    howToGet: 
+  - amount: 5
+    materialType: 12
+    howToGet: 
+  defaultSprite: {fileID: 21300000, guid: 8022da3e69550dd4d84e9e5285d59a6e, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []

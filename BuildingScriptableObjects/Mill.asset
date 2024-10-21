@@ -12,12 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Mill
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  buildingName: Mill
+  typeName: 12
+  baseHeight: 2
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 2500
+    materialType: 1
+    howToGet: 
+  - amount: 50
+    materialType: 3
+    howToGet: 
+  - amount: 150
+    materialType: 2
+    howToGet: 
+  - amount: 4
+    materialType: 6
+    howToGet: 
+  defaultSprite: {fileID: 21300000, guid: 9a5f0c6dbb142c94d9b4d98173bc756f, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []

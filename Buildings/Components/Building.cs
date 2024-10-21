@@ -125,6 +125,7 @@ public class Building : TooltipableGameObject {
 
 
     public List<MaterialCostEntry> GetMaterialsNeeded() {
+        if (behaviourExtension?.DiffrentMaterialCost(out List<MaterialCostEntry> alternativeMaterials) ?? false) return alternativeMaterials;
         List<MaterialCostEntry> totalCost = new();
         if (materialsNeeded != null) totalCost.AddRange(materialsNeeded);
         if (TryGetComponent(out TieredBuildingComponent tieredBuildingComponent)) totalCost.AddRange(tieredBuildingComponent.GetMaterialsNeeded());
@@ -281,7 +282,7 @@ public class Building : TooltipableGameObject {
 
 
     public static GameObject CreateBuildingButton(BuildingScriptableObject bso) {
-        GameObject button = new($"{bso.buildingName}");
+        GameObject button = new($"{bso.BuildingName}");
         button.AddComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         button.AddComponent<Image>().sprite = bso.defaultSprite;
         button.GetComponent<Image>().preserveAspect = true;
@@ -308,7 +309,7 @@ public class Building : TooltipableGameObject {
     }
 
     public Building LoadFromScriptableObject(BuildingScriptableObject bso) {
-        BuildingName = bso.buildingName;
+        BuildingName = bso.BuildingName;
         type = bso.typeName;
         BaseHeight = bso.baseHeight;
         CanBeMassPlaced = bso.canBeMassPlaced;

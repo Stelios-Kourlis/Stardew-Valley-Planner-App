@@ -12,24 +12,42 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Shed
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 16
+  baseHeight: 3
   canBeMassPlaced: 0
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
-  atlas: {fileID: 0}
+  defaultSprite: {fileID: 21300000, guid: 2938fb6f725ff034bb91ed36b12dc5ad, type: 3}
+  atlas: {fileID: 4343727234628468602, guid: f197e5d5d936b0f479a8f86521d7330c, type: 2}
   isMultipleType: 0
   variants: []
-  isTiered: 0
-  tiers: []
+  isTiered: 1
+  tiers:
+  - tier: 1
+    costToUpgradeToThatTier:
+    - amount: 15000
+      materialType: 1
+      howToGet: 
+    - amount: 300
+      materialType: 2
+      howToGet: 
+  - tier: 2
+    costToUpgradeToThatTier:
+    - amount: 35000
+      materialType: 1
+      howToGet: 
+    - amount: 850
+      materialType: 2
+      howToGet: 
+    - amount: 300
+      materialType: 3
+      howToGet: 
   isAnimalHouse: 0
   animalsPerTier: []
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
-  isEnterable: 0
-  interiorInteractions: 
+  isEnterable: 1
+  interiorInteractions: 0100000002000000
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0

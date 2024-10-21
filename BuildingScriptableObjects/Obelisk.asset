@@ -12,15 +12,71 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Obelisk
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 13
+  baseHeight: 2
   canBeMassPlaced: 0
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  defaultSprite: {fileID: 21300000, guid: 24805972368a7084892f6ef92fbff36a, type: 3}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Earth
+    variantSprite: {fileID: 21300000, guid: 24805972368a7084892f6ef92fbff36a, type: 3}
+    variantCost:
+    - amount: 500000
+      materialType: 1
+      howToGet: 
+    - amount: 10
+      materialType: 10
+      howToGet: 
+    - amount: 10
+      materialType: 14
+      howToGet: 
+  - variantName: Water
+    variantSprite: {fileID: 21300000, guid: 0d3a09915f6f90f428e6551099b725a5, type: 3}
+    variantCost:
+    - amount: 500000
+      materialType: 1
+      howToGet: 
+    - amount: 5
+      materialType: 10
+      howToGet: 
+    - amount: 10
+      materialType: 15
+      howToGet: 
+    - amount: 10
+      materialType: 16
+      howToGet: 
+  - variantName: Desert
+    variantSprite: {fileID: 21300000, guid: e82313880a3483b46b6d7731c2d1d7b5, type: 3}
+    variantCost:
+    - amount: 1000000
+      materialType: 1
+      howToGet: 
+    - amount: 20
+      materialType: 10
+      howToGet: 
+    - amount: 10
+      materialType: 17
+      howToGet: 
+    - amount: 10
+      materialType: 18
+      howToGet: 
+  - variantName: Island
+    variantSprite: {fileID: 21300000, guid: 01999281da08a304785a2b29c38b543a, type: 3}
+    variantCost:
+    - amount: 1000000
+      materialType: 1
+      howToGet: 
+    - amount: 10
+      materialType: 10
+      howToGet: 
+    - amount: 10
+      materialType: 19
+      howToGet: 
+    - amount: 10
+      materialType: 20
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0

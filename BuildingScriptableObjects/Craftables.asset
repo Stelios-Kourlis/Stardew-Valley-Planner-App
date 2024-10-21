@@ -12,15 +12,428 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Craftables
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
-  canBeMassPlaced: 0
+  typeName: 3
+  baseHeight: 1
+  canBeMassPlaced: 1
   materialsNeeded: []
   defaultSprite: {fileID: 0}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Beehouse
+    variantSprite: {fileID: 21300000, guid: 1499b45ac0123d34e880bd88fdcebdf8, type: 3}
+    variantCost:
+    - amount: 40
+      materialType: 2
+      howToGet: 
+    - amount: 8
+      materialType: 25
+      howToGet: 
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 30
+      howToGet: 
+  - variantName: Keg
+    variantSprite: {fileID: 21300000, guid: 7333d6d12fa769d448ffcede93028c05, type: 3}
+    variantCost:
+    - amount: 30
+      materialType: 2
+      howToGet: 
+    - amount: 1
+      materialType: 8
+      howToGet: 
+    - amount: 1
+      materialType: 31
+      howToGet: 
+    - amount: 1
+      materialType: 12
+      howToGet: 
+  - variantName: Cask
+    variantSprite: {fileID: 21300000, guid: 9c06c9208987f0e4481a9f0ae8b44e08, type: 3}
+    variantCost:
+    - amount: 20
+      materialType: 2
+      howToGet: 
+    - amount: 1
+      materialType: 11
+      howToGet: 
+  - variantName: Furnace
+    variantSprite: {fileID: 21300000, guid: 5e8a94f86b8a9b6449284342bea9061c, type: 3}
+    variantCost:
+    - amount: 20
+      materialType: 8
+      howToGet: 
+    - amount: 25
+      materialType: 3
+      howToGet: 
+  - variantName: MayonnaiseMachine
+    variantSprite: {fileID: 21300000, guid: b1a659c2f27b5704798e813325e40f5b, type: 3}
+    variantCost:
+    - amount: 15
+      materialType: 2
+      howToGet: 
+    - amount: 1
+      materialType: 8
+      howToGet: 
+    - amount: 1
+      materialType: 14
+      howToGet: 
+    - amount: 15
+      materialType: 3
+      howToGet: 
+  - variantName: CheesePress
+    variantSprite: {fileID: 21300000, guid: 7deb94b648a34b147a9d9a55e1f14681, type: 3}
+    variantCost:
+    - amount: 45
+      materialType: 2
+      howToGet: 
+    - amount: 45
+      materialType: 3
+      howToGet: 
+    - amount: 10
+      materialType: 11
+      howToGet: 
+    - amount: 1
+      materialType: 8
+      howToGet: 
+  - variantName: SeedMaker
+    variantSprite: {fileID: 21300000, guid: 23dadf3a234eefb49bd748593f2f7e33, type: 3}
+    variantCost:
+    - amount: 25
+      materialType: 2
+      howToGet: 
+    - amount: 10
+      materialType: 25
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+  - variantName: Loom
+    variantSprite: {fileID: 21300000, guid: 0f87a334ee12cf7498a26ac1045f2882, type: 3}
+    variantCost:
+    - amount: 60
+      materialType: 2
+      howToGet: 
+    - amount: 30
+      materialType: 13
+      howToGet: 
+    - amount: 1
+      materialType: 32
+      howToGet: 
+  - variantName: OilMaker
+    variantSprite: {fileID: 21300000, guid: d9faa26d38c95dd4d942e5a60fac73d4, type: 3}
+    variantCost:
+    - amount: 20
+      materialType: 11
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 50
+      materialType: 33
+      howToGet: 
+  - variantName: RecyclingMachine
+    variantSprite: {fileID: 21300000, guid: 260a5cdce5f6f484c817b5d7c8b30758, type: 3}
+    variantCost:
+    - amount: 25
+      materialType: 2
+      howToGet: 
+    - amount: 25
+      materialType: 3
+      howToGet: 
+    - amount: 1
+      materialType: 12
+      howToGet: 
+  - variantName: WormBin
+    variantSprite: {fileID: 21300000, guid: 3107cc00a6c6a8144adff12359abfc24, type: 3}
+    variantCost:
+    - amount: 15
+      materialType: 11
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 50
+      materialType: 13
+      howToGet: 
+  - variantName: PreservesJar
+    variantSprite: {fileID: 21300000, guid: 1808ac0c27407e24290c4565a82da616, type: 3}
+    variantCost:
+    - amount: 50
+      materialType: 2
+      howToGet: 
+    - amount: 40
+      materialType: 3
+      howToGet: 
+    - amount: 8
+      materialType: 25
+      howToGet: 
+  - variantName: CharcoalKiln
+    variantSprite: {fileID: 21300000, guid: 8c00daee33d66374a941030982e2636e, type: 3}
+    variantCost:
+    - amount: 20
+      materialType: 2
+      howToGet: 
+    - amount: 2
+      materialType: 8
+      howToGet: 
+  - variantName: LightningRod
+    variantSprite: {fileID: 21300000, guid: 463c1e10fdfc8d64bbe1481efefbfd60, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 1
+      materialType: 9
+      howToGet: 
+    - amount: 1
+      materialType: 34
+      howToGet: 
+  - variantName: SlimeIncubator
+    variantSprite: {fileID: 21300000, guid: 7de68f730cfb281479eedc8a3a0a902e, type: 3}
+    variantCost:
+    - amount: 2
+      materialType: 10
+      howToGet: 
+    - amount: 100
+      materialType: 33
+      howToGet: 
+  - variantName: SlimeEggPress
+    variantSprite: {fileID: 21300000, guid: 27c41b43b7dd3d44d985756b7cf7ec4f, type: 3}
+    variantCost:
+    - amount: 25
+      materialType: 25
+      howToGet: 
+    - amount: 1
+      materialType: 35
+      howToGet: 
+    - amount: 1
+      materialType: 23
+      howToGet: 
+  - variantName: Crystalarium
+    variantSprite: {fileID: 21300000, guid: ba9b75c14f4e06a45a33406d42a9f844, type: 3}
+    variantCost:
+    - amount: 99
+      materialType: 3
+      howToGet: 
+    - amount: 2
+      materialType: 10
+      howToGet: 
+    - amount: 5
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 23
+      howToGet: 
+  - variantName: MiniObelisk
+    variantSprite: {fileID: 21300000, guid: 54f883cac5992324198574d248451623, type: 3}
+    variantCost:
+    - amount: 30
+      materialType: 11
+      howToGet: 
+    - amount: 20
+      materialType: 36
+      howToGet: 
+    - amount: 3
+      materialType: 22
+      howToGet: 
+  - variantName: FarmComputer
+    variantSprite: {fileID: 21300000, guid: 4a27fd4f5af7a3d4fae9ae50bbef21fd, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 37
+      howToGet: 
+    - amount: 1
+      materialType: 23
+      howToGet: 
+    - amount: 10
+      materialType: 9
+      howToGet: 
+  - variantName: OstrichIncubator
+    variantSprite: {fileID: 21300000, guid: 46c1a086388aec5449a22e5e1a6e5120, type: 3}
+    variantCost:
+    - amount: 50
+      materialType: 38
+      howToGet: 
+    - amount: 50
+      materialType: 11
+      howToGet: 
+    - amount: 20
+      materialType: 39
+      howToGet: 
+  - variantName: GeodeCrusher
+    variantSprite: {fileID: 21300000, guid: 4cfcc9553099fe34ba0762b004ec7017, type: 3}
+    variantCost:
+    - amount: 2
+      materialType: 22
+      howToGet: 
+    - amount: 50
+      materialType: 3
+      howToGet: 
+    - amount: 1
+      materialType: 40
+      howToGet: 
+  - variantName: SolarPanel
+    variantSprite: {fileID: 21300000, guid: 02dc5615011fe724683bee80e1912f32, type: 3}
+    variantCost:
+    - amount: 5
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 10
+      materialType: 9
+      howToGet: 
+  - variantName: Hopper
+    variantSprite: {fileID: 21300000, guid: 4546acee713069648bb460f35a4104f8, type: 3}
+    variantCost:
+    - amount: 10
+      materialType: 11
+      howToGet: 
+    - amount: 1
+      materialType: 10
+      howToGet: 
+    - amount: 1
+      materialType: 41
+      howToGet: 
+  - variantName: BoneMill
+    variantSprite: {fileID: 21300000, guid: 13dcff46920568844a47d40816f4cc84, type: 3}
+    variantCost:
+    - amount: 10
+      materialType: 38
+      howToGet: 
+    - amount: 3
+      materialType: 7
+      howToGet: 
+    - amount: 20
+      materialType: 3
+      howToGet: 
+  - variantName: MushroomLog
+    variantSprite: {fileID: 21300000, guid: 88f6d2cc0a56e6147bfa2340851f5313, type: 3}
+    variantCost:
+    - amount: 10
+      materialType: 11
+      howToGet: 
+    - amount: 10
+      materialType: 42
+      howToGet: 
+  - variantName: BaitMaker
+    variantSprite: {fileID: 21300000, guid: b191042c4c9dca943aefbe8807dc724d, type: 3}
+    variantCost:
+    - amount: 3
+      materialType: 12
+      howToGet: 
+    - amount: 3
+      materialType: 16
+      howToGet: 
+    - amount: 20
+      materialType: 43
+      howToGet: 
+  - variantName: Dehydrator
+    variantSprite: {fileID: 21300000, guid: 85f9512fe827143478f8a38f0fe6c1ca, type: 3}
+    variantCost:
+    - amount: 30
+      materialType: 2
+      howToGet: 
+    - amount: 2
+      materialType: 7
+      howToGet: 
+    - amount: 1
+      materialType: 35
+      howToGet: 
+  - variantName: HeavyFurnace
+    variantSprite: {fileID: 21300000, guid: 658de0c821b52fa48b492d10f75c6ecd, type: 3}
+    variantCost:
+    - amount: 2
+      materialType: 12
+      howToGet: 
+    - amount: 100
+      materialType: 3
+      howToGet: 
+    - amount: 40
+      materialType: 44
+      howToGet: 
+  - variantName: StatueOfBlessing
+    variantSprite: {fileID: 21300000, guid: a0db8340eb472e54aa0bcf4c57138473, type: 3}
+    variantCost:
+    - amount: 999
+      materialType: 45
+      howToGet: 
+    - amount: 999
+      materialType: 3
+      howToGet: 
+    - amount: 999
+      materialType: 13
+      howToGet: 
+    - amount: 333
+      materialType: 42
+      howToGet: 
+  - variantName: DwarfStatue
+    variantSprite: {fileID: 21300000, guid: f01dad646d0bb3f40ab5e24bbfa46b31, type: 3}
+    variantCost:
+    - amount: 20
+      materialType: 10
+      howToGet: 
+  - variantName: Anvil
+    variantSprite: {fileID: 21300000, guid: 5b7715488b6d24c4b99e56774cfaa198, type: 3}
+    variantCost:
+    - amount: 50
+      materialType: 12
+      howToGet: 
+  - variantName: Forge
+    variantSprite: {fileID: 21300000, guid: 00244d7ca94a32342a0684f9202c4444, type: 3}
+    variantCost:
+    - amount: 10
+      materialType: 12
+      howToGet: 
+    - amount: 5
+      materialType: 19
+      howToGet: 
+    - amount: 10
+      materialType: 22
+      howToGet: 
+    - amount: 5
+      materialType: 10
+      howToGet: 
+  - variantName: FishSmoker
+    variantSprite: {fileID: 21300000, guid: 9fee8065f5a9aab43b9104b907c53330, type: 3}
+    variantCost:
+    - amount: 10
+      materialType: 11
+      howToGet: 
+    - amount: 1
+      materialType: 46
+      howToGet: 
+    - amount: 1
+      materialType: 47
+      howToGet: 
+    - amount: 1
+      materialType: 48
+      howToGet: 
+  - variantName: DeluxeWormBin
+    variantSprite: {fileID: 21300000, guid: 9fd1bd9a6ed37094f81a7ec001e4eb5a, type: 3}
+    variantCost:
+    - amount: 30
+      materialType: 42
+      howToGet: 
+    - amount: 15
+      materialType: 11
+      howToGet: 
+    - amount: 1
+      materialType: 22
+      howToGet: 
+    - amount: 1
+      materialType: 12
+      howToGet: 
+    - amount: 50
+      materialType: 13
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0
@@ -33,4 +446,4 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourScript: {fileID: 11500000, guid: 020a5eaa9970d5a4ead7998809984203, type: 3}

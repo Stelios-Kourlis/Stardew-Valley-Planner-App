@@ -12,12 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: FishPond
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 6
+  baseHeight: 5
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 5000
+    materialType: 1
+    howToGet: 
+  - amount: 200
+    materialType: 3
+    howToGet: 
+  - amount: 5
+    materialType: 4
+    howToGet: 
+  - amount: 5
+    materialType: 5
+    howToGet: 
+  defaultSprite: {fileID: 21300000, guid: da59bc4933105624ab704fb2994045c1, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []
@@ -27,7 +38,7 @@ MonoBehaviour:
   animalsPerTier: []
   isConnecting: 0
   connectsToTop: 0
-  isFishPond: 0
+  isFishPond: 1
   isEnterable: 0
   interiorInteractions: 
   interiorWalls: []

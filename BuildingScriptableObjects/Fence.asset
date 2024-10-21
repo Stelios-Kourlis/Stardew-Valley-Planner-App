@@ -12,15 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Fence
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
-  canBeMassPlaced: 0
+  typeName: 5
+  baseHeight: 1
+  canBeMassPlaced: 1
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
-  atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  defaultSprite: {fileID: 21300000, guid: 5a47741a9a7342742891287715ea3f4d, type: 3}
+  atlas: {fileID: 4343727234628468602, guid: 54f34ff08bda6aa4abdfa060b6b49bc5, type: 2}
+  isMultipleType: 1
+  variants:
+  - variantName: Wood
+    variantSprite: {fileID: 21300000, guid: 5a47741a9a7342742891287715ea3f4d, type: 3}
+    variantCost:
+    - amount: 2
+      materialType: 2
+      howToGet: 
+  - variantName: Stone
+    variantSprite: {fileID: 21300000, guid: d8a21cf0ac5bd2544b2faac99094d1bb, type: 3}
+    variantCost:
+    - amount: 2
+      materialType: 3
+      howToGet: 
+  - variantName: Iron
+    variantSprite: {fileID: 21300000, guid: 073123d632c8dec448f3397140c86361, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 12
+      howToGet: 
+  - variantName: Hardwood
+    variantSprite: {fileID: 21300000, guid: 01bc0de6856647c45a10cfa7ec22c6d8, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 11
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0

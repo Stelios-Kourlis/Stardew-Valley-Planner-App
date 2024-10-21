@@ -12,24 +12,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Barn
   m_EditorClassIdentifier: 
-  buildingName: 
+  buildingName: Barn
   typeName: 0
-  baseHeight: 0
+  baseHeight: 4
   canBeMassPlaced: 0
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
-  atlas: {fileID: 0}
+  defaultSprite: {fileID: 853024448359829100, guid: 475960918152bc44eb3dfa6b8e606faf, type: 3}
+  atlas: {fileID: 4343727234628468602, guid: 49723dc21f884b6438fd2f13d4f3773e, type: 2}
   isMultipleType: 0
   variants: []
-  isTiered: 0
-  tiers: []
-  isAnimalHouse: 0
-  animalsPerTier: []
+  isTiered: 1
+  tiers:
+  - tier: 1
+    costToUpgradeToThatTier:
+    - amount: 6000
+      materialType: 1
+      howToGet: 
+    - amount: 350
+      materialType: 2
+      howToGet: 
+    - amount: 150
+      materialType: 3
+      howToGet: 
+  - tier: 2
+    costToUpgradeToThatTier:
+    - amount: 18000
+      materialType: 1
+      howToGet: 
+    - amount: 800
+      materialType: 2
+      howToGet: 
+    - amount: 350
+      materialType: 3
+      howToGet: 
+  - tier: 3
+    costToUpgradeToThatTier:
+    - amount: 43000
+      materialType: 1
+      howToGet: 
+    - amount: 1350
+      materialType: 2
+      howToGet: 
+    - amount: 650
+      materialType: 3
+      howToGet: 
+  isAnimalHouse: 1
+  animalsPerTier:
+  - tier: 1
+    animalsAllowed: 0400000001000000
+  - tier: 2
+    animalsAllowed: 040000000100000000000000
+  - tier: 3
+    animalsAllowed: 0400000001000000000000000200000003000000
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
-  isEnterable: 0
-  interiorInteractions: 
+  isEnterable: 1
+  interiorInteractions: 01000000020000000300000009000000
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0

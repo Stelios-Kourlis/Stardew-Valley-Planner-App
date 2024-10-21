@@ -19,29 +19,20 @@ public class BuildingVariant {
 
 [RequireComponent(typeof(Building))]
 public class MultipleTypeBuildingComponent : BuildingComponent {
-    // public Type EnumType { get; private set; }//this needs a rework
-    // public Enum Type { get; set; }
     public BuildingVariant[] variants;
     public int CurrentVariantIndex { get; private set; }
-    public string CurrentType => variants[CurrentVariantIndex].variantName;
-    // public SpriteAtlas Atlas { get; private set; }
-    // public Sprite DefaultSprite { get; set; }
-    private string SpriteName => gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName();
+    public string CurrentType => System.Text.RegularExpressions.Regex.Replace(variants[CurrentVariantIndex].variantName, "(?<!^)([A-Z])", " $1");
 
     /// <summary>
     /// Sets the type of the building to the given enum type. If you want the building to start with a specific type, pass it as the second argument
     /// </summary>
     public MultipleTypeBuildingComponent SetEnumType(BuildingVariant[] types) {
-        this.variants = types;
-        // SetType(previousType ?? (Enum)Enum.GetValues(EnumType).GetValue(0));
-        // DefaultSprite = Atlas.GetSprite($"{Enum.GetValues(EnumType).GetValue(0)}");
+        variants = types;
         return this;
     }
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        // Atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
-        // Debug.Assert(Atlas != null, $"Atlas \"{Building.type}Atlas\" was not found");
 
     }
 

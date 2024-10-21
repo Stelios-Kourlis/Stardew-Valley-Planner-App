@@ -12,15 +12,65 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Tree
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 23
+  baseHeight: 1
   canBeMassPlaced: 0
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  defaultSprite: {fileID: -1032777317, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Oak
+    variantSprite: {fileID: -1032777317, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Maple
+    variantSprite: {fileID: -1298502572, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Pine
+    variantSprite: {fileID: -1476690340, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Mahogany
+    variantSprite: {fileID: 733016015, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Cherry
+    variantSprite: {fileID: -2001839858, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Apricot
+    variantSprite: {fileID: -961294794, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Orange
+    variantSprite: {fileID: -916230782, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Peach
+    variantSprite: {fileID: 245943088, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Pomegranate
+    variantSprite: {fileID: -1252286396, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Apple
+    variantSprite: {fileID: -319760793, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Banana
+    variantSprite: {fileID: 657187858, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Mango
+    variantSprite: {fileID: -889465327, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Mushroom
+    variantSprite: {fileID: -1419736353, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: Mystic
+    variantSprite: {fileID: 215244357, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: OakGreenRain
+    variantSprite: {fileID: -35252708, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: MapleGreenRain
+    variantSprite: {fileID: -2067339005, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
+  - variantName: PineGreenRain
+    variantSprite: {fileID: -905000421, guid: 5486cc6ac46dc0e4faffaefa2d7696c0, type: 3}
+    variantCost: []
   isTiered: 0
   tiers: []
   isAnimalHouse: 0
@@ -33,4 +83,4 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourScript: {fileID: 11500000, guid: ad7c9f8c371ddfa4296d88b202caedf0, type: 3}

@@ -64,8 +64,8 @@ public class TypeBarHandler : MonoBehaviour {
     }
 
     public bool IsMultipleTypeBuilding(BuildingScriptableObject bso) {
-        if (bso.buildingName == "Crop") return false;
-        if (bso.buildingName == "Craftables") return false;
+        if (bso.BuildingName == "Crop") return false;
+        if (bso.BuildingName == "Craftables") return false;
         return bso.isMultipleType;
     }
 

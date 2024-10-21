@@ -12,15 +12,89 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Scarecrow
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
-  canBeMassPlaced: 0
+  typeName: 15
+  baseHeight: 1
+  canBeMassPlaced: 1
   materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  defaultSprite: {fileID: 6376926314784696775, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
   atlas: {fileID: 0}
-  isMultipleType: 0
-  variants: []
+  isMultipleType: 1
+  variants:
+  - variantName: Default
+    variantSprite: {fileID: 6376926314784696775, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 50
+      materialType: 2
+      howToGet: 
+    - amount: 1
+      materialType: 25
+      howToGet: 
+    - amount: 20
+      materialType: 13
+      howToGet: 
+  - variantName: Rarecrow1
+    variantSprite: {fileID: 7727500627475670359, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Purchase at the Stardew Valley Fair for 800 Tokens
+  - variantName: Rarecrow2
+    variantSprite: {fileID: 6909243483195589384, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Purchase at the Spirit's Eve festival for 5,000 Coins
+  - variantName: Rarecrow3
+    variantSprite: {fileID: 5613493236928188031, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Purchase at the Casino for 10,000 Qi Coins
+  - variantName: Rarecrow4
+    variantSprite: {fileID: -2997195532997922311, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Purchase at the Traveling Cart randomly during fall or winter for
+        4,000 Coins, or purchase at the Festival of Ice for 5,000 Coins
+  - variantName: Rarecrow5
+    variantSprite: {fileID: -4613315212463102245, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Purchase at the Flower Dance for 2,500 Coins
+  - variantName: Rarecrow6
+    variantSprite: {fileID: -4721722177540204842, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Purchase from the Dwarf for 2,500 Coins
+  - variantName: Rarecrow7
+    variantSprite: {fileID: -274334831821844449, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Donate 20 Artifacts (not counting Minerals) to the Museum. Can be
+        purchased from the Night Market once the first one is earned
+  - variantName: Rarecrow8
+    variantSprite: {fileID: 754311370515565329, guid: 4cc2eec760c66ca498a527ed94145fd3, type: 3}
+    variantCost:
+    - amount: 1
+      materialType: 0
+      howToGet: Donate 40 items to the Museum. Can be purchased from the Night Market
+        once the first one is earned
+  - variantName: Deluxe
+    variantSprite: {fileID: 21300000, guid: b770891663748374782cf566b96fb823, type: 3}
+    variantCost:
+    - amount: 50
+      materialType: 2
+      howToGet: 
+    - amount: 1
+      materialType: 24
+      howToGet: 
+    - amount: 40
+      materialType: 13
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0
@@ -33,4 +107,4 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourScript: {fileID: 11500000, guid: a906d8df624e8644dba6321803823215, type: 3}

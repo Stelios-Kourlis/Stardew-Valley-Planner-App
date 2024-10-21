@@ -12,12 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: JunimoHut
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 11
+  baseHeight: 2
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 20000
+    materialType: 1
+    howToGet: 
+  - amount: 200
+    materialType: 3
+    howToGet: 
+  - amount: 9
+    materialType: 21
+    howToGet: 
+  - amount: 100
+    materialType: 13
+    howToGet: 
+  defaultSprite: {fileID: 21300000, guid: 564c3706eddad7649a7a4f95a6b90159, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []
@@ -33,4 +44,4 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourScript: {fileID: 11500000, guid: 4030d3ddee7e07d4da88131f9460e430, type: 3}

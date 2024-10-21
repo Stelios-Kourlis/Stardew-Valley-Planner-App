@@ -12,12 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Well
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 22
+  baseHeight: 3
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 1000
+    materialType: 1
+    howToGet: 
+  - amount: 75
+    materialType: 3
+    howToGet: 
+  defaultSprite: {fileID: 21300000, guid: e8a0807d607f8a340bde0f960f7430cb, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []

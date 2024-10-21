@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Greenhouse
   m_EditorClassIdentifier: 
-  buildingName: 
-  typeName: 0
-  baseHeight: 0
+  typeName: 9
+  baseHeight: 6
   canBeMassPlaced: 0
-  materialsNeeded: []
-  defaultSprite: {fileID: 0}
+  materialsNeeded:
+  - amount: 1
+    materialType: 0
+    howToGet: Complete the community center's pantry room.
+  defaultSprite: {fileID: 21300000, guid: f13d3040eadd701499906f3fb2c53c7a, type: 3}
   atlas: {fileID: 0}
   isMultipleType: 0
   variants: []
@@ -28,9 +30,9 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
-  isEnterable: 0
+  isEnterable: 1
   interiorInteractions: 
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourScript: {fileID: 11500000, guid: 1509112eebbd8694c84e077f5f990514, type: 3}
