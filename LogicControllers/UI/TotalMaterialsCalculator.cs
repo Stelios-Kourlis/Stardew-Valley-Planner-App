@@ -20,12 +20,17 @@ public class TotalMaterialsCalculator : MonoBehaviour {
     [SerializeField] private SpriteAtlas materialAtlas;
     [SerializeField] private GameObject buildingCostPrefab;
     [SerializeField] private GameObject materialEntryPrefab;
-
+    private readonly List<BuildingType> collapsableTypes = new() { BuildingType.Crop, BuildingType.Craftables, BuildingType.Fence, BuildingType.Floor, BuildingType.Sprinkler, BuildingType.Scarecrow, };
     private Mode currentMode;
     private Transform ContentPanelTransform => transform.Find("ScrollArea").Find("Content");
 
     public void Start() {
         GetComponent<MoveablePanel>().panelOpened += RecalculateMaterials;
+
+        // foreach (Materials material in Enum.GetValues(typeof(Materials))) { // This is a debug to ensure all materials have a sprite in the atlas
+        //     if (material == Materials.DummyMaterial) continue;
+        //     if (materialAtlas.GetSprite(material.ToString()) == null) Debug.LogError($"Material {material} does not have a sprite in the atlas");
+        // }
     }
 
     private void RecalculateMaterials() {
@@ -57,7 +62,7 @@ public class TotalMaterialsCalculator : MonoBehaviour {
         foreach (Building building in BuildingController.GetBuildings()) {
             // if (building.type == BuildingType.Crop) continue;
 
-            if (addedBuildings.ContainsKey(building.FullName) && (building.type == BuildingType.Crop || building.type == BuildingType.Craftables)) {
+            if (addedBuildings.ContainsKey(building.FullName) && collapsableTypes.Contains(building.type)) {
                 GameObject cost = addedBuildings[building.FullName];
                 string oldText = cost.transform.Find("Text").Find("Materials").GetChild(0).GetChild(1).GetComponent<Text>().text;
                 string newText = Regex.Replace(oldText, @"\d+", match => (int.Parse(match.Value) + 1).ToString());

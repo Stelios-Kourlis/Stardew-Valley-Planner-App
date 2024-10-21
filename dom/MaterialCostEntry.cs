@@ -11,7 +11,7 @@ public class MaterialCostEntry : ICloneable {
     public string howToGet;
     public bool IsSpecial { get { return materialType == Materials.DummyMaterial; } }
 
-    public string EntryText => IsSpecial ? howToGet : materialType.ToString();
+    public string EntryText => IsSpecial ? howToGet : System.Text.RegularExpressions.Regex.Replace(materialType.ToString(), "(?<!^)([A-Z])", " $1");
 
     public MaterialCostEntry() { }
 

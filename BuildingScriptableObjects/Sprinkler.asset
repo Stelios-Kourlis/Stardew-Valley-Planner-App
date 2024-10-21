@@ -63,8 +63,8 @@ MonoBehaviour:
       materialType: 8
       howToGet: 
     - amount: 1
-      materialType: 0
-      howToGet: Pressure Nozzle
+      materialType: 49
+      howToGet: 
   - variantName: QualityPressureNozzle
     variantSprite: {fileID: 398629189307340736, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
     variantCost:
@@ -78,8 +78,8 @@ MonoBehaviour:
       materialType: 9
       howToGet: 
     - amount: 1
-      materialType: 0
-      howToGet: Pressure Nozzle
+      materialType: 49
+      howToGet: 
   - variantName: IridiumPressureNozzle
     variantSprite: {fileID: 9062080534116335299, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
     variantCost:
@@ -93,8 +93,8 @@ MonoBehaviour:
       materialType: 23
       howToGet: 
     - amount: 1
-      materialType: 0
-      howToGet: Pressure Nozzle
+      materialType: 49
+      howToGet: 
   - variantName: NormalEnricher
     variantSprite: {fileID: -3057193649948781188, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
     variantCost:
@@ -105,8 +105,8 @@ MonoBehaviour:
       materialType: 8
       howToGet: 
     - amount: 1
-      materialType: 0
-      howToGet: Enricher
+      materialType: 50
+      howToGet: 
   - variantName: QualityEnricher
     variantSprite: {fileID: -2995117680705949839, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
     variantCost:
@@ -120,8 +120,8 @@ MonoBehaviour:
       materialType: 9
       howToGet: 
     - amount: 1
-      materialType: 0
-      howToGet: Enricher
+      materialType: 50
+      howToGet: 
   - variantName: IridiumEnricher
     variantSprite: {fileID: -9028981324591490947, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
     variantCost:
@@ -135,8 +135,8 @@ MonoBehaviour:
       materialType: 23
       howToGet: 
     - amount: 1
-      materialType: 0
-      howToGet: Enricher
+      materialType: 50
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0

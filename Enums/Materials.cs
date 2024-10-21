@@ -48,5 +48,7 @@ public enum Materials {
     Sap,
     SeaJelly,
     RiverJelly,
-    CaveJelly
+    CaveJelly,
+    PressureNozzle,
+    Enricher
 }

@@ -48,7 +48,7 @@ MonoBehaviour:
   tiers: []
   isAnimalHouse: 0
   animalsPerTier: []
-  isConnecting: 0
+  isConnecting: 1
   connectsToTop: 0
   isFishPond: 0
   isEnterable: 0
