@@ -105,11 +105,16 @@ public class BuildingButtonController : MonoBehaviour {
                     anyActionWasClicked?.Invoke();
                 });
                 break;
+            case ButtonTypes.TIER_FOUR:
+                button.onClick.AddListener(() => {
+                    if (building.BuildingGameObject.TryGetComponent(out TieredBuildingComponent TieredBuildingComponent)) TieredBuildingComponent.SetTier(4);
+                    anyActionWasClicked?.Invoke();
+                });
+                break;
             case ButtonTypes.ENTER:
                 button.onClick.AddListener(() => {
                     if (building.BuildingGameObject.TryGetComponent(out EnterableBuildingComponent enterableBuildingComponent)) enterableBuildingComponent.ToggleEditBuildingInterior();
                     anyActionWasClicked?.Invoke();
-                    // else NotificationManager.Instance.SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
                 });
                 break;
             case ButtonTypes.PAINT:

@@ -7,10 +7,12 @@ using UnityEngine;
 public class HouseModificationScriptableObject : ScriptableObject {
     public HouseExtensionsComponent.HouseModifications type;
     public Vector3Int spriteOrigin;
-    public Sprite backSprite, frontSprite, backRemoved;
+    public Sprite backSprite, frontSprite, backRemoved, frontRemoved;
     public List<WallsComponent.WallOrigin> wallOrigins;
     public List<FlooringComponent.FlooringOrigin> floorOrigins;
     public List<WallMove> wallModifications;
+    public bool reverseActivation;
+    public HouseExtensionsComponent.HouseModifications preexistingModification;
 }
 
 [Serializable]

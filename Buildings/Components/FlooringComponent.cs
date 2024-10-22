@@ -57,10 +57,11 @@ public class FlooringComponent : BuildingComponent {
             splitSprites[3] = Sprite.Create(floorSprite.texture, new Rect(spriteSize, spriteSize, spriteSize, spriteSize), new Vector2(0.5f, 0.5f));
 
             foreach (Vector3Int position in GetFloorPositions()) {
-                if (position.x % 2 == 0 && position.y % 2 == 0) tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
-                if (position.x % 2 == 1 && position.y % 2 == 0) tilemap.SetTile(position, SplitSprite(floorSprite)[1]);
-                if (position.x % 2 == 0 && position.y % 2 == 1) tilemap.SetTile(position, SplitSprite(floorSprite)[2]);
-                if (position.x % 2 == 1 && position.y % 2 == 1) tilemap.SetTile(position, SplitSprite(floorSprite)[3]);
+                //for some reason negative values are not being processed correctly
+                if (Mathf.Abs(position.x) % 2 == 0 && Mathf.Abs(position.y) % 2 == 0) tilemap.SetTile(position, SplitSprite(floorSprite)[0]);
+                else if (Mathf.Abs(position.x) % 2 == 1 && Mathf.Abs(position.y) % 2 == 0) tilemap.SetTile(position, SplitSprite(floorSprite)[1]);
+                else if (Mathf.Abs(position.x) % 2 == 0 && Mathf.Abs(position.y) % 2 == 1) tilemap.SetTile(position, SplitSprite(floorSprite)[2]);
+                else if (Mathf.Abs(position.x) % 2 == 1 && Mathf.Abs(position.y) % 2 == 1) tilemap.SetTile(position, SplitSprite(floorSprite)[3]);
             }
 
             foreach (Sprite sprite in splitSprites) Destroy(sprite);
@@ -140,7 +141,11 @@ public class FlooringComponent : BuildingComponent {
 
     public void AddFloor(FlooringOrigin origin) {
         Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID);
-        if (floors.Any(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any())) throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner}");
+        var overlappingFloors = floors.Where(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any());
+        if (overlappingFloors.Any()) {
+            string overlaps = string.Join(", ", overlappingFloors.Select(f => $"[{string.Join(", ", f.GetFloorPositions())}]"));
+            throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner} at {overlaps}");
+        }
         floors.Add(floor);
     }
 

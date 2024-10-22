@@ -32,7 +32,7 @@ public class TieredBuildingComponent : BuildingComponent {
                 1 => "ONE",
                 2 => "TWO",
                 3 => "THREE",
-                4 => "ONE", //todo placeholder for lack of icon for tier 4
+                4 => "FOUR",
                 _ => "INVALID"
             };
             gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding((ButtonTypes)Enum.Parse(typeof(ButtonTypes), $"TIER_{tierStr}"));
@@ -42,8 +42,6 @@ public class TieredBuildingComponent : BuildingComponent {
 
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        // atlas = Resources.Load<SpriteAtlas>($"Buildings/{Building.type}Atlas");
-        // Debug.Assert(atlas != null, $"Could not load atlas for {Building.type} ({Building.GetType()}Atlas)");
         SetTier(1);
     }
 
@@ -54,8 +52,8 @@ public class TieredBuildingComponent : BuildingComponent {
 
     public virtual void SetTier(int tier) {
         Tier = tier;
-        tierChanged?.Invoke(tier);
         Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+        tierChanged?.Invoke(tier);
     }
 
     public void Load(BuildingScriptableObject bso) {

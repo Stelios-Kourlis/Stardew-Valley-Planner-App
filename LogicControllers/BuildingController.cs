@@ -82,7 +82,7 @@ public static class BuildingController {
         // Building building = (Building)LastBuildingObjectCreated.GetComponent(newType);
         // Debug.Assert(building != null, $"building is null in SetCurrentBuildingToMultipleTypeBuilding");
         LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().SetType(typeIndex);
-        Debug.Log($"Set current building type to {buildingType} with type {LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().CurrentType}");
+        // Debug.Log($"Set current building type to {buildingType} with type {LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().CurrentType}");
         currentBuildingTypeChanged?.Invoke(buildingType);
 
         // UnityEngine.Object.Destroy(LastBuildingObjectCreatedBackup);

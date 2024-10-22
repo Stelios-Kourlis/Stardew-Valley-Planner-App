@@ -98,7 +98,7 @@ MonoBehaviour:
     - lowerLeftCorner: {x: 15, y: 20, z: 0}
       width: 13
       wallpaperId: 61
-    - lowerLeftCorner: {x: 21, y: 6, z: 0}
+    - lowerLeftCorner: {x: 21, y: 11, z: 0}
       width: 2
       wallpaperId: 0
     - lowerLeftCorner: {x: 23, y: 11, z: 0}
@@ -121,7 +121,7 @@ MonoBehaviour:
     - lowerLeftCorner: {x: 15, y: 20, z: 0}
       width: 13
       wallpaperId: 61
-    - lowerLeftCorner: {x: 21, y: 6, z: 0}
+    - lowerLeftCorner: {x: 21, y: 20, z: 0}
       width: 2
       wallpaperId: 0
     - lowerLeftCorner: {x: 23, y: 11, z: 0}
@@ -170,13 +170,13 @@ MonoBehaviour:
       width: 15
       height: 6
       floorTextureID: 31
-    - lowerLeftCorner: {x: 21, y: 5, z: 0}
+    - lowerLeftCorner: {x: 21, y: 4, z: 0}
       width: 2
-      height: 2
+      height: 8
       floorTextureID: 0
     - lowerLeftCorner: {x: 23, y: 1, z: 0}
       width: 12
-      height: 11
+      height: 12
       floorTextureID: 0
   - tier: 4
     floorOrigins:
@@ -196,9 +196,9 @@ MonoBehaviour:
       width: 15
       height: 6
       floorTextureID: 31
-    - lowerLeftCorner: {x: 21, y: 5, z: 0}
+    - lowerLeftCorner: {x: 21, y: 4, z: 0}
       width: 2
-      height: 2
+      height: 8
       floorTextureID: 0
     - lowerLeftCorner: {x: 23, y: 1, z: 0}
       width: 12

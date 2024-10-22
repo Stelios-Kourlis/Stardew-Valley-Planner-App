@@ -62,6 +62,7 @@ public class Building : TooltipableGameObject {
     public Sprite DefaultSprite { get; private set; }
     [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
     private BuildingBehaviourExtension behaviourExtension;
+    // public bool IsInsideBuilding { get; set; } = false;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
     public TilemapRenderer TilemapRenderer => gameObject.GetComponent<TilemapRenderer>();
@@ -224,6 +225,7 @@ public class Building : TooltipableGameObject {
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
+        // IsInsideBuilding = BuildingController.isInsideBuilding.Key;
         BuildingController.anyBuildingPositionChanged?.Invoke();
         BuildingPlaced?.Invoke(BaseCoordinates[0]);
         // if (BuildingPlaced != null) {
