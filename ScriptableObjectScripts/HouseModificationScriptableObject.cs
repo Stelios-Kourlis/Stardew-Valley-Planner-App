@@ -11,6 +11,7 @@ public class HouseModificationScriptableObject : ScriptableObject {
     public List<WallsComponent.WallOrigin> wallOrigins;
     public List<FlooringComponent.FlooringOrigin> floorOrigins;
     public List<WallMove> wallModifications;
+    public List<FlooringMove> floorModifications;
     public bool reverseActivation;
     public HouseExtensionsComponent.HouseModifications preexistingModification;
 }
@@ -22,7 +23,7 @@ public class WallMove {
 
 
     /// <summary>
-    /// If used MoveWall from this class, use it again with the return WallOrigin to revert the Modification
+    /// If used MoveWall from this class, use it again with the returned WallOrigin to revert the Modification
     /// </summary>
     /// <returns></returns>
     public WallsComponent.WallOrigin GetReverseModification() {
@@ -30,6 +31,25 @@ public class WallMove {
             newWall.lowerLeftCorner * new Vector3Int(-1, -1, 0),
             newWall.width * -1,
             newWall.wallpaperId
+        );
+    }
+}
+
+[Serializable]
+public class FlooringMove {
+    public Vector3Int oldFlooringPoint;
+    public FlooringComponent.FlooringOrigin newFlooring;
+
+    /// <summary>
+    /// If used MoveFloor from this class, use it again with the returned FlooringOrigin to revert the Modification
+    /// </summary>
+    /// <returns></returns>
+    public FlooringComponent.FlooringOrigin GetReverseModification() {
+        return new FlooringComponent.FlooringOrigin(
+            newFlooring.lowerLeftCorner * new Vector3Int(-1, -1, 0),
+            newFlooring.width * -1,
+            newFlooring.height * -1,
+            newFlooring.floorTextureID
         );
     }
 }

@@ -298,9 +298,10 @@ public class HouseExtensionsComponent : BuildingComponent {
             }
             SetTilesOnlyNonNull(SplitSprite(values.backSprite), positions.ToArray(), BuildingInteriorTilemap);
             if (values.frontSprite != null) SetTilesOnlyNonNull(SplitSprite(values.frontSprite), positions.ToArray(), frontTilemap);
+            foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.newWall);
+            foreach (FlooringMove flooringMove in values.floorModifications) GetComponent<FlooringComponent>().MoveFloor(flooringMove.oldFlooringPoint, flooringMove.newFlooring);
             foreach (WallOrigin origin in values.wallOrigins) GetComponent<WallsComponent>().AddWall(origin);
             foreach (FlooringOrigin origin in values.floorOrigins) GetComponent<FlooringComponent>().AddFloor(origin);
-            foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.newWall);
         }
         else {
             GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(values.type.ToString());
@@ -310,6 +311,7 @@ public class HouseExtensionsComponent : BuildingComponent {
             foreach (WallOrigin origin in values.wallOrigins) GetComponent<WallsComponent>().RemoveWall(origin.lowerLeftCorner);
             foreach (FlooringOrigin origin in values.floorOrigins) GetComponent<FlooringComponent>().RemoveFloor(origin.lowerLeftCorner);
             foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.GetReverseModification());
+            foreach (FlooringMove flooringMove in values.floorModifications) GetComponent<FlooringComponent>().MoveFloor(flooringMove.oldFlooringPoint, flooringMove.GetReverseModification());
         }
 
         // Debug.Log(values.type);

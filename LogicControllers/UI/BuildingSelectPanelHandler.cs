@@ -10,7 +10,14 @@ using static Utility.BuildingManager;
 using System.Reflection;
 using Utility;
 
-public class TypeBarHandler : MonoBehaviour {
+public enum Categories {
+    Buildings,
+    Craftables,
+    Crops,
+    Decorations,
+    None
+}
+public class BuildingSelectPanelHandler : MonoBehaviour {
     private readonly BuildingType[] typesThatShouldBeInCraftables = { BuildingType.Sprinkler, BuildingType.Floor, BuildingType.Fence, BuildingType.Scarecrow, BuildingType.Craftables };
     [SerializeField] private GameObject typeBar;
     // [SerializeField] private List<BuildingScriptableObject> buildingsInBuildingPanel;
@@ -20,22 +27,30 @@ public class TypeBarHandler : MonoBehaviour {
         Transform categoryButtons = transform.Find("Rect").Find("CategoryButtons");
         Transform content = transform.Find("Rect").Find("ScrollAreaBuildings").Find("Content");
 
-        categoryButtons.Find("BuildingsButton").GetComponent<Button>().onClick.AddListener(() => {
-            ClearAllChildrenInTransform(content);
-            CreateButtonsForBuildings(content);
-        });
+        foreach (Categories category in Enum.GetValues(typeof(Categories))) {
+            if (category == Categories.None || category == Categories.Decorations) continue; //todo remove after adding decorations
+            categoryButtons.Find($"{category}Button").GetComponent<Button>().onClick.AddListener(() => {
+                ClearAllChildrenInTransform(content);
+                CreateButtonsForCategory(category, content);
+            });
+        }
 
-        categoryButtons.Find("PlaceablesButton").GetComponent<Button>().onClick.AddListener(() => {
-            ClearAllChildrenInTransform(content);
-            CreateButtonsForCraftables(content);
-        });
+        // categoryButtons.Find("BuildingsButton").GetComponent<Button>().onClick.AddListener(() => {
+        //     ClearAllChildrenInTransform(content);
+        //     CreateButtonsForCategory(Categories.Buildings, content);
+        // });
 
-        categoryButtons.Find("CropsButton").GetComponent<Button>().onClick.AddListener(() => {
-            ClearAllChildrenInTransform(content);
-            CreateButtonsForCrops(content);
-        });
+        // categoryButtons.Find("PlaceablesButton").GetComponent<Button>().onClick.AddListener(() => {
+        //     ClearAllChildrenInTransform(content);
+        //     CreateButtonsForCategory(Categories.Craftables, content);
+        // });
 
-        CreateButtonsForBuildings(content);
+        // categoryButtons.Find("CropsButton").GetComponent<Button>().onClick.AddListener(() => {
+        //     ClearAllChildrenInTransform(content);
+        //     CreateButtonsForCategory(Categories.Crops, content);
+        // });
+
+        CreateButtonsForCategory(Categories.Buildings, content);
 
         BuildingController.currentBuildingTypeChanged += EvalueateIfTypeBarShouldBeShown;
         EvalueateIfTypeBarShouldBeShown(BuildingController.currentBuildingType);
@@ -43,7 +58,6 @@ public class TypeBarHandler : MonoBehaviour {
 
     private void EvalueateIfTypeBarShouldBeShown(BuildingType newBuildingType) {
         BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{newBuildingType}");
-        // Debug.Log($"EvalueateIfTypeBarShouldBeShown for {newBuildingType}");
         bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(bso);
         if (isCurrentlyBuildingMultipleTypeBuilding) {
             typeBar.GetComponent<MoveablePanel>().SetPanelToOpenPosition();
@@ -64,52 +78,36 @@ public class TypeBarHandler : MonoBehaviour {
     }
 
     public bool IsMultipleTypeBuilding(BuildingScriptableObject bso) {
-        if (bso.BuildingName == "Crop") return false;
-        if (bso.BuildingName == "Craftables") return false;
-        return bso.isMultipleType;
+        return bso.isMultipleType && !bso.isExpanded;
     }
 
 
     private void ClearAllChildrenInTransform(Transform transform) {
         for (int i = 0; i < transform.childCount; i++) Destroy(transform.GetChild(i).gameObject);
     }
-    private void CreateButtonsForBuildings(Transform buildingSelectContent) {
-        foreach (BuildingType type in Enum.GetValues(typeof(BuildingType))) {
-            if (type == BuildingType.House) continue; //these 2 should not be available to build
-            if (type == BuildingType.Greenhouse) continue;
-            if (type == BuildingType.Crop) continue; //later category
-            if (typesThatShouldBeInCraftables.Contains(type)) continue; //if its not any of these dont add it
-            GameObject button = Building.CreateBuildingButton(type);
-            if (button == null) continue;
-            button.transform.SetParent(buildingSelectContent);
-            button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        }
-    }
 
-    private void CreateButtonsForCraftables(Transform buildingSelectContent) {
+    private void CreateButtonsForCategory(Categories category, Transform content) {
         foreach (BuildingType type in Enum.GetValues(typeof(BuildingType))) {
-            if (type == BuildingType.House) continue; //these 2 should not be available to build
-            if (type == BuildingType.Greenhouse) continue;
-            if (!typesThatShouldBeInCraftables.Contains(type)) continue; //only add craftables
-            if (type == BuildingType.Craftables) {
-                GameObject[] buttons = MultipleTypeBuildingComponent.CreateButtonsForAllTypes(type);
-                foreach (GameObject craftableButton in buttons) {
-                    craftableButton.transform.SetParent(buildingSelectContent);
-                    craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-                }
+            BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{type}");
+            if (bso.category != category) {
+                Resources.UnloadAsset(bso);
                 continue;
             }
-            GameObject button = Building.CreateBuildingButton(type);
-            button.transform.SetParent(buildingSelectContent);
-            button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        }
-    }
 
-    private void CreateButtonsForCrops(Transform buildingSelectContent) {
-        GameObject[] buttons = MultipleTypeBuildingComponent.CreateButtonsForAllTypes(BuildingType.Crop);
-        foreach (GameObject button in buttons) {
-            button.transform.SetParent(buildingSelectContent.transform);
-            button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            if (bso.isExpanded) {
+                GameObject[] buttons = MultipleTypeBuildingComponent.CreateButtonsForAllTypes(type);
+                foreach (GameObject craftableButton in buttons) {
+                    craftableButton.transform.SetParent(content);
+                    craftableButton.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+                }
+            }
+            else {
+                GameObject button = Building.CreateBuildingButton(type);
+                button.transform.SetParent(content);
+                button.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+            }
+
+            Resources.UnloadAsset(bso);
         }
     }
 }

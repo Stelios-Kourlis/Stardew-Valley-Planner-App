@@ -206,3 +206,5 @@ MonoBehaviour:
       floorTextureID: 0
   hasInteriorExtensions: 1
   extraBehaviourScript: {fileID: 0}
+  category: 4
+  isExpanded: 0

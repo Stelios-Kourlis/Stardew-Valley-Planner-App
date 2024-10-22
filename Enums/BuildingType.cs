@@ -26,6 +26,7 @@ public enum BuildingType {
     Sprinkler,
     Stable,
     Well,
-    Tree
+    Tree,
+    GiantCrop
 
 }

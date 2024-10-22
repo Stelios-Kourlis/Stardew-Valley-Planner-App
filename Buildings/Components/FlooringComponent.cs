@@ -68,6 +68,20 @@ public class FlooringComponent : BuildingComponent {
             floorTextureChanged?.Invoke(floorTextureID);
         }
 
+        public void MoveFloor(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0) {
+            foreach (Vector3Int oldTile in GetFloorPositions()) {
+                tilemap.SetTile(oldTile, null);
+            }
+            this.lowerLeftCorner = lowerLeftCorner;
+            this.width = width;
+            this.height = height;
+            ApplyFloorTexture(floorTextureID);
+        }
+
+        public bool FloorContains(Vector3Int point) {
+            return GetFloorPositions().Contains(point);
+        }
+
         public IEnumerable<Vector3Int> GetFloorPositions() {
             return GetRectAreaFromPoint(lowerLeftCorner, height, width);
         }
@@ -161,6 +175,16 @@ public class FlooringComponent : BuildingComponent {
         Flooring floor = floors.Find(floor => floor.GetFloorPositions().Contains(floorPosition));
         if (floor == null) return;
         ApplyCurrentFloorTexture(floor);
+    }
+
+    public void MoveFloor(Vector3Int oldFloor, FlooringOrigin newOrigin) {
+        Flooring floor = GetFlooringFromPoint(oldFloor);
+        if (floor == null) return;
+        floor.MoveFloor(floor.lowerLeftCorner + newOrigin.lowerLeftCorner, floor.width + newOrigin.width, newOrigin.floorTextureID == -1 ? floor.floorTextureID : newOrigin.floorTextureID);
+    }
+
+    private Flooring GetFlooringFromPoint(Vector3Int point) {
+        return floors.FirstOrDefault(wall => wall.FloorContains(point));
     }
 
     private void ApplyCurrentFloorTexture(Flooring floor) {

@@ -46,4 +46,7 @@ public class BuildingScriptableObject : ScriptableObject {
 
     public MonoScript extraBehaviourScript;
 
+    public Categories category;
+    public bool isExpanded;
+
 }

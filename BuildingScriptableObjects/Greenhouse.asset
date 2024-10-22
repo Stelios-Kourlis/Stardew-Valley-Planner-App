@@ -36,3 +36,5 @@ MonoBehaviour:
   interiorFlooring: []
   hasInteriorExtensions: 0
   extraBehaviourScript: {fileID: 11500000, guid: 1509112eebbd8694c84e077f5f990514, type: 3}
+  category: 4
+  isExpanded: 0
