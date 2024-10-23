@@ -50,7 +50,6 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     public MarriageCandidate spouse;
     public GameObject modificationWarning;
-    private Sprite spouseRoomSprite;
     public bool isMarried;
     public HouseModificationMenu ModificationMenu { get; private set; }
     private Dictionary<HouseModifications, bool?> houseModificationsActive;
@@ -72,7 +71,7 @@ public class HouseExtensionsComponent : BuildingComponent {
 
         if (scriptableObjects.Count == 0) {
             foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
-                if (modification != HouseModifications.Null && modification != HouseModifications.Marriage) scriptableObjects.Add(modification, Resources.Load<HouseModificationScriptableObject>($"BuildingInsides/House/{modification}"));
+                if (modification != HouseModifications.Null) scriptableObjects.Add(modification, Resources.Load<HouseModificationScriptableObject>($"BuildingInsides/House/{modification}"));
             }
         }
 
@@ -83,7 +82,6 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     // Start is called before the first frame update
     void Start() {
-        spouseRoomSprite = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoom");
         modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
     }
 
@@ -158,42 +156,32 @@ public class HouseExtensionsComponent : BuildingComponent {
         if (isMarried) AddSpouseRoom();
         else RemoveSpouseRoom();
 
-        ResolveConflicts(HouseModifications.Marriage, isMarried);
+        // ResolveConflicts(HouseModifications.Marriage, isMarried);
 
-        ModificationMenu.GetMarriageToggle().transform.Find("Image").GetComponent<Image>().sprite = checkbox[isMarried ? "On" : "Off"];
+        // ModificationMenu.GetMarriageToggle().transform.Find("Image").GetComponent<Image>().sprite = checkbox[isMarried ? "On" : "Off"];
         ModificationMenu.SetSpouseDropdownInteractability(isMarried);
     }
 
     public void RemoveSpouseRoom() {
-        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin();
-        Sprite spouseRoomRemoved = Resources.Load<Sprite>("BuildingInsides/House/SpouseRoomRemoved");
-        Vector3Int[] area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoomRemoved.textureRect.height / 16), (int)(spouseRoomRemoved.textureRect.width / 16)).ToArray();
-        BuildingInteriorTilemap.SetTiles(area, SplitSprite(spouseRoomRemoved));
-        BuildingInteriorTilemap.CompressBounds();
+        HouseModificationScriptableObject values = scriptableObjects[HouseModifications.Marriage];
+        values.spriteOrigin = GetSpouseRoomOrigin();
+        ApplyRenovation(HouseModifications.Marriage, false);
 
-        spouseRoomTilemap.ClearAllTiles();
-
-        GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet("SpouseRoom");
+        spouseRoomTilemap.ClearAllTiles(); //clear spouse specific tiles
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(spouse.ToString());
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
     public void AddSpouseRoom() {
-        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin();
-        var area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoomSprite.textureRect.height / 16), (int)(spouseRoomSprite.textureRect.width / 16));
-        BuildingInteriorTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoomSprite));
-        BuildingInteriorTilemap.CompressBounds();
-
-        SpecialCoordinateRect spouseSpecialTileSet = GetSpecialCoordinateSet("SpouseRoom");
-        spouseSpecialTileSet.AddOffset(spouseRoomOrigin - new Vector3Int(0, 1, 0));
-        GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
+        HouseModificationScriptableObject values = scriptableObjects[HouseModifications.Marriage];
+        values.spriteOrigin = GetSpouseRoomOrigin();
+        ApplyRenovation(HouseModifications.Marriage, true);
 
         SetSpouse((int)spouse); //Refresh spouse room
-        InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
     public void SetSpouse(int candidate) {
-        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin() + new Vector3Int(1, 0, 0);
+        Vector3Int spouseRoomOrigin = GetSpouseRoomOrigin() + new Vector3Int(1, 1, 0);
 
         //clear old spouse room invalid coords
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(spouse.ToString());
@@ -213,9 +201,9 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     private Vector3Int GetSpouseRoomOrigin() {
         return GetComponent<TieredBuildingComponent>().Tier switch {
-            2 => new Vector3Int(29, 2, 0),
-            3 => new Vector3Int(34, 5, 0),
-            4 => new Vector3Int(34, 5, 0),
+            2 => new Vector3Int(29, 1, 0),
+            3 => new Vector3Int(34, 4, 0),
+            4 => new Vector3Int(34, 4, 0),
             _ => new Vector3Int(0, 0, 0),
         };
     }
@@ -315,8 +303,8 @@ public class HouseExtensionsComponent : BuildingComponent {
         }
 
         GetComponent<EnterableBuildingComponent>().BuildingInterior.GetComponent<Tilemap>().CompressBounds();
-        if (values.reverseActivation) ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{values.type}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "Off" : "On"];
-        else ModificationMenu.transform.Find("TabContent").Find("Modifications").Find("Renovations").Find($"{values.type}").Find("Button").GetComponent<Image>().sprite = checkbox[isOn ? "On" : "Off"];
+        if (values.reverseActivation) ModificationMenu.GetModificationSprite(modification).sprite = checkbox[isOn ? "Off" : "On"];
+        else ModificationMenu.GetModificationSprite(modification).sprite = checkbox[isOn ? "On" : "Off"];
         houseModificationsActive[values.type] = isOn;
         ResolveConflicts(values.type, isOn);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
@@ -345,6 +333,14 @@ public class HouseExtensionsComponent : BuildingComponent {
             Tile tile = SplitSprite(tileTexture)[0];
             BuildingInteriorTilemap.SetTile(new Vector3Int(34, 14, 0), tile);
             Resources.UnloadAsset(tileTexture);
+        }
+
+        if (changedMofification == HouseModifications.Attic && !isOn) {
+            if (houseModificationsActive[HouseModifications.RemoveCrib] ?? false) {
+                //Removing the attic clips the crib a bit so just re-add it to fix it
+                ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).isOn = false;
+                ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).isOn = true;
+            }
         }
 
 

@@ -48,16 +48,14 @@ public class HouseModificationMenu : MonoBehaviour {
         return Content.Find("Modifications").Find("Marriage").Find("Checkbox").GetComponent<Toggle>();
     }
 
-    public Toggle GetCornerRoomToggle() {
-        return Content.Find("Modifications").Find("Renovations").Find("CornerRoom").GetComponent<Toggle>();
-    }
-
-    public Toggle GetAtticToggle() {
-        return Content.Find("Modifications").Find("Renovations").Find("Attic").GetComponent<Toggle>();
-    }
-
     public Toggle GetModificationToggle(HouseExtensionsComponent.HouseModifications modificationName) {
+        if (modificationName == HouseExtensionsComponent.HouseModifications.Marriage) return Content.Find("Modifications").Find("Marriage").Find("Checkbox").GetComponent<Toggle>();
         return Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).GetComponent<Toggle>();
+    }
+
+    public Image GetModificationSprite(HouseExtensionsComponent.HouseModifications modificationName) {
+        if (modificationName == HouseExtensionsComponent.HouseModifications.Marriage) return Content.Find("Modifications").Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>();
+        return Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).Find("Button").GetComponent<Image>();
     }
 
     public void SetAllToglesSpritesToOff() {
