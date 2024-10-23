@@ -157,13 +157,16 @@ public class WallsComponent : BuildingComponent {
     public void MoveWall(Vector3Int oldWall, WallOrigin newOrigin) {
         Wall wall = GetWallFromPoint(oldWall);
         if (wall == null) return;
+        Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(new($"Wall{wall.LowerLeftCorner}"));
         wall.MoveWall(wall.LowerLeftCorner + newOrigin.lowerLeftCorner, wall.Width + newOrigin.width, newOrigin.wallpaperId == -1 ? wall.wallpaperId : newOrigin.wallpaperId);
+        Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(new($"Wall{wall.LowerLeftCorner}", wall.GetAllWallCordinates().ToHashSet(), TileType.Wall));
     }
 
     public void RemoveWall(Vector3Int point) {
         Wall wall = GetWallFromPoint(point);
         if (wall == null) return;
         walls.Remove(wall);
+        Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(new($"Wall{wall.LowerLeftCorner}"));
         foreach (Vector3Int cordinate in wall.GetAllWallCordinates()) wallPaperTilemap.SetTile(cordinate, null);
     }
 

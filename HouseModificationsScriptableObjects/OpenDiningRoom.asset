@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aff3fe3456fc91f4d80b99adb07677a0, type: 3}
+  m_Name: OpenDiningRoom
+  m_EditorClassIdentifier: 
+  type: 9
+  spriteOrigin: {x: -2, y: 0, z: 0}
+  backSprite: {fileID: 21300000, guid: 14019a1d2b3c11a4685c4f5ce45ae984, type: 3}
+  frontSprite: {fileID: 21300000, guid: 559b2c82a386de74988394dd6c6312b6, type: 3}
+  backRemoved: {fileID: 21300000, guid: f956630f2ff979f4db7484da74ba90bf, type: 3}
+  frontRemoved: {fileID: 0}
+  wallOrigins:
+  - lowerLeftCorner: {x: -1, y: 8, z: 0}
+    width: 2
+    wallpaperId: 0
+  floorOrigins:
+  - lowerLeftCorner: {x: -1, y: 5, z: 0}
+    width: 2
+    height: 4
+    floorTextureID: 0
+  wallModifications: []
+  floorModifications:
+  - oldFlooringPoint: {x: -3, y: 5, z: 0}
+    newFlooring:
+      lowerLeftCorner: {x: 0, y: 0, z: 0}
+      width: -2
+      height: 0
+      floorTextureID: -1
+  reverseActivation: 1
+  preexistingModification: 8

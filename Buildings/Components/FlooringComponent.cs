@@ -180,7 +180,7 @@ public class FlooringComponent : BuildingComponent {
     public void MoveFloor(Vector3Int oldFloor, FlooringOrigin newOrigin) {
         Flooring floor = GetFlooringFromPoint(oldFloor);
         if (floor == null) return;
-        floor.MoveFloor(floor.lowerLeftCorner + newOrigin.lowerLeftCorner, floor.width + newOrigin.width, newOrigin.floorTextureID == -1 ? floor.floorTextureID : newOrigin.floorTextureID);
+        floor.MoveFloor(floor.lowerLeftCorner + newOrigin.lowerLeftCorner, floor.width + newOrigin.width, floor.height + newOrigin.height, newOrigin.floorTextureID == -1 ? floor.floorTextureID : newOrigin.floorTextureID);
     }
 
     private Flooring GetFlooringFromPoint(Vector3Int point) {

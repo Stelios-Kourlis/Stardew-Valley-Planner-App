@@ -55,7 +55,7 @@ namespace Utility {
             Sprite tileTexture = Resources.Load<Sprite>(path);
             Debug.Assert(tileTexture != null, "Tile texture is null");
             Tile tile = SplitSprite(tileTexture)[0];
-            // Resources.UnloadAsset(tileTexture);
+            Resources.UnloadAsset(tileTexture);
             return tile;
         }
 
