@@ -98,7 +98,7 @@ public class Building : TooltipableGameObject {
         if (CurrentBuildingState == BuildingState.PLACED) {
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
-            BuildingController.specialCoordinates.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
+            InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
             UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
             if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
@@ -170,7 +170,7 @@ public class Building : TooltipableGameObject {
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
         UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetComponent<BuildingSaverLoader>().SaveBuilding()));
-        BuildingController.specialCoordinates.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
+        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
         CurrentBuildingState = BuildingState.PICKED_UP;
         if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
         BuildingPickedUp?.Invoke();
@@ -221,19 +221,13 @@ public class Building : TooltipableGameObject {
         }
 
         // Debug.Log($"Adding special coords for {BuildingName}, width: {Width}, BHeight: {BaseHeight}");
-        BuildingController.specialCoordinates.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates.ToHashSet(), TileType.Invalid));
+        InvalidTilesManager.Instance.CurrentCoordinateSet.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates.ToHashSet(), TileType.Invalid));
+        // else BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates.ToHashSet(), TileType.Invalid));
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
-        // IsInsideBuilding = BuildingController.isInsideBuilding.Key;
         BuildingController.anyBuildingPositionChanged?.Invoke();
         BuildingPlaced?.Invoke(BaseCoordinates[0]);
-        // if (BuildingPlaced != null) {
-        //     foreach (Func<Vector3Int, Task> handler in BuildingPlaced.GetInvocationList().Cast<Func<Vector3Int, Task>>()) {
-        //         await handler(position);
-        //     }
-        // }
-        // Debug.Log($"Placed buildng {BuildingName}");
         return true;
     }
 

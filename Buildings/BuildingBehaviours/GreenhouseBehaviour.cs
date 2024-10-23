@@ -38,7 +38,7 @@ public class GreenhouseBehaviour : BuildingBehaviourExtension {
 
     public override void OnPickup() {
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
-        BuildingController.specialCoordinates.RemoveSpecialTileSet("GreenhousePorch");
+        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("GreenhousePorch");
     }
 
     public override void OnPickupPreview() {
@@ -48,12 +48,12 @@ public class GreenhouseBehaviour : BuildingBehaviourExtension {
     public override void OnPlace(Vector3Int lowerLeftCorner) {
         Vector3Int porchBottomRight = lowerLeftCorner + new Vector3Int(2, 0, 0) - new Vector3Int(0, 2, 0);
         Vector3Int[] porchCoordinates = GetRectAreaFromPoint(porchBottomRight, 2, 3).ToArray();
-        HashSet<Vector3Int> unavailableCoordinates = BuildingController.specialCoordinates.GetAllCoordinatesOfType(TileType.Invalid);
+        HashSet<Vector3Int> unavailableCoordinates = InvalidTilesManager.Instance.CurrentCoordinateSet.GetAllCoordinatesOfType(TileType.Invalid);
         if (unavailableCoordinates.Intersect(porchCoordinates).Count() > 0) return;
         porchTilemapObject.GetComponent<Tilemap>().color = Building.OPAQUE;
         porchTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         porchTilemapObject.GetComponent<Tilemap>().SetTiles(porchCoordinates, SplitSprite(porchSprite));
-        BuildingController.specialCoordinates.AddSpecialTileSet(new("GreenhousePorch", porchCoordinates.ToHashSet(), TileType.Invalid));
+        InvalidTilesManager.Instance.CurrentCoordinateSet.AddSpecialTileSet(new("GreenhousePorch", porchCoordinates.ToHashSet(), TileType.Invalid));
         porchTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = Building.gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
     }
 

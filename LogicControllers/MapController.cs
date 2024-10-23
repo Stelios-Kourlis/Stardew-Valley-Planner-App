@@ -103,7 +103,7 @@ public class MapController : MonoBehaviour {
     public void SetMap(MapTypes mapType) {
         CurrentMapType = mapType;
         BuildingController.DeleteAllBuildings(true);
-        BuildingController.specialCoordinates.ClearAll();
+        BuildingController.mapSpecialCoordinates.ClearAll();
 
         MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
 
@@ -116,7 +116,7 @@ public class MapController : MonoBehaviour {
         Vector3Int[] spriteArrayCoordinates = GetRectAreaFromPoint(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
         SpecialCoordinateRect specialCoordinates = GetSpecialCoordinateSet(map.name);
-        BuildingController.specialCoordinates.ClearAll();
+        BuildingController.mapSpecialCoordinates.ClearAll();
 
 
         Tilemap mapTilemap = map.GetComponent<Tilemap>();
@@ -136,7 +136,7 @@ public class MapController : MonoBehaviour {
         }
 
         specialCoordinates.AddOffset(lowerLeft);
-        BuildingController.specialCoordinates.AddSpecialTileSet(specialCoordinates);
+        BuildingController.mapSpecialCoordinates.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
         if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap();

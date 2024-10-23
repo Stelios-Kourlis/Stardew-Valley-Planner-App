@@ -15,6 +15,7 @@ using static WallsComponent;
 using static FlooringComponent;
 using System;
 using System.IO;
+using TMPro;
 
 public class HouseExtensionsComponent : BuildingComponent {
 
@@ -100,7 +101,7 @@ public class HouseExtensionsComponent : BuildingComponent {
 
         GameObject overlapTilemapGameObj = new("overlapTilemap");
         overlapTilemap = overlapTilemapGameObj.AddComponent<Tilemap>();
-        overlapTilemapGameObj.AddComponent<TilemapRenderer>().sortingOrder = BuildingInteriorTilemap.GetComponent<TilemapRenderer>().sortingOrder + 100;
+        overlapTilemapGameObj.AddComponent<TilemapRenderer>().sortingOrder = BuildingInteriorTilemap.GetComponent<TilemapRenderer>().sortingOrder + 1000;
         overlapTilemapGameObj.transform.SetParent(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform);
     }
 
@@ -236,20 +237,28 @@ public class HouseExtensionsComponent : BuildingComponent {
         bool buildingPreventsModificationRemoval = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any()).Any() && !isOn;
         List<Building> overlappingBuildings;
 
-        if (isOn) overlappingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any() && building.transform.parent == GetComponent<EnterableBuildingComponent>().BuildingInterior).ToList();
-        else overlappingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any() && building.transform.parent == GetComponent<EnterableBuildingComponent>().BuildingInterior).ToList();
+        if (isOn) overlappingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any() && building.transform.parent.gameObject == GetComponent<EnterableBuildingComponent>().BuildingInterior).ToList();
+        else overlappingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any() && building.transform.parent.gameObject == GetComponent<EnterableBuildingComponent>().BuildingInterior).ToList();
 
         if (overlappingBuildings.Any()) {
             GameObject warning = Instantiate(modificationWarning, GetCanvasGameObject().transform);
             warning.SetActive(true);
+            warning.transform.GetChild(0).GetComponent<TMP_Text>().text = $"It seems {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A - Z])", " $1")} interferes with some buildings, delete all interfering buildings?";
             warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
                 foreach (Building building in overlappingBuildings) building.DeleteBuilding();
+                foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, null);
                 ApplyRenovation(modification, isOn);
                 Destroy(warning);
             });
-            warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
+            warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => {
+                foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, null);
+                Destroy(warning);
+            });
             warning.transform.GetChild(1).Find("Highlight").GetComponent<Button>().onClick.AddListener(() => {
                 Tile redTile = LoadTile(Tiles.Red);
+                warning.transform.position = new Vector3(Screen.width / 2, warning.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
+                ModificationMenu.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
+                GetCamera().GetComponent<CameraController>().SetPosition(GetMiddleOfCoordinates(positions.ToArray()));
                 foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, redTile);
             });
         }

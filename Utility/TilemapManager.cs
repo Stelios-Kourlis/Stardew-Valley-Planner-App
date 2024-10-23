@@ -228,6 +228,24 @@ namespace Utility {
             return result;
         }
 
+        public static Vector3 GetMiddleOfCoordinates(Vector3Int[] coordinates) {
+            if (coordinates.Length == 0) return Vector3.zero;
+            if (coordinates.Length == 1) return coordinates[0];
+
+            float sumX = 0;
+            float sumY = 0;
+
+            foreach (var coord in coordinates) {
+                sumX += coord.x;
+                sumY += coord.y;
+            }
+
+            float avgX = sumX / coordinates.Length;
+            float avgY = sumY / coordinates.Length;
+
+            return new Vector3(avgX, avgY, 0);
+        }
+
         public static void TakePictureOfMap() {
             // Building.CurrentAction = Actions.EDIT;
             BuildingController.LastBuildingObjectCreated.SetActive(false);

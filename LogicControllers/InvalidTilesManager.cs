@@ -123,7 +123,7 @@ public class InvalidTilesManager : MonoBehaviour {
     public static InvalidTilesManager Instance { get; private set; }
     public SpecialCoordinatesCollection CurrentCoordinateSet {
         get {
-            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles : BuildingController.specialCoordinates;
+            return BuildingController.isInsideBuilding.Key ? BuildingController.isInsideBuilding.Value.InteriorSpecialTiles : BuildingController.mapSpecialCoordinates;
         }
     }
     public HashSet<Vector3Int> AllInvalidTiles {
