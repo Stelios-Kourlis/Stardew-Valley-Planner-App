@@ -17,7 +17,8 @@ public class GreenhouseBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnDelete() {
-        MonoScript.Destroy(porchTilemapObject);
+        Building.Destroy(porchTilemapObject);
+        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("GreenhousePorch");
     }
 
     public override void OnDeletePreview() {
@@ -25,7 +26,8 @@ public class GreenhouseBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnDestroy() {
-        MonoScript.Destroy(porchTilemapObject);
+        Building.Destroy(porchTilemapObject);
+        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("GreenhousePorch");
     }
 
     public override void OnMouseEnter() {

@@ -27,6 +27,7 @@ public enum BuildingType {
     Stable,
     Well,
     Tree,
-    GiantCrop
+    GiantCrop,
+    // Mailbox
 
 }

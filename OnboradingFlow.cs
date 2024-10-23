@@ -24,6 +24,8 @@ public class OnboradingFlow : MonoBehaviour {
             BuildingController.DeleteAllBuildings(true);
             float cameraMoveTime = 2f;
             float delay = 0.25f;
+            CameraController.Instance.SetSize(7);
+            CameraController.Instance.ToggleCameraLock();
 
             CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetGreenhousePosition() + new Vector3Int(3, 3, 0)), cameraMoveTime);
             yield return new WaitForSecondsRealtime(cameraMoveTime);
@@ -46,6 +48,9 @@ public class OnboradingFlow : MonoBehaviour {
                 Destroy(text);
                 ShowHowToMoveCamera();
             });
+
+            CameraController.Instance.SetSize(10);
+            CameraController.Instance.ToggleCameraLock();
         }
 
         MoveablePanel.CloseAllPanels?.Invoke();

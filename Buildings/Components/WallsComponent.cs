@@ -33,8 +33,11 @@ public class WallsComponent : BuildingComponent {
 
         private List<WallStrip> strips;
         public int wallpaperId;
+        public bool wasCreatedForHouseRenovation;
         private readonly Tilemap wallpaperTilemap;
-        private static SpriteAtlas wallpaperAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/WallsAtlas");
+        private static readonly SpriteAtlas wallpaperAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/WallsAtlas");
+        //if this wall was modified always keep the first ever version
+        public KeyValuePair<bool, WallOrigin> wasModifiedByRenovation = new(false, null);
 
         public Wall(Vector3Int lowerLeftCorner, int width, Tilemap wallpaperTilemap, int wallpaperId = 0) {
             strips = new();
@@ -42,6 +45,16 @@ public class WallsComponent : BuildingComponent {
                 strips.Add(new WallStrip(new Vector3Int(x, lowerLeftCorner.y, 0)));
             }
             this.wallpaperTilemap = wallpaperTilemap;
+            ApplyWallpaper(wallpaperId);
+        }
+
+        public Wall(Vector3Int lowerLeftCorner, int width, Tilemap wallpaperTilemap, int wallpaperId = 0, bool wasCreatedForHouseRenovation = false) {
+            strips = new();
+            for (int x = lowerLeftCorner.x; x <= lowerLeftCorner.x + width - 1; x++) {
+                strips.Add(new WallStrip(new Vector3Int(x, lowerLeftCorner.y, 0)));
+            }
+            this.wallpaperTilemap = wallpaperTilemap;
+            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
             ApplyWallpaper(wallpaperId);
         }
 
@@ -63,11 +76,26 @@ public class WallsComponent : BuildingComponent {
             return wallCordinates;
         }
 
+        public IEnumerable<Vector3Int> GetWallBaseCordinates() {
+            List<Vector3Int> wallCordinates = new();
+            foreach (WallStrip strip in strips) {
+                wallCordinates.Add(strip.strip[0]);
+            }
+            return wallCordinates;
+        }
+
         public bool WallContains(Vector3Int point) {
             return strips.Any(strip => strip.StripContains(point));
         }
 
+        public WallOrigin GetOriginRepresentingThisWall(bool giveOriginal = true) {
+            if (giveOriginal) if (wasModifiedByRenovation.Key) return wasModifiedByRenovation.Value;
+            return new(LowerLeftCorner, Width, wallpaperId);
+
+        }
+
         public void MoveWall(Vector3Int lowerLeftCorner, int width, int wallpaperId = 0) {
+            if (!wasModifiedByRenovation.Key) wasModifiedByRenovation = new(true, new(LowerLeftCorner, Width, this.wallpaperId)); //dont overwrite the first ever version
             foreach (Vector3Int oldTile in GetAllWallCordinates()) {
                 wallpaperTilemap.SetTile(oldTile, null);
             }
@@ -93,10 +121,18 @@ public class WallsComponent : BuildingComponent {
         public Vector3Int lowerLeftCorner;
         public int width;
         public int wallpaperId;
+        public bool wasCreatedForHouseRenovation;
         public WallOrigin(Vector3Int lowerLeftCorner, int width, int wallpaperId = 0) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.wallpaperId = wallpaperId;
+        }
+
+        public WallOrigin(Vector3Int lowerLeftCorner, int width, int wallpaperId = 0, bool wasCreatedForHouseRenovation = false) {
+            this.lowerLeftCorner = lowerLeftCorner;
+            this.width = width;
+            this.wallpaperId = wallpaperId;
+            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
         }
 
         // public bool IsWhole() {
@@ -138,15 +174,16 @@ public class WallsComponent : BuildingComponent {
     }
 
     public void AddWall(WallOrigin origin) {
-        // if (!origin.IsWhole()) return;
-        Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId);
-        if (walls.Any(wall => wall.GetAllWallCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any())) throw new Exception($"Walls overlap trigger: {origin.lowerLeftCorner}");
+        Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId, origin.wasCreatedForHouseRenovation);
+        var overlappingWalls = walls.Where(wall => wall.GetWallBaseCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any());
+        if (overlappingWalls.Any()) {
+            string overlaps = string.Join(", ", overlappingWalls.Select(w => $"[{string.Join(", ", w.GetWallBaseCordinates())}]"));
+            throw new Exception($"Walls overlap trigger: {origin.lowerLeftCorner} at {overlaps}");
+        }
         walls.Add(wall);
 
         Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(new($"Wall{origin.lowerLeftCorner}", wall.GetAllWallCordinates().ToHashSet(), TileType.Wall));
-        // Debug.Log($"Adding Wall{origin.lowerLeftCorner} to specialCoordintaes new length = {Building.GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.Count()}");
         wallPaperTilemap.CompressBounds();
-        // Debug.Log($"Created wall at {lowerLeftWallCorner} with width {widthTiles} in {gameObject.transform.parent.name}");
     }
 
     /// <summary>
@@ -197,6 +234,7 @@ public class WallsComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
+        // return;
         for (int i = 0; i < walls.Count; i++) {
             RemoveWall(walls[i].GetAllWallCordinates().First());
         }
@@ -217,11 +255,13 @@ public class WallsComponent : BuildingComponent {
     }
 
     public override ComponentData Save() {
+        // return null;
         ComponentData data = new(typeof(WallsComponent), new());
         int index = 0;
 
         foreach (Wall wall in walls) {
-            WallOrigin origin = new(wall.GetAllWallCordinates().First(), wall.Width, wall.wallpaperId);
+            if (wall.wasCreatedForHouseRenovation) continue; //HouseExtensionComponent will handle these
+            WallOrigin origin = wall.GetOriginRepresentingThisWall();
             JProperty wallProperty = new(index.ToString(),
                 new JObject(
                     new JProperty("Origin", new JArray(origin.lowerLeftCorner.x, origin.lowerLeftCorner.y)),

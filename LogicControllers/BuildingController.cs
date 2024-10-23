@@ -165,7 +165,7 @@ public static class BuildingController {
     }
 
     public static void PlaceSavedBuilding(BuildingData buildingData) {
-        GameObject go = new(buildingData.buildingType.Name);
+        GameObject go = new(buildingData.buildingType.ToString());
         go.transform.SetParent(CurrentTilemapTransform);
         BuildingSaverLoader buildingLoader = go.AddComponent<BuildingSaverLoader>();
         buildingLoader.LoadBuilding(buildingData);
@@ -202,9 +202,9 @@ public static class BuildingController {
     }
 
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
-    public static bool Save() { return BuildingSaverLoader.SaveToFile(); }
-    public static bool Load() { return BuildingSaverLoader.LoadFromFile(); }
-    public static void SaveAndQuit() { if (Save()) Quit(); }//if the user saved then quit
+    // public static bool Save() { return BuildingSaverLoader.SaveToFile(); }
+    // public static bool Load() { return BuildingSaverLoader.LoadFromFile(); }
+    public static void SaveAndQuit() { if (BuildingSaverLoader.SaveToFile()) Quit(); }//if the user saved then quit
     public static void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<MoveablePanel>().SetPanelToClosedPosition(); }
     public static void Quit() {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");

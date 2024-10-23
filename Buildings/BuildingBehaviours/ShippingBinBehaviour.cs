@@ -52,6 +52,7 @@ public class ShippingBinBehaviour : BuildingBehaviourExtension {
     }
 
     public override bool DiffrentMaterialCost(out List<MaterialCostEntry> alternativeMaterials) {
+
         alternativeMaterials = new();
         if (!isFirst) return false;
         alternativeMaterials = new(){

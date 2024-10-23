@@ -328,8 +328,10 @@ public class Building : TooltipableGameObject {
 
         if (bso.hasInteriorExtensions) gameObject.AddComponent<HouseExtensionsComponent>();
 
-        if (bso.extraBehaviourScript != null) {
-            behaviourExtension = (BuildingBehaviourExtension)Activator.CreateInstance(bso.extraBehaviourScript.GetClass());
+        Debug.Log(bso.extraBehaviourType.Type);
+        if (bso.extraBehaviourType.Type != null) {
+            // Type behaviourType = bso.extraBehaviourType.Type;
+            behaviourExtension = (BuildingBehaviourExtension)Activator.CreateInstance(bso.extraBehaviourType.Type);
             behaviourExtension?.OnStart(this);
         }
 

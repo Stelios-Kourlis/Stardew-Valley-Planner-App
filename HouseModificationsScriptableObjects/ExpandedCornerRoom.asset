@@ -17,19 +17,21 @@ MonoBehaviour:
   backSprite: {fileID: 21300000, guid: e553192d3f38a6f4ab325e8247831879, type: 3}
   frontSprite: {fileID: 21300000, guid: 70ef836dfd19a5f488661c074f074964, type: 3}
   backRemoved: {fileID: 21300000, guid: 252ac8476cba9a54987ca3e9257c8b15, type: 3}
-  frontRemoved: {fileID: 0}
   wallOrigins:
   - lowerLeftCorner: {x: 39, y: 28, z: 0}
     width: 8
     wallpaperId: 0
+    wasCreatedForHouseRenovation: 1
   - lowerLeftCorner: {x: 47, y: 23, z: 0}
     width: 4
     wallpaperId: 0
+    wasCreatedForHouseRenovation: 1
   floorOrigins:
   - lowerLeftCorner: {x: 39, y: 15, z: 0}
     width: 13
     height: 14
     floorTextureID: 0
+    wasCreatedForHouseRenovation: 1
   wallModifications: []
   floorModifications: []
   reverseActivation: 0

@@ -20,12 +20,16 @@ public class FlooringComponent : BuildingComponent {
         private static readonly SpriteAtlas floorAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/FloorsAtlas");
         private readonly Tilemap tilemap;
         public Action<int> floorTextureChanged;
+        public bool wasCreatedForHouseRenovation;
+        public KeyValuePair<bool, FlooringOrigin> wasModifiedByRenovation = new(false, null);
 
-        public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, int floorTextureID = 0) {
+
+        public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, int floorTextureID = 0, bool wasCreatedForHouseRenovation = false) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.height = height;
             this.tilemap = tilemap;
+            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
             ApplyFloorTexture(floorTextureID);
         }
 
@@ -69,6 +73,7 @@ public class FlooringComponent : BuildingComponent {
         }
 
         public void MoveFloor(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0) {
+            if (wasModifiedByRenovation.Key) wasModifiedByRenovation = new(true, new(lowerLeftCorner, width, height, floorTextureID));
             foreach (Vector3Int oldTile in GetFloorPositions()) {
                 tilemap.SetTile(oldTile, null);
             }
@@ -76,6 +81,12 @@ public class FlooringComponent : BuildingComponent {
             this.width = width;
             this.height = height;
             ApplyFloorTexture(floorTextureID);
+        }
+
+        public FlooringOrigin GetOriginRepresentingThisFloor(bool giveOriginal = true) {
+            if (giveOriginal) if (wasModifiedByRenovation.Key) return wasModifiedByRenovation.Value;
+            return new(lowerLeftCorner, width, height, floorTextureID);
+
         }
 
         public bool FloorContains(Vector3Int point) {
@@ -102,11 +113,13 @@ public class FlooringComponent : BuildingComponent {
         public int height;
         public int floorTextureID;
         public Flooring linkedFloor;
-        public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0) {
+        public bool wasCreatedForHouseRenovation;
+        public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0, bool wasCreatedForHouseRenovation = false) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.height = height;
             this.floorTextureID = floorTextureID;
+            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
         }
 
         public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, Flooring linkedFloor) {
@@ -116,6 +129,7 @@ public class FlooringComponent : BuildingComponent {
             this.linkedFloor = linkedFloor;
         }
     }
+
     private List<Flooring> floors = new();
     public Tilemap flooringTilemap;
     public static int selectedFloorTextureID = 0;
@@ -154,7 +168,7 @@ public class FlooringComponent : BuildingComponent {
 
 
     public void AddFloor(FlooringOrigin origin) {
-        Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID);
+        Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID, origin.wasCreatedForHouseRenovation);
         var overlappingFloors = floors.Where(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any());
         if (overlappingFloors.Any()) {
             string overlaps = string.Join(", ", overlappingFloors.Select(f => $"[{string.Join(", ", f.GetFloorPositions())}]"));
@@ -192,6 +206,7 @@ public class FlooringComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
+        // return;
         for (int i = 0; i < floors.Count; i++) {
             RemoveFloor(floors[i].GetFloorPositions().First());
         }
@@ -218,8 +233,9 @@ public class FlooringComponent : BuildingComponent {
         int index = 0;
 
         foreach (Flooring floor in floors) {
-            FlooringOrigin origin = new(floor.GetFloorPositions().First(), floor.width, floor.height, floor.floorTextureID);
-            JProperty floorProperty = new JProperty(index.ToString(),
+            if (floor.wasCreatedForHouseRenovation) continue;
+            FlooringOrigin origin = floor.GetOriginRepresentingThisFloor();
+            JProperty floorProperty = new(index.ToString(),
                 new JObject(
                     new JProperty("Origin", new JArray(origin.lowerLeftCorner.x, origin.lowerLeftCorner.y)),
                     new JProperty("Width", origin.width),

@@ -16,6 +16,7 @@ using static FlooringComponent;
 using System;
 using System.IO;
 using TMPro;
+using Newtonsoft.Json.Linq;
 
 public class HouseExtensionsComponent : BuildingComponent {
 
@@ -368,10 +369,11 @@ public class HouseExtensionsComponent : BuildingComponent {
     //     // warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
     // }
 
+
     public List<MaterialCostEntry> GetMaterialsNeeded() {
         List<MaterialCostEntry> totalMaterials = new();
         foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
-            if (!houseModificationsActive[modification] ?? false) continue;
+            if (!houseModificationsActive[modification] ?? true) continue;
             switch (modification) {
                 case HouseModifications.RemoveCrib:
                     break;
@@ -405,10 +407,20 @@ public class HouseExtensionsComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
-        return;
+        foreach (var property in data.componentData) {
+            string type = property.Name;
+            bool? status = property.Value.Value<bool?>();
+            if (status ?? false) ApplyRenovation((HouseModifications)Enum.Parse(typeof(HouseModifications), type), status ?? false);
+        }
     }
 
     public override ComponentData Save() {
-        return null;
+        ComponentData data = new(typeof(HouseExtensionsComponent), new());
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
+            if (modification == HouseModifications.Null) continue;
+            data.componentData.Add(new JProperty(modification.ToString(), houseModificationsActive[modification]));
+        }
+        return data;
+
     }
 }

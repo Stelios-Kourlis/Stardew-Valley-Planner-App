@@ -53,6 +53,10 @@ public class InputHandler : MonoBehaviour {
 
         BuildingController.SetCurrentAction(Actions.PLACE);
         mouseTileOnPreviousFrame = GetMousePositionInTilemap();
+
+        var saveLoad = GetSettingsModal().transform.Find("TabContent").Find("General").Find("ScrollArea").Find("Content").Find("SaveLoad");
+        saveLoad.Find("Save").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.SaveToFile());
+        saveLoad.Find("Load").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.LoadFromFile());
     }
 
     void Update() {
@@ -87,9 +91,9 @@ public class InputHandler : MonoBehaviour {
             NotificationManager.Instance.SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) BuildingController.Save();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) BuildingSaverLoader.SaveToFile();
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) BuildingController.Load();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) BuildingSaverLoader.LoadFromFile();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Place)) {
             BuildingController.SetCurrentAction(Actions.PLACE);

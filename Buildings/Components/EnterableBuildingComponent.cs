@@ -379,7 +379,7 @@ public class EnterableBuildingComponent : BuildingComponent {
                 allComponentData.Add(new(componentType, componentData));
             }
 
-            BuildingController.PlaceSavedBuilding(new BuildingData(Type.GetType(buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), allComponentData.ToArray()));
+            BuildingController.PlaceSavedBuilding(new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), allComponentData.ToArray()));
         }
         ExitBuildingInteriorEditing();
     }

@@ -44,9 +44,25 @@ public class BuildingScriptableObject : ScriptableObject {
     public FlooringPerTier[] interiorFlooring;
     public bool hasInteriorExtensions;
 
-    public MonoScript extraBehaviourScript;
+    // public MonoScript extraBehaviourScript;
+    public BehaviourScript extraBehaviourType;
 
     public Categories category;
     public bool isExpanded;
 
+}
+
+
+[Serializable]
+public class BehaviourScript {
+    public string typeName;
+
+    public Type Type {
+        get { return string.IsNullOrEmpty(typeName) ? null : Type.GetType(typeName); }
+        set { typeName = value.AssemblyQualifiedName; }
+    }
+
+    // private bool IsValidType(Type type) {
+    //     return type != null && type.IsSubclassOf(typeof(BuildingBehaviourExtension));
+    // }
 }

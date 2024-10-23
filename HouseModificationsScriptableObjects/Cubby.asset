@@ -17,13 +17,14 @@ MonoBehaviour:
   backSprite: {fileID: 21300000, guid: 3c293ac55564db942b7e5cff804b949d, type: 3}
   frontSprite: {fileID: 21300000, guid: 77a433599a09fbd4f95f54369f82f137, type: 3}
   backRemoved: {fileID: 21300000, guid: bd91056ff480f0247875dab7bf3e84f0, type: 3}
-  frontRemoved: {fileID: 0}
   wallOrigins: []
   floorOrigins:
   - lowerLeftCorner: {x: 14, y: -1, z: 0}
     width: 7
     height: 4
     floorTextureID: 0
+    wasCreatedForHouseRenovation: 1
   wallModifications: []
+  floorModifications: []
   reverseActivation: 0
   preexistingModification: 0

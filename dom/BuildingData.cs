@@ -12,11 +12,23 @@ public class BuildingData {
     public class ComponentData {
         public readonly Type componentType;
         public readonly List<JProperty> componentData;
-        // public readonly List<BuildingData> buildings;
+
+        public static List<Type> loadPriority = new(){
+            typeof(ConnectingBuildingComponent),
+            typeof(FishPondComponent),
+            typeof(MultipleTypeBuildingComponent),
+            typeof(TieredBuildingComponent),
+            typeof(AnimalHouseComponent),
+            typeof(EnterableBuildingComponent),
+            typeof(FlooringComponent),
+            typeof(WallsComponent),
+            typeof(HouseExtensionsComponent),
+        };
 
         public ComponentData(Type componentType, List<JProperty> componentData) {
             this.componentType = componentType;
             this.componentData = componentData;
+            // this.loadPriority = loadPriority;
         }
 
         public void AddProperty(JProperty property) {
@@ -35,17 +47,18 @@ public class BuildingData {
             foreach (var property in componentData) {
                 componentJObject[property.Name] = property.Value;
             }
+            // componentJObject[""]
             BuildingJObject[componentType.ToString()] = componentJObject;
         }
     }
 
-    public readonly Type buildingType;
+    public readonly BuildingType buildingType;
     public readonly Vector3Int lowerLeftCorner;
     public readonly ComponentData[] componentData;
-    // private readonly JsonSerializerSettings settings = new();
-    public BuildingData(Type type, Vector3Int lowerLeftCorner, ComponentData[] extraData = null) {
+    public BuildingData(BuildingType type, Vector3Int lowerLeftCorner, ComponentData[] extraData = null) {
         this.buildingType = type;
         this.lowerLeftCorner = lowerLeftCorner;
+        // this.loadPriority = loadPriority;
         this.componentData = extraData ?? (new ComponentData[0]);
     }
 

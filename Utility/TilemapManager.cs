@@ -309,6 +309,7 @@ namespace Utility {
             return pos;
         }
 
+#if UNITY_EDITOR
         [MenuItem("Assets/Create/Tile from Sprite")]
         public static void CreateTileFromSprite() {
             // Get selected sprite
@@ -338,6 +339,7 @@ namespace Utility {
 
             Debug.Log("Tile created successfully: " + path);
         }
+#endif
 
         public static void SetTilesOnlyNonNull(Tile[] tiles, Vector3Int[] positions, Tilemap tilemap) {
             for (int i = 0; i < positions.Length; i++) {

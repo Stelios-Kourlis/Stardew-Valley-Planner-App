@@ -45,3 +45,8 @@ MonoBehaviour:
   interiorFlooring: []
   hasInteriorExtensions: 0
   extraBehaviourScript: {fileID: 11500000, guid: 4030d3ddee7e07d4da88131f9460e430, type: 3}
+  extraBehaviourType:
+    typeName: JunimoHutBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  category: 0
+  isExpanded: 0

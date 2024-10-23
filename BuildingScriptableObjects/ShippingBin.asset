@@ -39,3 +39,8 @@ MonoBehaviour:
   interiorFlooring: []
   hasInteriorExtensions: 0
   extraBehaviourScript: {fileID: 11500000, guid: c11f90042ebc96846ae968fae362b09f, type: 3}
+  extraBehaviourType:
+    typeName: ShippingBinBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  category: 0
+  isExpanded: 0

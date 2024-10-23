@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static BuildingData;
 using Newtonsoft.Json;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using SFB;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -27,13 +29,15 @@ public class BuildingSaverLoader : MonoBehaviour {
         foreach (BuildingComponent component in gameObject.GetComponents<BuildingComponent>()) {
             if (component.Save() != null) extraData.Add(component.Save());
         }
-        buildingData = new(Building.GetType(), Building.BaseCoordinates[0], extraData.ToArray());
+        buildingData = new(Building.type, Building.BaseCoordinates[0], extraData.ToArray());
         return buildingData;
     }
 
     public void LoadBuilding(BuildingData data) {
         // if (!data.buildingType.IsAssignableFrom(typeof(Building))) throw new Exception($"Invalid building type {data.buildingType}");
-        Building Building = gameObject.AddComponent(data.buildingType) as Building;
+        BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{data.buildingType}");
+        Building Building = gameObject.AddComponent<Building>().LoadFromScriptableObject(bso);
+        Resources.UnloadAsset(bso);
         if (Building.PlaceBuilding(data.lowerLeftCorner)) {
             buildingData = data;
             LoadSavedComponents();
@@ -47,7 +51,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     }
 
     public void LoadSavedComponents() {
-        foreach (ComponentData compData in buildingData.componentData) {
+        foreach (ComponentData compData in buildingData.componentData.OrderBy(compData => ComponentData.loadPriority.IndexOf(compData.componentType))) {
             Debug.Log($"Loading component: {compData.componentType}");
             BuildingComponent component = gameObject.GetComponent(compData.componentType) as BuildingComponent;
             component.Load(compData);
@@ -66,7 +70,7 @@ public class BuildingSaverLoader : MonoBehaviour {
         Debug.Log($"Building count: {BuildingController.buildings.Count}");
         foreach (Building building in BuildingController.buildings) {
             Debug.Log(building.gameObject.scene.name.ToString());
-            if (!building.gameObject.scene.name.ToString().Contains("Map Scene")) continue;
+            if (!building.gameObject.scene.name.ToString().Contains("Map Scene")) continue; //buildings inside other buildings are handled by EnterableBuildingComponent
             Debug.Log($"Saving {building.BuildingName} (index: {BuildingController.buildings.IndexOf(building)})");
             if (building.TryGetComponent(out BuildingSaverLoader saverLoader)) buildingData.Add(saverLoader.SaveBuilding());
             else throw new Exception("BuildingSaverLoader component not found");
@@ -79,7 +83,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     /// Save the current state of the buildings to a file
     /// </summary>
     /// <returns>true, if the user saved, false if the user cancelled</returns>
-    [MenuItem("BuildingManager/Save To File")]
+    // [MenuItem("BuildingManager/Save To File")]
     public static bool SaveToFile() {
         string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
         string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp"); ;
@@ -99,7 +103,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     /// Load a farm from a file
     /// </summary>
     /// <returns>true, if the user chose a file, false if the user cancelled</returns>
-    [MenuItem("BuildingManager/Load From File")]
+    // [MenuItem("BuildingManager/Load From File")]
     public static bool LoadFromFile() {
         string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
         var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
@@ -144,8 +148,8 @@ public class BuildingSaverLoader : MonoBehaviour {
             componentData.Add(ParseComponentFromJson(component));
         }
 
-        Debug.Log(new BuildingData(Type.GetType(buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), componentData.ToArray()));
-        return new BuildingData(Type.GetType(buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), componentData.ToArray());
+        Debug.Log(new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), componentData.ToArray()));
+        return new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), componentData.ToArray());
 
     }
 }
