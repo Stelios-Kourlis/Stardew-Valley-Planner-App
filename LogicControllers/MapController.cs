@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using static Utility.InvalidTileLoader;
+using TMPro;
+using UnityEngine.UI;
 
 public class MapController : MonoBehaviour {
     public enum MapTypes {
@@ -33,8 +35,10 @@ public class MapController : MonoBehaviour {
         removingPlantableTiles,
         showMouseCoordinates
     }
+
     private SpriteAtlas atlas;
     public MapTypes CurrentMapType { get; private set; }
+    public GameObject UIButtonPrefab;
     static Tile redTile;
     static Tile greenTile;
     private Actions currentAction;
@@ -58,6 +62,8 @@ public class MapController : MonoBehaviour {
         greenTile = LoadTile(Utility.Tiles.Green);
 
         tileMode = TileMode.nothing;
+
+        InitializeMapButtons();
 
     }
 
@@ -97,6 +103,19 @@ public class MapController : MonoBehaviour {
             // else if (tileMode == TileMode.removingInvalidTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapInvalidTiles(tile);
             // else if (tileMode == TileMode.removingPlantableTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapPlantableTiles(tile);
             else if (tileMode == TileMode.showMouseCoordinates) Debug.Log(currentCell);
+        }
+    }
+
+    private void InitializeMapButtons() {
+        Transform mapContent = GetSettingsModal().transform.Find("TabContent").Find("Maps").Find("SelectMap").Find("ScrollArea").Find("Content");
+        if (mapContent == null) throw new Exception("Map content not found");
+
+        foreach (MapTypes type in Enum.GetValues(typeof(MapTypes))) {
+            GameObject mapButton = Instantiate(UIButtonPrefab, mapContent);
+            mapButton.name = type.ToString();
+            mapButton.GetComponent<ContentSizeFitter>().enabled = false;
+            mapButton.transform.Find("Text").GetComponent<TMP_Text>().text = System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(?<!^)([A-Z])", " $1");
+            mapButton.GetComponent<Button>().onClick.AddListener(() => SetMap(type));
         }
     }
 
@@ -169,7 +188,7 @@ public class MapController : MonoBehaviour {
         };
     }
 
-    public Vector3Int GetShippingBinPosition() {
+    public Vector3Int GetShippingBinPosition() {//todo add missing positions
         return CurrentMapType switch {
             // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
             // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),

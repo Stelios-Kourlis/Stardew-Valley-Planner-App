@@ -104,9 +104,9 @@ public static class BuildingController {
 
     public static void InitializeMap() {
         IsLoadingSave = true;
-        PlaceHouse();
+        if (MapController.Instance.CurrentMapType != MapController.MapTypes.GingerIsland) PlaceHouse();
         PlaceBin();
-        PlaceGreenhouse();
+        if (MapController.Instance.CurrentMapType != MapController.MapTypes.GingerIsland) PlaceGreenhouse();
         IsLoadingSave = false;
         CreateNewBuilding();
     }
