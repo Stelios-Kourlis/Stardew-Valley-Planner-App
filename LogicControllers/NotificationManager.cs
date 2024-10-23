@@ -43,5 +43,11 @@ public class NotificationManager : MonoBehaviour {
             Destroy(notifications.Last().gameObject);
         }
     }
+
+    public void DestroyAllNotifications() {
+        foreach (Notification notification in notifications) {
+            Destroy(notification.gameObject);
+        }
+    }
 }
 
