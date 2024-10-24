@@ -57,6 +57,10 @@ public class InputHandler : MonoBehaviour {
         var saveLoad = GetSettingsModal().transform.Find("TabContent").Find("General").Find("ScrollArea").Find("Content").Find("SaveLoad");
         saveLoad.Find("Save").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.SaveToFile());
         saveLoad.Find("Load").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.LoadFromFile());
+
+        var quit = GetSettingsModal().transform.Find("TabContent").Find("Quit");
+        quit.Find("QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.QuitApp());
+        quit.Find("SAVE AND QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.SaveAndQuit());
     }
 
     void Update() {

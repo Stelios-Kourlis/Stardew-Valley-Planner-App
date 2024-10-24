@@ -137,6 +137,11 @@ public class FishPondComponent : BuildingComponent {
         decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
     }
 
+    private void SetFishPondDeco(int index) {
+        decoIndex = index;
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+    }
+
     public override ComponentData Save() {
         return new(typeof(FishPondComponent),
                 new() {
@@ -146,10 +151,7 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
-        SetFishImage((Fish)Enum.Parse(typeof(Fish), data.componentData.First(x => x.Name == "Fish").Value.ToString()));
-        decoIndex = 0;
-        for (int index = 0; index != int.Parse(data.componentData.First(x => x.Name == "Deco Index").Value.ToString()); index++) {
-            CycleFishPondDeco();
-        }
+        SetFishImage(Enum.Parse<Fish>(data.GetComponentDataPropertyValue<string>("Fish")));
+        SetFishPondDeco(data.GetComponentDataPropertyValue<int>("Deco Index"));
     }
 }

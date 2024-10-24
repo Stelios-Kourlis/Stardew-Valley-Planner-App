@@ -28,6 +28,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     /// </summary>
     public MultipleTypeBuildingComponent SetEnumType(BuildingVariant[] types) {
         variants = types;
+        Building.UpdateTexture(variants[CurrentVariantIndex].variantSprite);
         return this;
     }
 
@@ -110,15 +111,12 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     public override BuildingData.ComponentData Save() {
         return new(typeof(MultipleTypeBuildingComponent),
                 new() {
-                    new JProperty("Variants", new JArray(variants.Select(variant => variant.variantName))),
-                    new JProperty("Type", CurrentVariantIndex)
+                    new JProperty("Type Index", CurrentVariantIndex)
                 });
     }
 
     public override void Load(BuildingData.ComponentData data) {
-        BuildingVariant[] enumTypes = ((JArray)data.componentData.First(x => x.Name == "Variants").Value).ToObject<BuildingVariant[]>();
-        SetEnumType(enumTypes);
-        SetType((int)data.componentData.First(x => x.Name == "Type").Value);
+        SetType(data.GetComponentDataPropertyValue<int>("Type Index"));
     }
 
 }

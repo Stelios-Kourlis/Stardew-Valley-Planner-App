@@ -93,7 +93,8 @@ public class Building : TooltipableGameObject {
     public void DeleteBuilding(bool force = false) {
         if ((type is BuildingType.Greenhouse || type is BuildingType.House) && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
 
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
+        // if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
+        behaviourExtension?.OnDelete();
 
         if (CurrentBuildingState == BuildingState.PLACED) {
             BuildingController.buildingGameObjects.Remove(gameObject);
@@ -104,7 +105,7 @@ public class Building : TooltipableGameObject {
         }
         BuildingRemoved?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
-        behaviourExtension?.OnDelete();
+
         Destroy(TooltipGameObject);
         Destroy(gameObject);
     }
@@ -305,6 +306,7 @@ public class Building : TooltipableGameObject {
     }
 
     public Building LoadFromScriptableObject(BuildingScriptableObject bso) {
+        Debug.Assert(bso != null, $"BuildingScriptableObject is null");
         BuildingName = bso.BuildingName;
         type = bso.typeName;
         BaseHeight = bso.baseHeight;
@@ -318,7 +320,6 @@ public class Building : TooltipableGameObject {
 
         if (bso.isTiered) gameObject.AddComponent<TieredBuildingComponent>().Load(bso);
 
-        if (bso.isAnimalHouse) gameObject.AddComponent<AnimalHouseComponent>().Load(bso);
 
         if (bso.isConnecting) gameObject.AddComponent<ConnectingBuildingComponent>().Load(bso);
 
@@ -326,14 +327,18 @@ public class Building : TooltipableGameObject {
 
         if (bso.isEnterable) gameObject.AddComponent<EnterableBuildingComponent>().Load(bso);
 
+        if (bso.isAnimalHouse) gameObject.AddComponent<AnimalHouseComponent>().Load(bso);
+
         if (bso.hasInteriorExtensions) gameObject.AddComponent<HouseExtensionsComponent>();
 
-        Debug.Log(bso.extraBehaviourType.Type);
+        // Debug.Log(bso.extraBehaviourType.Type);
         if (bso.extraBehaviourType.Type != null) {
             // Type behaviourType = bso.extraBehaviourType.Type;
             behaviourExtension = (BuildingBehaviourExtension)Activator.CreateInstance(bso.extraBehaviourType.Type);
             behaviourExtension?.OnStart(this);
         }
+
+        Debug.Log("Loaded building: " + BuildingName);
 
         return this;
     }

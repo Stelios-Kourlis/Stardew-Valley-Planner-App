@@ -318,7 +318,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         houseModificationsActive[values.type] = isOn;
         ResolveConflicts(values.type, isOn);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
-        BuildingController.SetCurrentTilemapTransform(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform); //to update the camera bounds
+        if (BuildingController.CurrentTilemapTransform == GetComponent<EnterableBuildingComponent>().BuildingInterior.transform) BuildingController.SetCurrentTilemapTransform(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform); //if user inside the buildiing update the camera bounds
     }
 
     //
@@ -407,18 +407,19 @@ public class HouseExtensionsComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
-        foreach (var property in data.componentData) {
-            string type = property.Name;
+        // return;
+        foreach (JProperty property in data.GetAllComponentDataProperties()) {
+            HouseModifications type = Enum.Parse<HouseModifications>(property.Name);
             bool? status = property.Value.Value<bool?>();
-            if (status ?? false) ApplyRenovation((HouseModifications)Enum.Parse(typeof(HouseModifications), type), status ?? false);
+            if (status ?? false) ApplyRenovation(type, status ?? false);
         }
     }
 
     public override ComponentData Save() {
-        ComponentData data = new(typeof(HouseExtensionsComponent), new());
+        ComponentData data = new(typeof(HouseExtensionsComponent));
         foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
             if (modification == HouseModifications.Null) continue;
-            data.componentData.Add(new JProperty(modification.ToString(), houseModificationsActive[modification]));
+            data.AddProperty(new JProperty(modification.ToString(), houseModificationsActive[modification]));
         }
         return data;
 

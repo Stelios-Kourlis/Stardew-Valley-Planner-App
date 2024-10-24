@@ -22,15 +22,18 @@ public class AppLogicController : MonoBehaviour {
     }
 
     public void PlayerPressedCreateFarmButton() {
-        SceneManager.LoadScene("App");
+        SceneManager.LoadScene("PermanentScene");
     }
 
     public void PlayerPressedLoadFarmButton() {
         DontDestroyOnLoad(gameObject);
-        // if (LoadFromFile()) {
-        //     SceneManager.LoadScene("App");
-        //     Destroy(gameObject);
-        // }
+        SceneManager.LoadScene("PermanentScene");
+        if (BuildingSaverLoader.LoadFromFile()) {
+            Destroy(gameObject);
+        }
+        else {
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 
     private IEnumerator ShowLogo() {

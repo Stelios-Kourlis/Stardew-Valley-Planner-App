@@ -50,6 +50,8 @@ namespace Utility {
         /// </summary>
         /// <returns> If the position is unavailable return (false, reason), with reason being a string with the issue, else returns (true, null)</returns>
         public static bool BuildingCanBePlacedAtPosition(Vector3Int position, Building building, out string errorMessage) {
+            errorMessage = "";
+            if (BuildingController.IsLoadingSave) return true;
             //todo rewrite this to better utilize the new coordinate system
             // Debug.Log(BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0)));
             if (!building.BuildingSpecificPlacementPreconditionsAreMet(position, out errorMessage)) return false;

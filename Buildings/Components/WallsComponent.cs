@@ -176,7 +176,7 @@ public class WallsComponent : BuildingComponent {
     public void AddWall(WallOrigin origin) {
         Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId, origin.wasCreatedForHouseRenovation);
         var overlappingWalls = walls.Where(wall => wall.GetWallBaseCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any());
-        if (overlappingWalls.Any()) {
+        if (overlappingWalls.Any() && !BuildingController.IsLoadingSave) {
             string overlaps = string.Join(", ", overlappingWalls.Select(w => $"[{string.Join(", ", w.GetWallBaseCordinates())}]"));
             throw new Exception($"Walls overlap trigger: {origin.lowerLeftCorner} at {overlaps}");
         }
@@ -239,7 +239,7 @@ public class WallsComponent : BuildingComponent {
             RemoveWall(walls[i].GetAllWallCordinates().First());
         }
 
-        foreach (var property in data.componentData) {
+        foreach (JProperty property in data.GetAllComponentDataProperties()) {
             JObject buildingData = (JObject)property.Value;
             Vector3Int lowerLeftCorner = new(
                 buildingData["Origin"][0].Value<int>(),
@@ -247,7 +247,7 @@ public class WallsComponent : BuildingComponent {
                 0
             );
             int width = buildingData["Width"].Value<int>();
-            int wallpaperId = buildingData["WallpaperId"].Value<int>();
+            int wallpaperId = buildingData["Wallpaper ID"].Value<int>();
 
             WallOrigin origin = new(lowerLeftCorner, width, wallpaperId);
             AddWall(origin);
@@ -256,21 +256,21 @@ public class WallsComponent : BuildingComponent {
 
     public override ComponentData Save() {
         // return null;
-        ComponentData data = new(typeof(WallsComponent), new());
+        ComponentData data = new(typeof(WallsComponent));
         int index = 0;
 
         foreach (Wall wall in walls) {
-            if (wall.wasCreatedForHouseRenovation) continue; //HouseExtensionComponent will handle these
-            WallOrigin origin = wall.GetOriginRepresentingThisWall();
+            // if (wall.wasCreatedForHouseRenovation) continue; //HouseExtensionComponent will handle these
+            WallOrigin origin = wall.GetOriginRepresentingThisWall(false);
             JProperty wallProperty = new(index.ToString(),
                 new JObject(
                     new JProperty("Origin", new JArray(origin.lowerLeftCorner.x, origin.lowerLeftCorner.y)),
                     new JProperty("Width", origin.width),
-                    new JProperty("WallpaperId", origin.wallpaperId)
+                    new JProperty("Wallpaper ID", origin.wallpaperId)
                 )
             );
 
-            data.componentData.Add(wallProperty);
+            data.AddProperty(wallProperty);
             index++;
         }
 

@@ -36,7 +36,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     public Sprite interiorSprite;
     public Vector3Int[] InteriorAreaCoordinates { get; private set; }
     [field: SerializeField] public SpecialCoordinatesCollection InteriorSpecialTiles { get; private set; }
-    public static Action EnteredOrExitedBuilding { get; set; }
+    public static Action EnteredOrExitedAnyBuilding { get; set; }
     public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
     public GameObject InteriorButtonsParent { get; private set; }
     private static int numberOfInteriors = 0;
@@ -47,6 +47,8 @@ public class EnterableBuildingComponent : BuildingComponent {
     public int Tier => GetComponent<TieredBuildingComponent>().Tier;
     private Transform mapTransform;
     public Action InteriorUpdated { get; set; }
+    public Action EnteredOrExitedBuilding { get; set; }
+    public GameObject interiorSceneCanvas;
 
     WallsPerTier[] wallsValues;
     FlooringPerTier[] floorsValues;
@@ -121,13 +123,13 @@ public class EnterableBuildingComponent : BuildingComponent {
         grid.AddComponent<Tilemap>();
         BuildingInterior.transform.SetParent(grid.transform);
 
-        GameObject canvas = new("Canvas");
-        canvas.SetActive(false);
-        canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        canvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
-        canvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
-        canvas.AddComponent<GraphicRaycaster>();
+        interiorSceneCanvas = new("Canvas");
+        interiorSceneCanvas.SetActive(false);
+        interiorSceneCanvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+        interiorSceneCanvas.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        interiorSceneCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
+        interiorSceneCanvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
+        interiorSceneCanvas.AddComponent<GraphicRaycaster>();
 
         if (wallsValues != null && wallsValues.Count() > 0) {
             GameObject walls = new("Walls");
@@ -148,7 +150,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         if (InteriorInteractions.Count > 0) {
             InteriorButtonsParent = new("InteriorButtons");
-            InteriorButtonsParent.transform.SetParent(canvas.transform);
+            InteriorButtonsParent.transform.SetParent(interiorSceneCanvas.transform);
             InteriorButtonsParent.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
             InteriorButtonsParent.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
             InteriorButtonsParent.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
@@ -210,6 +212,11 @@ public class EnterableBuildingComponent : BuildingComponent {
                             Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
                         });
                         break;
+                    case ButtonTypes.ADD_ANIMAL:
+                        button.AddComponent<Button>().onClick.AddListener(() => {
+                            Building.GetComponent<AnimalHouseComponent>().ToggleAnimalMenu();
+                        });
+                        break;
                     default:
                         throw new System.ArgumentException($"Invalid interior interaction {type}");
                 }
@@ -224,7 +231,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
-        SceneManager.MoveGameObjectToScene(canvas, BuildingInteriorScene);
+        SceneManager.MoveGameObjectToScene(interiorSceneCanvas, BuildingInteriorScene);
 
         InteriorUpdated?.Invoke();
     }
@@ -301,6 +308,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         SceneManager.SetActiveScene(BuildingInteriorScene);
 
+        EnteredOrExitedAnyBuilding?.Invoke();
         EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(BuildingInterior.transform);
     }
@@ -334,6 +342,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         SceneManager.SetActiveScene(MapScene);
 
+        EnteredOrExitedAnyBuilding?.Invoke();
         EnteredOrExitedBuilding?.Invoke();
         BuildingController.LastBuildingObjectCreated.transform.SetParent(GetGridTilemap().transform);
 
@@ -346,40 +355,41 @@ public class EnterableBuildingComponent : BuildingComponent {
     }
 
     public override ComponentData Save() {
-        if (BuildingInteriorScene.name == null) return null;
+        if (BuildingInteriorScene.name == null) return null; //if interior is null, dont save
 
-        ComponentData data = new(typeof(EnterableBuildingComponent), new());
+        ComponentData data = new(typeof(EnterableBuildingComponent));
         int index = 0;
-        foreach (Transform building in BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0)) {
-            if (building.GetComponent<Building>() == null) continue;
-            if (building.GetComponent<Building>().CurrentBuildingState != Building.BuildingState.PLACED) continue; //only save placed buildings
-            JProperty jproperty = new(index.ToString(), building.GetComponent<BuildingSaverLoader>().SaveBuilding().ToJson());
-            data.AddProperty(jproperty);
-            index++;
+        foreach (Transform child in BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0)) {
+            if (child.TryGetComponent(out Building building)) {
+                if (building.CurrentBuildingState != Building.BuildingState.PLACED) continue; //only save placed buildings
+                JProperty jproperty = new(index.ToString(), building.GetComponent<BuildingSaverLoader>().SaveBuilding().ToJson());
+                data.AddProperty(jproperty);
+                index++;
+            }
         }
         return data;
 
     }
 
     public override void Load(ComponentData data) {
-        // AddBuildingInterior();
+        // return;
         UpdateBuildingInterior();
         EditBuildingInterior();
-        foreach (var property in data.componentData) {
-            JObject buildingData = (JObject)property.Value;
-            string buildingName = buildingData.Value<string>("Building Type");
-            int lowerLeftX = buildingData.Value<int>("Lower Left Corner X");
-            int lowerLeftY = buildingData.Value<int>("Lower Left Corner Y");
+        foreach (JProperty property in data.GetAllComponentDataProperties()) {
+            BuildingController.PlaceSavedBuilding(BuildingSaverLoader.ParseBuildingFromJson(property));
 
-            List<ComponentData> allComponentData = new();
-            foreach (var component in buildingData.Properties().Skip(3)) {
-                Type componentType = Type.GetType(component.Name);
-                List<JProperty> componentData = new();
-                foreach (JProperty item in component.Value.Cast<JProperty>()) componentData.Add(item);
-                allComponentData.Add(new(componentType, componentData));
-            }
+            // JObject buildingData = (JObject)property.Value;
+            // string buildingName = buildingData.Value<string>("Building Type");
+            // int lowerLeftX = buildingData.Value<int>("Lower Left Corner X");
+            // int lowerLeftY = buildingData.Value<int>("Lower Left Corner Y");
 
-            BuildingController.PlaceSavedBuilding(new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), allComponentData.ToArray()));
+            // List<ComponentData> allComponentData = new();
+            // foreach (JProperty component in buildingData.Properties().Skip(3)) {
+            //     Type componentType = Type.GetType(component.Name);
+            //     allComponentData.Add(new(componentType, component.Value<JObject>()));
+            // }
+
+            // BuildingController.PlaceSavedBuilding(new BuildingData(Enum.Parse<BuildingType>(buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), allComponentData.ToArray()));
         }
         ExitBuildingInteriorEditing();
     }

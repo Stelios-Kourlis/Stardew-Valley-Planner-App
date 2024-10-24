@@ -18,7 +18,7 @@ public class HouseBehaviour : BuildingBehaviourExtension {
 
     public override void OnDelete() {
         Building.Destroy(mailboxTilemapObject);
-        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("GreenhousePorch");
+        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("HouseMailbox");
     }
 
     public override void OnDeletePreview() {
@@ -27,7 +27,8 @@ public class HouseBehaviour : BuildingBehaviourExtension {
 
     public override void OnDestroy() {
         Building.Destroy(mailboxTilemapObject);
-        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("GreenhousePorch");
+        InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("HouseMailbox");
+        Resources.UnloadAsset(mailboxSprite);
     }
 
     public override void OnMouseEnter() {

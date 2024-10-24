@@ -144,7 +144,7 @@ public class InvalidTilesManager : MonoBehaviour {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        EnterableBuildingComponent.EnteredOrExitedBuilding += UpdateAllCoordinates;
+        EnterableBuildingComponent.EnteredOrExitedAnyBuilding += UpdateAllCoordinates;
         BuildingController.anyBuildingPositionChanged += UpdateAllCoordinates;
     }
 

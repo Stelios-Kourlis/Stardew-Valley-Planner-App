@@ -170,7 +170,7 @@ public class FlooringComponent : BuildingComponent {
     public void AddFloor(FlooringOrigin origin) {
         Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID, origin.wasCreatedForHouseRenovation);
         var overlappingFloors = floors.Where(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any());
-        if (overlappingFloors.Any()) {
+        if (overlappingFloors.Any() && !BuildingController.IsLoadingSave) {
             string overlaps = string.Join(", ", overlappingFloors.Select(f => $"[{string.Join(", ", f.GetFloorPositions())}]"));
             throw new Exception($"Floorings overlap trigger: {origin.lowerLeftCorner} at {overlaps}");
         }
@@ -211,7 +211,7 @@ public class FlooringComponent : BuildingComponent {
             RemoveFloor(floors[i].GetFloorPositions().First());
         }
 
-        foreach (var property in data.componentData) {
+        foreach (JProperty property in data.GetAllComponentDataProperties()) {
             JObject buildingData = (JObject)property.Value;
             Vector3Int lowerLeftCorner = new(
                 buildingData["Origin"][0].Value<int>(),
@@ -220,7 +220,7 @@ public class FlooringComponent : BuildingComponent {
             );
             int width = buildingData["Width"].Value<int>();
             int height = buildingData["Height"].Value<int>();
-            int wallpaperId = buildingData["WallpaperId"].Value<int>();
+            int wallpaperId = buildingData["Floor Texture ID"].Value<int>();
 
             FlooringOrigin origin = new(lowerLeftCorner, width, height, wallpaperId);
             AddFloor(origin);
@@ -229,22 +229,23 @@ public class FlooringComponent : BuildingComponent {
 
     public override ComponentData Save() {
         // return null;
-        ComponentData data = new(typeof(FlooringComponent), new());
+        ComponentData data = new(typeof(FlooringComponent));
         int index = 0;
 
         foreach (Flooring floor in floors) {
-            if (floor.wasCreatedForHouseRenovation) continue;
-            FlooringOrigin origin = floor.GetOriginRepresentingThisFloor();
+            // if (floor.wasCreatedForHouseRenovation) continue;
+            FlooringOrigin origin = floor.GetOriginRepresentingThisFloor(false);
             JProperty floorProperty = new(index.ToString(),
                 new JObject(
                     new JProperty("Origin", new JArray(origin.lowerLeftCorner.x, origin.lowerLeftCorner.y)),
                     new JProperty("Width", origin.width),
                     new JProperty("Height", origin.height),
-                    new JProperty("WallpaperId", origin.floorTextureID)
+                    new JProperty("Floor Texture ID", origin.floorTextureID)
                 )
             );
 
-            data.componentData.Add(floorProperty);
+            data.AddProperty(floorProperty);
+            index++;
         }
 
         return data;

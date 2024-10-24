@@ -51,6 +51,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     }
 
     public void LoadSavedComponents() {
+        // return;
         foreach (ComponentData compData in buildingData.componentData.OrderBy(compData => ComponentData.loadPriority.IndexOf(compData.componentType))) {
             Debug.Log($"Loading component: {compData.componentType}");
             BuildingComponent component = gameObject.GetComponent(compData.componentType) as BuildingComponent;
@@ -126,30 +127,31 @@ public class BuildingSaverLoader : MonoBehaviour {
         return paths.Length > 0;
     }
 
-    private static BuildingData ParseBuildingFromJson(JProperty jsonText) { //do it with JObjects
+    public static BuildingData ParseBuildingFromJson(JProperty jsonText) { //do it with JObjects
 
         static ComponentData ParseComponentFromJson(JProperty jsonText) {
-            Debug.Log($"Loading component: {jsonText}");
+            // Debug.Log($"Loading component: {jsonText}");
             Type componentType = Type.GetType(jsonText.Name);
-            List<JProperty> componentData = new();
+            JObject componentData = new();
             foreach (JProperty item in jsonText.Value.Cast<JProperty>()) componentData.Add(item);
             return new(componentType, componentData);
         }
 
-        Debug.Log($"Loading building: {jsonText}");
+        // Debug.Log($"Loading building: {jsonText}");
 
         JObject buildingData = (JObject)jsonText.Value;
-        string buildingName = buildingData.Value<string>("Building Type");
-        int lowerLeftX = buildingData.Value<int>("Lower Left Corner X");
-        int lowerLeftY = buildingData.Value<int>("Lower Left Corner Y");
+        string buildingName = buildingData["Building Type"].Value<string>();
+        Vector3Int origin = new(buildingData["Origin"][0].Value<int>(), buildingData["Origin"][1].Value<int>());
+        // int lowerLeftX = buildingData["Lower Left Corner X"].Value<int>();
+        // int lowerLeftY = buildingData["Lower Left Corner Y"].Value<int>();
 
         List<ComponentData> componentData = new();
-        foreach (var component in buildingData.Properties().Skip(3)) {
+        foreach (var component in buildingData.Properties().Skip(2)) {
             componentData.Add(ParseComponentFromJson(component));
         }
 
-        Debug.Log(new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), componentData.ToArray()));
-        return new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), componentData.ToArray());
+        Debug.Log(new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), origin, componentData.ToArray()));
+        return new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), origin, componentData.ToArray());
 
     }
 }

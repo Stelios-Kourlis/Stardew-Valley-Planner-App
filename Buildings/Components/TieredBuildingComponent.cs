@@ -65,6 +65,6 @@ public class TieredBuildingComponent : BuildingComponent {
     }
 
     public override void Load(BuildingData.ComponentData data) {
-        SetTier(int.Parse(data.componentData.First(x => x.Name == "Tier").Value.ToString()));
+        SetTier(data.GetComponentDataPropertyValue<int>("Tier"));
     }
 }
