@@ -26,7 +26,7 @@ public class FishPondComponent : BuildingComponent {
     private Vector3Int[] decoCoordinates;
     private SpriteAtlas atlas;
     private static GameObject fishMenu;
-    public Fish fish;
+    public Fish fish = Fish.PLACE_FISH;
 
     private static GameObject fishMenuPrefab;
 
@@ -35,13 +35,14 @@ public class FishPondComponent : BuildingComponent {
         if (fishMenuPrefab == null) fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         if (atlas == null) atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
+        Building.UpdateTexture(atlas.GetSprite("FishPond"));
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.PLACE_FISH);
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.CHANGE_FISH_POND_DECO);
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateFishMenu;
-        Building.BuildingPlaced += SetWaterTilemapLocation;
-        Building.BuildingPlaced += SetDecoTilemapLocation;
+        // Building.BuildingPlaced += SetWaterTilemapLocation;
+        // Building.BuildingPlaced += SetDecoTilemapLocation;
     }
 
     /// <summary>
@@ -50,6 +51,7 @@ public class FishPondComponent : BuildingComponent {
     /// <param name="fishType"> The fish</param>
     public void SetFishImage(Fish fishType) {
         Debug.Log($"Setting fish image to {fishType}");
+        // if (fishType == Fish.PLACE_FISH) return;
         Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
         Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),
@@ -101,7 +103,7 @@ public class FishPondComponent : BuildingComponent {
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
 
-    public void SetWaterTilemapAlpha(float alpha) {
+    public void SetWaterTilemapColop(float alpha) {
         var color = waterTilemapObject.GetComponent<Tilemap>().color;
         color.a = alpha;
         waterTilemapObject.GetComponent<Tilemap>().color = color;
@@ -129,6 +131,11 @@ public class FishPondComponent : BuildingComponent {
     public void ClearDecoTilemap() {
         // Debug.Log("Cleared Deco");
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
+    }
+
+    public void UpdateTilemapColors() {
+        SetDecoTilemapAlpha(Building.Tilemap.color.a);
+        SetWaterTilemapColop(Building.Tilemap.color.a);
     }
 
     public void CycleFishPondDeco() {

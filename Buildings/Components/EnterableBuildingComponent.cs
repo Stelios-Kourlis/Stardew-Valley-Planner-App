@@ -303,6 +303,10 @@ public class EnterableBuildingComponent : BuildingComponent {
             obj.SetActive(false);
         }
 
+        foreach (Transform obj in GetCanvasGameObject().transform) {
+            if (obj.name.Contains("InteractionButtons")) obj.gameObject.SetActive(false);
+        }
+
         mapTransform = BuildingController.CurrentTilemapTransform;
         BuildingController.SetCurrentTilemapTransform(BuildingInterior.transform);
 

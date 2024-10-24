@@ -58,7 +58,7 @@ public class BuildingData {
 
         public bool TryGetComponentDataProperty(string propertyName, out JProperty property) {
             property = GetComponentDataObject().Value<JProperty>(propertyName);
-            return property == null;
+            return property != null;
         }
 
         public IEnumerable<JProperty> GetAllComponentDataProperties() {

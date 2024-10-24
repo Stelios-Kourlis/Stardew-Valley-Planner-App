@@ -29,7 +29,7 @@ MonoBehaviour:
     materialType: 5
     howToGet: 
   defaultSprite: {fileID: 21300000, guid: da59bc4933105624ab704fb2994045c1, type: 3}
-  atlas: {fileID: 0}
+  atlas: {fileID: 4343727234628468602, guid: 656b242a10696e24b936cfd0c9e3e6f9, type: 2}
   isMultipleType: 0
   variants: []
   isTiered: 0
@@ -44,4 +44,8 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: FishPondBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  category: 0
+  isExpanded: 0

@@ -243,8 +243,7 @@ public class AnimalHouseComponent : BuildingComponent {
     public override ComponentData Save() {
         ComponentData animalHouseData = new(typeof(AnimalHouseComponent));
         foreach (var animal in AnimalsInBuilding) {
-            bool animalAlreadyExists = animalHouseData.TryGetComponentDataProperty(animal.ToString(), out JProperty property);
-            if (animalAlreadyExists) {
+            if (animalHouseData.TryGetComponentDataProperty(animal.ToString(), out JProperty property)) {
                 property.Value = property.Value.Value<int>() + 1;
             }
             else animalHouseData.AddProperty(new JProperty(animal.ToString(), 1));

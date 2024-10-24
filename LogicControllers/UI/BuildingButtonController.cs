@@ -37,7 +37,7 @@ public class BuildingButtonController : MonoBehaviour {
         if (numberOfButtons == 0) return null;
 
         //Create parent object for buttons
-        GameObject buttonParent = new(building.BuildingName + "buttons");
+        GameObject buttonParent = new(building.BuildingName + "InteractionButtons");
         buttonParent.transform.parent = GetCanvasGameObject().transform;
         buttonParent.SetActive(false);
         buttonParent.transform.SetAsFirstSibling();
