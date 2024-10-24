@@ -86,7 +86,7 @@
 //     public void CycleType() => MultipleBuildingComponent.CycleType();
 //     // public void SetType(Enum type) => MultipleBuildingComponent.SetType(type);
 
-//     // public void OnMouseEnter() { //todo readd mouse hover
+//     // public void OnMouseEnter() {
 //     //     Vector3Int position = BaseCoordinates[0];
 //     //     Vector3Int[] coverageArea = MultipleBuildingComponent.Type switch {
 //     //         Types.Normal or Types.NormalEnricher => GetCrossAroundPosition(position).ToArray(),

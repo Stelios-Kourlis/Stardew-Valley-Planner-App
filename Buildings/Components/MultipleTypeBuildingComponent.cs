@@ -54,16 +54,16 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
 
     public static GameObject[] CreateButtonsForAllTypes(BuildingScriptableObject bso) {
         List<GameObject> buttons = new();
-        foreach (var variant in bso.variants) {
+        foreach (BuildingVariant variant in bso.variants) {
             GameObject button = new() {
                 name = $"{variant.variantName}",
             };
             button.AddComponent<Image>().sprite = variant.variantSprite;
             button.GetComponent<Image>().preserveAspect = true;
             button.AddComponent<UIElement>();
-            button.GetComponent<UIElement>().tooltipMessage = $"{variant.variantName} {bso.typeName}";
-            button.GetComponent<UIElement>().playSounds = true;
-            button.GetComponent<UIElement>().ExpandOnHover = true;
+            button.GetComponent<UIElement>().tooltipMessage = $"{System.Text.RegularExpressions.Regex.Replace(variant.variantName, "(?<!^)([A-Z])", " $1")}{(bso.typeName != BuildingType.Craftables ? bso.BuildingName : ' ')}";
+            button.GetComponent<UIElement>().playSounds = false;
+            button.GetComponent<UIElement>().ExpandOnHover = false;
             button.AddComponent<Button>().onClick.AddListener(() => {
                 BuildingController.SetCurrentBuildingType(bso.typeName, bso.variants.ToList().IndexOf(variant));
                 BuildingController.SetCurrentAction(Actions.PLACE);

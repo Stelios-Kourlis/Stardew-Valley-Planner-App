@@ -20,16 +20,14 @@ public class FlooringComponent : BuildingComponent {
         private static readonly SpriteAtlas floorAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/FloorsAtlas");
         private readonly Tilemap tilemap;
         public Action<int> floorTextureChanged;
-        public bool wasCreatedForHouseRenovation;
-        public KeyValuePair<bool, FlooringOrigin> wasModifiedByRenovation = new(false, null);
+        public KeyValuePair<bool, FlooringOrigin> wasModifiedByRenovation = new(false, null); //I dont think is is needed anymore but it doesnt interfere with anything and might be useful in the future
 
 
-        public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, int floorTextureID = 0, bool wasCreatedForHouseRenovation = false) {
+        public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, int floorTextureID = 0) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.height = height;
             this.tilemap = tilemap;
-            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
             ApplyFloorTexture(floorTextureID);
         }
 
@@ -41,14 +39,14 @@ public class FlooringComponent : BuildingComponent {
         /// <param name="height"></param>
         /// <param name="tilemap"></param>
         /// <param name="parentFloor"></param>
-        public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, Flooring linkedFloor) {
-            this.lowerLeftCorner = lowerLeftCorner;
-            this.width = width;
-            this.height = height;
-            this.tilemap = tilemap;
-            ApplyFloorTexture(linkedFloor.floorTextureID);
-            linkedFloor.floorTextureChanged += newFloorTextureID => ApplyFloorTexture(newFloorTextureID);
-        }
+        // public Flooring(Vector3Int lowerLeftCorner, int width, int height, Tilemap tilemap, Flooring linkedFloor) {
+        //     this.lowerLeftCorner = lowerLeftCorner;
+        //     this.width = width;
+        //     this.height = height;
+        //     this.tilemap = tilemap;
+        //     ApplyFloorTexture(linkedFloor.floorTextureID);
+        //     linkedFloor.floorTextureChanged += newFloorTextureID => ApplyFloorTexture(newFloorTextureID);
+        // }
 
         public void ApplyFloorTexture(int floorTextureID) {
             this.floorTextureID = floorTextureID;
@@ -112,22 +110,20 @@ public class FlooringComponent : BuildingComponent {
         public int width;
         public int height;
         public int floorTextureID;
-        public Flooring linkedFloor;
-        public bool wasCreatedForHouseRenovation;
-        public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0, bool wasCreatedForHouseRenovation = false) {
+        // public Flooring linkedFloor;
+        public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, int floorTextureID = 0) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.height = height;
             this.floorTextureID = floorTextureID;
-            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
         }
 
-        public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, Flooring linkedFloor) {
-            this.lowerLeftCorner = lowerLeftCorner;
-            this.width = width;
-            this.height = height;
-            this.linkedFloor = linkedFloor;
-        }
+        // public FlooringOrigin(Vector3Int lowerLeftCorner, int width, int height, Flooring linkedFloor) {
+        //     this.lowerLeftCorner = lowerLeftCorner;
+        //     this.width = width;
+        //     this.height = height;
+        //     this.linkedFloor = linkedFloor;
+        // }
     }
 
     private List<Flooring> floors = new();
@@ -168,7 +164,7 @@ public class FlooringComponent : BuildingComponent {
 
 
     public void AddFloor(FlooringOrigin origin) {
-        Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID, origin.wasCreatedForHouseRenovation);
+        Flooring floor = new(origin.lowerLeftCorner, origin.width, origin.height, flooringTilemap, origin.floorTextureID);
         var overlappingFloors = floors.Where(floor => floor.GetFloorPositions().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, origin.height, origin.width)).Any());
         if (overlappingFloors.Any() && !BuildingController.IsLoadingSave) {
             string overlaps = string.Join(", ", overlappingFloors.Select(f => $"[{string.Join(", ", f.GetFloorPositions())}]"));
@@ -233,7 +229,6 @@ public class FlooringComponent : BuildingComponent {
         int index = 0;
 
         foreach (Flooring floor in floors) {
-            // if (floor.wasCreatedForHouseRenovation) continue;
             FlooringOrigin origin = floor.GetOriginRepresentingThisFloor(false);
             JProperty floorProperty = new(index.ToString(),
                 new JObject(

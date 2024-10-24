@@ -19,6 +19,7 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
     }
 
     public virtual bool ShowTooltipCondition() {
+        if (gameObject == null) return false;
         GraphicRaycaster graphicRaycaster = GetComponent<GraphicRaycaster>();
         PointerEventData pointerEventData = new(EventSystem.current) {
             position = Input.mousePosition

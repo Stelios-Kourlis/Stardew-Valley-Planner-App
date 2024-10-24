@@ -112,63 +112,81 @@ MonoBehaviour:
     - lowerLeftCorner: {x: 1, y: 8, z: 0}
       width: 10
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
   - tier: 2
     wallOrigins:
     - lowerLeftCorner: {x: 1, y: 8, z: 0}
       width: 17
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 18, y: 3, z: 0}
       width: 2
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 20, y: 8, z: 0}
       width: 9
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
   - tier: 3
     wallOrigins:
     - lowerLeftCorner: {x: 1, y: 11, z: 0}
       width: 10
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 13, y: 11, z: 0}
       width: 8
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 1, y: 20, z: 0}
       width: 12
       wallpaperId: 11
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 13, y: 18, z: 0}
       width: 2
       wallpaperId: 61
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 15, y: 20, z: 0}
       width: 13
       wallpaperId: 61
-    - lowerLeftCorner: {x: 21, y: 6, z: 0}
+      wasCreatedForHouseRenovation: 0
+    - lowerLeftCorner: {x: 21, y: 11, z: 0}
       width: 2
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 23, y: 11, z: 0}
       width: 11
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
   - tier: 4
     wallOrigins:
     - lowerLeftCorner: {x: 1, y: 11, z: 0}
       width: 10
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 13, y: 11, z: 0}
       width: 8
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 1, y: 20, z: 0}
       width: 12
       wallpaperId: 11
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 13, y: 18, z: 0}
       width: 2
       wallpaperId: 61
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 15, y: 20, z: 0}
       width: 13
       wallpaperId: 61
-    - lowerLeftCorner: {x: 21, y: 6, z: 0}
+      wasCreatedForHouseRenovation: 0
+    - lowerLeftCorner: {x: 21, y: 20, z: 0}
       width: 2
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 23, y: 11, z: 0}
       width: 11
       wallpaperId: 0
+      wasCreatedForHouseRenovation: 0
   interiorFlooring:
   - tier: 1
     floorOrigins:
@@ -176,75 +194,96 @@ MonoBehaviour:
       width: 10
       height: 9
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
   - tier: 2
     floorOrigins:
     - lowerLeftCorner: {x: 1, y: 0, z: 0}
       width: 6
       height: 9
       floorTextureID: 47
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 7, y: 0, z: 0}
       width: 11
       height: 9
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 18, y: 2, z: 0}
       width: 2
       height: 2
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 10, y: 1, z: 0}
       width: 10
       height: 10
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
   - tier: 3
     floorOrigins:
     - lowerLeftCorner: {x: 1, y: 1, z: 0}
       width: 9
       height: 12
       floorTextureID: 47
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 10, y: 3, z: 0}
       width: 11
       height: 11
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 1, y: 15, z: 0}
       width: 12
       height: 6
       floorTextureID: 1
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 13, y: 15, z: 0}
       width: 15
       height: 6
       floorTextureID: 31
-    - lowerLeftCorner: {x: 21, y: 5, z: 0}
+      wasCreatedForHouseRenovation: 0
+    - lowerLeftCorner: {x: 21, y: 4, z: 0}
       width: 2
-      height: 2
+      height: 8
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 23, y: 1, z: 0}
       width: 12
-      height: 11
+      height: 12
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
   - tier: 4
     floorOrigins:
     - lowerLeftCorner: {x: 1, y: 1, z: 0}
       width: 9
       height: 12
       floorTextureID: 47
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 10, y: 3, z: 0}
       width: 11
       height: 11
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 1, y: 15, z: 0}
       width: 12
       height: 6
       floorTextureID: 1
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 13, y: 15, z: 0}
       width: 15
       height: 6
       floorTextureID: 31
-    - lowerLeftCorner: {x: 21, y: 5, z: 0}
+      wasCreatedForHouseRenovation: 0
+    - lowerLeftCorner: {x: 21, y: 4, z: 0}
       width: 2
-      height: 2
+      height: 8
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
     - lowerLeftCorner: {x: 23, y: 1, z: 0}
       width: 12
       height: 11
       floorTextureID: 0
+      wasCreatedForHouseRenovation: 0
   hasInteriorExtensions: 1
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: CabinBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  category: 0
+  isExpanded: 0

@@ -173,7 +173,6 @@ public class Building : TooltipableGameObject {
         UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{BaseCoordinates[0]}");
         CurrentBuildingState = BuildingState.PICKED_UP;
-        if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnPickup();
         BuildingPickedUp?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
         behaviourExtension?.OnPickup();
@@ -214,7 +213,7 @@ public class Building : TooltipableGameObject {
         CurrentBuildingState = BuildingState.PLACED;
         if (wasPickedUp) {
             GetComponent<BuildingSaverLoader>().LoadSavedComponents();
-            BuildingController.SetCurrentAction(Actions.EDIT); //todo add BuildingData loading
+            BuildingController.SetCurrentAction(Actions.EDIT);
         }
         else {
             BuildingController.buildingGameObjects.Add(gameObject);

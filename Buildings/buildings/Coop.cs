@@ -39,7 +39,7 @@
 //         // );
 //     }
 
-//     // public override List<MaterialCostEntry> GetMaterialsNeeded() {//todo add animal costs
+//     // public override List<MaterialCostEntry> GetMaterialsNeeded() {
 //     //     return TieredBuildingComponent.Tier switch {
 //     //         1 => new List<MaterialCostEntry>{
 //     //             new(4_000, Materials.Coins),

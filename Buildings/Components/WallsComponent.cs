@@ -33,11 +33,9 @@ public class WallsComponent : BuildingComponent {
 
         private List<WallStrip> strips;
         public int wallpaperId;
-        public bool wasCreatedForHouseRenovation;
         private readonly Tilemap wallpaperTilemap;
         private static readonly SpriteAtlas wallpaperAtlas = Resources.Load<SpriteAtlas>("BuildingInsides/WallsAtlas");
-        //if this wall was modified always keep the first ever version
-        public KeyValuePair<bool, WallOrigin> wasModifiedByRenovation = new(false, null);
+        public KeyValuePair<bool, WallOrigin> wasModifiedByRenovation = new(false, null); //I dont think is is needed anymore but it doesnt interfere with anything and might be useful in the future
 
         public Wall(Vector3Int lowerLeftCorner, int width, Tilemap wallpaperTilemap, int wallpaperId = 0) {
             strips = new();
@@ -45,16 +43,6 @@ public class WallsComponent : BuildingComponent {
                 strips.Add(new WallStrip(new Vector3Int(x, lowerLeftCorner.y, 0)));
             }
             this.wallpaperTilemap = wallpaperTilemap;
-            ApplyWallpaper(wallpaperId);
-        }
-
-        public Wall(Vector3Int lowerLeftCorner, int width, Tilemap wallpaperTilemap, int wallpaperId = 0, bool wasCreatedForHouseRenovation = false) {
-            strips = new();
-            for (int x = lowerLeftCorner.x; x <= lowerLeftCorner.x + width - 1; x++) {
-                strips.Add(new WallStrip(new Vector3Int(x, lowerLeftCorner.y, 0)));
-            }
-            this.wallpaperTilemap = wallpaperTilemap;
-            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
             ApplyWallpaper(wallpaperId);
         }
 
@@ -121,18 +109,10 @@ public class WallsComponent : BuildingComponent {
         public Vector3Int lowerLeftCorner;
         public int width;
         public int wallpaperId;
-        public bool wasCreatedForHouseRenovation;
         public WallOrigin(Vector3Int lowerLeftCorner, int width, int wallpaperId = 0) {
             this.lowerLeftCorner = lowerLeftCorner;
             this.width = width;
             this.wallpaperId = wallpaperId;
-        }
-
-        public WallOrigin(Vector3Int lowerLeftCorner, int width, int wallpaperId = 0, bool wasCreatedForHouseRenovation = false) {
-            this.lowerLeftCorner = lowerLeftCorner;
-            this.width = width;
-            this.wallpaperId = wallpaperId;
-            this.wasCreatedForHouseRenovation = wasCreatedForHouseRenovation;
         }
 
         // public bool IsWhole() {
@@ -174,7 +154,7 @@ public class WallsComponent : BuildingComponent {
     }
 
     public void AddWall(WallOrigin origin) {
-        Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId, origin.wasCreatedForHouseRenovation);
+        Wall wall = new(origin.lowerLeftCorner, origin.width, wallPaperTilemap, origin.wallpaperId);
         var overlappingWalls = walls.Where(wall => wall.GetWallBaseCordinates().Intersect(GetRectAreaFromPoint(origin.lowerLeftCorner, 3, origin.width)).Any());
         if (overlappingWalls.Any() && !BuildingController.IsLoadingSave) {
             string overlaps = string.Join(", ", overlappingWalls.Select(w => $"[{string.Join(", ", w.GetWallBaseCordinates())}]"));
@@ -260,7 +240,6 @@ public class WallsComponent : BuildingComponent {
         int index = 0;
 
         foreach (Wall wall in walls) {
-            // if (wall.wasCreatedForHouseRenovation) continue; //HouseExtensionComponent will handle these
             WallOrigin origin = wall.GetOriginRepresentingThisWall(false);
             JProperty wallProperty = new(index.ToString(),
                 new JObject(

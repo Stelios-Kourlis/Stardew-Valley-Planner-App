@@ -56,7 +56,7 @@ public class CraftablesBehaviour : BuildingBehaviourExtension {
     public override void OnStart(Building building) {
         Building = building;
         rangeEffectBuilding = new(building);
-        miniObeliskCount = 0;
+        // if () miniObeliskCount = 0;
     }
 
     public override bool BuildingSpecificPlacementPreconditionsAreMet(Vector3Int position, out string errorMessage) {

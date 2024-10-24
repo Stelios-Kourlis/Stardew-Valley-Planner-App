@@ -18,11 +18,8 @@ public enum Categories {
     None
 }
 public class BuildingSelectPanelHandler : MonoBehaviour {
-    private readonly BuildingType[] typesThatShouldBeInCraftables = { BuildingType.Sprinkler, BuildingType.Floor, BuildingType.Fence, BuildingType.Scarecrow, BuildingType.Craftables };
     [SerializeField] private GameObject typeBar;
-    // [SerializeField] private List<BuildingScriptableObject> buildingsInBuildingPanel;
-
-    // Start is called before the first frame update
+    private BuildingType currentBuildingType;
     void Start() {
         Transform categoryButtons = transform.Find("Rect").Find("CategoryButtons");
         Transform content = transform.Find("Rect").Find("ScrollAreaBuildings").Find("Content");
@@ -35,21 +32,6 @@ public class BuildingSelectPanelHandler : MonoBehaviour {
             });
         }
 
-        // categoryButtons.Find("BuildingsButton").GetComponent<Button>().onClick.AddListener(() => {
-        //     ClearAllChildrenInTransform(content);
-        //     CreateButtonsForCategory(Categories.Buildings, content);
-        // });
-
-        // categoryButtons.Find("PlaceablesButton").GetComponent<Button>().onClick.AddListener(() => {
-        //     ClearAllChildrenInTransform(content);
-        //     CreateButtonsForCategory(Categories.Craftables, content);
-        // });
-
-        // categoryButtons.Find("CropsButton").GetComponent<Button>().onClick.AddListener(() => {
-        //     ClearAllChildrenInTransform(content);
-        //     CreateButtonsForCategory(Categories.Crops, content);
-        // });
-
         CreateButtonsForCategory(Categories.Buildings, content);
 
         BuildingController.currentBuildingTypeChanged += EvalueateIfTypeBarShouldBeShown;
@@ -57,6 +39,8 @@ public class BuildingSelectPanelHandler : MonoBehaviour {
     }
 
     private void EvalueateIfTypeBarShouldBeShown(BuildingType newBuildingType) {
+        if (currentBuildingType == newBuildingType) return;
+        currentBuildingType = newBuildingType;
         BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{newBuildingType}");
         bool isCurrentlyBuildingMultipleTypeBuilding = IsMultipleTypeBuilding(bso);
         if (isCurrentlyBuildingMultipleTypeBuilding) {
