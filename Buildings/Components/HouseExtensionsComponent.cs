@@ -357,18 +357,6 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     }
 
-    // private void CreateWarning(IEnumerable<Vector3Int> positions) {
-    //     // GameObject warning = Instantiate(modificationWarning, GetCanvasGameObject().transform);
-    //     // warning.SetActive(true);
-    //     // warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
-    //     //     List<Building> intersectingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).ToList();
-    //     //     foreach (Building building in intersectingBuildings) building.DeleteBuilding();
-    //     //     ApplyRenovation(modification, isOn, values, positions);
-    //     //     Destroy(warning);
-    //     // });
-    //     // warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => { Destroy(warning); });
-    // }
-
 
     public List<MaterialCostEntry> GetMaterialsNeeded() {
         List<MaterialCostEntry> totalMaterials = new();
@@ -407,7 +395,6 @@ public class HouseExtensionsComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
-        // return;
         foreach (JProperty property in data.GetAllComponentDataProperties()) {
             HouseModifications type = Enum.Parse<HouseModifications>(property.Name);
             bool? status = property.Value.Value<bool?>();

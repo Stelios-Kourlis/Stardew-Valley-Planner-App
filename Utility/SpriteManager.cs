@@ -18,9 +18,11 @@ namespace Utility {
             for (int y = (int)rect.y; y < rect.y + rect.height; y += 16) {
                 for (int x = (int)rect.x; x < rect.x + rect.width; x += 16) {
                     Sprite newSprite = Sprite.Create(sprite.texture, new Rect(x, y, 16, 16), new Vector2(0.5f, 0.5f), 16);
-                    if (TileIsEmpty(newSprite)) {
-                        tiles.Add(null);
-                        continue;
+                    if (newSprite.texture.isReadable) {
+                        if (TileIsEmpty(newSprite)) {
+                            tiles.Add(null);
+                            continue;
+                        }
                     }
                     Tile tile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
                     tile.sprite = newSprite;
@@ -37,7 +39,6 @@ namespace Utility {
             Rect spriteRect = sprite.textureRect;
 
             // Get pixels in the sprite
-            // Debug.Log(sprite.name);
             Color[] pixels = texture.GetPixels((int)spriteRect.x, (int)spriteRect.y, (int)spriteRect.width, (int)spriteRect.height);
 
             // Check if all pixels are transparent (alpha == 0)

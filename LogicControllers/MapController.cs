@@ -63,10 +63,6 @@ public class MapController : MonoBehaviour {
     public void SetMap(MapTypes mapType) {
         if (CurrentMapType == mapType && MapScene.name != null) return;
 
-        // IEnumerator ChangeMapScene() {
-
-        // }
-        // StartCoroutine(ChangeMapScene());
         if (MapScene.name != null) SceneManager.UnloadSceneAsync(MapScene);
 
         CurrentMapType = mapType;

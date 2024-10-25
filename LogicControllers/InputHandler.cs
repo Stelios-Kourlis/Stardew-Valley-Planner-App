@@ -262,9 +262,6 @@ public class InputHandler : MonoBehaviour {
         // //Hover Exit
         bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
         if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
-            // if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
-            //         interactableBuildingComponent.OnMouseExit();
-            //     }
             if (hoveredBuilding.CurrentBuildingState == Building.BuildingState.PLACED) hoveredBuilding.NoPreview();
             hoveredBuilding = null;
         }
@@ -275,10 +272,6 @@ public class InputHandler : MonoBehaviour {
         if (BuildingUnderMouse != null && !isInsideBuilding) {
             hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
             hoveredBuilding.DoBuildingPreview();
-            // hoveredBuilding.beha
-            // if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {
-            //     interactableBuildingComponent.OnMouseEnter();
-            // }
         }
 
     }

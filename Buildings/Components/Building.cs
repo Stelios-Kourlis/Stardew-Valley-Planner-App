@@ -176,6 +176,7 @@ public class Building : TooltipableGameObject {
         BuildingPickedUp?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
         behaviourExtension?.OnPickup();
+        PlaceBuildingPreview(GetMousePositionInTilemap());
         return true;
     }
 
