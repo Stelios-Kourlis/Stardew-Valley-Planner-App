@@ -258,7 +258,7 @@ public class InputHandler : MonoBehaviour {
 
         //Mouse Hover
 
-        // //Hover Exit //todo fix hovering
+        // //Hover Exit
         bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
         if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
             // if (hoveredBuilding.TryGetComponent(out InteractableBuildingComponent interactableBuildingComponent)) {

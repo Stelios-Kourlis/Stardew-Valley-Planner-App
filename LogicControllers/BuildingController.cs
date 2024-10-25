@@ -106,14 +106,19 @@ public static class BuildingController {
 
     public static void InitializeMap() {
         IsLoadingSave = true;
-        if (MapController.Instance.CurrentMapType != MapController.MapTypes.GingerIsland) PlaceHouse();
+        if (MapController.Instance.CurrentMapType != MapController.MapTypes.GingerIsland) {
+            PlaceHouse();
+            PlaceGreenhouse();
+            PlacePetBowl();
+        }
         PlaceBin();
-        if (MapController.Instance.CurrentMapType != MapController.MapTypes.GingerIsland) PlaceGreenhouse();
+        if (MapController.Instance.CurrentMapType == MapController.MapTypes.Ranching) PlaceCoop();
         IsLoadingSave = false;
+        CameraController.Instance.UpdateTilemapBounds();
         CreateNewBuilding();
     }
 
-    public static void PlaceHouse() {
+    public static void PlaceHouse() { //I can definitely make this into 1 method
         MapController mapController = GetMapController();
         Vector3Int housePos = mapController.GetHousePosition();
         GameObject houseGameObject = new("House");
@@ -129,25 +134,51 @@ public static class BuildingController {
     public static void PlaceBin() {
         MapController mapController = GetMapController();
         Vector3Int binPos = mapController.GetShippingBinPosition();
-        GameObject houseGameObject = new("ShippingBin");
-        houseGameObject.transform.parent = CurrentTilemapTransform;
+        GameObject binGameObject = new("ShippingBin");
+        binGameObject.transform.parent = CurrentTilemapTransform;
         BuildingScriptableObject bin = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/ShippingBin");
-        houseGameObject.AddComponent<Building>().LoadFromScriptableObject(bin);
-        houseGameObject.GetComponent<Building>().PlaceBuilding(binPos);
-        houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        binGameObject.AddComponent<Building>().LoadFromScriptableObject(bin);
+        binGameObject.GetComponent<Building>().PlaceBuilding(binPos);
+        binGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
         Resources.UnloadAsset(bin);
     }
 
     public static void PlaceGreenhouse() {
         MapController mapController = GetMapController();
         Vector3Int greenhousePos = mapController.GetGreenhousePosition();
-        GameObject houseGameObject = new("Greenhouse");
-        houseGameObject.transform.parent = CurrentTilemapTransform;
+        GameObject greenhouseGameObject = new("Greenhouse");
+        greenhouseGameObject.transform.parent = CurrentTilemapTransform;
         BuildingScriptableObject greenhouse = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/Greenhouse");
-        houseGameObject.AddComponent<Building>().LoadFromScriptableObject(greenhouse);
-        houseGameObject.GetComponent<Building>().PlaceBuilding(greenhousePos);
-        houseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        greenhouseGameObject.AddComponent<Building>().LoadFromScriptableObject(greenhouse);
+        greenhouseGameObject.GetComponent<Building>().PlaceBuilding(greenhousePos);
+        greenhouseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
         Resources.UnloadAsset(greenhouse);
+    }
+
+    public static void PlaceCoop() {
+        return; //todo
+        MapController mapController = GetMapController();
+        Vector3Int coopPos = new(0, 0, 0);
+        GameObject coopGameObject = new("Coop");
+        coopGameObject.transform.parent = CurrentTilemapTransform;
+        BuildingScriptableObject coop = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/Coop");
+        coopGameObject.AddComponent<Building>().LoadFromScriptableObject(coop);
+        coopGameObject.GetComponent<Building>().PlaceBuilding(coopPos);
+        coopGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        Resources.UnloadAsset(coop);
+    }
+
+    public static void PlacePetBowl() {
+        return; //todo
+        MapController mapController = GetMapController();
+        Vector3Int petBowlPos = new(0, 0, 0);
+        GameObject petBowlGameObject = new("PetBowl");
+        petBowlGameObject.transform.parent = CurrentTilemapTransform;
+        BuildingScriptableObject petBowl = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/PetBowl");
+        petBowlGameObject.AddComponent<Building>().LoadFromScriptableObject(petBowl);
+        petBowlGameObject.GetComponent<Building>().PlaceBuilding(petBowlPos);
+        petBowlGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        Resources.UnloadAsset(petBowl);
     }
 
 

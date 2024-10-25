@@ -24,86 +24,25 @@ public class MapController : MonoBehaviour {
         FourCorners,
         Beach,
         GingerIsland,
+        Ranching
 
     }
 
-    private enum TileMode {
-        nothing,
-        addingInvalidTiles,
-        removingInvalidTiles,
-        addingPlantableTiles,
-        removingPlantableTiles,
-        showMouseCoordinates
-    }
-
-    private SpriteAtlas atlas;
+    private SpriteAtlas mapAtlas;
     public MapTypes CurrentMapType { get; private set; }
     public GameObject UIButtonPrefab;
-    static Tile redTile;
-    static Tile greenTile;
-    private Actions currentAction;
-    private TileMode tileMode;
-    private Vector3Int startTile;
     public Scene MapScene { get; private set; }
 
     public static MapController Instance { get; private set; }
 
     void Start() {
         Instance = this;
-
-        atlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
-        SetMap(MapTypes.Normal);
-
-        Sprite redTileSprite = Sprite.Create(Resources.Load("RedTile") as Texture2D, new Rect(0, 0, 16, 16), new Vector2(0.5f, 0.5f), 16);
-        redTile = ScriptableObject.CreateInstance(typeof(Tile)) as Tile;
-        redTile.sprite = redTileSprite;
-
-        redTile = LoadTile(Utility.Tiles.Red);
-        greenTile = LoadTile(Utility.Tiles.Green);
-
-        tileMode = TileMode.nothing;
-
         InitializeMapButtons();
 
-    }
+        mapAtlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
+        SetMap(MapTypes.Normal);
 
-    public void Update() {//this is for adding invlid tiles and plantable tiles, should never be accesible to the user
-        if (Input.GetKeyDown(KeyCode.A) && Input.GetKey(KeyCode.LeftControl)) {
-#if UNITY_EDITOR
-            tileMode = (TileMode)(((int)tileMode + 1) % Enum.GetValues(typeof(TileMode)).Length);
-            NotificationManager.Instance.SendNotification($"Mode set to {tileMode}", NotificationManager.Icons.InfoIcon);
-            Debug.Log($"Mode set to {tileMode}");
-            if (tileMode == TileMode.nothing) {
-                // unavailableCoordinatesAreVisible = true;
-                // plantableCoordinatesAreVisible = true;
-                InvalidTilesManager.Instance.ToggleAllCoordinates();
-                BuildingController.SetCurrentAction(currentAction);
-            }
-            else {
-                // unavailableCoordinatesAreVisible = false;
-                // plantableCoordinatesAreVisible = false;
-                InvalidTilesManager.Instance.ToggleAllCoordinates();
-                currentAction = BuildingController.CurrentAction;
-                BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-            }
-#endif
-        }
 
-        if (Input.GetKeyDown(KeyCode.Mouse0) && (tileMode != TileMode.nothing)) {
-            startTile = GetMousePositionInTilemap();
-        }
-
-        if (Input.GetKeyUp(KeyCode.Mouse0)) {
-            Vector3Int currentCell = GetMousePositionInTilemap();
-            Vector3Int[] tileList;
-            if (startTile != currentCell) tileList = GetAllCoordinatesInArea(startTile, currentCell).ToArray();
-            // else tileList = new Vector3Int[] { currentCell };
-            // if (tileMode == TileMode.addingInvalidTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapInvalidTiles(tile);
-            // else if (tileMode == TileMode.addingPlantableTiles) foreach (Vector3Int tile in tileList) AddTileToCurrentMapPlantableTiles(tile);
-            // else if (tileMode == TileMode.removingInvalidTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapInvalidTiles(tile);
-            // else if (tileMode == TileMode.removingPlantableTiles) foreach (Vector3Int tile in tileList) RemoveTileFromCurrentMapPlantableTiles(tile);
-            else if (tileMode == TileMode.showMouseCoordinates) Debug.Log(currentCell);
-        }
     }
 
     private void InitializeMapButtons() {
@@ -128,9 +67,8 @@ public class MapController : MonoBehaviour {
 
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";
-        BuildingController.SetCurrentTilemapTransform(map.transform);
         Vector3Int mapPos = new(-27, -36, 0);
-        Sprite mapTexture = atlas.GetSprite(map.name);
+        Sprite mapTexture = mapAtlas.GetSprite(map.name);
 
         Vector3Int[] spriteArrayCoordinates = GetRectAreaFromPoint(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
         Tile[] tiles = SplitSprite(mapTexture);
@@ -158,6 +96,7 @@ public class MapController : MonoBehaviour {
         BuildingController.mapSpecialCoordinates.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
+        BuildingController.SetCurrentTilemapTransform(map.transform);
         if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap();
 
         GameObject grid = new("Grid");
@@ -166,18 +105,6 @@ public class MapController : MonoBehaviour {
         map.transform.SetParent(grid.transform);
 
         SceneManager.MoveGameObjectToScene(grid, MapScene);
-    }
-
-
-    public void SetMap(string mapType) {
-        MapTypes mapTypeEnum = MapTypes.Normal;
-        try {
-            mapTypeEnum = (MapTypes)Enum.Parse(typeof(MapTypes), mapType);
-        }
-        catch (Exception e) {
-            Debug.Log("Map type |" + mapType + "| does not exist" + e);
-        }
-        SetMap(mapTypeEnum);
     }
 
     public Vector3Int GetHousePosition() {
@@ -191,7 +118,7 @@ public class MapController : MonoBehaviour {
     public Vector3Int GetShippingBinPosition() {//todo add missing positions
         return CurrentMapType switch {
             // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-            // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+            MapTypes.Beach => new Vector3Int(44, 59, 0),
             _ => new Vector3Int(44, 14, 0),
         };
     }
@@ -199,7 +126,7 @@ public class MapController : MonoBehaviour {
     public Vector3Int GetGreenhousePosition() {
         return CurrentMapType switch {
             // MapController.MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-            // MapController.MapTypes.Beach => new Vector3Int(32, 57, 0),
+            MapTypes.Beach => new Vector3Int(-13, 54, 0),
             _ => new Vector3Int(-2, 13, 0),
         };
     }
