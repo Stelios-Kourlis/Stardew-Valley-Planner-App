@@ -12,7 +12,8 @@ public enum TileType {
     Plantable,
     NeutralTreeDisabled, // there are for use in interiors where although the tile  is neutral, trees cant be planted
     Neutral,
-    Wall
+    Wall,
+    NeutralBuildingDisabled, //There are tiles where craftables can be placed but buildings cant
 }
 
 public class SpecialCoordinate {

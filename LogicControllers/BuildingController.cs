@@ -100,6 +100,7 @@ public static class BuildingController {
     public static GameObject CreateNewBuildingGameObject(BuildingType buildingType) {
         BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{buildingType}");
         GameObject newGameObject = new GameObject($"{buildingType}").AddComponent<Building>().LoadFromScriptableObject(bso).gameObject;
+        Resources.UnloadAsset(bso);
         newGameObject.transform.SetParent(CurrentTilemapTransform);
         return newGameObject;
     }
@@ -156,22 +157,32 @@ public static class BuildingController {
     }
 
     public static void PlaceCoop() {
-        return; //todo
         MapController mapController = GetMapController();
-        Vector3Int coopPos = new(0, 0, 0);
+        Vector3Int coopPos = mapController.GetCoopPosition(out List<Vector3Int> fencePositions);
         GameObject coopGameObject = new("Coop");
         coopGameObject.transform.parent = CurrentTilemapTransform;
         BuildingScriptableObject coop = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/Coop");
         coopGameObject.AddComponent<Building>().LoadFromScriptableObject(coop);
         coopGameObject.GetComponent<Building>().PlaceBuilding(coopPos);
+        coopGameObject.GetComponent<AnimalHouseComponent>().AddAnimal(Animals.Chicken); //Coop starts with 2 chickens
+        coopGameObject.GetComponent<AnimalHouseComponent>().AddAnimal(Animals.Chicken);
         coopGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
         Resources.UnloadAsset(coop);
+
+        BuildingScriptableObject fence = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/Fence");
+        foreach (Vector3Int fencePos in fencePositions) {
+            GameObject fenceGameObject = new("Fence");
+            fenceGameObject.transform.parent = CurrentTilemapTransform;
+            fenceGameObject.AddComponent<Building>().LoadFromScriptableObject(fence);
+            fenceGameObject.GetComponent<Building>().PlaceBuilding(fencePos);
+            fenceGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        }
+        Resources.UnloadAsset(fence);
     }
 
     public static void PlacePetBowl() {
-        return; //todo
         MapController mapController = GetMapController();
-        Vector3Int petBowlPos = new(0, 0, 0);
+        Vector3Int petBowlPos = mapController.GetPetBowlPosition();
         GameObject petBowlGameObject = new("PetBowl");
         petBowlGameObject.transform.parent = CurrentTilemapTransform;
         BuildingScriptableObject petBowl = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/PetBowl");
