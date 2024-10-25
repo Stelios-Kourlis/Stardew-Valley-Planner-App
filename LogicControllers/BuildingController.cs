@@ -25,6 +25,7 @@ public static class BuildingController {
     public static HashSet<GameObject> buildingGameObjects = new();
     public static GameObject LastBuildingObjectCreated { get; private set; }
     public static Building LastBuildingCreated => LastBuildingObjectCreated != null ? LastBuildingObjectCreated.GetComponent<Building>() : null;
+    public static Building LastBuildingPlaced { get; set; }
     public static Building CurrentBuildingBeingPlaced { get; set; }
 
     // public static SpecialCoordinatesCollection SpecialCoordinates {
@@ -42,6 +43,7 @@ public static class BuildingController {
         // Debug.Log("Creating new building");
         if (IsLoadingSave) return;
         int type = -1;
+        // LastBuildingPlaced = CurrentBuildingBeingPlaced;
         bool lastBuildingWasMultipleType = LastBuildingObjectCreated != null && LastBuildingObjectCreated.TryGetComponent(out MultipleTypeBuildingComponent _);
         if (lastBuildingWasMultipleType) {
             type = LastBuildingObjectCreated.GetComponent<MultipleTypeBuildingComponent>().CurrentVariantIndex;
@@ -107,6 +109,7 @@ public static class BuildingController {
 
     public static void InitializeMap() {
         IsLoadingSave = true;
+        UndoRedoController.ignoreAction = true;
         if (MapController.Instance.CurrentMapType != MapController.MapTypes.GingerIsland) {
             PlaceHouse();
             PlaceGreenhouse();
@@ -115,6 +118,7 @@ public static class BuildingController {
         PlaceBin();
         if (MapController.Instance.CurrentMapType == MapController.MapTypes.Ranching) PlaceCoop();
         IsLoadingSave = false;
+        UndoRedoController.ignoreAction = false;
         CameraController.Instance.UpdateTilemapBounds();
         CreateNewBuilding();
     }
@@ -218,9 +222,7 @@ public static class BuildingController {
     public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {
         Building building = buildings.FirstOrDefault(building => building.BaseCoordinates[0] == lowerLeftCorner);
         if (building == null) return;
-        // buildings.Remove(building);
-        // buildingGameObjects.Remove(building.gameObject);
-        building.DeleteBuilding();
+        building.DeleteBuilding(true);
 
     }
 

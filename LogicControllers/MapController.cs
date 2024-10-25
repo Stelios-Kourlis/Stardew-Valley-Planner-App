@@ -70,6 +70,7 @@ public class MapController : MonoBehaviour {
         BuildingController.mapSpecialCoordinates.ClearAll();
 
         MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
+        UndoRedoController.ClearLogs();
 
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";

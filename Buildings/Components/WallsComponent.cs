@@ -47,11 +47,13 @@ public class WallsComponent : BuildingComponent {
         }
 
         public void ApplyWallpaper(int wallpaperId) {
+            WallOrigin oldOrigin = GetOriginRepresentingThisWall();
             Sprite sprite = wallpaperAtlas.GetSprite($"Walls_{wallpaperId}");
             foreach (WallStrip strip in strips) {
                 wallpaperTilemap.SetTiles(strip.strip, SplitSprite(sprite));
             }
             this.wallpaperId = wallpaperId;
+            // UndoRedoController.AddActionToLog(new UserAction());
         }
 
         public IEnumerable<Vector3Int> GetAllWallCordinates() {
@@ -189,20 +191,21 @@ public class WallsComponent : BuildingComponent {
 
     public void ApplyCurrentWallpaper(Vector3Int point) {
         Wall wall = GetWallFromPoint(point);
-        if (wall == null) {
-            // Debug.Log($"No wall found at {point}");
-            foreach (Wall w in walls) {
-                // Debug.Log($"Wall at {w.GetAllWallCordinates()}");
-            }
-            return;
-        }
-        // Debug.Log("Applying wallpaper to wall");
-        ApplyCurrentWallpaper(wall);
+        if (wall == null) return;
+        int oldId = wall.wallpaperId;
+        wall.ApplyWallpaper(selectedWallpaperId);
+        UndoRedoController.AddActionToLog(new UserAction(this, point, oldId, selectedWallpaperId));
     }
 
-    private void ApplyCurrentWallpaper(Wall wall) {
-        wall.ApplyWallpaper(selectedWallpaperId);
+    public void ApplyWallpaper(Vector3Int point, int wallpaperId) {
+        Wall wall = GetWallFromPoint(point);
+        if (wall == null) return;
+        wall.ApplyWallpaper(wallpaperId);
     }
+
+    // private void ApplyCurrentWallpaper(Wall wall) {
+    //     wall.ApplyWallpaper(selectedWallpaperId);
+    // }
 
     public static void SetSelectedWallpaper(int wallpaperId, bool setActionToPlaceWallpaper = true) {
         selectedWallpaperId = wallpaperId;

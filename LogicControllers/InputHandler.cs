@@ -192,7 +192,14 @@ public class InputHandler : MonoBehaviour {
                         if (!BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
                         else {
                             mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                            foreach (Vector3Int position in mouseCoverageArea) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
+                            UndoRedoController.ignoreAction = true;
+                            List<BuildingData> buildingsCreatedData = new();
+                            foreach (Vector3Int position in mouseCoverageArea) {
+                                BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
+                                buildingsCreatedData.Add(BuildingController.LastBuildingPlaced.GetComponent<BuildingSaverLoader>().SaveBuilding());
+                            }
+                            UndoRedoController.ignoreAction = false;
+                            UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, buildingsCreatedData));
                         }
                         break;
                     case Actions.EDIT:
@@ -202,7 +209,14 @@ public class InputHandler : MonoBehaviour {
                     case Actions.DELETE:
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                         Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
-                        foreach (Building buildingToDelete in buildings) buildingToDelete.DeleteBuilding();
+                        UndoRedoController.ignoreAction = true;
+                        List<BuildingData> buildingsDeletedData = new();
+                        foreach (Building buildingToDelete in buildings) {
+                            buildingsDeletedData.Add(buildingToDelete.GetComponent<BuildingSaverLoader>().SaveBuilding());
+                            buildingToDelete.DeleteBuilding();
+                        }
+                        UndoRedoController.ignoreAction = false;
+                        UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, buildingsDeletedData));
                         break;
                     case Actions.PLACE_WALLPAPER:
                         if (BuildingController.isInsideBuilding.Key) {
@@ -210,7 +224,6 @@ public class InputHandler : MonoBehaviour {
                             Vector3 mousePositionInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3Int mousePositionInInteriorTilemap = component.wallPaperTilemap.WorldToCell(mousePositionInWorld);
                             mousePositionInInteriorTilemap.z = 0;
-                            // Debug.Log("Applying to " + mousePositionInInteriorTilemap);
                             component.ApplyCurrentWallpaper(mousePosition);
                         }
                         break;

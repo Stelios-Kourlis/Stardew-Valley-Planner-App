@@ -184,7 +184,15 @@ public class FlooringComponent : BuildingComponent {
     public void ApplyCurrentFloorTexture(Vector3Int floorPosition) {
         Flooring floor = floors.Find(floor => floor.GetFloorPositions().Contains(floorPosition));
         if (floor == null) return;
-        ApplyCurrentFloorTexture(floor);
+        int oldFloorTextureID = floor.floorTextureID;
+        floor.ApplyFloorTexture(selectedFloorTextureID);
+        UndoRedoController.AddActionToLog(new UserAction(this, floorPosition, oldFloorTextureID, selectedFloorTextureID));
+    }
+
+    public void ApplyFloorTexture(Vector3Int floorPosition, int floorTextureID) {
+        Flooring floor = floors.Find(floor => floor.GetFloorPositions().Contains(floorPosition));
+        if (floor == null) return;
+        floor.ApplyFloorTexture(floorTextureID);
     }
 
     public void MoveFloor(Vector3Int oldFloor, FlooringOrigin newOrigin) {
@@ -195,10 +203,6 @@ public class FlooringComponent : BuildingComponent {
 
     private Flooring GetFlooringFromPoint(Vector3Int point) {
         return floors.FirstOrDefault(wall => wall.FloorContains(point));
-    }
-
-    private void ApplyCurrentFloorTexture(Flooring floor) {
-        floor.ApplyFloorTexture(selectedFloorTextureID);
     }
 
     public override void Load(ComponentData data) {

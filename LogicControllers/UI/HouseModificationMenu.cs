@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static HouseExtensionsComponent;
 
 public class HouseModificationMenu : MonoBehaviour {
 
@@ -48,27 +49,31 @@ public class HouseModificationMenu : MonoBehaviour {
         return Content.Find("Modifications").Find("Marriage").Find("Checkbox").GetComponent<Toggle>();
     }
 
-    public Toggle GetModificationToggle(HouseExtensionsComponent.HouseModifications modificationName) {
-        if (modificationName == HouseExtensionsComponent.HouseModifications.Marriage) return Content.Find("Modifications").Find("Marriage").Find("Checkbox").GetComponent<Toggle>();
+    public void SetSpouseDropdownValue(int value) {
+        Content.Find("Modifications").Find("Marriage").Find("spouse").Find("Dropdown").GetComponent<TMP_Dropdown>().value = value;
+    }
+
+    public Toggle GetModificationToggle(HouseModifications modificationName) {
+        if (modificationName == HouseModifications.Marriage) return Content.Find("Modifications").Find("Marriage").Find("Checkbox").GetComponent<Toggle>();
         return Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).GetComponent<Toggle>();
     }
 
-    public Image GetModificationSprite(HouseExtensionsComponent.HouseModifications modificationName) {
-        if (modificationName == HouseExtensionsComponent.HouseModifications.Marriage) return Content.Find("Modifications").Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>();
+    public Image GetModificationSprite(HouseModifications modificationName) {
+        if (modificationName == HouseModifications.Marriage) return Content.Find("Modifications").Find("Marriage").Find("Checkbox").Find("Image").GetComponent<Image>();
         return Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).Find("Button").GetComponent<Image>();
     }
 
     public void SetAllToglesSpritesToOff() {
         Sprite offSprite = Resources.Load<Sprite>("UI/CheckBoxOff");
         foreach (Transform toggle in Content.Find("Modifications").Find("Renovations")) {
-            if (toggle.TryGetComponent(out Toggle toggleComponent)) {
+            if (toggle.TryGetComponent(out Toggle _)) {
                 toggle.Find("Button").GetComponent<Image>().sprite = offSprite;
             }
         }
         Resources.UnloadAsset(offSprite);
     }
 
-    public void SetSpriteToOff(HouseExtensionsComponent.HouseModifications modificationName) {
+    public void SetSpriteToOff(HouseModifications modificationName) {
         Sprite offSprite = Resources.Load<Sprite>("UI/CheckBoxOff");
         Content.Find("Modifications").Find("Renovations").Find(modificationName.ToString()).Find("Button").GetComponent<Image>().sprite = offSprite;
     }

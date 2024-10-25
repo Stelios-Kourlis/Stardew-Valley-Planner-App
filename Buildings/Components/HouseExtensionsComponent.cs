@@ -54,6 +54,7 @@ public class HouseExtensionsComponent : BuildingComponent {
     public GameObject modificationWarning;
     public bool isMarried;
     public HouseModificationMenu ModificationMenu { get; private set; }
+    private bool isLoadingDefaultRenovations;
     private Dictionary<HouseModifications, bool?> houseModificationsActive;
     private static Dictionary<HouseModifications, HouseModificationScriptableObject> scriptableObjects = new();
     Tilemap spouseRoomTilemap, frontTilemap, overlapTilemap;
@@ -114,7 +115,9 @@ public class HouseExtensionsComponent : BuildingComponent {
         ModificationMenu.GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
         ModificationMenu.spouseChanged += SetSpouse;
 
-        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) if (modification != HouseModifications.Null && modification != HouseModifications.Marriage) ModificationMenu.GetModificationToggle(modification).onValueChanged.AddListener((isOn) => CheckRenovationPreconditions(modification, isOn));
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications)))
+            if (modification != HouseModifications.Null && modification != HouseModifications.Marriage)
+                ModificationMenu.GetModificationToggle(modification).onValueChanged.AddListener((isOn) => CheckRenovationPreconditionsAndApply(modification, isOn));
 
         // ModificationMenu.GetModificationToggle(HouseModifications.CornerRoom).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
         // ModificationMenu.GetModificationToggle(HouseModifications.Attic).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
@@ -132,8 +135,10 @@ public class HouseExtensionsComponent : BuildingComponent {
 
         // RenovateHouse(HouseModifications.RemoveCrib, true);
         if (ModificationMenu == null) CreateModificationMenu();
+        isLoadingDefaultRenovations = true;
         ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).isOn = true;
         ModificationMenu.GetModificationToggle(HouseModifications.OpenBedroom).isOn = true;
+        isLoadingDefaultRenovations = false;
         ModificationMenu.SetAllToglesSpritesToOff();
     }
 
@@ -154,9 +159,12 @@ public class HouseExtensionsComponent : BuildingComponent {
         }
 
         isMarried = isNowMarried;
-
+        UndoRedoController.ignoreAction = true;
         if (isMarried) AddSpouseRoom();
         else RemoveSpouseRoom();
+        UndoRedoController.ignoreAction = false;
+
+        UndoRedoController.AddActionToLog(new(ModificationMenu, HouseModifications.Marriage, isMarried));
 
         // ResolveConflicts(HouseModifications.Marriage, isMarried);
 
@@ -187,6 +195,7 @@ public class HouseExtensionsComponent : BuildingComponent {
 
         //clear old spouse room invalid coords
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.RemoveSpecialTileSet(spouse.ToString());
+        MarriageCandidate oldSpouse = spouse;
 
         spouse = (MarriageCandidate)candidate;
 
@@ -199,6 +208,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseSpecialTileSet.AddOffset(spouseRoomOrigin);
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
+        UndoRedoController.AddActionToLog(new(ModificationMenu, oldSpouse, spouse));
     }
 
     private Vector3Int GetSpouseRoomOrigin() {
@@ -210,7 +220,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         };
     }
 
-    public void CheckRenovationPreconditions(HouseModifications modification, bool isOn) {
+    public void CheckRenovationPreconditionsAndApply(HouseModifications modification, bool isOn) {
         if (GetComponent<TieredBuildingComponent>().Tier < 3 && isOn) {
             NotificationManager.Instance.SendNotification("You need to upgrade your house to at least tier 3 to renovate it", NotificationManager.Icons.ErrorIcon);
             return;
@@ -246,13 +256,20 @@ public class HouseExtensionsComponent : BuildingComponent {
             warning.SetActive(true);
             warning.transform.GetChild(0).GetComponent<TMP_Text>().text = $"It seems {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A - Z])", " $1")} interferes with some buildings, delete all interfering buildings?";
             warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
-                foreach (Building building in overlappingBuildings) building.DeleteBuilding();
-                foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, null);
+                UndoRedoController.ignoreAction = true;
+                List<BuildingData> buildingsDeleted = new();
+                foreach (Building building in overlappingBuildings) {
+                    buildingsDeleted.Add(building.GetComponent<BuildingSaverLoader>().SaveBuilding());
+                    building.DeleteBuilding();
+                }
+                overlapTilemap.ClearAllTiles();
                 ApplyRenovation(modification, isOn);
+                UndoRedoController.ignoreAction = false;
+                if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new(ModificationMenu, modification, isOn, buildingsDeleted));
                 Destroy(warning);
             });
             warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => {
-                foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, null);
+                overlapTilemap.ClearAllTiles();
                 Destroy(warning);
             });
             warning.transform.GetChild(1).Find("Highlight").GetComponent<Button>().onClick.AddListener(() => {
@@ -263,7 +280,13 @@ public class HouseExtensionsComponent : BuildingComponent {
                 foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, redTile);
             });
         }
-        else ApplyRenovation(modification, isOn);
+        else {
+            // Debug.Log("No buildings interfere");
+            UndoRedoController.ignoreAction = true; //to ignore any wall changes
+            ApplyRenovation(modification, isOn);
+            UndoRedoController.ignoreAction = false;
+            if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new(ModificationMenu, modification, isOn));
+        }
     }
 
 
@@ -284,8 +307,9 @@ public class HouseExtensionsComponent : BuildingComponent {
         }
 
         List<Vector3Int> positions = GetRectAreaFromPoint(values.spriteOrigin, (int)(values.backSprite.textureRect.height / 16), (int)(values.backSprite.textureRect.width / 16));
-
+        // UndoRedoController.ignoreAction = true;
         if (isOn) {
+
             SpecialCoordinateRect modificationSpecialTiles = GetSpecialCoordinateSet(values.type.ToString());
             modificationSpecialTiles.AddOffset(values.spriteOrigin);
             GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(modificationSpecialTiles);
@@ -311,6 +335,8 @@ public class HouseExtensionsComponent : BuildingComponent {
             foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.GetReverseModification());
             foreach (FlooringMove flooringMove in values.floorModifications) GetComponent<FlooringComponent>().MoveFloor(flooringMove.oldFlooringPoint, flooringMove.GetReverseModification());
         }
+        // UndoRedoController.ignoreAction = false;
+        // UndoRedoController.AddActionToLog(new(this, modification, isOn));
 
         GetComponent<EnterableBuildingComponent>().BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         if (values.reverseActivation) ModificationMenu.GetModificationSprite(modification).sprite = checkbox[isOn ? "Off" : "On"];

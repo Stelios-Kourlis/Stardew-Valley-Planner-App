@@ -9,4 +9,6 @@ public enum Actions {
     DO_NOTHING,
     PLACE_WALLPAPER,
     PLACE_FLOORING,
+    HOUSE_RENOVATION,
+    CHANGE_SPOUSE
 }

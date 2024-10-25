@@ -225,6 +225,7 @@ public class Building : TooltipableGameObject {
         InvalidTilesManager.Instance.CurrentCoordinateSet.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates.ToHashSet(), TileType.Invalid));
         // else BuildingController.isInsideBuilding.Value.InteriorSpecialTiles.AddSpecialTileSet(new($"{BuildingName}{BaseCoordinates[0]}", BaseCoordinates.ToHashSet(), TileType.Invalid));
         // Debug.Log($"added {BaseCoordinates.Length} coordinates to unavailable coordinates");
+        BuildingController.LastBuildingPlaced = this;
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
         UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
         BuildingController.anyBuildingPositionChanged?.Invoke();
