@@ -37,12 +37,13 @@ public class InputHandler : MonoBehaviour {
 
     public static InputHandler Instance { get; private set; }
 
-    public bool IsSearching { get; set; } = false;
+    // public bool IsSearching { get; set; } = false;
     bool mouseIsHeld = false;
     Vector3Int mousePositionWhenHoldStarted;
     Building hoveredBuilding;
     GameObject followCursorObject;
     Vector3Int mouseTileOnPreviousFrame;
+    public bool keybindsShouldRegister = true;
     [SerializeField] private List<CursorTexture> cursorTextures;
     [SerializeField] private GameObject wallpaperButtonPrefab;
     [SerializeField] private GameObject flooringButtonPrefab;
@@ -67,9 +68,10 @@ public class InputHandler : MonoBehaviour {
 
         HandleMouseActions();
 
-        if (IsSearching) return;
+        // if (IsSearching) return;
+        if (!keybindsShouldRegister) return;
 
-        // if (Input.GetKeyDown(KeyCode.Escape)) if (MoveablePanel.FullFocusPanelIsOpen.Item1) MoveablePanel.FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
+        if (Input.GetKeyDown(KeyCode.F12)) DebugCoordinates.ToggleDebugMode();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) {
             if (MoveablePanel.FullFocusPanelIsOpen.Item1) MoveablePanel.FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
@@ -125,7 +127,6 @@ public class InputHandler : MonoBehaviour {
             NotificationManager.Instance.DestroyAllNotifications();
         }
 
-        if (Input.GetKeyDown(KeyCode.F12)) DebugCoordinates.ToggleDebugMode();
     }
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action) {

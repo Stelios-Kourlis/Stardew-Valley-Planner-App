@@ -11,6 +11,7 @@ public class OnboradingFlow : MonoBehaviour {
 
     [SerializeField] private GameObject tutorialText;
     [SerializeField] private GameObject interactionLegend;
+    [SerializeField] private GameObject skipButtonPrefab;
     public bool IsInTutorial { get; private set; }
 
     void Start() {
@@ -24,8 +25,10 @@ public class OnboradingFlow : MonoBehaviour {
             BuildingController.DeleteAllBuildings(true);
             float cameraMoveTime = 2f;
             float delay = 0.25f;
-            CameraController.Instance.SetSize(7);
+            CameraController.Instance.SetSizeSmooth(10, delay);
+            yield return new WaitForSecondsRealtime(delay);
             CameraController.Instance.ToggleCameraLock();
+            CameraController.Instance.enforceBounds = false;
 
             CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetGreenhousePosition() + new Vector3Int(3, 3, 0)), cameraMoveTime);
             yield return new WaitForSecondsRealtime(cameraMoveTime);
@@ -42,20 +45,37 @@ public class OnboradingFlow : MonoBehaviour {
             BuildingController.PlaceHouse();
             yield return new WaitForSecondsRealtime(delay);
 
+            CameraController.Instance.SetPositionSmooth(GetGridTilemap().CellToWorld(MapController.Instance.GetPetBowlPosition() + new Vector3Int(4, 5, 0)), cameraMoveTime);
+            yield return new WaitForSecondsRealtime(cameraMoveTime);
+            BuildingController.PlacePetBowl();
+            yield return new WaitForSecondsRealtime(delay);
+
+            CameraController.Instance.SetSizeSmooth(15, cameraMoveTime);
+            CameraController.Instance.SetPositionSmooth(new Vector3(20, 10, 0), cameraMoveTime);
+            yield return new WaitForSecondsRealtime(cameraMoveTime);
+            CameraController.Instance.enforceBounds = true;
+
             GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
-            text.GetComponentInChildren<TMP_Text>().text = "When creating a new farm, the\n-Greenhouse\n-House\n-Shipping Bin\nare always placed automatically.";
+            text.GetComponentInChildren<TMP_Text>().text = "When creating a new farm, some buildings are placed automatically. Default buildings depend on the farm type.";
             text.GetComponentInChildren<Button>().onClick.AddListener(() => {
                 Destroy(text);
                 ShowHowToMoveCamera();
             });
 
-            CameraController.Instance.SetSize(10);
             CameraController.Instance.ToggleCameraLock();
         }
 
         MoveablePanel.CloseAllPanels?.Invoke();
         IsInTutorial = true;
         BuildingController.SetCurrentAction(Actions.DO_NOTHING);
+        InputHandler.Instance.keybindsShouldRegister = false;
+        if (DebugCoordinates.DebugModeinOn) DebugCoordinates.ToggleDebugMode();
+        GameObject skipButton = Instantiate(skipButtonPrefab, GameObject.FindGameObjectWithTag("Canvas").transform);
+        skipButton.GetComponent<Button>().onClick.AddListener(() => {
+            EndOnboardingFlow();
+            Destroy(skipButton);
+        });
+        MapController.Instance.SetMap(MapController.MapTypes.Normal);
         GetCanvasGameObject().transform.Find("TopRightButtons").gameObject.SetActive(false);
         GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").gameObject.SetActive(false);
         StartCoroutine(OnboardingFlow());
@@ -127,8 +147,11 @@ public class OnboradingFlow : MonoBehaviour {
 
     public void ShowWhatActionsDo() {
         GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
-        text.GetComponentInChildren<TMP_Text>().text = "The Actions you can do are:\n-Place\n-Pick Up\n-Delete\nTry one of them on the building you just placed!";
+        text.GetComponentInChildren<TMP_Text>().text = "The Actions you can do are:\n-Place\n-Pick Up\n-Delete\nTry deleting the building you just placed!";
         text.transform.GetChild(1).gameObject.SetActive(false);
+        foreach (Transform actionButton in GetCanvasGameObject().transform.Find("TopRightButtons").transform.Find("ActionButtons")) {
+            if (actionButton.name != "DeleteButton") actionButton.gameObject.SetActive(false);
+        }
 
         void onBuildingPlaced() {
             Destroy(text);
@@ -185,15 +208,19 @@ public class OnboradingFlow : MonoBehaviour {
     public void EndOnboardingFlow() {
         GameObject topRightButtons = GetCanvasGameObject().transform.Find("TopRightButtons").gameObject;
         topRightButtons.SetActive(true);
+        PlayerPrefs.SetInt("HasDoneIntro", 1);
+        PlayerPrefs.Save();
         topRightButtons.transform.Find("settingsButton").gameObject.SetActive(true);
         topRightButtons.transform.Find("ShowTotalMaterials").gameObject.SetActive(true);
         GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").gameObject.SetActive(true);
+        InputHandler.Instance.keybindsShouldRegister = true;
 
         GameObject text = Instantiate(tutorialText, GameObject.FindGameObjectWithTag("Canvas").transform);
         text.GetComponentInChildren<TMP_Text>().text = "That's all! Start building and experimenting with your farm! You can always redo the tutorial through the settings.";
         text.GetComponentInChildren<Button>().onClick.AddListener(() => {
             Destroy(text);
         });
+        IsInTutorial = false;
     }
 
 }

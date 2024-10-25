@@ -21,6 +21,7 @@ public class CameraController : MonoBehaviour {
     private bool isMouseDown;
     private Vector3 oldMousePosition;
     public float blurMultiplier;
+    public bool enforceBounds = true;
 
     void Start() {
         Instance = this;
@@ -102,7 +103,7 @@ public class CameraController : MonoBehaviour {
             oldMousePosition = Input.mousePosition;
         }
 
-        ClampCameraToBounds();
+        if (enforceBounds) ClampCameraToBounds();
 
         //Camera Size Control
         if (Input.mouseScrollDelta.y != 0f) {
@@ -144,6 +145,22 @@ public class CameraController : MonoBehaviour {
 
     public void SetSize(float size) {
         mainCamera.orthographicSize = size;
+    }
+
+    public void SetSizeSmooth(float size, float totalTime) {
+
+        IEnumerator SetSizeSmooth() {
+            float time = 0;
+            float startSize = mainCamera.orthographicSize;
+            while (time < totalTime) {
+                float t = time / totalTime; // Normalize time to range [0, 1]
+                mainCamera.orthographicSize = Mathf.Lerp(startSize, size, t);
+                time += Time.deltaTime;
+                yield return null;
+            }
+            mainCamera.orthographicSize = size;
+        }
+        StartCoroutine(SetSizeSmooth());
     }
 
     public Vector3 GetPosition() { return mainCamera.transform.position; }

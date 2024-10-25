@@ -338,7 +338,7 @@ public class Building : TooltipableGameObject {
             behaviourExtension?.OnStart(this);
         }
 
-        Debug.Log("Loaded building: " + BuildingName);
+        // Debug.Log("Loaded building: " + BuildingName);
 
         return this;
     }

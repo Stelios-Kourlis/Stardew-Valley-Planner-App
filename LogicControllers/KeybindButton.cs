@@ -49,7 +49,7 @@ public class KeybindButton : MonoBehaviour {
     public void SetKeybindFromButton() {
         if (isButtonBeingRebound.Item1) isButtonBeingRebound.Item2.CancelRebind();
 
-        InputHandler.Instance.IsSearching = true;
+        InputHandler.Instance.keybindsShouldRegister = false;
         isButtonBeingRebound = (true, this);
         StartCoroutine(GetButtonsCoroutine());
     }
@@ -83,7 +83,7 @@ public class KeybindButton : MonoBehaviour {
             if (cancelRebind) {
                 buttonText.text = text;
                 cancelRebind = false;
-                InputHandler.Instance.IsSearching = false;
+                InputHandler.Instance.keybindsShouldRegister = true;
                 CancelRebindGameObject.SetActive(false);
                 yield break;
             }
@@ -116,7 +116,7 @@ public class KeybindButton : MonoBehaviour {
                     while (Input.GetKey(keyCode)) yield return null;
                     yield return null;
                     CancelRebindGameObject.SetActive(false);
-                    InputHandler.Instance.IsSearching = false;
+                    InputHandler.Instance.keybindsShouldRegister = true;
                     isButtonBeingRebound = (false, null);
                     yield break;
                 }

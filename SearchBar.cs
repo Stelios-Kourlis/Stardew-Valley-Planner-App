@@ -52,10 +52,10 @@ public class SearchBar : MonoBehaviour {
     }
 
     private void OnEndEdit(string text) {
-        InputHandler.Instance.IsSearching = false;
+        InputHandler.Instance.keybindsShouldRegister = true;
     }
 
     private void OnSelect() {
-        InputHandler.Instance.IsSearching = true;
+        InputHandler.Instance.keybindsShouldRegister = false;
     }
 }

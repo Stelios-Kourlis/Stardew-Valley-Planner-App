@@ -10,26 +10,26 @@ using static Utility.SpriteManager;
 public class DebugCoordinates : MonoBehaviour {
     TMP_Text posText;
     TMP_Text typeText;
-    static GameObject coordLog;
-    static bool debugModeinOn;
+    private static GameObject coordLog;
+    public static bool DebugModeinOn { get; private set; }
     void Start() {
         posText = transform.GetChild(0).GetComponent<TMP_Text>();
         typeText = transform.GetChild(1).GetComponent<TMP_Text>();
         coordLog = transform.gameObject;
-        debugModeinOn = false;
+        DebugModeinOn = false;
         gameObject.SetActive(false);
     }
 
     public static void ToggleDebugMode() {
         coordLog.SetActive(true);
         Debug.Log("Debug!");
-        debugModeinOn = !debugModeinOn;
-        coordLog.SetActive(debugModeinOn);
+        DebugModeinOn = !DebugModeinOn;
+        coordLog.SetActive(DebugModeinOn);
     }
 
     // Update is called once per frame
     void Update() {
-        if (!debugModeinOn) return;
+        if (!DebugModeinOn) return;
         Vector3Int pos = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         posText.text = $"{pos.x},{pos.y}";
 
