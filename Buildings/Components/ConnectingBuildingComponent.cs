@@ -19,19 +19,22 @@ public class ConnectingBuildingComponent : BuildingComponent {
     private bool connectsToTop;
     public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        // if (Building is IConnectingBuilding connectingBuilding) connectingBuilding.UpdateSelf();
+        Building.BuildingPlaced += UpdateAllOtherBuildingOfSameType;
+        Building.BuildingPickedUp += () => UpdateAllOtherBuildingOfSameType(Building.Base);
+        Building.BuildingRemoved += () => UpdateAllOtherBuildingOfSameType(Building.Base);
+
     }
 
     public int GetConnectingFlags() {
         if (Building.CurrentBuildingState != Building.BuildingState.PLACED) return 0;
         List<ConnectFlag> flags = new();
-        Type buildingType = gameObject.GetComponent<Building>().GetType();
+        BuildingType buildingType = gameObject.GetComponent<Building>().type;
         Vector3Int position = gameObject.GetComponent<Building>().BaseCoordinates[0];
-        List<Vector3Int> otherBuildings = BuildingController.buildings.Where(b => b.GetType() == buildingType).Select(b => b.BaseCoordinates[0]).ToList();
+        List<Vector3Int> otherBuildings = BuildingController.buildings.Where(b => b.type == buildingType && b.CurrentBuildingState == Building.BuildingState.PLACED).Select(b => b.BaseCoordinates[0]).ToList();
         Vector3Int[] neighbors = GetCrossAroundPosition(position).ToArray();
         if (otherBuildings.Contains(neighbors[0])) flags.Add(ConnectFlag.LEFT_ATTACHED);
         if (otherBuildings.Contains(neighbors[1])) flags.Add(ConnectFlag.RIGHT_ATTACHED);
-        if (otherBuildings.Contains(neighbors[2])) flags.Add(ConnectFlag.BOTTOM_ATTACHED);
+        if (connectsToTop) if (otherBuildings.Contains(neighbors[2])) flags.Add(ConnectFlag.BOTTOM_ATTACHED);
         if (connectsToTop) if (otherBuildings.Contains(neighbors[3])) flags.Add(ConnectFlag.TOP_ATTACHED);
         return flags.Cast<int>().Sum();
     }
@@ -52,11 +55,15 @@ public class ConnectingBuildingComponent : BuildingComponent {
         Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
 
-    public void UpdateAllOtherBuildingOfSameType() {
-        Type buildingType = gameObject.GetComponent<Building>().GetType();
-        List<Building> otherBuildingsOfSameType = BuildingController.buildings.Where(b => b.type == Building.type && b.transform != transform).ToList();//All buildings of same type except self
-        foreach (Building building in otherBuildingsOfSameType) {
+    public void UpdateAllOtherBuildingOfSameType(Vector3Int position) {
+        if (Building.CurrentBuildingState == Building.BuildingState.PLACED) UpdateSelf();
+        List<Building> otherNeighbouringBuildingsOfSameType = BuildingController.buildings.Where(b => b.type == Building.type && b.transform != transform && AreNeighbors(b.Base, position)).ToList();//All buildings of same type except self
+        foreach (Building building in otherNeighbouringBuildingsOfSameType) {
             building.GetComponent<ConnectingBuildingComponent>().UpdateSelf();
         }
+    }
+
+    private bool AreNeighbors(Vector3Int positionA, Vector3Int positionB) {
+        return Mathf.Abs(positionA.x - positionB.x) + Mathf.Abs(positionA.y - positionB.y) == 1;
     }
 }

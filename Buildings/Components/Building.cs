@@ -283,6 +283,7 @@ public class Building : TooltipableGameObject {
         button.AddComponent<Image>().sprite = bso.defaultSprite;
         button.GetComponent<Image>().preserveAspect = true;
         button.AddComponent<UIElement>();
+        button.GetComponent<UIElement>().tooltipMessage = bso.BuildingName;
         button.GetComponent<UIElement>().playSounds = true;
         button.GetComponent<UIElement>().ExpandOnHover = true;
 

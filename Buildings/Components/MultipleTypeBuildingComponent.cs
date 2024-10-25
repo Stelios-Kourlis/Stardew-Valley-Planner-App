@@ -22,6 +22,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     public BuildingVariant[] variants;
     public int CurrentVariantIndex { get; private set; }
     public string CurrentType => System.Text.RegularExpressions.Regex.Replace(variants[CurrentVariantIndex].variantName, "(?<!^)([A-Z])", " $1");
+    public string CurrentTypeRaw => variants[CurrentVariantIndex].variantName;
 
     /// <summary>
     /// Sets the type of the building to the given enum type. If you want the building to start with a specific type, pass it as the second argument
@@ -61,7 +62,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
             button.AddComponent<Image>().sprite = variant.variantSprite;
             button.GetComponent<Image>().preserveAspect = true;
             button.AddComponent<UIElement>();
-            button.GetComponent<UIElement>().tooltipMessage = $"{System.Text.RegularExpressions.Regex.Replace(variant.variantName, "(?<!^)([A-Z])", " $1")}{(bso.typeName != BuildingType.Craftables ? bso.BuildingName : ' ')}";
+            button.GetComponent<UIElement>().tooltipMessage = $"{System.Text.RegularExpressions.Regex.Replace(variant.variantName, "(?<!^)([A-Z])", " $1")} {(bso.typeName != BuildingType.Craftables ? bso.BuildingName : string.Empty)}";
             button.GetComponent<UIElement>().playSounds = false;
             button.GetComponent<UIElement>().ExpandOnHover = false;
             button.AddComponent<Button>().onClick.AddListener(() => {

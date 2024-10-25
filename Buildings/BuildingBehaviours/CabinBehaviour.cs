@@ -11,7 +11,7 @@ public class CabinBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnDelete() {
-        cabinsPlaced[multipleTypeBuildingComponent.variants[multipleTypeBuildingComponent.CurrentVariantIndex].variantName] = false;
+        cabinsPlaced[multipleTypeBuildingComponent.CurrentTypeRaw] = false;
     }
 
     public override void OnDeletePreview() {
@@ -31,7 +31,7 @@ public class CabinBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnPickup() {
-        cabinsPlaced[multipleTypeBuildingComponent.variants[multipleTypeBuildingComponent.CurrentVariantIndex].variantName] = false;
+        cabinsPlaced[multipleTypeBuildingComponent.CurrentTypeRaw] = false;
     }
 
     public override void OnPickupPreview() {
@@ -39,7 +39,7 @@ public class CabinBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnPlace(Vector3Int lowerLeftCorner) {
-        cabinsPlaced[multipleTypeBuildingComponent.variants[multipleTypeBuildingComponent.CurrentVariantIndex].variantName] = true;
+        cabinsPlaced[multipleTypeBuildingComponent.CurrentTypeRaw] = true;
     }
 
     public override void OnPlacePreview(Vector3Int lowerLeftCorner) {
@@ -58,7 +58,7 @@ public class CabinBehaviour : BuildingBehaviourExtension {
 
     public override bool BuildingSpecificPlacementPreconditionsAreMet(Vector3Int position, out string errorMessage) {
         errorMessage = "";
-        bool hasThisCabinTypeBeenPlaced = cabinsPlaced[multipleTypeBuildingComponent.variants[multipleTypeBuildingComponent.CurrentVariantIndex].variantName];
+        bool hasThisCabinTypeBeenPlaced = cabinsPlaced[multipleTypeBuildingComponent.CurrentTypeRaw];
         if (hasThisCabinTypeBeenPlaced) {
             errorMessage = "You can only have one of each type of cabin";
             return false;
