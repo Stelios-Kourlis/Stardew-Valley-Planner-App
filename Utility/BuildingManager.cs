@@ -20,29 +20,6 @@ using Newtonsoft.Json;
 
 namespace Utility {
     public static class BuildingManager {
-
-        public static bool LoadThenSwitchSceneToFarm() {//todo fix
-            string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
-            var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
-            // if (paths.Length <= 0) return false;
-            // SceneManager.LoadScene("App");
-            // Type currentType = BuildingController.currentBuildingType;
-            // string directoryPath = Path.GetDirectoryName(paths[0]);
-            // PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
-            // using StreamReader reader = new(paths[0]);
-            // BuildingController.DeleteAllBuildings(true);
-            // BuildingController.IsLoadingSave = true;
-            // while (reader.Peek() >= 0) {
-            //     string line = reader.ReadLine();
-            //     if (line.Equals("")) continue;
-            //     BuildingController.PlaceSavedBuilding(new BuildingData(line));
-            // }
-            // BuildingController.IsLoadingSave = false;
-            // BuildingController.SetCurrentBuildingType(currentType);
-            return paths.Length > 0;
-        }
-
-
         /// <summary>
         /// Check if a building can be placed at a certain position
         /// <param name="position"> The lower left corner of the building position </param>
