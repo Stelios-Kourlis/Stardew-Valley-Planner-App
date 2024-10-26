@@ -22,139 +22,274 @@ MonoBehaviour:
   variants:
   - variantName: Parsnip
     variantSprite: {fileID: 3048937005348815756, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 58
+      howToGet: 
   - variantName: BlueJazz
     variantSprite: {fileID: -8212930081969480023, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 51
+      howToGet: 
   - variantName: Carrot
     variantSprite: {fileID: -9177457062998269095, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 52
+      howToGet: 
   - variantName: Cauliflower
     variantSprite: {fileID: -7474529693045490863, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 53
+      howToGet: 
   - variantName: CoffeeBean
     variantSprite: {fileID: -2429173937118502567, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 54
+      howToGet: 
   - variantName: Garlic
     variantSprite: {fileID: 3225213848598672445, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 55
+      howToGet: 
   - variantName: GreenBean
     variantSprite: {fileID: 1640555460866966840, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 56
+      howToGet: 
   - variantName: Kale
     variantSprite: {fileID: 354162863218615001, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 57
+      howToGet: 
   - variantName: Potato
     variantSprite: {fileID: -1010118597598872900, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 59
+      howToGet: 
   - variantName: Rhubarb
     variantSprite: {fileID: -8800576670314286437, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 60
+      howToGet: 
   - variantName: Strawberry
     variantSprite: {fileID: -291167813904186154, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 61
+      howToGet: 
   - variantName: Tulip
     variantSprite: {fileID: -6535896555791932063, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 62
+      howToGet: 
   - variantName: UnmilledRice
     variantSprite: {fileID: 568712722439862651, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 63
+      howToGet: 
   - variantName: Blueberry
     variantSprite: {fileID: 4437813026912723317, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 64
+      howToGet: 
   - variantName: Corn
     variantSprite: {fileID: 8224592552397400518, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 65
+      howToGet: 
   - variantName: Hops
     variantSprite: {fileID: 2683288208970150335, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 66
+      howToGet: 
   - variantName: HotPepper
     variantSprite: {fileID: -8566547230339426620, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 67
+      howToGet: 
   - variantName: Melon
     variantSprite: {fileID: -7911878910390060541, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 68
+      howToGet: 
   - variantName: Poppy
     variantSprite: {fileID: 9097839083451968670, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 69
+      howToGet: 
   - variantName: Radish
     variantSprite: {fileID: 5731952611729170081, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 70
+      howToGet: 
   - variantName: RedCabbage
     variantSprite: {fileID: -3911487379921220410, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 71
+      howToGet: 
   - variantName: Starfruit
     variantSprite: {fileID: 5507455356034643388, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 72
+      howToGet: 
   - variantName: SummerSpangle
     variantSprite: {fileID: 2580307749077769709, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 73
+      howToGet: 
   - variantName: SummerSquash
     variantSprite: {fileID: 92264684534740810, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 74
+      howToGet: 
   - variantName: Sunflower
     variantSprite: {fileID: -8963637610061471851, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 75
+      howToGet: 
   - variantName: Tomato
     variantSprite: {fileID: 5751050027487728627, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 76
+      howToGet: 
   - variantName: Wheat
     variantSprite: {fileID: -3087722540913972952, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 77
+      howToGet: 
   - variantName: Amaranth
     variantSprite: {fileID: 8954413170907878631, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 78
+      howToGet: 
   - variantName: Artichoke
     variantSprite: {fileID: -3035954457510803908, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 79
+      howToGet: 
   - variantName: Beet
     variantSprite: {fileID: -5774877164156790999, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 80
+      howToGet: 
   - variantName: BokChoy
     variantSprite: {fileID: -9129538434356760513, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 81
+      howToGet: 
   - variantName: Broccoli
     variantSprite: {fileID: 1524892664962734932, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 82
+      howToGet: 
   - variantName: Cranberries
     variantSprite: {fileID: -2584793599262434737, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 83
+      howToGet: 
   - variantName: Eggplant
     variantSprite: {fileID: -1319403273844478748, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 84
+      howToGet: 
   - variantName: FairyRose
     variantSprite: {fileID: -2244004397112234398, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 85
+      howToGet: 
   - variantName: Grape
     variantSprite: {fileID: 4727212774405997460, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 86
+      howToGet: 
   - variantName: Pumpkin
     variantSprite: {fileID: -5350684271723168704, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 87
+      howToGet: 
   - variantName: Yam
     variantSprite: {fileID: 7113927244362079390, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 88
+      howToGet: 
   - variantName: Powdermelon
     variantSprite: {fileID: -260985584823223675, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 89
+      howToGet: 
   - variantName: AncientFruit
     variantSprite: {fileID: 4150229347420907923, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 90
+      howToGet: 
   - variantName: CactusFruit
     variantSprite: {fileID: -4295922051358563201, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 91
+      howToGet: 
   - variantName: Pineapple
     variantSprite: {fileID: -7264623449321555839, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 92
+      howToGet: 
   - variantName: TaroRoot
     variantSprite: {fileID: 6088432766868391303, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 93
+      howToGet: 
   - variantName: SweetGemBerry
     variantSprite: {fileID: -8124274317607321232, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 94
+      howToGet: 
   - variantName: TeaLeaves
     variantSprite: {fileID: -7859090893774279306, guid: 793bb5552ed7bd5439185c03e54b1f96, type: 3}
-    variantCost: []
+    variantCost:
+    - amount: 1
+      materialType: 95
+      howToGet: 
   isTiered: 0
   tiers: []
   isAnimalHouse: 0
@@ -167,6 +302,7 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: 
   category: 2
   isExpanded: 1

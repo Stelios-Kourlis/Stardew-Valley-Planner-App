@@ -35,7 +35,7 @@ public class MapController : MonoBehaviour {
 
     public static MapController Instance { get; private set; }
 
-    void Start() {
+    void Awake() {
         Instance = this;
         InitializeMapButtons();
 

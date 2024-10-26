@@ -331,16 +331,13 @@ public class Building : TooltipableGameObject {
 
         if (bso.isAnimalHouse) gameObject.AddComponent<AnimalHouseComponent>().Load(bso);
 
-        if (bso.hasInteriorExtensions) gameObject.AddComponent<HouseExtensionsComponent>();
+        if (bso.hasInteriorExtensions || bso.interiorFlooring.Length > 0 || bso.interiorWalls.Length > 0)
+            gameObject.AddComponent<HouseExtensionsComponent>().Load(bso);
 
-        // Debug.Log(bso.extraBehaviourType.Type);
         if (bso.extraBehaviourType.Type != null) {
-            // Type behaviourType = bso.extraBehaviourType.Type;
             behaviourExtension = (BuildingBehaviourExtension)Activator.CreateInstance(bso.extraBehaviourType.Type);
             behaviourExtension?.OnStart(this);
         }
-
-        // Debug.Log("Loaded building: " + BuildingName);
 
         return this;
     }

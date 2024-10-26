@@ -58,6 +58,8 @@ public class HouseExtensionsComponent : BuildingComponent {
     private Dictionary<HouseModifications, bool?> houseModificationsActive;
     private static Dictionary<HouseModifications, HouseModificationScriptableObject> scriptableObjects = new();
     Tilemap spouseRoomTilemap, frontTilemap, overlapTilemap;
+    private bool hasExtensions;
+    private bool hasFlooringOrWallpapers;
     readonly Dictionary<string, Sprite> checkbox = new(2);
 
     private Tilemap BuildingInteriorTilemap => GetComponent<EnterableBuildingComponent>().BuildingInterior.GetComponent<Tilemap>();
@@ -78,7 +80,7 @@ public class HouseExtensionsComponent : BuildingComponent {
             }
         }
 
-        GetComponent<EnterableBuildingComponent>().InteriorUpdated += CreateModificationMenu;
+
         GetComponent<EnterableBuildingComponent>().InteriorUpdated += AddTilemaps;
         GetComponent<EnterableBuildingComponent>().InteriorUpdated += BuildingTierChange;
     }
@@ -112,18 +114,18 @@ public class HouseExtensionsComponent : BuildingComponent {
 
         ModificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().InteriorButtonsParent.transform.parent).GetComponent<HouseModificationMenu>();
         ModificationMenu.transform.position = Vector3.zero;
+
+        if (!hasExtensions) {
+            ModificationMenu.DisableModificationTab();
+            return;
+        }
+
         ModificationMenu.GetMarriageToggle().onValueChanged.AddListener(ChangeMarriedStatus);
         ModificationMenu.spouseChanged += SetSpouse;
 
         foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications)))
             if (modification != HouseModifications.Null && modification != HouseModifications.Marriage)
                 ModificationMenu.GetModificationToggle(modification).onValueChanged.AddListener((isOn) => CheckRenovationPreconditionsAndApply(modification, isOn));
-
-        // ModificationMenu.GetModificationToggle(HouseModifications.CornerRoom).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.CornerRoom, isOn));
-        // ModificationMenu.GetModificationToggle(HouseModifications.Attic).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Attic, isOn));
-        // ModificationMenu.GetModificationToggle(HouseModifications.RemoveCrib).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.RemoveCrib, isOn));
-        // ModificationMenu.GetModificationToggle(HouseModifications.Cubby).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.Cubby, isOn));
-        // ModificationMenu.GetModificationToggle(HouseModifications.OpenBedroom).onValueChanged.AddListener((isOn) => RenovateHouse(HouseModifications.OpenBedroom, isOn));
     }
 
     private void BuildingTierChange() {
@@ -418,6 +420,15 @@ public class HouseExtensionsComponent : BuildingComponent {
             }
         }
         return totalMaterials;
+    }
+
+    public void Load(BuildingScriptableObject bso) {
+        hasExtensions = bso.hasInteriorExtensions;
+        hasFlooringOrWallpapers = bso.interiorFlooring.Length > 0 || bso.interiorWalls.Length > 0;
+
+        if (hasExtensions || hasFlooringOrWallpapers) {
+            GetComponent<EnterableBuildingComponent>().InteriorUpdated += CreateModificationMenu;
+        }
     }
 
     public override void Load(ComponentData data) {

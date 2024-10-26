@@ -102,6 +102,8 @@ public class EnterableBuildingComponent : BuildingComponent {
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
 
+
+
     public void AddBuildingInterior() {
         if (BuildingInteriorScene.name != null) return; //failsafe
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");

@@ -43,8 +43,6 @@ public class BuildingScriptableObject : ScriptableObject {
     public WallsPerTier[] interiorWalls;
     public FlooringPerTier[] interiorFlooring;
     public bool hasInteriorExtensions;
-
-    // public MonoScript extraBehaviourScript;
     public BehaviourScript extraBehaviourType;
 
     public Categories category;

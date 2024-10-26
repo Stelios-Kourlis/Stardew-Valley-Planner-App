@@ -26,7 +26,7 @@ public class NotificationManager : MonoBehaviour {
     [SerializeField] private SpriteAtlas spriteAtlas;
     [SerializeField] private GameObject notificationPrefab;
 
-    public void Start() {
+    public void Awake() {
         if (Instance == null) Instance = this;
         else Destroy(this);
     }

@@ -14,7 +14,6 @@ public class HouseModificationMenu : MonoBehaviour {
     [SerializeField] private GameObject flooringButtonPrefab;
 
     public void Start() {
-
         var dropdown = Content.Find("Modifications").Find("Marriage").Find("spouse").Find("Dropdown").GetComponent<TMP_Dropdown>();
         dropdown.onValueChanged.AddListener((int value) => {
             spouseChanged?.Invoke(value);
@@ -39,6 +38,11 @@ public class HouseModificationMenu : MonoBehaviour {
                 BuildingController.SetCurrentAction(Actions.PLACE_FLOORING);
             });
         }
+
+    }
+
+    public void DisableModificationTab() {
+        transform.Find("Tabs").Find("Modifications").gameObject.SetActive(false);
     }
 
     public void SetSpouseDropdownInteractability(bool interactable) {

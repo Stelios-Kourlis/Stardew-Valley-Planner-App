@@ -23,7 +23,7 @@ public class CameraController : MonoBehaviour {
     public float blurMultiplier;
     public bool enforceBounds = true;
 
-    void Start() {
+    void Awake() {
         Instance = this;
 
         isMouseDown = false;

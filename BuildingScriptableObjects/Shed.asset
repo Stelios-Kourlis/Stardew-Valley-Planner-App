@@ -48,7 +48,32 @@ MonoBehaviour:
   isFishPond: 0
   isEnterable: 1
   interiorInteractions: 0100000002000000
-  interiorWalls: []
-  interiorFlooring: []
+  interiorWalls:
+  - tier: 1
+    wallOrigins:
+    - lowerLeftCorner: {x: 1, y: 10, z: 0}
+      width: 11
+      wallpaperId: 0
+  - tier: 2
+    wallOrigins:
+    - lowerLeftCorner: {x: 1, y: 13, z: 0}
+      width: 17
+      wallpaperId: 0
+  interiorFlooring:
+  - tier: 1
+    floorOrigins:
+    - lowerLeftCorner: {x: 1, y: 0, z: 0}
+      width: 11
+      height: 11
+      floorTextureID: 0
+  - tier: 2
+    floorOrigins:
+    - lowerLeftCorner: {x: 1, y: 0, z: 0}
+      width: 17
+      height: 14
+      floorTextureID: 0
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: 
+  category: 0
+  isExpanded: 0
