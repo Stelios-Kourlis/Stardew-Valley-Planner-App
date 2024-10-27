@@ -24,7 +24,6 @@ public class FishPondComponent : BuildingComponent {
     private GameObject decoTilemapObject;
     private int decoIndex = 0;
     private Vector3Int[] decoCoordinates;
-    private SpriteAtlas atlas;
     private static GameObject fishMenu;
     public Fish fish = Fish.PLACE_FISH;
 
@@ -34,8 +33,7 @@ public class FishPondComponent : BuildingComponent {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         if (fishMenuPrefab == null) fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
-        if (atlas == null) atlas = Resources.Load<SpriteAtlas>("Buildings/FishPondAtlas");
-        Building.UpdateTexture(atlas.GetSprite("FishPond"));
+        Building.UpdateTexture(Building.Atlas.GetSprite("FishPond"));
         decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
         waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.PLACE_FISH);
@@ -99,7 +97,7 @@ public class FishPondComponent : BuildingComponent {
         Vector3Int[] baseCoordinates = GetRectAreaFromPoint(lowerLeftCorner, Building.BaseHeight, Building.Width).ToArray();
         waterTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         waterTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
-        waterTilemapObject.GetComponent<Tilemap>().SetTiles(baseCoordinates, SplitSprite(atlas.GetSprite("FishPondBottom")));
+        waterTilemapObject.GetComponent<Tilemap>().SetTiles(baseCoordinates, SplitSprite(Building.Atlas.GetSprite("FishPondBottom")));
         waterTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder - 1;
     }
 
@@ -118,7 +116,7 @@ public class FishPondComponent : BuildingComponent {
         decoCoordinates = GetRectAreaFromPoint(topRightCorner, 3, 5).ToArray();
         decoTilemapObject.GetComponent<Tilemap>().ClearAllTiles();
         decoTilemapObject.GetComponent<Tilemap>().color = OPAQUE;
-        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(Building.Atlas.GetSprite($"FishDeco_{decoIndex}")));
         decoTilemapObject.GetComponent<TilemapRenderer>().sortingOrder = gameObject.GetComponent<TilemapRenderer>().sortingOrder + 1;
     }
 
@@ -141,12 +139,12 @@ public class FishPondComponent : BuildingComponent {
     public void CycleFishPondDeco() {
         decoIndex++;
         if (decoIndex > 3) decoIndex = 0;
-        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(Building.Atlas.GetSprite($"FishDeco_{decoIndex}")));
     }
 
     private void SetFishPondDeco(int index) {
         decoIndex = index;
-        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(atlas.GetSprite($"FishDeco_{decoIndex}")));
+        decoTilemapObject.GetComponent<Tilemap>().SetTiles(decoCoordinates, SplitSprite(Building.Atlas.GetSprite($"FishDeco_{decoIndex}")));
     }
 
     public override ComponentData Save() {

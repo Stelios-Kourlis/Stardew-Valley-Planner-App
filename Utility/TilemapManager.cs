@@ -31,6 +31,7 @@ namespace Utility {
         public static List<Vector3Int> GetRectAreaFromPoint(Vector3Int lowerLeftCorner, int height, int width, bool flipped = false) {
             if (lowerLeftCorner == null) throw new ArgumentNullException("Position cannot be null");
             if (height < 0 || width < 0) throw new ArgumentException($"Height and width must be positive, got {height} height and {width} width.");
+            if (height == 0 || width == 0) return new List<Vector3Int>();
             List<Vector3Int> area = new();
             if (!flipped) {
                 for (int heightOffset = 0; heightOffset < height; heightOffset++) {
@@ -203,26 +204,27 @@ namespace Utility {
         public static Vector3 GetMiddleOfBuildingWorld(Building building) {
             int width = building.Width;
             int height = building.Height;
+            if (building.BaseCoordinates.Count() == 0) return building.Base;
             Vector3 result = new(-1, -1);
-            if (building.BaseHeight == 1 && building.Width == 1) return building.BaseCoordinates[0];
-            // Debug.Log(building.BaseCoordinates[0].x);
+            if (building.BaseHeight == 1 && building.Width == 1) return building.Base;
+            // Debug.Log(building.Base.x);
             if (width % 2 != 0) {
-                Vector3Int leftMiddle = new(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2.0f), 0, 0);
-                Vector3Int rightMiddle = new(building.BaseCoordinates[0].x + Mathf.CeilToInt(width / 2.0f), 0, 0);
+                Vector3Int leftMiddle = new(building.Base.x + Mathf.FloorToInt(width / 2.0f), 0, 0);
+                Vector3Int rightMiddle = new(building.Base.x + Mathf.CeilToInt(width / 2.0f), 0, 0);
                 Vector3 leftMiddleWorld = building.Tilemap.CellToWorld(leftMiddle);
                 Vector3 rightMiddleWorld = building.Tilemap.CellToWorld(rightMiddle);
                 result.x = (leftMiddleWorld.x + rightMiddleWorld.x) / 2;
             }
 
-            else result.x = building.Tilemap.CellToWorld(new Vector3Int(building.BaseCoordinates[0].x + Mathf.FloorToInt(width / 2), 0, 0)).x;
+            else result.x = building.Tilemap.CellToWorld(new Vector3Int(building.Base.x + Mathf.FloorToInt(width / 2), 0, 0)).x;
             if (height % 2 != 0) {
-                Vector3Int downMiddle = new(0, building.BaseCoordinates[0].y + Mathf.FloorToInt(height / 2.0f), 0);
-                Vector3Int upMiddle = new(0, building.BaseCoordinates[0].y + Mathf.CeilToInt(height / 2.0f), 0);
+                Vector3Int downMiddle = new(0, building.Base.y + Mathf.FloorToInt(height / 2.0f), 0);
+                Vector3Int upMiddle = new(0, building.Base.y + Mathf.CeilToInt(height / 2.0f), 0);
                 Vector3 downMiddleWorld = building.Tilemap.CellToWorld(downMiddle);
                 Vector3 upMiddleWorld = building.Tilemap.CellToWorld(upMiddle);
                 result.y = (upMiddleWorld.y + downMiddleWorld.y) / 2;
             }
-            else result.y = building.Tilemap.CellToWorld(new Vector3Int(0, building.BaseCoordinates[0].y + height / 2, 0)).y;
+            else result.y = building.Tilemap.CellToWorld(new Vector3Int(0, building.Base.y + height / 2, 0)).y;
 
 
             return result;

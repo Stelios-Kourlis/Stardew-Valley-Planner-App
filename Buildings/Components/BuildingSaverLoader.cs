@@ -29,7 +29,7 @@ public class BuildingSaverLoader : MonoBehaviour {
         foreach (BuildingComponent component in gameObject.GetComponents<BuildingComponent>()) {
             if (component.Save() != null) extraData.Add(component.Save());
         }
-        buildingData = new(Building.type, Building.BaseCoordinates[0], extraData.ToArray());
+        buildingData = new(Building.type, Building.Base, extraData.ToArray());
         return buildingData;
     }
 

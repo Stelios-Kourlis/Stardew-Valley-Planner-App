@@ -29,8 +29,8 @@ public class ConnectingBuildingComponent : BuildingComponent {
         if (Building.CurrentBuildingState != Building.BuildingState.PLACED) return 0;
         List<ConnectFlag> flags = new();
         BuildingType buildingType = gameObject.GetComponent<Building>().type;
-        Vector3Int position = gameObject.GetComponent<Building>().BaseCoordinates[0];
-        List<Vector3Int> otherBuildings = BuildingController.buildings.Where(b => b.type == buildingType && b.CurrentBuildingState == Building.BuildingState.PLACED).Select(b => b.BaseCoordinates[0]).ToList();
+        Vector3Int position = gameObject.GetComponent<Building>().Base;
+        List<Vector3Int> otherBuildings = BuildingController.buildings.Where(b => b.type == buildingType && b.CurrentBuildingState == Building.BuildingState.PLACED).Select(b => b.Base).ToList();
         Vector3Int[] neighbors = GetCrossAroundPosition(position).ToArray();
         if (otherBuildings.Contains(neighbors[0])) flags.Add(ConnectFlag.LEFT_ATTACHED);
         if (otherBuildings.Contains(neighbors[1])) flags.Add(ConnectFlag.RIGHT_ATTACHED);

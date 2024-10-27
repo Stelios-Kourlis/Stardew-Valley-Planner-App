@@ -83,7 +83,7 @@ public class SpecialCoordinatesCollection {
     }
 
     public void AddSpecialTileSet(SpecialCoordinateRect specialTileSet) {
-        if (specialTileSet.GetSpecialCoordinates().Count == 0) throw new Exception($"Tried to add tileset with no tiles");
+        if (specialTileSet.GetSpecialCoordinates().Count == 0) return;
         specialTileSets.Insert(0, specialTileSet);
     }
 

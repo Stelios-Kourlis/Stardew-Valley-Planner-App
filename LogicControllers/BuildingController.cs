@@ -220,7 +220,7 @@ public static class BuildingController {
     }
 
     public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {
-        Building building = buildings.FirstOrDefault(building => building.BaseCoordinates[0] == lowerLeftCorner);
+        Building building = buildings.FirstOrDefault(building => building.Base == lowerLeftCorner);
         if (building == null) return;
         building.DeleteBuilding(true);
 
