@@ -7,10 +7,9 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.ClassManager;
 
-public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandler {
     public abstract string TooltipMessage { get; }
     public abstract void OnAwake();
-    public abstract void OnUpdate();
     public GameObject TooltipGameObject { get; set; }
 
     public void Awake() {
@@ -35,21 +34,6 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
         TooltipManager.Instance.StartTooltipCountdown(this);
     }
     public void OnPointerEnter(PointerEventData eventData) {
-        // if (BuildingController.CurrentAction == Actions.DO_NOTHING) return;
-        // ActionBeforeEnteringSettings = BuildingController.CurrentAction;
-        // BuildingController.SetCurrentAction(Actions.DO_NOTHING);
-        // StartTooltipCountdown();
-    }
-
-    public void OnPointerExit(PointerEventData eventData) {
-        // if (!(BuildingController.CurrentAction == Actions.DO_NOTHING)) return;
-        // if (GetSettingsModal().GetComponent<MoveablePanel>().IsPanelOpen()) return;
-        // if (GetTotalMaterialsCalculator().gameObject.GetComponent<MoveablePanel>().IsPanelOpen()) return;
-        // BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
-    }
-
-    public void Update() {
         if (ShowTooltipCondition()) StartTooltipCountdown();
-        OnUpdate();
     }
 }

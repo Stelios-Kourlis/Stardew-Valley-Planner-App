@@ -70,12 +70,12 @@ public class SprinklerBehaviour : BuildingBehaviourExtension {
 
     public override void OnPlacePreview(Vector3Int lowerLeftCorner) {
         Vector3Int[] coverageArea = Building.GetComponent<MultipleTypeBuildingComponent>().CurrentType switch {
-            "Normal" or "Normal Enricher" => GetCrossAroundPosition(Building.Base).ToArray(),
-            "Quality" or "Quality Enricher" => GetAreaAroundPosition(Building.Base, 1).ToArray(),
-            "Iridium" or "Iridium Enricher" => GetAreaAroundPosition(Building.Base, 2).ToArray(),
-            "Normal Pressure Nozzle" => GetAreaAroundPosition(Building.Base, 1).ToArray(),
-            "Quality Pressure Nozzle" => GetAreaAroundPosition(Building.Base, 2).ToArray(),
-            "Iridium Pressure Nozzle" => GetAreaAroundPosition(Building.Base, 3).ToArray(),
+            "Normal" or "Normal Enricher" => GetCrossAroundPosition(lowerLeftCorner).ToArray(),
+            "Quality" or "Quality Enricher" => GetAreaAroundPosition(lowerLeftCorner, 1).ToArray(),
+            "Iridium" or "Iridium Enricher" => GetAreaAroundPosition(lowerLeftCorner, 2).ToArray(),
+            "Normal Pressure Nozzle" => GetAreaAroundPosition(lowerLeftCorner, 1).ToArray(),
+            "Quality Pressure Nozzle" => GetAreaAroundPosition(lowerLeftCorner, 2).ToArray(),
+            "Iridium Pressure Nozzle" => GetAreaAroundPosition(lowerLeftCorner, 3).ToArray(),
             _ => throw new System.ArgumentException($"Invalid type {Building.GetComponent<MultipleTypeBuildingComponent>().CurrentType}")
         };
         rangeEffectBuilding.ShowEffectRange(coverageArea);

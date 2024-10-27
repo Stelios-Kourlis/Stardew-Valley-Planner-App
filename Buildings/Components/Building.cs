@@ -153,10 +153,6 @@ public class Building : TooltipableGameObject {
         return compressedList;
     }
 
-    public override void OnUpdate() {
-        // if (this is Shed) Debug.Log($"{IsPickedUp.Item1} ({BaseCoordinates?[0].x}, {BaseCoordinates?[0].y})");
-    }
-
     public void NoPreview() {
         // Debug.Log($"NoPreview on {BuildingName} (State = {CurrentBuildingState})");
         if (CurrentBuildingState == BuildingState.PLACED) Tilemap.color = OPAQUE;

@@ -55,8 +55,6 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
         if (ExpandOnHover) StartCoroutine(ObjectMover.ScaleUIObjectInConstantTime(transform, GetComponent<RectTransform>().localScale, originalScale, 0.1f));
     }
 
-    public override void OnUpdate() { }
-
     public void OnPointerClick(PointerEventData eventData) {
         if (playSounds) {
             AudioClip clickSound;

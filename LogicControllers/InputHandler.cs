@@ -73,6 +73,8 @@ public class InputHandler : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.F12)) DebugCoordinates.ToggleDebugMode();
 
+        if (Input.GetKeyDown(KeyCode.F11)) CameraController.Instance.ToggleFullscren();
+
         if (KeybindsForActionArePressed(KeybindHandler.Action.Settings)) {
             if (MoveablePanel.FullFocusPanelIsOpen.Item1) MoveablePanel.FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
             else GetSettingsModal().GetComponent<MoveablePanel>().TogglePanel();
@@ -203,13 +205,14 @@ public class InputHandler : MonoBehaviour {
                         }
                         break;
                     case Actions.EDIT:
-                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) || mousePosition == building.Base);
                         if (building != null) building.PickupBuilding();
                         break;
                     case Actions.DELETE:
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
+                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0 || mouseCoverageArea.Contains(building.Base)).ToArray();
                         UndoRedoController.ignoreAction = true;
+                        if (buildings.Length == 0) return;
                         List<BuildingData> buildingsDeletedData = new();
                         foreach (Building buildingToDelete in buildings) {
                             buildingsDeletedData.Add(buildingToDelete.GetComponent<BuildingSaverLoader>().SaveBuilding());

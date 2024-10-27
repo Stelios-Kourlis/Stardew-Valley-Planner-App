@@ -32,7 +32,7 @@ public class SearchBar : MonoBehaviour {
         // contentGameObject.childrenChanged += () => { OnValueChanged(inputField.text); };
     }
 
-    public void Update() {
+    void OnTransformChildrenChanged() {
         if (childCount != contentGameObject.transform.childCount) {
             childCount = contentGameObject.transform.childCount;
             OnValueChanged(GetComponent<InputField>().text);

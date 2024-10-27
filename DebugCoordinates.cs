@@ -6,8 +6,9 @@ using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
+using UnityEngine.EventSystems;
 
-public class DebugCoordinates : MonoBehaviour {
+public class DebugCoordinates : MonoBehaviour, IPointerMoveHandler {
     TMP_Text posText;
     TMP_Text typeText;
     private static GameObject coordLog;
@@ -27,8 +28,7 @@ public class DebugCoordinates : MonoBehaviour {
         coordLog.SetActive(DebugModeinOn);
     }
 
-    // Update is called once per frame
-    void Update() {
+    public void OnPointerMove(PointerEventData eventData) {
         if (!DebugModeinOn) return;
         Vector3Int pos = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         posText.text = $"{pos.x},{pos.y}";
@@ -36,6 +36,5 @@ public class DebugCoordinates : MonoBehaviour {
         TileType? tileType = InvalidTilesManager.Instance.GetTypeOfTile(pos);
         if (tileType != null) typeText.text = tileType.ToString();
         else typeText.text = "N/A";
-
     }
 }

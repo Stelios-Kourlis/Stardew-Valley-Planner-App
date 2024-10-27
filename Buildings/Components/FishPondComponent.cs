@@ -49,6 +49,8 @@ public class FishPondComponent : BuildingComponent {
     /// <param name="fishType"> The fish</param>
     public void SetFishImage(Fish fishType) {
         Debug.Log($"Setting fish image to {fishType}");
+        Debug.Log($"Fish Atlas is null?: {fishAtlas == null}");
+        if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         // if (fishType == Fish.PLACE_FISH) return;
         Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
         Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1

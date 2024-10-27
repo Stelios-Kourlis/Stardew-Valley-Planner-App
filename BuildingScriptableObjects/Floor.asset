@@ -59,7 +59,7 @@ MonoBehaviour:
     - amount: 1
       materialType: 3
       howToGet: 
-  - variantName: STONE_WALKWAY_FLOOR
+  - variantName: StoneWalkway
     variantSprite: {fileID: 2058737392835490226, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
     variantCost:
     - amount: 1
