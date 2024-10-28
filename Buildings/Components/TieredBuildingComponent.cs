@@ -24,9 +24,18 @@ public class TieredBuildingComponent : BuildingComponent {
     public Action<int> tierChanged;
     public BuildingTier[] tiers;
 
+    public List<MaterialCostEntry> GetMaterialsNeeded() {
+        return tiers[Tier - 1].costToUpgradeToThatTier;
+    }
 
-    public TieredBuildingComponent SetTierData(BuildingTier[] tiers) {
-        this.tiers = tiers;
+    public virtual void SetTier(int tier) {
+        Tier = tier;
+        Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+        tierChanged?.Invoke(tier);
+    }
+
+    public override void Load(BuildingScriptableObject bso) {
+        tiers = bso.tiers;
         for (int tier = 1; tier <= MaxTier; tier++) {
             string tierStr = tier switch {
                 1 => "ONE",
@@ -37,27 +46,9 @@ public class TieredBuildingComponent : BuildingComponent {
             };
             gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding((ButtonTypes)Enum.Parse(typeof(ButtonTypes), $"TIER_{tierStr}"));
         }
-        return this;
-    }
 
-    public void Awake() {
         if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         SetTier(1);
-    }
-
-    public List<MaterialCostEntry> GetMaterialsNeeded() {
-        return tiers[Tier - 1].costToUpgradeToThatTier;
-    }
-
-
-    public virtual void SetTier(int tier) {
-        Tier = tier;
-        Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
-        tierChanged?.Invoke(tier);
-    }
-
-    public void Load(BuildingScriptableObject bso) {
-        SetTierData(bso.tiers);
     }
 
     public override BuildingData.ComponentData Save() {

@@ -216,6 +216,10 @@ public class WallsComponent : BuildingComponent {
         return walls.FirstOrDefault(wall => wall.WallContains(point));
     }
 
+    public override void Load(BuildingScriptableObject bso) {
+        return;
+    }
+
     public override void Load(ComponentData data) {
         // return;
         for (int i = 0; i < walls.Count; i++) {

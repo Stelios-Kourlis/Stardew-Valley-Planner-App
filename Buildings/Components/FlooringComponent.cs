@@ -249,4 +249,8 @@ public class FlooringComponent : BuildingComponent {
 
         return data;
     }
+
+    public override void Load(BuildingScriptableObject bso) {
+        return;
+    }
 }

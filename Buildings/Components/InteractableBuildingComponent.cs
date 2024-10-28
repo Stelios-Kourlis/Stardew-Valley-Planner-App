@@ -15,13 +15,6 @@ public class InteractableBuildingComponent : BuildingComponent {
     public static Action BuildingWasRightClicked { get; set; }
     bool wereButtonOpenOnBuildingPickup = false;
 
-    public void Awake() {
-        BuildingInteractions = new();
-        Building.BuildingPlaced += _ => BuildingWasPlaced();//ignore position places
-        Building.BuildingPickedUp += BuildingPickedUp;
-        CameraController.Instance.cameraMoved += UpdateButtonParentGameObject;
-    }
-
     public void OnDestroy() {
         Building.BuildingPlaced -= _ => BuildingWasPlaced();
         Destroy(gameObject.GetComponent<TieredBuildingComponent>());
@@ -87,5 +80,12 @@ public class InteractableBuildingComponent : BuildingComponent {
 
     public override void Load(BuildingData.ComponentData data) {
         return;
+    }
+
+    public override void Load(BuildingScriptableObject bso) {
+        BuildingInteractions = new();
+        Building.BuildingPlaced += _ => BuildingWasPlaced();
+        Building.BuildingPickedUp += BuildingPickedUp;
+        CameraController.Instance.cameraMoved += UpdateButtonParentGameObject;
     }
 }

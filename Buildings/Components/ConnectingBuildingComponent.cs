@@ -17,13 +17,6 @@ public enum ConnectFlag {
 public class ConnectingBuildingComponent : BuildingComponent {
 
     private bool connectsToTop;
-    public void Awake() {
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        Building.BuildingPlaced += UpdateAllOtherBuildingOfSameType;
-        Building.BuildingPickedUp += () => UpdateAllOtherBuildingOfSameType(Building.Base);
-        Building.BuildingRemoved += () => UpdateAllOtherBuildingOfSameType(Building.Base);
-
-    }
 
     public int GetConnectingFlags() {
         if (Building.CurrentBuildingState != Building.BuildingState.PLACED) return 0;
@@ -39,8 +32,13 @@ public class ConnectingBuildingComponent : BuildingComponent {
         return flags.Cast<int>().Sum();
     }
 
-    public void Load(BuildingScriptableObject bso) {
+    public override void Load(BuildingScriptableObject bso) {
         connectsToTop = bso.connectsToTop;
+
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        Building.BuildingPlaced += UpdateAllOtherBuildingOfSameType;
+        Building.BuildingPickedUp += () => UpdateAllOtherBuildingOfSameType(Building.Base);
+        Building.BuildingRemoved += () => UpdateAllOtherBuildingOfSameType(Building.Base);
     }
 
     public override void Load(BuildingData.ComponentData data) { //No saving/load function in this component

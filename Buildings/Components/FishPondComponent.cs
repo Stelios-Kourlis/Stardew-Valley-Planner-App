@@ -29,20 +29,6 @@ public class FishPondComponent : BuildingComponent {
 
     private static GameObject fishMenuPrefab;
 
-    public void Awake() {
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        if (fishMenuPrefab == null) fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
-        if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
-        Building.UpdateTexture(Building.Atlas.GetSprite("FishPond"));
-        decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
-        waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
-        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.PLACE_FISH);
-        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.CHANGE_FISH_POND_DECO);
-        gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateFishMenu;
-        // Building.BuildingPlaced += SetWaterTilemapLocation;
-        // Building.BuildingPlaced += SetDecoTilemapLocation;
-    }
-
     /// <summary>
     ///Set the fish image and the pond color to a fish of your choosing
     /// </summary>
@@ -160,5 +146,17 @@ public class FishPondComponent : BuildingComponent {
     public override void Load(ComponentData data) {
         SetFishImage(Enum.Parse<Fish>(data.GetComponentDataPropertyValue<string>("Fish")));
         SetFishPondDeco(data.GetComponentDataPropertyValue<int>("Deco Index"));
+    }
+
+    public override void Load(BuildingScriptableObject bso) {
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        if (fishMenuPrefab == null) fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
+        if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
+        Building.UpdateTexture(Building.Atlas.GetSprite("FishPond"));
+        decoTilemapObject = CreateTilemapObject(transform, 0, "Deco");
+        waterTilemapObject = CreateTilemapObject(transform, 0, "Water");
+        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.PLACE_FISH);
+        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.CHANGE_FISH_POND_DECO);
+        gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateFishMenu;
     }
 }

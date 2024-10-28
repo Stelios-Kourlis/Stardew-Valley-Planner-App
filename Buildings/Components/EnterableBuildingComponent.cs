@@ -53,49 +53,14 @@ public class EnterableBuildingComponent : BuildingComponent {
     WallsPerTier[] wallsValues;
     FlooringPerTier[] floorsValues;
 
-    public EnterableBuildingComponent AddInteriorInteractions(HashSet<ButtonTypes> interiorInteractions) {
-        InteriorInteractions = interiorInteractions;
-        InteriorInteractions.Add(ButtonTypes.ENTER);
-        return this;
-    }
-
-    public EnterableBuildingComponent AddWalls(WallsPerTier[] values) {
-        wallsValues = values;
-        return this;
-    }
-
-    public EnterableBuildingComponent AddFloors(FlooringPerTier[] values) {
-        floorsValues = values;
-        // Debug.Log(floorsValues);
-        return this;
-    }
-
-    public void Awake() {
-        Building.BuildingPlaced += _ => AddBuildingInterior();
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
-
-        InteriorSpecialTiles = new SpecialCoordinatesCollection();
-    }
-
     public void OnDestroy() {
         if (BuildingInteriorScene.name != null) SceneManager.UnloadSceneAsync(BuildingInteriorScene);
     }
-
-    // public void AddToInteriorUnavailableCoordinates(Vector3Int coordinate) {
-    //     InteriorUnavailableCoordinates.Add(coordinate);
-    //     InvalidTilesManager.Instance.UpdateAllCoordinates();
-    // }
 
     public void AddToInteriorUnavailableCoordinates(IEnumerable<Vector3Int> coordinates, string identifier) {
         InteriorSpecialTiles.AddSpecialTileSet(new(identifier, coordinates.ToHashSet(), TileType.Invalid));
         InvalidTilesManager.Instance.UpdateAllCoordinates();
     }
-
-    // public void RemoveFromInteriorUnavailableCoordinates(Vector3Int coordinate) {
-    //     InteriorUnavailableCoordinates.Remove(coordinate);
-    //     InvalidTilesManager.Instance.UpdateAllCoordinates();
-    // }
 
     public void RemoveFromInteriorUnavailableCoordinates(string identifier) {
         InteriorSpecialTiles.RemoveSpecialTileSet(identifier);
@@ -354,10 +319,18 @@ public class EnterableBuildingComponent : BuildingComponent {
 
     }
 
-    public void Load(BuildingScriptableObject bso) {
-        AddInteriorInteractions(bso.interiorInteractions.ToHashSet());
-        AddFloors(bso.interiorFlooring);
-        AddWalls(bso.interiorWalls);
+    public override void Load(BuildingScriptableObject bso) {
+        InteriorInteractions = bso.interiorInteractions.ToHashSet();
+        InteriorInteractions.Add(ButtonTypes.ENTER);
+
+        floorsValues = bso.interiorFlooring;
+        wallsValues = bso.interiorWalls;
+
+        Building.BuildingPlaced += _ => AddBuildingInterior();
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
+
+        InteriorSpecialTiles = new SpecialCoordinatesCollection();
     }
 
     public override ComponentData Save() {

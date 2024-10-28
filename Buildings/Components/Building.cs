@@ -311,14 +311,15 @@ public class Building : TooltipableGameObject {
         Sprite = bso.defaultSprite;
         Atlas = bso.atlas;
 
+        //todo make it so maybe building has isInteractable bool to Add InteractableBuildingComponent?
+
         if (bso.isMultipleType) gameObject.AddComponent<MultipleTypeBuildingComponent>().Load(bso);
 
         if (bso.isTiered) gameObject.AddComponent<TieredBuildingComponent>().Load(bso);
 
-
         if (bso.isConnecting) gameObject.AddComponent<ConnectingBuildingComponent>().Load(bso);
 
-        if (bso.isFishPond) gameObject.AddComponent<FishPondComponent>();
+        if (bso.isFishPond) gameObject.AddComponent<FishPondComponent>().Load(bso);
 
         if (bso.isEnterable) gameObject.AddComponent<EnterableBuildingComponent>().Load(bso);
 

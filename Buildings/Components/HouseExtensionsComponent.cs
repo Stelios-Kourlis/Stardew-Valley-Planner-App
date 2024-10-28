@@ -64,32 +64,6 @@ public class HouseExtensionsComponent : BuildingComponent {
 
     private Tilemap BuildingInteriorTilemap => GetComponent<EnterableBuildingComponent>().BuildingInterior.GetComponent<Tilemap>();
 
-    public void Awake() {
-        checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
-        checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
-        houseModificationsActive = new();
-        scriptableObjects = new();
-        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
-            houseModificationsActive.Add(modification, null);
-            // if (modification != HouseModifications.Null) scriptableObjects.Add(modification, Resources.Load<ScriptableObject>($"BuildingInsides/House/{modification}"));
-        }
-
-        if (scriptableObjects.Count == 0) {
-            foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications))) {
-                if (modification != HouseModifications.Null) scriptableObjects.Add(modification, Resources.Load<HouseModificationScriptableObject>($"BuildingInsides/House/{modification}"));
-            }
-        }
-
-
-        GetComponent<EnterableBuildingComponent>().InteriorUpdated += AddTilemaps;
-        GetComponent<EnterableBuildingComponent>().InteriorUpdated += BuildingTierChange;
-    }
-
-    // Start is called before the first frame update
-    void Start() {
-        modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
-    }
-
     private void AddTilemaps() {
         GetComponent<EnterableBuildingComponent>().InteriorUpdated -= AddTilemaps;
 
@@ -422,13 +396,29 @@ public class HouseExtensionsComponent : BuildingComponent {
         return totalMaterials;
     }
 
-    public void Load(BuildingScriptableObject bso) {
+    public override void Load(BuildingScriptableObject bso) {
         hasExtensions = bso.hasInteriorExtensions;
         hasFlooringOrWallpapers = bso.interiorFlooring.Length > 0 || bso.interiorWalls.Length > 0;
 
-        if (hasExtensions || hasFlooringOrWallpapers) {
+        if (hasExtensions || hasFlooringOrWallpapers)
             GetComponent<EnterableBuildingComponent>().InteriorUpdated += CreateModificationMenu;
-        }
+
+
+        checkbox.Add("On", Resources.Load<Sprite>("UI/CheckBoxOn"));
+        checkbox.Add("Off", Resources.Load<Sprite>("UI/CheckBoxOff"));
+        houseModificationsActive = new();
+        scriptableObjects = new();
+        foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications)))
+            houseModificationsActive.Add(modification, null);
+
+        if (scriptableObjects.Count == 0)
+            foreach (HouseModifications modification in Enum.GetValues(typeof(HouseModifications)))
+                if (modification != HouseModifications.Null) scriptableObjects.Add(modification, Resources.Load<HouseModificationScriptableObject>($"BuildingInsides/House/{modification}"));
+
+        GetComponent<EnterableBuildingComponent>().InteriorUpdated += AddTilemaps;
+        GetComponent<EnterableBuildingComponent>().InteriorUpdated += BuildingTierChange;
+
+        modificationWarning = Resources.Load<GameObject>("UI/ModificationWarning");
     }
 
     public override void Load(ComponentData data) {

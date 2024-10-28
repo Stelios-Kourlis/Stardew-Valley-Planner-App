@@ -24,20 +24,6 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     public string CurrentType => System.Text.RegularExpressions.Regex.Replace(variants[CurrentVariantIndex].variantName, "(?<!^)([A-Z])", " $1");
     public string CurrentTypeRaw => variants[CurrentVariantIndex].variantName;
 
-    /// <summary>
-    /// Sets the type of the building to the given enum type. If you want the building to start with a specific type, pass it as the second argument
-    /// </summary>
-    public MultipleTypeBuildingComponent SetEnumType(BuildingVariant[] types) {
-        variants = types;
-        Building.UpdateTexture(variants[CurrentVariantIndex].variantSprite);
-        return this;
-    }
-
-    public void Awake() {
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
-
-    }
-
     public void CycleType() {
         CurrentVariantIndex = (CurrentVariantIndex + 1) % variants.Length;
         SetType(CurrentVariantIndex);
@@ -105,8 +91,10 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     //     return buttons.ToArray();
     // }
 
-    public void Load(BuildingScriptableObject bso) {
-        SetEnumType(bso.variants);
+    public override void Load(BuildingScriptableObject bso) {
+        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
+        variants = bso.variants;
+        Building.UpdateTexture(variants[CurrentVariantIndex].variantSprite);
     }
 
     public override BuildingData.ComponentData Save() {
