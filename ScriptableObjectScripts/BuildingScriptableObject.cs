@@ -17,7 +17,7 @@ public class BuildingScriptableObject : ScriptableObject {
         }
     }
     public BuildingType typeName;
-    public int baseHeight;
+    public int baseHeight, baseWidth;
     public bool canBeMassPlaced;
     public List<MaterialCostEntry> materialsNeeded;
     public Sprite defaultSprite;

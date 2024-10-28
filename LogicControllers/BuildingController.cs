@@ -223,7 +223,6 @@ public static class BuildingController {
         Building building = buildings.FirstOrDefault(building => building.Base == lowerLeftCorner);
         if (building == null) return;
         building.DeleteBuilding(true);
-
     }
 
     public static BuildingType GetCurrentBuildingType() { return currentBuildingType; }

@@ -10,7 +10,7 @@ using static Utility.ClassManager;
 public class SearchBar : MonoBehaviour {
 
     [SerializeField] GameObject contentGameObject;
-    private int childCount;
+    // private int childCount;
     [SerializeField] private Button clearButton;
     public void Awake() {
         //Listeners
@@ -33,10 +33,13 @@ public class SearchBar : MonoBehaviour {
     }
 
     void OnTransformChildrenChanged() {
-        if (childCount != contentGameObject.transform.childCount) {
-            childCount = contentGameObject.transform.childCount;
-            OnValueChanged(GetComponent<InputField>().text);
+
+        IEnumerator CallOnValueChanged() {
+            yield return new WaitForEndOfFrame();
+            OnValueChanged(GetComponent<InputField>().text); //calling this early causes error
         }
+
+        StartCoroutine(CallOnValueChanged());
     }
 
     public void OnValueChanged(string text) {

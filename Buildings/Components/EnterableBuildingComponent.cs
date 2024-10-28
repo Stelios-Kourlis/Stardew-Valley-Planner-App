@@ -327,7 +327,6 @@ public class EnterableBuildingComponent : BuildingComponent {
         wallsValues = bso.interiorWalls;
 
         Building.BuildingPlaced += _ => AddBuildingInterior();
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ENTER);
 
         InteriorSpecialTiles = new SpecialCoordinatesCollection();

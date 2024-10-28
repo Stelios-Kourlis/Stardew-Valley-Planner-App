@@ -30,6 +30,7 @@ public class DebugCoordinates : MonoBehaviour, IPointerMoveHandler {
 
     public void OnPointerMove(PointerEventData eventData) {
         if (!DebugModeinOn) return;
+        Debug.Log("Pointer move");
         Vector3Int pos = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         posText.text = $"{pos.x},{pos.y}";
 

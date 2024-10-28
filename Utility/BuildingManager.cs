@@ -86,6 +86,11 @@ namespace Utility {
             return true;
         }
 
+        public static bool IsMouseCurrentlyOverBuilding(Building building) {
+            Vector3Int mousePosition = GetMousePositionInTilemap();
+            return building.BaseCoordinates.Contains(mousePosition);
+        }
+
         public static void PlayParticleEffect(Building building, bool isPlace = false) {
             GameObject ParticleSystem = GetParticleSystem();
             ParticleSystem.transform.position = GetMiddleOfBuildingWorld(building);

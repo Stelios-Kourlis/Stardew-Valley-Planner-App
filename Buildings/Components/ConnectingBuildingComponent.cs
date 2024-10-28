@@ -35,7 +35,6 @@ public class ConnectingBuildingComponent : BuildingComponent {
     public override void Load(BuildingScriptableObject bso) {
         connectsToTop = bso.connectsToTop;
 
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         Building.BuildingPlaced += UpdateAllOtherBuildingOfSameType;
         Building.BuildingPickedUp += () => UpdateAllOtherBuildingOfSameType(Building.Base);
         Building.BuildingRemoved += () => UpdateAllOtherBuildingOfSameType(Building.Base);

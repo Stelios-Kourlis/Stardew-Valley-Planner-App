@@ -49,20 +49,25 @@ public class Building : TooltipableGameObject {
 
     [field: SerializeField] public Vector3Int Base { get; protected set; }
     public Vector3Int[] SpriteCoordinates => GetRectAreaFromPoint(Base, Height, Width).ToArray();
-    public Vector3Int[] BaseCoordinates => GetRectAreaFromPoint(Base, BaseHeight, Width).ToArray();
+    public Vector3Int[] BaseCoordinates {
+        get {
+            if (BaseHeight == 0) return new Vector3Int[] { Base };
+            return GetRectAreaFromPoint(Base, BaseHeight, BaseWidth == 0 ? Width : BaseWidth).ToArray();
+        }
+    }
 
     public int Height => Sprite != null ? (int)Sprite.textureRect.height / 16 : -1;
+    public int Width => Sprite != null ? (int)Sprite.textureRect.width / 16 : -1;
 
-    public virtual int Width => Sprite != null ? (int)Sprite.textureRect.width / 16 : -1; //virtual because Trees have a width of 1
 
+    public int BaseWidth { get; protected set; } = 0;
     public int BaseHeight { get; protected set; } = 0;
 
-    [field: SerializeField] public Sprite Sprite { get; protected set; } = null;
+    public Sprite Sprite { get; protected set; } = null;
     public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; private set; }
-    [field: SerializeField] public bool CanBeMassPlaced { get; protected set; } = false;
+    public bool CanBeMassPlaced { get; protected set; } = false;
     private BuildingBehaviourExtension behaviourExtension;
-    // public bool IsInsideBuilding { get; set; } = false;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
     public TilemapRenderer TilemapRenderer => gameObject.GetComponent<TilemapRenderer>();
@@ -73,16 +78,10 @@ public class Building : TooltipableGameObject {
     public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
     public Action BuildingPickedUp { get; set; }
-    protected Action HidBuildingPreview { get; set; }
 
-    public override void OnAwake() {
-        CurrentBuildingState = BuildingState.NOT_PLACED;
-        if (!gameObject.TryGetComponent<Tilemap>(out _)) gameObject.AddComponent<Tilemap>();
-        if (!gameObject.TryGetComponent<TilemapRenderer>(out _)) gameObject.AddComponent<TilemapRenderer>();
-        if (!gameObject.TryGetComponent<BuildingSaverLoader>(out _)) gameObject.AddComponent<BuildingSaverLoader>();
-        // Sprite = Resources.Load<Sprite>($"Buildings/{GetType()}");
-        Sprite = DefaultSprite;
-
+    public override bool ShowTooltipCondition() {
+        if (gameObject == null) return false;
+        return IsMouseCurrentlyOverBuilding(this);
     }
 
     public void OnDestroy() {
@@ -157,7 +156,6 @@ public class Building : TooltipableGameObject {
         // Debug.Log($"NoPreview on {BuildingName} (State = {CurrentBuildingState})");
         if (CurrentBuildingState == BuildingState.PLACED) Tilemap.color = OPAQUE;
         else Tilemap.ClearAllTiles();
-        HidBuildingPreview?.Invoke();
         behaviourExtension?.NoPreview();
         behaviourExtension?.OnMouseExit();
     }
@@ -205,7 +203,6 @@ public class Building : TooltipableGameObject {
 
         PlayParticleEffect(this, true);
         BuildingController.buildingGameObjects.Add(gameObject);
-        // BuildingController.buildings.Add(this);
         bool wasPickedUp = BuildingState.PICKED_UP == CurrentBuildingState; //kind of ghetto but change need to happen before setting the action
         CurrentBuildingState = BuildingState.PLACED;
         if (wasPickedUp) {
@@ -231,6 +228,7 @@ public class Building : TooltipableGameObject {
     /// </summary
     public void PlaceBuildingPreview(Vector3Int position) {
         if (CurrentBuildingState == BuildingState.PLACED) return;
+        position -= new Vector3Int(BaseWidth, 0, 0);
         TilemapRenderer.sortingOrder = -position.y + 50;
 
         if (BuildingCanBePlacedAtPosition(position, this, out _)) Tilemap.color = SEMI_TRANSPARENT;
@@ -302,9 +300,16 @@ public class Building : TooltipableGameObject {
 
     public Building LoadFromScriptableObject(BuildingScriptableObject bso) {
         Debug.Assert(bso != null, $"BuildingScriptableObject is null");
+
+        CurrentBuildingState = BuildingState.NOT_PLACED;
+        if (!gameObject.TryGetComponent<Tilemap>(out _)) gameObject.AddComponent<Tilemap>();
+        if (!gameObject.TryGetComponent<TilemapRenderer>(out _)) gameObject.AddComponent<TilemapRenderer>();
+        if (!gameObject.TryGetComponent<BuildingSaverLoader>(out _)) gameObject.AddComponent<BuildingSaverLoader>();
+
         BuildingName = bso.BuildingName;
         type = bso.typeName;
         BaseHeight = bso.baseHeight;
+        BaseWidth = bso.baseWidth;
         CanBeMassPlaced = bso.canBeMassPlaced;
         materialsNeeded = bso.materialsNeeded;
         DefaultSprite = bso.defaultSprite;
@@ -312,6 +317,7 @@ public class Building : TooltipableGameObject {
         Atlas = bso.atlas;
 
         //todo make it so maybe building has isInteractable bool to Add InteractableBuildingComponent?
+        gameObject.AddComponent<InteractableBuildingComponent>().Load(bso);
 
         if (bso.isMultipleType) gameObject.AddComponent<MultipleTypeBuildingComponent>().Load(bso);
 

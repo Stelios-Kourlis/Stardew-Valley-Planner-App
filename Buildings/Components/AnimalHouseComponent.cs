@@ -212,7 +212,6 @@ public class AnimalHouseComponent : BuildingComponent {
 
         if (AnimalAtlas == null) AnimalAtlas = Resources.Load("AnimalsAtlas") as SpriteAtlas;
         AnimalsInBuilding = new List<Animals>();
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += AddAnimalMenuObject;
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ADD_ANIMAL);
 

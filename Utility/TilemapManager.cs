@@ -204,10 +204,9 @@ namespace Utility {
         public static Vector3 GetMiddleOfBuildingWorld(Building building) {
             int width = building.Width;
             int height = building.Height;
-            if (building.BaseCoordinates.Count() == 0) return building.Base;
+            if (building.BaseCoordinates.Count() == 1) return building.Base;
             Vector3 result = new(-1, -1);
             if (building.BaseHeight == 1 && building.Width == 1) return building.Base;
-            // Debug.Log(building.Base.x);
             if (width % 2 != 0) {
                 Vector3Int leftMiddle = new(building.Base.x + Mathf.FloorToInt(width / 2.0f), 0, 0);
                 Vector3Int rightMiddle = new(building.Base.x + Mathf.CeilToInt(width / 2.0f), 0, 0);

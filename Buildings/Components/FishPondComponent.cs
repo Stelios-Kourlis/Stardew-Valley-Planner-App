@@ -149,7 +149,6 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public override void Load(BuildingScriptableObject bso) {
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         if (fishMenuPrefab == null) fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
         if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         Building.UpdateTexture(Building.Atlas.GetSprite("FishPond"));

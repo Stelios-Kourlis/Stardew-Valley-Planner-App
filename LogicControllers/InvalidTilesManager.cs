@@ -64,15 +64,8 @@ public class SpecialCoordinatesCollection {
     public HashSet<Vector3Int> GetAllCoordinatesOfType(TileType type) {
         HashSet<Vector3Int> tiles = new();
         HashSet<Vector3Int> invalidList = new();
-        // List<SpecialCoordinateRect> reversedSpecialTileSet = specialTileSets.Reverse<SpecialCoordinateRect>().ToList();
-        // string text = "";
-        // foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
-        //     text += $"{specialTileSet.identifier} in {reversedSpecialTileSet.IndexOf(specialTileSet)}";
 
-        // }
-        // Debug.Log(text);
         foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
-            // Debug.Log("Checking " + specialTileSet.identifier);
             var allCoords = specialTileSet.GetSpecialCoordinates();
             var coordsOfCorrentType = specialTileSet.GetSpecialCoordinates(type);
 
@@ -104,11 +97,17 @@ public class SpecialCoordinatesCollection {
         foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
             var specialSet = specialTileSet.GetSpecialCoordinates();
             if (specialSet.Any(tile => tile.position == position)) return specialSet.First(tile => tile.position == position).type;
-            // Debug.Log($"Tile {position} not found in {specialTileSet.identifier}");
         }
         return null;
     }
 
+    public bool IsOfTypeAtAnyLevel(Vector3Int position, TileType type) {
+        SpecialCoordinate coordinate = new(position, type);
+        foreach (SpecialCoordinateRect specialTileSet in specialTileSets) {
+            if (specialTileSet.GetSpecialCoordinates().Contains(coordinate)) return true;
+        }
+        return false;
+    }
     public int Count() {
         return specialTileSets.Count;
     }
@@ -152,6 +151,10 @@ public class InvalidTilesManager : MonoBehaviour {
     public TileType? GetTypeOfTile(Vector3Int position) {
         position.z = 0;
         return CurrentCoordinateSet.GetTypeOfTile(position);
+    }
+
+    public bool IsOfTypeAtAnyLevel(Vector3Int position, TileType type) {
+        return CurrentCoordinateSet.IsOfTypeAtAnyLevel(position, type);
     }
 
     public void ToggleMapUnavailableCoordinates() {

@@ -71,4 +71,7 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: 
+  category: 0
+  isExpanded: 0

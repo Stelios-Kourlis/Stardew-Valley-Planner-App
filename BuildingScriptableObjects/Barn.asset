@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Barn
   m_EditorClassIdentifier: 
-  buildingName: Barn
   typeName: 0
   baseHeight: 4
   canBeMassPlaced: 0
@@ -72,4 +71,7 @@ MonoBehaviour:
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: 
+  category: 0
+  isExpanded: 0

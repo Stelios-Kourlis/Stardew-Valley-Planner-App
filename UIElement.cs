@@ -19,7 +19,7 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
     public bool ExpandOnHover;
     public bool SetActionToNothingOnEnter = true;
 
-    public override void OnAwake() {
+    public void Start() {
         if (!TryGetComponent(out audioSource)) audioSource = gameObject.AddComponent<AudioSource>();
         originalScale = GetComponent<RectTransform>().localScale;
     }
@@ -44,9 +44,7 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
         Resources.UnloadAsset(hoverSound);
     }
 
-    public new void OnPointerExit(PointerEventData eventData) {
-        base.OnPointerExit(eventData);
-
+    public void OnPointerExit(PointerEventData eventData) {
         if (SetActionToNothingOnEnter && BuildingController.CurrentAction == Actions.DO_NOTHING) {
             if (!MoveablePanel.panelWithNoActionRequirementIsOpen) BuildingController.SetCurrentAction(ActionBeforeEnteringSettings);
         }

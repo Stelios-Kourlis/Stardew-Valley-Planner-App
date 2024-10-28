@@ -92,7 +92,6 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     // }
 
     public override void Load(BuildingScriptableObject bso) {
-        if (!gameObject.GetComponent<InteractableBuildingComponent>()) gameObject.AddComponent<InteractableBuildingComponent>();
         variants = bso.variants;
         Building.UpdateTexture(variants[CurrentVariantIndex].variantSprite);
     }

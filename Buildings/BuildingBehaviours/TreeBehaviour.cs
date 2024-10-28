@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Utility.SpriteManager;
+using static Utility.TilemapManager;
 
 public class TreeBehaviour : BuildingBehaviourExtension {
     public override void NoPreview() {
@@ -36,15 +38,16 @@ public class TreeBehaviour : BuildingBehaviourExtension {
     }
 
     public override void OnPlace(Vector3Int lowerLeftCorner) {
-        // InvalidTilesManager.
-        return;
+        // Building.Width = 1;
     }
 
     public override void OnPlacePreview(Vector3Int lowerLeftCorner) {
-        return;
+        // Building.Tilemap.ClearAllTiles();
+        // Vector3Int[] mouseoverEffectArea = GetRectAreaFromPoint(lowerLeftCorner - new Vector3Int(1, 0, 0), Building.Height, Building.Width).ToArray();
+        // Building.Tilemap.SetTiles(mouseoverEffectArea, SplitSprite(Building.Sprite));
     }
 
     public override void OnStart(Building building) {
-        return;
+        Building = building;
     }
 }

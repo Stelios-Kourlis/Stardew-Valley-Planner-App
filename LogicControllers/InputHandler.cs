@@ -205,12 +205,12 @@ public class InputHandler : MonoBehaviour {
                         }
                         break;
                     case Actions.EDIT:
-                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) || mousePosition == building.Base);
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
                         if (building != null) building.PickupBuilding();
                         break;
                     case Actions.DELETE:
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0 || mouseCoverageArea.Contains(building.Base)).ToArray();
+                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
                         UndoRedoController.ignoreAction = true;
                         if (buildings.Length == 0) return;
                         List<BuildingData> buildingsDeletedData = new();
