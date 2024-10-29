@@ -65,7 +65,7 @@ public static class BuildingController {
     /// </summary>
     public static Building SetCurrentBuildingType(BuildingType buildingType) {
         if (CurrentAction == Actions.PLACE && CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) {
-            CurrentBuildingBeingPlaced.GetComponent<BuildingSaverLoader>().LoadSelf();
+            BuildingSaverLoader.Instance.LoadBuilding(CurrentBuildingBeingPlaced.buildingData);
         }
         GameObject LastBuildingObjectCreatedBackup = LastBuildingObjectCreated; //Backup is needed because if we destroy it now this script terminates
         LastBuildingObjectCreated = CreateNewBuildingGameObject(buildingType);
@@ -215,8 +215,7 @@ public static class BuildingController {
     public static void PlaceSavedBuilding(BuildingData buildingData) {
         GameObject go = new(buildingData.buildingType.ToString());
         go.transform.SetParent(CurrentTilemapTransform);
-        BuildingSaverLoader buildingLoader = go.AddComponent<BuildingSaverLoader>();
-        buildingLoader.LoadBuilding(buildingData);
+        BuildingSaverLoader.Instance.LoadBuilding(buildingData);
     }
 
     public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {
@@ -249,7 +248,7 @@ public static class BuildingController {
     //These 2 functions are proxys for the onClick functions of the buttons in the Editor
     // public static bool Save() { return BuildingSaverLoader.SaveToFile(); }
     // public static bool Load() { return BuildingSaverLoader.LoadFromFile(); }
-    public static void SaveAndQuit() { if (BuildingSaverLoader.SaveToFile()) Quit(); }//if the user saved then quit
+    public static void SaveAndQuit() { if (BuildingSaverLoader.Instance.SaveToFile()) Quit(); }//if the user saved then quit
     public static void CloseQuitConfirmPanel() { GameObject.FindGameObjectWithTag("QuitConfirm").GetComponent<MoveablePanel>().SetPanelToClosedPosition(); }
     public static void Quit() {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");

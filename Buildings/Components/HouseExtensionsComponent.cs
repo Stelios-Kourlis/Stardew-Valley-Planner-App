@@ -235,7 +235,7 @@ public class HouseExtensionsComponent : BuildingComponent {
                 UndoRedoController.ignoreAction = true;
                 List<BuildingData> buildingsDeleted = new();
                 foreach (Building building in overlappingBuildings) {
-                    buildingsDeleted.Add(building.GetComponent<BuildingSaverLoader>().SaveBuilding());
+                    buildingsDeleted.Add(BuildingSaverLoader.Instance.SaveBuilding(building));
                     building.DeleteBuilding();
                 }
                 overlapTilemap.ClearAllTiles();

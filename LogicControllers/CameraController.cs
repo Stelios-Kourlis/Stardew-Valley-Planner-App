@@ -56,6 +56,8 @@ public class CameraController : MonoBehaviour {
             oldMousePosition = Input.mousePosition;
         }
         if (enforceBounds) ClampCameraToBounds();
+        cameraMoved?.Invoke();
+
         //Camera Size Control
         if (Input.mouseScrollDelta.y != 0f) {
             if (!EventSystem.current.IsPointerOverGameObject()) {
@@ -185,56 +187,4 @@ public class CameraController : MonoBehaviour {
         Screen.fullScreen = !Screen.fullScreen;
         PlayerPrefs.SetInt("FullScreen", Screen.fullScreen ? 1 : 0);
     }
-
-    // public void OnPointerDown(PointerEventData eventData) {
-    //     Debug.Log("Pointer Down");
-    //     if (eventData.button == PointerEventData.InputButton.Middle) {
-    //         isMouseDown = true;
-    //         oldMousePosition = Input.mousePosition;
-    //     }
-    // }
-
-    // public void OnPointerUp(PointerEventData eventData) {
-    //     Debug.Log("Pointer Up");
-    //     if (eventData.button == PointerEventData.InputButton.Middle) {
-    //         isMouseDown = false;
-    //     }
-    // }
-
-    // public void OnDrag(PointerEventData eventData) {
-
-    //     IEnumerator InvokeCameraMoved() {
-    //         yield return new WaitForEndOfFrame();
-    //         Debug.Log("Camera Moved Event Invoked");
-    //         cameraMoved?.Invoke();
-    //     }
-
-    //     Debug.Log("Drag");
-    //     if (isMouseDown) {
-    //         // Calculate the difference in mouse position
-    //         Vector3 mouseDelta = oldMousePosition - Input.mousePosition;
-    //         mouseDelta.z = 0f;
-
-    //         // Move the camera based on the mouse movement
-    //         Vector3 movement = moveScale * Time.deltaTime * new Vector3(mouseDelta.x, mouseDelta.y, 0f);
-    //         transform.Translate(movement, Space.World);
-
-    //         // Update the last mouse position
-    //         oldMousePosition = Input.mousePosition;
-
-    //         if (enforceBounds) ClampCameraToBounds();
-
-    //         StartCoroutine(InvokeCameraMoved());
-    //     }
-    // }
-
-    // public void OnScroll(PointerEventData eventData) {
-    //     Debug.Log("Scroll");
-    //     if (!EventSystem.current.IsPointerOverGameObject()) {
-    //         // Use eventData.scrollDelta to get the scroll delta
-    //         float newCamSize = mainCamera.orthographicSize - eventData.scrollDelta.y * scrollScale;
-    //         newCamSize = Mathf.Clamp(newCamSize, 6f, 22.28f);
-    //         mainCamera.orthographicSize = newCamSize;
-    //     }
-    // }//todo go back to Update?
 }

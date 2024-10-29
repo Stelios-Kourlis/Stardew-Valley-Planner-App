@@ -340,7 +340,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         foreach (Transform child in BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0)) {
             if (child.TryGetComponent(out Building building)) {
                 if (building.CurrentBuildingState != Building.BuildingState.PLACED) continue; //only save placed buildings
-                JProperty jproperty = new(index.ToString(), building.GetComponent<BuildingSaverLoader>().SaveBuilding().ToJson());
+                JProperty jproperty = new(index.ToString(), BuildingSaverLoader.Instance.SaveBuilding(building).ToJson());
                 data.AddProperty(jproperty);
                 index++;
             }
@@ -354,20 +354,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         UpdateBuildingInterior();
         EditBuildingInterior();
         foreach (JProperty property in data.GetAllComponentDataProperties()) {
-            BuildingController.PlaceSavedBuilding(BuildingSaverLoader.ParseBuildingFromJson(property));
-
-            // JObject buildingData = (JObject)property.Value;
-            // string buildingName = buildingData.Value<string>("Building Type");
-            // int lowerLeftX = buildingData.Value<int>("Lower Left Corner X");
-            // int lowerLeftY = buildingData.Value<int>("Lower Left Corner Y");
-
-            // List<ComponentData> allComponentData = new();
-            // foreach (JProperty component in buildingData.Properties().Skip(3)) {
-            //     Type componentType = Type.GetType(component.Name);
-            //     allComponentData.Add(new(componentType, component.Value<JObject>()));
-            // }
-
-            // BuildingController.PlaceSavedBuilding(new BuildingData(Enum.Parse<BuildingType>(buildingName), new Vector3Int(lowerLeftX, lowerLeftY, 0), allComponentData.ToArray()));
+            BuildingController.PlaceSavedBuilding(BuildingSaverLoader.Instance.ParseBuildingFromJson(property));
         }
         ExitBuildingInteriorEditing();
     }

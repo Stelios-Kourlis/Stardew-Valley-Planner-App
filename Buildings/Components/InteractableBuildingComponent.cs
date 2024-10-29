@@ -65,12 +65,15 @@ public class InteractableBuildingComponent : BuildingComponent {
     }
 
     private void UpdateButtonParentGameObject() {
-        if (!ButtonParentGameObject.activeInHierarchy || ButtonParentGameObject == null) return;
+        if (ButtonParentGameObject == null) return;
+        if (!ButtonParentGameObject.activeInHierarchy) return;
         GetButtonController().UpdateButtonPositionsAndScaleForBuilding(Building);
     }
 
     public void OnMouseRightClick() {
+        if (ButtonParentGameObject == null) return;
         if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+        UpdateButtonParentGameObject();
         BuildingWasRightClicked?.Invoke();
     }
 

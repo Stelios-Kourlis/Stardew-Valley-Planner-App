@@ -13,70 +13,60 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using static Utility.ClassManager;
+using TMPro;
 
 // [RequireComponent(typeof(Building))]
 public class BuildingSaverLoader : MonoBehaviour {
+    public static BuildingSaverLoader Instance;
 
-    BuildingData buildingData;
+    public void Awake() {
+        if (Instance == null) Instance = this;
+        else Destroy(this);
+    }
 
     [ContextMenu("Save Building")]
-    public BuildingData SaveBuilding() {
-        if (!gameObject.TryGetComponent(out Building Building)) throw new Exception("Building component not found");
-        if (Building.CurrentBuildingState != Building.BuildingState.PLACED) throw new Exception("Building is not placed, cannot save");
+    public BuildingData SaveBuilding(Building building) {
+        if (building.CurrentBuildingState != Building.BuildingState.PLACED) throw new Exception("Building is not placed, cannot save");
 
 
         List<ComponentData> extraData = new();
         foreach (BuildingComponent component in gameObject.GetComponents<BuildingComponent>()) {
             if (component.Save() != null) extraData.Add(component.Save());
         }
-        buildingData = new(Building.type, Building.Base, extraData.ToArray());
-        return buildingData;
+
+        return new(building.type, building.Base, extraData.ToArray()); ;
     }
 
     public void LoadBuilding(BuildingData data) {
-        // if (!data.buildingType.IsAssignableFrom(typeof(Building))) throw new Exception($"Invalid building type {data.buildingType}");
         BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{data.buildingType}");
-        Building Building = gameObject.AddComponent<Building>().LoadFromScriptableObject(bso);
+        GameObject building = BuildingController.CreateNewBuildingGameObject(data.buildingType);
+        Building Building = building.AddComponent<Building>().LoadFromScriptableObject(bso);
         Resources.UnloadAsset(bso);
         if (Building.PlaceBuilding(data.lowerLeftCorner)) {
-            buildingData = data;
-            LoadSavedComponents();
+            LoadSavedComponents(Building, data);
         }
         else throw new Exception($"Failed to place building {data.buildingType}");
 
     }
 
-    public void LoadSelf() {
-        LoadBuilding(buildingData);
-    }
+    // public void LoadData() {
+    //     LoadBuilding(buildingData);
+    // }
 
-    public void LoadSavedComponents() {
-        // return;
+    public void LoadSavedComponents(Building building, BuildingData buildingData) {
         foreach (ComponentData compData in buildingData.componentData.OrderBy(compData => ComponentData.loadPriority.IndexOf(compData.componentType))) {
-            Debug.Log($"Loading component: {compData.componentType}");
-            BuildingComponent component = gameObject.GetComponent(compData.componentType) as BuildingComponent;
+            BuildingComponent component = building.gameObject.GetComponent(compData.componentType) as BuildingComponent;
             component.Load(compData);
         }
     }
 
-    [ContextMenu("Print Building Data (JSON)")]
-    private void PrintBuildingDataJSON() {
-        SaveBuilding();
-        Debug.Log(buildingData.ToJson());
-    }
-
-    public static List<BuildingData> SaveAllBuildings() {
+    public List<BuildingData> SaveAllBuildings() {
         List<BuildingData> buildingData = new();
-        Debug.Log("Saving all buildings");
-        Debug.Log($"Building count: {BuildingController.buildings.Count}");
         foreach (Building building in BuildingController.buildings) {
-            Debug.Log(building.gameObject.scene.name.ToString());
             if (!building.gameObject.scene.name.ToString().Contains("Map Scene")) continue; //buildings inside other buildings are handled by EnterableBuildingComponent
-            Debug.Log($"Saving {building.BuildingName} (index: {BuildingController.buildings.IndexOf(building)})");
-            if (building.TryGetComponent(out BuildingSaverLoader saverLoader)) buildingData.Add(saverLoader.SaveBuilding());
-            else throw new Exception("BuildingSaverLoader component not found");
+            buildingData.Add(SaveBuilding(building));
         }
-        // foreach (BuildingData data in buildingData) Debug.Log(data.buildingType);
         return buildingData;
     }
 
@@ -85,7 +75,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     /// </summary>
     /// <returns>true, if the user saved, false if the user cancelled</returns>
     // [MenuItem("BuildingManager/Save To File")]
-    public static bool SaveToFile() {
+    public bool SaveToFile() {
         string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
         string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp"); ;
         if (savePath != "") {
@@ -105,29 +95,45 @@ public class BuildingSaverLoader : MonoBehaviour {
     /// </summary>
     /// <returns>true, if the user chose a file, false if the user cancelled</returns>
     // [MenuItem("BuildingManager/Load From File")]
-    public static bool LoadFromFile() {
+    public bool LoadFromFile() {
         string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
         var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
         BuildingType currentType = BuildingController.currentBuildingType;
         if (paths.Length > 0) {
-            string directoryPath = Path.GetDirectoryName(paths[0]);
-            PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
-            using StreamReader reader = new(paths[0]);
-            BuildingController.DeleteAllBuildings(true);
-            BuildingController.IsLoadingSave = true;
-            string text = reader.ReadToEnd();
-            JObject root = JObject.Parse(text);
-            foreach (JProperty building in root.Properties()) {
-                BuildingData data = ParseBuildingFromJson(building);
-                BuildingController.PlaceSavedBuilding(data);
-            }
-            BuildingController.IsLoadingSave = false;
+            StartCoroutine(BeginBuildingLoading(paths[0]));
         }
         BuildingController.SetCurrentBuildingType(currentType);
         return paths.Length > 0;
     }
 
-    public static BuildingData ParseBuildingFromJson(JProperty jsonText) { //do it with JObjects
+    IEnumerator BeginBuildingLoading(string dirPath) {
+        string directoryPath = Path.GetDirectoryName(dirPath);
+        PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
+        using StreamReader reader = new(dirPath);
+        BuildingController.DeleteAllBuildings(true);
+        BuildingController.IsLoadingSave = true;
+        string text = reader.ReadToEnd();
+        JObject root = JObject.Parse(text);
+        GameObject loadProgressPrefab = Resources.Load<GameObject>("UI/LoadProgress");
+        GameObject loadProgress = Instantiate(loadProgressPrefab, GetCanvasGameObject().transform);
+        RectTransform progressBarRectTransform = loadProgress.transform.Find("Bar").Find("BarFill").GetComponent<RectTransform>();
+        progressBarRectTransform.sizeDelta = new Vector2(0, progressBarRectTransform.sizeDelta.y);
+        int buildingCount = root.Properties().Count();
+        int buildingsLoaded = 0;
+        foreach (JProperty building in root.Properties()) {
+            BuildingData data = ParseBuildingFromJson(building);
+            BuildingController.PlaceSavedBuilding(data);
+            buildingsLoaded++;
+            float progress = (float)buildingsLoaded / buildingCount;
+            loadProgress.transform.Find("ProgressText").GetComponent<TMP_Text>().text = $"{buildingsLoaded}/{buildingCount} ({progress * 100:F2}%)";
+            progressBarRectTransform.sizeDelta = new Vector2(progress * 600, progressBarRectTransform.sizeDelta.y);
+            yield return null;
+        }
+        Destroy(loadProgress);
+        BuildingController.IsLoadingSave = false;
+    }
+
+    public BuildingData ParseBuildingFromJson(JProperty jsonText) { //do it with JObjects
 
         static ComponentData ParseComponentFromJson(JProperty jsonText) {
             // Debug.Log($"Loading component: {jsonText}");

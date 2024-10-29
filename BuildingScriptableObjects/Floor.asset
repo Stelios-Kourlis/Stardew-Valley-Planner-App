@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeName: 7
   baseHeight: 1
+  baseWidth: 0
   canBeMassPlaced: 1
   materialsNeeded: []
   defaultSprite: {fileID: 5713933281591533700, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
@@ -117,6 +118,7 @@ MonoBehaviour:
   interiorFlooring: []
   hasInteriorExtensions: 0
   extraBehaviourType:
-    typeName: 
+    typeName: FloorBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
   category: 1
   isExpanded: 0

@@ -37,8 +37,11 @@ namespace Utility {
             HashSet<Vector3Int> plantableCoordinates = InvalidTilesManager.Instance.AllPlantableTiles;
 
 
-            List<Vector3Int> baseCoordinates = GetRectAreaFromPoint(position, building.BaseHeight, building.Width);
-            // if (building.type is BuildingType.Greenhouse) baseCoordinates.AddRange(GetRectAreaFromPoint(new Vector3Int(position.x + 2, position.y - 2, position.z), 2, 3));
+            List<Vector3Int> baseCoordinates = building.BaseCoordinates.ToList();
+            if (building.type == BuildingType.Floor) { //if floor ignore other buildings //todo Things like mailbox and greenhouse porch still interfere
+                List<Vector3Int> buildingBaseCoordinates = BuildingController.buildings.SelectMany(building => building.BaseCoordinates).ToList();
+                unavailableCoordinates = unavailableCoordinates.Except(buildingBaseCoordinates).ToHashSet();
+            }
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) { errorMessage = $"Can't place {building.BuildingName} there"; return false; }
             if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) { errorMessage = $"Can't place {building.BuildingName} outside of bounds"; return false; }
 
@@ -62,7 +65,6 @@ namespace Utility {
                 BuildingType.Well,
                 BuildingType.PetBowl
             };
-            // Debug.Log($"{GetMousePositionInTilemap()} - {BuildingController.GetUnavailableCoordinates().Contains(new Vector3Int(32, 12, 0))} - {BuildingController.GetUnavailableCoordinates().Contains(GetMousePositionInTilemap())}");
             if (mapType == MapController.MapTypes.GingerIsland && actualBuildings.Contains(building.type)) { errorMessage = $"{building.type} can't be placed on Ginger Island"; return false; }
 
             if ((building.type == BuildingType.Crop || building.type == BuildingType.Tree) && !plantableCoordinates.Contains(position)) { errorMessage = $"Can't place a {building.type} there"; return false; }

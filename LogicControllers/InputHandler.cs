@@ -56,8 +56,8 @@ public class InputHandler : MonoBehaviour {
         mouseTileOnPreviousFrame = GetMousePositionInTilemap();
 
         var saveLoad = GetSettingsModal().transform.Find("TabContent").Find("General").Find("ScrollArea").Find("Content").Find("SaveLoad");
-        saveLoad.Find("Save").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.SaveToFile());
-        saveLoad.Find("Load").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.LoadFromFile());
+        saveLoad.Find("Save").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.Instance.SaveToFile());
+        saveLoad.Find("Load").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.Instance.LoadFromFile());
 
         var quit = GetSettingsModal().transform.Find("TabContent").Find("Quit");
         quit.Find("QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.QuitApp());
@@ -99,9 +99,9 @@ public class InputHandler : MonoBehaviour {
             NotificationManager.Instance.SendNotification("Toggled plantable coordinates visibility", NotificationManager.Icons.InfoIcon);
         }
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) BuildingSaverLoader.SaveToFile();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Save)) BuildingSaverLoader.Instance.SaveToFile();
 
-        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) BuildingSaverLoader.LoadFromFile();
+        if (KeybindsForActionArePressed(KeybindHandler.Action.Load)) BuildingSaverLoader.Instance.LoadFromFile();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Place)) {
             BuildingController.SetCurrentAction(Actions.PLACE);
@@ -198,7 +198,7 @@ public class InputHandler : MonoBehaviour {
                             List<BuildingData> buildingsCreatedData = new();
                             foreach (Vector3Int position in mouseCoverageArea) {
                                 BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
-                                buildingsCreatedData.Add(BuildingController.LastBuildingPlaced.GetComponent<BuildingSaverLoader>().SaveBuilding());
+                                BuildingSaverLoader.Instance.SaveBuilding(BuildingController.LastBuildingPlaced);
                             }
                             UndoRedoController.ignoreAction = false;
                             UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, buildingsCreatedData));
@@ -215,7 +215,7 @@ public class InputHandler : MonoBehaviour {
                         if (buildings.Length == 0) return;
                         List<BuildingData> buildingsDeletedData = new();
                         foreach (Building buildingToDelete in buildings) {
-                            buildingsDeletedData.Add(buildingToDelete.GetComponent<BuildingSaverLoader>().SaveBuilding());
+                            buildingsDeletedData.Add(BuildingSaverLoader.Instance.SaveBuilding(buildingToDelete));
                             buildingToDelete.DeleteBuilding();
                         }
                         UndoRedoController.ignoreAction = false;

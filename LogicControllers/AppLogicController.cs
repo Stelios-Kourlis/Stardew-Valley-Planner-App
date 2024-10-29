@@ -28,7 +28,7 @@ public class AppLogicController : MonoBehaviour {
     public void PlayerPressedLoadFarmButton() {
         DontDestroyOnLoad(gameObject);
         SceneManager.LoadScene("PermanentScene");
-        if (BuildingSaverLoader.LoadFromFile()) {
+        if (BuildingSaverLoader.Instance.LoadFromFile()) {
             Destroy(gameObject);
         }
         else {

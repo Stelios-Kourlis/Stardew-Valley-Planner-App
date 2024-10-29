@@ -18,7 +18,7 @@ public class FarmContruction : MonoBehaviour {
         JObject root = JObject.Parse(text);
         int index = 0;
         foreach (JProperty building in root.Properties()) {
-            BuildingData data = BuildingSaverLoader.ParseBuildingFromJson(building);
+            BuildingData data = BuildingSaverLoader.Instance.ParseBuildingFromJson(building);
             BuildingController.PlaceSavedBuilding(data);
             TakeNumberedScreenshot(index);
             index++;

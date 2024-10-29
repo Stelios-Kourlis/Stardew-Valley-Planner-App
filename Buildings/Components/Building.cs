@@ -67,6 +67,7 @@ public class Building : TooltipableGameObject {
     public SpriteAtlas Atlas { get; private set; }
     public Sprite DefaultSprite { get; private set; }
     public bool CanBeMassPlaced { get; protected set; } = false;
+    public BuildingData buildingData;
     private BuildingBehaviourExtension behaviourExtension;
 
     public Tilemap Tilemap => gameObject.GetComponent<Tilemap>();
@@ -99,7 +100,7 @@ public class Building : TooltipableGameObject {
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
             InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{Base}");
-            UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
+            UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, BuildingSaverLoader.Instance.SaveBuilding(this)));
             if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
         BuildingRemoved?.Invoke();
@@ -164,8 +165,9 @@ public class Building : TooltipableGameObject {
         Tilemap.ClearAllTiles();
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
-        UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, GetComponent<BuildingSaverLoader>().SaveBuilding()));
+        UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, BuildingSaverLoader.Instance.SaveBuilding(this)));
         InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{Base}");
+        buildingData = BuildingSaverLoader.Instance.SaveBuilding(this);
         CurrentBuildingState = BuildingState.PICKED_UP;
         BuildingPickedUp?.Invoke();
         BuildingController.anyBuildingPositionChanged?.Invoke();
@@ -189,7 +191,8 @@ public class Building : TooltipableGameObject {
     /// <returns> Whether the placement succeded or not </returns>
     public bool PlaceBuilding(Vector3Int position) {
         Debug.Assert(Sprite != null, $"Sprite is null for {BuildingName}");
-        bool canBePlacedAtPosition = BuildingCanBePlacedAtPosition(position, this, out string errorMessage);
+        Base = position;
+        bool canBePlacedAtPosition = BuildingCanBePlacedAtPosition(Base, this, out string errorMessage);
         if (!canBePlacedAtPosition) {
             NotificationManager.Instance.SendNotification(errorMessage, NotificationManager.Icons.ErrorIcon);
             Debug.Log($"Failed to place {BuildingName}: {errorMessage}");
@@ -197,7 +200,6 @@ public class Building : TooltipableGameObject {
         }
         PlaceBuildingPreview(position);
         Tilemap.color = OPAQUE;
-        Base = position;
 
         behaviourExtension?.OnPlace(position);
 
@@ -206,7 +208,7 @@ public class Building : TooltipableGameObject {
         bool wasPickedUp = BuildingState.PICKED_UP == CurrentBuildingState; //kind of ghetto but change need to happen before setting the action
         CurrentBuildingState = BuildingState.PLACED;
         if (wasPickedUp) {
-            GetComponent<BuildingSaverLoader>().LoadSavedComponents();
+            BuildingSaverLoader.Instance.LoadSavedComponents(this, buildingData);
             BuildingController.SetCurrentAction(Actions.EDIT);
         }
         else {
@@ -217,7 +219,7 @@ public class Building : TooltipableGameObject {
         InvalidTilesManager.Instance.CurrentCoordinateSet.AddSpecialTileSet(new($"{BuildingName}{Base}", BaseCoordinates.ToHashSet(), TileType.Invalid));
         BuildingController.LastBuildingPlaced = this;
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
-        UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, GetComponent<BuildingSaverLoader>().SaveBuilding()));
+        UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, BuildingSaverLoader.Instance.SaveBuilding(this)));
         BuildingController.anyBuildingPositionChanged?.Invoke();
         BuildingPlaced?.Invoke(Base);
         return true;
@@ -304,7 +306,6 @@ public class Building : TooltipableGameObject {
         CurrentBuildingState = BuildingState.NOT_PLACED;
         if (!gameObject.TryGetComponent<Tilemap>(out _)) gameObject.AddComponent<Tilemap>();
         if (!gameObject.TryGetComponent<TilemapRenderer>(out _)) gameObject.AddComponent<TilemapRenderer>();
-        if (!gameObject.TryGetComponent<BuildingSaverLoader>(out _)) gameObject.AddComponent<BuildingSaverLoader>();
 
         BuildingName = bso.BuildingName;
         type = bso.typeName;
