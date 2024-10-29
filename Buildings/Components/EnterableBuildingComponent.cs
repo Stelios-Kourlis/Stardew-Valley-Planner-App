@@ -354,7 +354,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         UpdateBuildingInterior();
         EditBuildingInterior();
         foreach (JProperty property in data.GetAllComponentDataProperties()) {
-            BuildingController.PlaceSavedBuilding(BuildingSaverLoader.Instance.ParseBuildingFromJson(property));
+            BuildingSaverLoader.Instance.LoadBuilding(BuildingSaverLoader.Instance.ParseBuildingFromJson(property));
         }
         ExitBuildingInteriorEditing();
     }

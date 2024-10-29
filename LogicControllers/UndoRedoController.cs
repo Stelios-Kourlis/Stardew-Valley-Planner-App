@@ -29,7 +29,7 @@ public static class UndoRedoController {
                 break;
             case Actions.DELETE:
             case Actions.EDIT:
-                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingController.PlaceSavedBuilding(buildingData);
+                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingSaverLoader.Instance.LoadBuilding(buildingData);
                 // BuildingController.CreateNewBuilding();
                 break;
             case Actions.PLACE_WALLPAPER:
@@ -42,7 +42,7 @@ public static class UndoRedoController {
             case Actions.HOUSE_RENOVATION:
                 lastAction.houseModificationMenu.GetModificationToggle(lastAction.extensionChanged).isOn = !lastAction.newExtensionStatus;
                 foreach (BuildingData buildingData in lastAction.BuildingData)
-                    BuildingController.PlaceSavedBuilding(buildingData);
+                    BuildingSaverLoader.Instance.LoadBuilding(buildingData);
                 break;
             case Actions.CHANGE_SPOUSE:
                 lastAction.houseModificationMenu.SetSpouseDropdownValue(lastAction.oldSpouse);
@@ -68,7 +68,7 @@ public static class UndoRedoController {
         BuildingController.IsLoadingSave = true;
         switch (action) {
             case Actions.PLACE:
-                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingController.PlaceSavedBuilding(buildingData);
+                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingSaverLoader.Instance.LoadBuilding(buildingData);
                 break;
             case Actions.DELETE:
             case Actions.EDIT:

@@ -36,6 +36,7 @@ public class ConnectingBuildingComponent : BuildingComponent {
         connectsToTop = bso.connectsToTop;
 
         Building.BuildingPlaced += UpdateAllOtherBuildingOfSameType;
+        Building.BuildingPlaced += _ => UpdateSelf();
         Building.BuildingPickedUp += () => UpdateAllOtherBuildingOfSameType(Building.Base);
         Building.BuildingRemoved += () => UpdateAllOtherBuildingOfSameType(Building.Base);
     }
@@ -49,11 +50,11 @@ public class ConnectingBuildingComponent : BuildingComponent {
     }
 
     public void UpdateSelf() {
-        Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+        Building.UpdateTexture(Building.Atlas.GetSprite($"{GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
     }
 
     public void UpdateAllOtherBuildingOfSameType(Vector3Int position) {
-        if (Building.CurrentBuildingState == Building.BuildingState.PLACED) UpdateSelf();
+        // UpdateSelf();
         List<Building> otherNeighbouringBuildingsOfSameType = BuildingController.buildings.Where(b => b.type == Building.type && b.transform != transform && AreNeighbors(b.Base, position)).ToList();//All buildings of same type except self
         foreach (Building building in otherNeighbouringBuildingsOfSameType) {
             building.GetComponent<ConnectingBuildingComponent>().UpdateSelf();

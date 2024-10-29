@@ -39,11 +39,7 @@ public class BuildingSaverLoader : MonoBehaviour {
     }
 
     public void LoadBuilding(BuildingData data) {
-        // Debug.Log($"BuildingScriptableObjects/{data.buildingType}");
-        // BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{data.buildingType}");
         Building building = BuildingController.CreateNewBuildingGameObject(data.buildingType).GetComponent<Building>();
-        // Building Building = building.AddComponent<Building>().LoadFromScriptableObject(bso);
-        // Resources.UnloadAsset(bso);
         if (building.PlaceBuilding(data.lowerLeftCorner)) {
             LoadSavedComponents(building, data);
         }
@@ -75,7 +71,6 @@ public class BuildingSaverLoader : MonoBehaviour {
     /// Save the current state of the buildings to a file
     /// </summary>
     /// <returns>true, if the user saved, false if the user cancelled</returns>
-    // [MenuItem("BuildingManager/Save To File")]
     public bool SaveToFile() {
         string defaultSavePath = PlayerPrefs.GetString("DefaultSavePath", Application.dataPath);
         string savePath = StandaloneFileBrowser.SaveFilePanel("Choose a save location", defaultSavePath, "Farm", "svp"); ;
@@ -95,7 +90,6 @@ public class BuildingSaverLoader : MonoBehaviour {
     /// Load a farm from a file
     /// </summary>
     /// <returns>true, if the user chose a file, false if the user cancelled</returns>
-    // [MenuItem("BuildingManager/Load From File")]
     public bool LoadFromFile() {
         string defaultLoadPath = PlayerPrefs.GetString("DefaultLoadPath", Application.dataPath);
         var paths = StandaloneFileBrowser.OpenFilePanel("Open File", defaultLoadPath, new ExtensionFilter[] { new("Stardew Valley Planner Files", "svp") }, false);
@@ -123,7 +117,7 @@ public class BuildingSaverLoader : MonoBehaviour {
         int buildingsLoaded = 0;
         foreach (JProperty building in root.Properties()) {
             BuildingData data = ParseBuildingFromJson(building);
-            BuildingController.PlaceSavedBuilding(data);
+            LoadBuilding(data);
             buildingsLoaded++;
             float progress = (float)buildingsLoaded / buildingCount;
             loadProgress.transform.Find("ProgressText").GetComponent<TMP_Text>().text = $"{buildingsLoaded}/{buildingCount} ({progress * 100:F2}%)";

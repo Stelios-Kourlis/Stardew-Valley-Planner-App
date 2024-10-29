@@ -19,7 +19,7 @@ public class FarmContruction : MonoBehaviour {
         int index = 0;
         foreach (JProperty building in root.Properties()) {
             BuildingData data = BuildingSaverLoader.Instance.ParseBuildingFromJson(building);
-            BuildingController.PlaceSavedBuilding(data);
+            BuildingSaverLoader.Instance.LoadBuilding(data);
             TakeNumberedScreenshot(index);
             index++;
         }

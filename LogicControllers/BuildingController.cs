@@ -212,11 +212,9 @@ public static class BuildingController {
         NotificationManager.Instance.SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
     }
 
-    public static void PlaceSavedBuilding(BuildingData buildingData) {
-        // GameObject go = new(buildingData.buildingType.ToString());
-        // go.transform.SetParent(CurrentTilemapTransform);
-        BuildingSaverLoader.Instance.LoadBuilding(buildingData);
-    }
+    // public static void PlaceSavedBuilding(BuildingData buildingData) {
+    //     BuildingSaverLoader.Instance.LoadBuilding(buildingData);
+    // }
 
     public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {
         Building building = buildings.FirstOrDefault(building => building.Base == lowerLeftCorner);
