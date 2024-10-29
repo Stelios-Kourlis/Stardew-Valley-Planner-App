@@ -213,8 +213,8 @@ public static class BuildingController {
     }
 
     public static void PlaceSavedBuilding(BuildingData buildingData) {
-        GameObject go = new(buildingData.buildingType.ToString());
-        go.transform.SetParent(CurrentTilemapTransform);
+        // GameObject go = new(buildingData.buildingType.ToString());
+        // go.transform.SetParent(CurrentTilemapTransform);
         BuildingSaverLoader.Instance.LoadBuilding(buildingData);
     }
 

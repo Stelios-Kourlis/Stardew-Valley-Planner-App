@@ -11,7 +11,6 @@ public static class UndoRedoController {
 
     public static void AddActionToLog(UserAction action) {
         if (ignoreAction) return;
-        Debug.Log($"Adding action {action} to log");
         actionLog.Push(action);
         undoLog.Clear();
     }

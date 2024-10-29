@@ -39,12 +39,13 @@ public class BuildingSaverLoader : MonoBehaviour {
     }
 
     public void LoadBuilding(BuildingData data) {
-        BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{data.buildingType}");
-        GameObject building = BuildingController.CreateNewBuildingGameObject(data.buildingType);
-        Building Building = building.AddComponent<Building>().LoadFromScriptableObject(bso);
-        Resources.UnloadAsset(bso);
-        if (Building.PlaceBuilding(data.lowerLeftCorner)) {
-            LoadSavedComponents(Building, data);
+        // Debug.Log($"BuildingScriptableObjects/{data.buildingType}");
+        // BuildingScriptableObject bso = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/{data.buildingType}");
+        Building building = BuildingController.CreateNewBuildingGameObject(data.buildingType).GetComponent<Building>();
+        // Building Building = building.AddComponent<Building>().LoadFromScriptableObject(bso);
+        // Resources.UnloadAsset(bso);
+        if (building.PlaceBuilding(data.lowerLeftCorner)) {
+            LoadSavedComponents(building, data);
         }
         else throw new Exception($"Failed to place building {data.buildingType}");
 
@@ -156,7 +157,6 @@ public class BuildingSaverLoader : MonoBehaviour {
             componentData.Add(ParseComponentFromJson(component));
         }
 
-        Debug.Log(new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), origin, componentData.ToArray()));
         return new BuildingData((BuildingType)Enum.Parse(typeof(BuildingType), buildingName), origin, componentData.ToArray());
 
     }

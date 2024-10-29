@@ -94,6 +94,7 @@ namespace Utility {
         }
 
         public static void PlayParticleEffect(Building building, bool isPlace = false) {
+            if (BuildingController.IsLoadingSave) return;
             GameObject ParticleSystem = GetParticleSystem();
             ParticleSystem.transform.position = GetMiddleOfBuildingWorld(building);
             var particleSystem = ParticleSystem.GetComponent<ParticleSystem>();

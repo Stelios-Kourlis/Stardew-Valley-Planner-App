@@ -53,6 +53,7 @@ public class AnimalHouseComponent : BuildingComponent {
     }
 
     public void UpdateAnimalInBuildingButtons() {
+        if (UIElements[1] == null) return;
         foreach (Transform child in UIElements[1].transform.GetChild(0)) {
             Destroy(child.gameObject);
         }
