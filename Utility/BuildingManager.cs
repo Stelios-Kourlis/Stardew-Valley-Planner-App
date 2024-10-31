@@ -81,6 +81,12 @@ namespace Utility {
             return isWithinX && isWithinY;
         }
 
+        public static bool BuildingIsAtSameSceneAsCamera(Building building) {
+            Transform buildingparent = building.transform.parent;
+            Transform currentlyWorkingTransform = BuildingController.CurrentTilemapTransform;
+            return buildingparent == currentlyWorkingTransform;
+        }
+
         public static bool LeftClickShouldRegister() {
             if (EventSystem.current.currentSelectedGameObject && EventSystem.current.currentSelectedGameObject.name == "TopRightButtons") return true;
             if (EventSystem.current.IsPointerOverGameObject()) return false;

@@ -118,6 +118,11 @@ public class InputHandler : MonoBehaviour {
             NotificationManager.Instance.SendNotification("Set mode to delete", NotificationManager.Icons.InfoIcon);
         }
 
+        if (KeybindsForActionArePressed(KeybindHandler.Action.PickBuilding)) {
+            BuildingController.SetCurrentAction(Actions.PICK_BUILDING);
+            NotificationManager.Instance.SendNotification("Set mode to building picker", NotificationManager.Icons.InfoIcon);
+        }
+
         if (KeybindsForActionArePressed(KeybindHandler.Action.DeleteAll)) GameObject.FindGameObjectWithTag("ConfirmDeleteAll").GetComponent<MoveablePanel>().SetPanelToOpenPosition();
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.OpenBuildingMenu)) GameObject.Find("BuildingSelect").GetComponent<MoveablePanel>().TogglePanel();
@@ -238,6 +243,15 @@ public class InputHandler : MonoBehaviour {
                             mousePositionInInteriorTilemap.z = 0;
                             component.ApplyCurrentFloorTexture(mousePosition);
                         }
+                        break;
+                    case Actions.PICK_BUILDING:
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && BuildingIsAtSameSceneAsCamera(building));
+                        if (building == null || building.type == BuildingType.House || building.type == BuildingType.Greenhouse) return; //Cant choose greenhouse/house
+                        int variant = -1;
+                        if (building.TryGetComponent(out MultipleTypeBuildingComponent multipleTypeBuildingComponent)) variant = multipleTypeBuildingComponent.CurrentVariantIndex;
+                        if (variant == -1) BuildingController.SetCurrentBuildingType(building.type);
+                        else BuildingController.SetCurrentBuildingType(building.type, variant);
+                        BuildingController.SetCurrentAction(Actions.PLACE);
                         break;
                 }
             }

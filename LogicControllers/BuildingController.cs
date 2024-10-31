@@ -223,19 +223,15 @@ public static class BuildingController {
     }
 
     public static BuildingType GetCurrentBuildingType() { return currentBuildingType; }
-    // public static HashSet<Vector3Int> GetUnavailableCoordinates() { return unavailableCoordinates; }
-    // public static HashSet<Vector3Int> GetPlantableCoordinates() { return plantableCoordinates; }
     public static List<Building> GetBuildings() { return buildings; }
 
     public static void SetCurrentAction(Actions action) {
         // if (CurrentAction == action) return;
         CurrentAction = action;
         InputHandler.Instance.SetCursorBasedOnCurrentAction(action);
-        // if (action == Actions.DELETE || action == Actions.EDIT ) CurrentBuildingBeingPlaced.NoPreview();
         if (CurrentBuildingBeingPlaced == null) return;
         if (action == Actions.PLACE) CurrentBuildingBeingPlaced.DoBuildingPreview();
         else CurrentBuildingBeingPlaced.NoPreview();
-        // else if ((CurrentBuildingBeingPlaced != null && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.PICKED_UP) || CurrentBuildingBeingPlaced == null) CreateNewBuilding();//If there is a picked up building, dont create a new
     }
 
     public static void SetCurrentTilemapTransform(Transform newTransform) {

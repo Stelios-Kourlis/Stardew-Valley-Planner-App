@@ -22,7 +22,8 @@ public class KeybindHandler : MonoBehaviour {
         Redo,
         OpenBuildingMenu,
         OpenTotalCost,
-        ToggleUI
+        ToggleUI,
+        PickBuilding
     }
 
     public class Keybind {
@@ -116,6 +117,7 @@ public class KeybindHandler : MonoBehaviour {
             Action.OpenBuildingMenu => new Keybind(KeyCode.B),
             Action.OpenTotalCost => new Keybind(KeyCode.T),
             Action.ToggleUI => new Keybind(KeyCode.U, KeyCode.LeftControl),
+            Action.PickBuilding => new Keybind(KeyCode.C),
 
             _ => throw new Exception("Action not found"),
         };

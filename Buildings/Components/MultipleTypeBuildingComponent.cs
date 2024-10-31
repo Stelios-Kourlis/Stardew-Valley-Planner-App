@@ -49,8 +49,8 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
             button.GetComponent<Image>().preserveAspect = true;
             button.AddComponent<UIElement>();
             button.GetComponent<UIElement>().tooltipMessage = $"{System.Text.RegularExpressions.Regex.Replace(variant.variantName, "(?<!^)([A-Z])", " $1")} {(bso.typeName != BuildingType.Craftables ? bso.BuildingName : string.Empty)}";
-            button.GetComponent<UIElement>().playSounds = false;
-            button.GetComponent<UIElement>().ExpandOnHover = false;
+            button.GetComponent<UIElement>().playSounds = true;
+            button.GetComponent<UIElement>().ExpandOnHover = true;
             button.AddComponent<Button>().onClick.AddListener(() => {
                 BuildingController.SetCurrentBuildingType(bso.typeName, bso.variants.ToList().IndexOf(variant));
                 BuildingController.SetCurrentAction(Actions.PLACE);
