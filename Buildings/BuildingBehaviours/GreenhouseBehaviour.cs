@@ -19,6 +19,7 @@ public class GreenhouseBehaviour : BuildingBehaviourExtension {
     public override void OnDelete() {
         Building.Destroy(porchTilemapObject);
         InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet("GreenhousePorch");
+        Resources.UnloadAsset(porchSprite);
     }
 
     public override void OnDeletePreview() {

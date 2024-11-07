@@ -1,4 +1,4 @@
-public enum Fish{
+public enum Fish {
     PLACE_FISH,
     Pufferfish,
     Anchovy,
@@ -60,7 +60,11 @@ public enum Fish{
     Lobster,
     SeaUrchin,
     Snail,
-    Shrimp
-
+    Shrimp,
+    Crimsonfish,
+    Angler,
+    Legend,
+    Glacierfish,
+    MutantCarp,
 
 }

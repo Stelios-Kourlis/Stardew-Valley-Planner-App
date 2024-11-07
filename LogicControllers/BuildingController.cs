@@ -16,7 +16,7 @@ public static class BuildingController {
     // private static readonly HashSet<Vector3Int> plantableCoordinates = new();
     public static SpecialCoordinatesCollection mapSpecialCoordinates = new();
     public static readonly List<Building> buildings = new();
-    public static BuildingType currentBuildingType = BuildingType.ShippingBin;
+    public static BuildingType currentBuildingType = BuildingType.Stable;
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
     public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);

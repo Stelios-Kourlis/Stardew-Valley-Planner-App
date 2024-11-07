@@ -16,12 +16,21 @@ public class HUDButtonCotroller : MonoBehaviour {
 
     private void ActionButtonPressed(GameObject button, Actions action) {
         if (GameObject.Find("ActionButtons").GetComponent<FoldingMenuGroup>().isOpen) {
-            // Debug.Log("g");
             button.transform.SetAsLastSibling();
             BuildingController.SetCurrentAction(action);
         }
         GameObject.Find("ActionButtons").GetComponent<FoldingMenuGroup>().ToggleMenu();
 
+    }
+
+    public static GameObject CreatePanelNextToButton(GameObject panelPrefab, RectTransform buttonRectTransform) {
+        Debug.Log($"Creating {panelPrefab.name} next to button");
+        GameObject panel = Instantiate(panelPrefab, buttonRectTransform);
+        Debug.Log($"Panel width: {panel.GetComponent<RectTransform>().rect.width}");
+        panel.transform.localPosition = Vector3.zero - new Vector3(panel.GetComponent<RectTransform>().rect.width / 2 + 100, 0, 0);
+        Debug.Log($"Panel position: {panel.transform.localPosition}");
+        // panel.SetActive(false);
+        return panel;
     }
 
 }

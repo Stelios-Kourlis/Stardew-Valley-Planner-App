@@ -328,6 +328,8 @@ public class Building : TooltipableGameObject {
 
         if (bso.isFishPond) gameObject.AddComponent<FishPondComponent>().Load(bso);
 
+        if (bso.isPaintable) gameObject.AddComponent<PaintableBuildingComponent>().Load(bso);
+
         if (bso.isEnterable) gameObject.AddComponent<EnterableBuildingComponent>().Load(bso);
 
         if (bso.isAnimalHouse) gameObject.AddComponent<AnimalHouseComponent>().Load(bso);

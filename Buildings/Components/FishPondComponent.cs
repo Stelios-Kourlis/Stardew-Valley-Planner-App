@@ -36,7 +36,7 @@ public class FishPondComponent : BuildingComponent {
     public void SetFishImage(Fish fishType) {
         Debug.Log($"Setting fish image to {fishType}");
         Debug.Log($"Fish Atlas is null?: {fishAtlas == null}");
-        if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
+        // if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
         // if (fishType == Fish.PLACE_FISH) return;
         Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
         Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1
@@ -56,12 +56,8 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public void CreateFishMenu() {
-        GameObject fishMenuPrefab = Resources.Load<GameObject>("UI/FishMenu");
-        fishMenu = Instantiate(fishMenuPrefab);
-        fishMenu.transform.SetParent(Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0));
-        fishMenu.GetComponent<RectTransform>().localPosition = Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).position - new Vector3(75, 0, 0);
-        fishMenu.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        fishMenu.SetActive(false);
+
+        fishMenu = HUDButtonCotroller.CreatePanelNextToButton(fishMenuPrefab, GetComponent<InteractableBuildingComponent>().GetInteractionButtonTransform(ButtonTypes.PLACE_FISH));
         GameObject fishMenuContent = fishMenu.transform.Find("Fish").Find("ScrollArea").Find("Content").gameObject;
         for (int childIndex = 0; childIndex < fishMenuContent.transform.childCount; childIndex++) {
             Button fishButton = fishMenuContent.transform.GetChild(childIndex).GetComponent<Button>();

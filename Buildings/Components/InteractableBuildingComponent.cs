@@ -69,6 +69,16 @@ public class InteractableBuildingComponent : BuildingComponent {
         GetButtonController().UpdateButtonPositionsAndScaleForBuilding(Building);
     }
 
+    /// <summary>
+    /// Returns the transform of the button with the given type
+    /// </summary>
+    /// <returns>The transform of the button, might be null if the building doesn't have that interaction, or the buttons haven't been created yet</returns>
+    public RectTransform GetInteractionButtonTransform(ButtonTypes buttonType) {
+        if (ButtonParentGameObject == null) return null;
+        return ButtonParentGameObject.transform.Find(buttonType.ToString()).GetComponent<RectTransform>();
+
+    }
+
     public void OnMouseRightClick() {
         if (ButtonParentGameObject == null) return;
         if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);

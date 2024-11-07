@@ -38,6 +38,9 @@ public class BuildingScriptableObject : ScriptableObject {
 
     public bool isFishPond;
 
+    public bool isPaintable;
+    public PaintableLayer[] paintableLayers;
+
     public bool isEnterable;
     public ButtonTypes[] interiorInteractions;
     public WallsPerTier[] interiorWalls;
@@ -59,8 +62,4 @@ public class BehaviourScript {
         get { return string.IsNullOrEmpty(typeName) ? null : Type.GetType(typeName); }
         set { typeName = value.AssemblyQualifiedName; }
     }
-
-    // private bool IsValidType(Type type) {
-    //     return type != null && type.IsSubclassOf(typeof(BuildingBehaviourExtension));
-    // }
 }

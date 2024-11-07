@@ -3,6 +3,7 @@
 // using UnityEngine;
 // using System.IO;
 // using UnityEngine.Tilemaps;
+//todo DELETE ALL
 
 // public class TileBuildingData : MonoBehaviour {
 

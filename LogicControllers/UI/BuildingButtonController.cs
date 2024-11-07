@@ -118,7 +118,10 @@ public class BuildingButtonController : MonoBehaviour {
                 });
                 break;
             case ButtonTypes.PAINT:
-                button.onClick.AddListener(() => { NotificationManager.Instance.SendNotification("Not Implemented yet", NotificationManager.Icons.ErrorIcon); });//todo add building painting support
+                button.onClick.AddListener(() => {
+                    if (building.BuildingGameObject.TryGetComponent(out PaintableBuildingComponent paintableBuildingComponent)) paintableBuildingComponent.TogglePaintMenu();
+                    anyActionWasClicked?.Invoke();
+                });
                 break;
             case ButtonTypes.PLACE_FISH:
                 button.onClick.AddListener(() => {
