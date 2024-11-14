@@ -8,7 +8,7 @@ using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 using UnityEngine.EventSystems;
 
-public class DebugCoordinates : MonoBehaviour, IPointerMoveHandler {
+public class DebugCoordinates : MonoBehaviour {
     TMP_Text posText;
     TMP_Text typeText;
     private static GameObject coordLog;
@@ -28,9 +28,8 @@ public class DebugCoordinates : MonoBehaviour, IPointerMoveHandler {
         coordLog.SetActive(DebugModeinOn);
     }
 
-    public void OnPointerMove(PointerEventData eventData) {
+    public void Update() {
         if (!DebugModeinOn) return;
-        Debug.Log("Pointer move");
         Vector3Int pos = BuildingController.CurrentTilemapTransform.GetComponent<Tilemap>().WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
         posText.text = $"{pos.x},{pos.y}";
 

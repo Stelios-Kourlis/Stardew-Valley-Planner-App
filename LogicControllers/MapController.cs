@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using static Utility.InvalidTileLoader;
 using TMPro;
 using UnityEngine.UI;
+using Utility;
 
 public class MapController : MonoBehaviour {
     public enum MapTypes {
@@ -28,7 +29,7 @@ public class MapController : MonoBehaviour {
 
     }
 
-    [SerializeField] private SpriteAtlas mapAtlas;
+    // [SerializeField] private SpriteAtlas mapAtlas;
     public MapTypes CurrentMapType { get; private set; }
     public GameObject UIButtonPrefab;
     public Scene MapScene { get; private set; }
@@ -61,6 +62,33 @@ public class MapController : MonoBehaviour {
     }
 
     public void SetMap(MapTypes mapType) {
+
+        void PopulateTilemapFromFileData(Tilemap tilemap, TextAsset file) {
+            tilemap.ClearAllTiles();
+            string[] mapData = file.text.Split(",\n", StringSplitOptions.RemoveEmptyEntries);
+            Dictionary<Vector3Int, int> tileDataDict = new();
+
+            foreach (string line in mapData) {
+                string[] parts = line.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 3) {
+                    int x = int.Parse(parts[0].Trim());
+                    int y = int.Parse(parts[1].Trim());
+                    int value = int.Parse(parts[2].Trim());
+                    Vector3Int key = new(x, y, 0);
+                    tileDataDict[key] = value;
+                }
+            }
+
+            Tile[] tiles = Resources.LoadAll<Tile>($"Tiles");
+            foreach (KeyValuePair<Vector3Int, int> tileData in tileDataDict) {
+                tilemap.SetTile(tileData.Key, tiles.First(tile => tile.name == $"Tile{tileData.Value}"));
+            }
+            tiles = null;
+            Resources.UnloadUnusedAssets();
+
+            tilemap.CompressBounds();
+        }
+
         if (CurrentMapType == mapType && MapScene.name != null) return;
 
         if (MapScene.name != null) SceneManager.UnloadSceneAsync(MapScene);
@@ -74,32 +102,19 @@ public class MapController : MonoBehaviour {
 
         GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";
-        Vector3Int mapPos = new(-27, -36, 0);
-        Sprite mapTexture = mapAtlas.GetSprite(map.name);
 
-        Vector3Int[] spriteArrayCoordinates = GetRectAreaFromPoint(mapPos, (int)mapTexture.textureRect.height / 16, (int)mapTexture.textureRect.width / 16).ToArray();
-        Tile[] tiles = SplitSprite(mapTexture);
+        TextAsset backData = Resources.Load<TextAsset>($"MapData/{mapType}MapBackTileData");
+        PopulateTilemapFromFileData(map.GetComponent<Tilemap>(), backData);
+        Resources.UnloadAsset(backData);
+        TextAsset frontData = Resources.Load<TextAsset>($"MapData/{mapType}MapFrontTileData");
+        PopulateTilemapFromFileData(GameObject.FindGameObjectWithTag("MapForeground").GetComponent<Tilemap>(), frontData);
+        Resources.UnloadAsset(frontData);
+
+
         SpecialCoordinateRect specialCoordinates = GetSpecialCoordinateSet(map.name);
         BuildingController.mapSpecialCoordinates.ClearAll();
-
-
-        Tilemap mapTilemap = map.GetComponent<Tilemap>();
-        mapTilemap.ClearAllTiles();
-        mapTilemap.SetTiles(spriteArrayCoordinates, tiles);
-        mapTilemap.CompressBounds();
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
-        BoundsInt bounds = mapTilemap.cellBounds;
-        Vector3Int lowerLeft = new(int.MaxValue, int.MaxValue, 0);
-        foreach (var pos in bounds.allPositionsWithin) {
-            if (mapTilemap.HasTile(pos)) {
-                if (pos.x < lowerLeft.x || (pos.x == lowerLeft.x && pos.y < lowerLeft.y)) {
-                    lowerLeft = pos;
-                }
-            }
-        }
-
-        specialCoordinates.AddOffset(lowerLeft);
         BuildingController.mapSpecialCoordinates.AddSpecialTileSet(specialCoordinates);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
@@ -110,82 +125,83 @@ public class MapController : MonoBehaviour {
         grid.AddComponent<Grid>();
         grid.AddComponent<Tilemap>();
         map.transform.SetParent(grid.transform);
+        GameObject.FindGameObjectWithTag("MapForeground").transform.SetParent(grid.transform);
 
         SceneManager.MoveGameObjectToScene(grid, MapScene);
     }
 
     public Vector3Int GetHousePosition() {
         return CurrentMapType switch {
-            MapTypes.FourCorners => new Vector3Int(32, 27, 0),
-            MapTypes.Beach => new Vector3Int(32, 57, 0),
-            MapTypes.Ranching => new Vector3Int(49, 18, 0),
-            _ => new Vector3Int(32, 12, 0),
+            MapTypes.FourCorners => new Vector3Int(59, 63, 0),
+            MapTypes.Beach => new Vector3Int(59, 93, 0),
+            MapTypes.Ranching => new Vector3Int(76, 54, 0),
+            _ => new Vector3Int(59, 48, 0),
         };
     }
 
     public Vector3Int GetShippingBinPosition() {
         return CurrentMapType switch {
-            MapTypes.FourCorners => new Vector3Int(44, 29, 0),
-            MapTypes.Beach => new Vector3Int(44, 59, 0),
-            MapTypes.GingerIsland => new Vector3Int(63, 34, 0),
-            MapTypes.Ranching => new Vector3Int(61, 20, 0),
-            _ => new Vector3Int(44, 14, 0),
+            MapTypes.FourCorners => new Vector3Int(71, 65, 0),
+            MapTypes.Beach => new Vector3Int(71, 95, 0),
+            MapTypes.GingerIsland => new Vector3Int(90, 70, 0),
+            MapTypes.Ranching => new Vector3Int(88, 56, 0),
+            _ => new Vector3Int(71, 50, 0),
         };
     }
 
     public Vector3Int GetGreenhousePosition() {
         return CurrentMapType switch {
-            MapTypes.FourCorners => new Vector3Int(9, 9, 0),
-            MapTypes.Beach => new Vector3Int(-13, 54, 0),
-            MapTypes.Ranching => new Vector3Int(10, 14, 0),
-            _ => new Vector3Int(-2, 13, 0),
+            MapTypes.FourCorners => new Vector3Int(36, 45, 0),
+            MapTypes.Beach => new Vector3Int(14, 90, 0),
+            MapTypes.Ranching => new Vector3Int(37, 50, 0),
+            _ => new Vector3Int(25, 49, 0),
         };
     }
     public Vector3Int GetPetBowlPosition() {
         return CurrentMapType switch {
-            MapTypes.FourCorners => new Vector3Int(22, 2, 0),
-            MapTypes.Beach => new Vector3Int(51, 51, 0),
-            MapTypes.Ranching => new Vector3Int(64, 23, 0),
-            _ => new Vector3Int(26, 20, 0),
+            MapTypes.FourCorners => new Vector3Int(49, 38, 0),
+            MapTypes.Beach => new Vector3Int(78, 87, 0),
+            MapTypes.Ranching => new Vector3Int(91, 59, 0),
+            _ => new Vector3Int(53, 56, 0),
         };
     }
 
     public Vector3Int GetCoopPosition(out List<Vector3Int> fencePositions) {
         fencePositions = new List<Vector3Int>(){
-            new(35,31,0),
-            new(35,30,0),
-            new(35,29,0),
-            new(35,28,0),
-            new(35,27,0),
-            new(35,26,0),
-            new(35,24,0),
-            new(35,23,0),
-            new(35,22,0),
-            new(35,21,0),
-            new(35,20,0),
-            new(35,19,0),
-            new(35,18,0),
-            new(34,18,0),
-            new(33,18,0),
-            new(32,18,0),
-            new(31,18,0),
-            new(30,18,0),
-            new(29,18,0),
-            new(28,18,0),
-            new(27,18,0),
-            new(26,18,0),
-            new(25,18,0),
-            new(24,18,0),
-            new(23,18,0),
-            new(22,18,0),
-            new(21,18,0),
-            new(20,18,0),
-            new(20,19,0),
-            new(20,20,0),
-            new(20,21,0),
-            new(20,22,0)
+            new(62,67,0),
+            new(62,66,0),
+            new(62,65,0),
+            new(62,64,0),
+            new(62,63,0),
+            new(62,62,0),
+            new(62,61,0),
+            new(62,60,0),
+            new(62,59,0),
+            new(62,58,0),
+            new(62,57,0),
+            new(62,56,0),
+            new(62,55,0),
+            new(61,55,0),
+            new(60,55,0),
+            new(59,55,0),
+            new(58,55,0),
+            new(57,55,0),
+            new(56,55,0),
+            new(55,55,0),
+            new(54,55,0),
+            new(53,55,0),
+            new(52,55,0),
+            new(51,55,0),
+            new(50,55,0),
+            new(49,55,0),
+            new(48,55,0),
+            new(47,55,0),
+            new(47,56,0),
+            new(47,57,0),
+            new(47,58,0),
+            new(47,59,0)
         };
-        return new Vector3Int(27, 27, 0);
+        return new Vector3Int(54, 63, 0);
     }
 
     public MapTypes GetCurrentMapType() { return CurrentMapType; }

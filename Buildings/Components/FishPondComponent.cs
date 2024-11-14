@@ -34,10 +34,6 @@ public class FishPondComponent : BuildingComponent {
     /// </summary>
     /// <param name="fishType"> The fish</param>
     public void SetFishImage(Fish fishType) {
-        Debug.Log($"Setting fish image to {fishType}");
-        Debug.Log($"Fish Atlas is null?: {fishAtlas == null}");
-        // if (fishAtlas == null) fishAtlas = Resources.Load<SpriteAtlas>("Fish/FishAtlas");
-        // if (fishType == Fish.PLACE_FISH) return;
         Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
         Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),
@@ -49,10 +45,6 @@ public class FishPondComponent : BuildingComponent {
         };
         waterTilemapObject.GetComponent<Tilemap>().color = color;
         fish = fishType;
-    }
-
-    public void RemoveFish() {
-        SetFishImage(Fish.PLACE_FISH);
     }
 
     public void CreateFishMenu() {
@@ -70,7 +62,7 @@ public class FishPondComponent : BuildingComponent {
             });
         }
 
-        fishMenu.transform.Find("RemoveFish").GetComponent<Button>().onClick.AddListener(() => RemoveFish());
+        fishMenu.transform.Find("RemoveFish").GetComponent<Button>().onClick.AddListener(() => SetFishImage(Fish.PLACE_FISH));
     }
 
     public void ToggleFishMenu() {

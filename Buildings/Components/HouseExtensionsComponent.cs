@@ -342,7 +342,7 @@ public class HouseExtensionsComponent : BuildingComponent {
             else return;
             Sprite tileTexture = Resources.Load<Sprite>(path);
             Debug.Assert(tileTexture != null, "Conflict tile is null");
-            Tile tile = SplitSprite(tileTexture)[0];
+            Tile tile = SpriteToTile(tileTexture);
             BuildingInteriorTilemap.SetTile(new Vector3Int(34, 14, 0), tile);
             Resources.UnloadAsset(tileTexture);
         }

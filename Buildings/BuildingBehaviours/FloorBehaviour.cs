@@ -41,7 +41,6 @@ public class FloorBehaviour : BuildingBehaviourExtension {
 
     public override void OnPlace(Vector3Int lowerLeftCorner) {
         Building.TilemapRenderer.sortingOrder -= 10;
-        // floorTilemap.GetComponent<Tilemap>().SetTile(lowerLeftCorner, SplitSprite(Building.Sprite)[0]);
     }
 
     public override void OnPlacePreview(Vector3Int lowerLeftCorner) {

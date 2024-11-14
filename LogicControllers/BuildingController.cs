@@ -205,16 +205,10 @@ public static class BuildingController {
         foreach (Building building in allBuilding) {
             if (building == null) continue;
             if (building.gameObject == null) continue;
-            // unavailableCoordinates.RemoveWhere(vec => building.BaseCoordinates.Contains(vec));
             building.DeleteBuilding(force);
         }
-        // buildingGameObjects.RemoveWhere(gameObject => !(gameObject.GetComponent<Building>() is House)); //Remove everything except the house
         NotificationManager.Instance.SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
     }
-
-    // public static void PlaceSavedBuilding(BuildingData buildingData) {
-    //     BuildingSaverLoader.Instance.LoadBuilding(buildingData);
-    // }
 
     public static void FindAndDeleteBuilding(Vector3Int lowerLeftCorner) {
         Building building = buildings.FirstOrDefault(building => building.Base == lowerLeftCorner);
@@ -222,7 +216,6 @@ public static class BuildingController {
         building.DeleteBuilding(true);
     }
 
-    public static BuildingType GetCurrentBuildingType() { return currentBuildingType; }
     public static List<Building> GetBuildings() { return buildings; }
 
     public static void SetCurrentAction(Actions action) {

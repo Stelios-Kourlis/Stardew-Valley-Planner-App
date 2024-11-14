@@ -93,7 +93,6 @@ public class Building : TooltipableGameObject {
     public void DeleteBuilding(bool force = false) {
         if ((type is BuildingType.Greenhouse || type is BuildingType.House) && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
 
-        // if (this is IExtraActionBuilding extraActionBuilding) extraActionBuilding.PerformExtraActionsOnDelete();
         behaviourExtension?.OnDelete();
 
         if (CurrentBuildingState == BuildingState.PLACED) {
