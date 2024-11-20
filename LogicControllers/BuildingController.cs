@@ -225,6 +225,9 @@ public static class BuildingController {
         if (CurrentBuildingBeingPlaced == null) return;
         if (action == Actions.PLACE) CurrentBuildingBeingPlaced.DoBuildingPreview();
         else CurrentBuildingBeingPlaced.NoPreview();
+
+        GetCanvasGameObject().transform.Find("NoBuilding").gameObject.SetActive(action == Actions.PLACE);
+
     }
 
     public static void SetCurrentTilemapTransform(Transform newTransform) {

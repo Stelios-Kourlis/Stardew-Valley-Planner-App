@@ -16,3 +16,4 @@ public enum ButtonTypes {
     ADD_ANIMAL,
     CUSTOMIZE_HOUSE_RENOVATIONS,
 }
+

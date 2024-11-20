@@ -116,8 +116,12 @@ public class SpecialCoordinatesCollection {
 
 public class InvalidTilesManager : MonoBehaviour {
 
+#pragma warning disable IDE0044 // Add readonly modifier
+
     [SerializeField] private Tile redTileSprite;
     [SerializeField] private Tile greenTileSprite;
+
+#pragma warning restore IDE0044 // Add readonly modifier
     private bool unavailableCoordinatesAreVisible = false;
     private bool plantableCoordinatesAreVisible = false;
     public static InvalidTilesManager Instance { get; private set; }

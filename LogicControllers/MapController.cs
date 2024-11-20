@@ -96,6 +96,7 @@ public class MapController : MonoBehaviour {
         CurrentMapType = mapType;
         BuildingController.DeleteAllBuildings(true);
         BuildingController.mapSpecialCoordinates.ClearAll();
+        if (BuildingController.isInsideBuilding.Key) BuildingController.isInsideBuilding.Value.EditBuildingInterior();
 
         MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
         UndoRedoController.ClearLogs();

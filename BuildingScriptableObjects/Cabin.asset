@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeName: 1
   baseHeight: 3
+  baseWidth: 0
   canBeMassPlaced: 0
   materialsNeeded: []
   defaultSprite: {fileID: -6478964507943517800, guid: edf7ae920ec80bc41ba38fba258743de, type: 3}
@@ -104,23 +105,25 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 1
   interiorInteractions: 010000000200000003000000040000000a000000
   interiorWalls:
   - tier: 1
     wallOrigins:
-    - lowerLeftCorner: {x: 1, y: 8, z: 0}
+    - lowerLeftCorner: {x: 1, y: 9, z: 0}
       width: 10
       wallpaperId: 0
   - tier: 2
     wallOrigins:
-    - lowerLeftCorner: {x: 1, y: 8, z: 0}
+    - lowerLeftCorner: {x: 1, y: 9, z: 0}
       width: 17
       wallpaperId: 0
-    - lowerLeftCorner: {x: 18, y: 3, z: 0}
+    - lowerLeftCorner: {x: 18, y: 4, z: 0}
       width: 2
       wallpaperId: 0
-    - lowerLeftCorner: {x: 20, y: 8, z: 0}
+    - lowerLeftCorner: {x: 20, y: 9, z: 0}
       width: 9
       wallpaperId: 0
   - tier: 3
@@ -172,25 +175,25 @@ MonoBehaviour:
   interiorFlooring:
   - tier: 1
     floorOrigins:
-    - lowerLeftCorner: {x: 1, y: 0, z: 0}
+    - lowerLeftCorner: {x: 1, y: 1, z: 0}
       width: 10
       height: 9
       floorTextureID: 0
   - tier: 2
     floorOrigins:
-    - lowerLeftCorner: {x: 1, y: 0, z: 0}
+    - lowerLeftCorner: {x: 1, y: 1, z: 0}
       width: 6
       height: 9
       floorTextureID: 47
-    - lowerLeftCorner: {x: 7, y: 0, z: 0}
+    - lowerLeftCorner: {x: 7, y: 1, z: 0}
       width: 11
       height: 9
       floorTextureID: 0
-    - lowerLeftCorner: {x: 18, y: 2, z: 0}
+    - lowerLeftCorner: {x: 18, y: 3, z: 0}
       width: 2
       height: 2
       floorTextureID: 0
-    - lowerLeftCorner: {x: 10, y: 1, z: 0}
+    - lowerLeftCorner: {x: 10, y: 2, z: 0}
       width: 10
       height: 10
       floorTextureID: 0

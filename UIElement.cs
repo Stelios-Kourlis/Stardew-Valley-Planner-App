@@ -19,15 +19,24 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
     public bool ExpandOnHover;
     public bool SetActionToNothingOnEnter = true;
 
+    private static AudioClip hoverSound, clickSound, clickSoundCancel;
+
+
     public void Start() {
         if (!TryGetComponent(out audioSource)) audioSource = gameObject.AddComponent<AudioSource>();
         originalScale = GetComponent<RectTransform>().localScale;
+
+        if (hoverSound == null) {
+            hoverSound = Resources.Load<AudioClip>("SoundEffects/ButtonHover");
+            clickSoundCancel = Resources.Load<AudioClip>("SoundEffects/BackButtonSound");
+            clickSound = Resources.Load<AudioClip>("SoundEffects/ClickButton");
+        }
     }
 
     public new void OnPointerEnter(PointerEventData eventData) {
         base.OnPointerEnter(eventData);
 
-        if (SetActionToNothingOnEnter && BuildingController.CurrentAction != Actions.DO_NOTHING) {
+        if (SetActionToNothingOnEnter) {
             if (!MoveablePanel.panelWithNoActionRequirementIsOpen) {
                 ActionBeforeEnteringSettings = BuildingController.CurrentAction;
                 BuildingController.SetCurrentAction(Actions.DO_NOTHING);
@@ -38,10 +47,8 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
 
         if (!playSounds) return;
 
-        AudioClip hoverSound = Resources.Load<AudioClip>("SoundEffects/ButtonHover");
         audioSource.clip = hoverSound;
         audioSource.Play();
-        Resources.UnloadAsset(hoverSound);
     }
 
     public void OnPointerExit(PointerEventData eventData) {
@@ -55,12 +62,8 @@ public class UIElement : TooltipableGameObject, IPointerEnterHandler, IPointerEx
 
     public void OnPointerClick(PointerEventData eventData) {
         if (playSounds) {
-            AudioClip clickSound;
-            if (isCancelButton) clickSound = Resources.Load<AudioClip>("SoundEffects/BackButtonSound");
-            else clickSound = Resources.Load<AudioClip>("SoundEffects/ClickButton");
-            audioSource.clip = clickSound;
+            audioSource.clip = isCancelButton ? clickSoundCancel : clickSound;
             audioSource.Play();
-            Resources.UnloadAsset(clickSound);
         }
     }
 }

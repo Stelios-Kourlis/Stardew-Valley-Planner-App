@@ -52,16 +52,16 @@ public class InputHandler : MonoBehaviour {
         if (Instance == null) Instance = this;
         else Destroy(this);
 
-        BuildingController.SetCurrentAction(Actions.PLACE);
+        BuildingController.SetCurrentAction(Actions.DO_NOTHING);
         mouseTileOnPreviousFrame = GetMousePositionInTilemap();
 
         var saveLoad = GetSettingsModal().transform.Find("TabContent").Find("General").Find("ScrollArea").Find("Content").Find("SaveLoad");
         saveLoad.Find("Save").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.Instance.SaveToFile());
         saveLoad.Find("Load").GetComponent<Button>().onClick.AddListener(() => BuildingSaverLoader.Instance.LoadFromFile());
 
-        var quit = GetSettingsModal().transform.Find("TabContent").Find("Quit");
-        quit.Find("QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.QuitApp());
-        quit.Find("SAVE AND QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.SaveAndQuit());
+        // var quit = GetSettingsModal().transform.Find("TabContent").Find("Quit");
+        // quit.Find("QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.QuitApp());
+        // quit.Find("SAVE AND QUIT").GetComponent<Button>().onClick.AddListener(() => BuildingController.SaveAndQuit());
     }
 
     void Update() {
@@ -210,12 +210,12 @@ public class InputHandler : MonoBehaviour {
                         }
                         break;
                     case Actions.EDIT:
-                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition));
+                        building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && BuildingIsAtSameSceneAsCamera(building));
                         if (building != null) building.PickupBuilding();
                         break;
                     case Actions.DELETE:
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0).ToArray();
+                        Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0 && BuildingIsAtSameSceneAsCamera(building)).ToArray();
                         UndoRedoController.ignoreAction = true;
                         if (buildings.Length == 0) return;
                         List<BuildingData> buildingsDeletedData = new();

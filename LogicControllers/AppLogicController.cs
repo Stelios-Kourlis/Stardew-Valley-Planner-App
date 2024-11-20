@@ -11,6 +11,7 @@ public class AppLogicController : MonoBehaviour {
     public float BUTTON_SCALE_MODIFIER = 50;
     private AudioSource audioSource;
     public void Start() {
+        if (SceneManager.GetActiveScene().name != "MainMenu") return;
         if (!TryGetComponent(out audioSource)) audioSource = gameObject.AddComponent<AudioSource>();
         StartCoroutine(ShowLogo());
         GameObject buttonsParent = GameObject.Find("Buttons");
@@ -78,15 +79,6 @@ public class AppLogicController : MonoBehaviour {
 
         button.GetComponent<RectTransform>().localScale = new Vector3(0, 0, 0);
         button.SetActive(true);
-        // while (button.GetComponent<RectTransform>().localScale.magnitude < new Vector3(1.2f, 1.2f, 1.2f).magnitude) {
-        //     button.GetComponent<RectTransform>().localScale += BUTTON_SCALE_MODIFIER * Time.deltaTime * new Vector3(1, 1, 1);
-        //     yield return null;
-        // }
-        // button.GetComponent<RectTransform>().localScale = new Vector3(1.2f, 1.2f, 1.2f);
-        // while (button.GetComponent<RectTransform>().localScale.magnitude > new Vector3(1, 1, 1).magnitude) {
-        //     button.GetComponent<RectTransform>().localScale -= BUTTON_SCALE_MODIFIER * Time.deltaTime * new Vector3(1, 1, 1);
-        //     yield return null;
-        // }
         button.GetComponent<RectTransform>().localScale = new Vector3(1f, 1f, 1f);
         yield return null;
     }
@@ -94,6 +86,8 @@ public class AppLogicController : MonoBehaviour {
         GameObject quitConfirmPanel = GameObject.FindGameObjectWithTag("QuitConfirm");
         quitConfirmPanel.GetComponent<MoveablePanel>().SetPanelToOpenPosition();
     }
+
+    public void SaveAndQuit() { if (BuildingSaverLoader.Instance.SaveToFile()) Quit(); }//if the user saved then quit
 
     public void QuitApp() {
 #if UNITY_EDITOR

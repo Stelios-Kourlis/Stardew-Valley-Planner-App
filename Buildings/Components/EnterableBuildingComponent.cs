@@ -38,7 +38,8 @@ public class EnterableBuildingComponent : BuildingComponent {
     [field: SerializeField] public SpecialCoordinatesCollection InteriorSpecialTiles { get; private set; }
     public static Action EnteredOrExitedAnyBuilding { get; set; }
     public HashSet<ButtonTypes> InteriorInteractions { get; private set; } = new();
-    public GameObject InteriorButtonsParent { get; private set; }
+    // public GameObject button { get; private set; }
+    public List<GameObject> interiorButtons;
     private static int numberOfInteriors = 0;
     private Vector3 cameraPositionBeforeEnter;
     private Scene BuildingInteriorScene;
@@ -49,6 +50,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     public Action InteriorUpdated { get; set; }
     public Action EnteredOrExitedBuilding { get; set; }
     public GameObject interiorSceneCanvas;
+    public Action<ButtonTypes> interiorButtonClicked;
 
     WallsPerTier[] wallsValues;
     FlooringPerTier[] floorsValues;
@@ -70,6 +72,56 @@ public class EnterableBuildingComponent : BuildingComponent {
 
 
     public void AddBuildingInterior() {
+
+        static GameObject AddGrid() {
+            GameObject grid = new("Grid");
+            grid.SetActive(false);
+            grid.AddComponent<Grid>();
+            grid.AddComponent<Tilemap>();
+            return grid;
+        }
+
+        static GameObject AddCanvas() {
+            GameObject canvas = new("Canvas");
+            canvas.SetActive(false);
+            canvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvas.GetComponent<CanvasScaler>().matchWidthOrHeight = 1;
+            canvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
+            canvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
+            canvas.AddComponent<GraphicRaycaster>();
+            return canvas;
+        }
+
+        void AddInteriorWalls() {
+            GameObject walls = new("Walls");
+            walls.transform.SetParent(BuildingInterior.transform);
+            walls.AddComponent<Tilemap>();
+            walls.AddComponent<TilemapRenderer>().sortingOrder = -101;
+            gameObject.AddComponent<WallsComponent>().SetWalls(wallsValues.First(val => val.tier == Tier).wallOrigins.ToList(), walls.GetComponent<Tilemap>());
+        }
+
+        void AddInteriorFlooring() {
+            GameObject floors = new("Floors");
+            floors.transform.SetParent(BuildingInterior.transform);
+            floors.AddComponent<Tilemap>();
+            floors.AddComponent<TilemapRenderer>().sortingOrder = -102;
+            gameObject.AddComponent<FlooringComponent>().SetFloors(floorsValues.First(val => val.tier == Tier).floorOrigins.ToList(), floors.GetComponent<Tilemap>());
+        }
+
+        static GameObject CreateButtonGameObject() {
+            GameObject button = new("button");
+            button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
+            button.GetComponent<RectTransform>().anchorMax = new Vector2(0, 1);
+            button.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
+            button.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);
+            button.AddComponent<UIElement>();
+            button.GetComponent<UIElement>().ExpandOnHover = true;
+            button.GetComponent<UIElement>().playSounds = true;
+            button.GetComponent<UIElement>().SetActionToNothingOnEnter = true;
+            return button;
+        }
+
         if (BuildingInteriorScene.name != null) return; //failsafe
         BuildingInteriorScene = SceneManager.CreateScene($"BuildingInterior{numberOfInteriors++} ({Building.BuildingName})");
         interiorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
@@ -84,123 +136,92 @@ public class EnterableBuildingComponent : BuildingComponent {
         specialCoordinates.AddOffset(InteriorAreaCoordinates[0]);
         InteriorSpecialTiles.AddSpecialTileSet(specialCoordinates);
 
-        GameObject grid = new("Grid");
-        grid.SetActive(false);
-        grid.AddComponent<Grid>();
-        grid.AddComponent<Tilemap>();
+        GameObject grid = AddGrid();
         BuildingInterior.transform.SetParent(grid.transform);
 
-        interiorSceneCanvas = new("Canvas");
-        interiorSceneCanvas.SetActive(false);
-        interiorSceneCanvas.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-        interiorSceneCanvas.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        interiorSceneCanvas.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1920, 1080);
-        interiorSceneCanvas.GetComponent<CanvasScaler>().referencePixelsPerUnit = 16;
-        interiorSceneCanvas.AddComponent<GraphicRaycaster>();
+        interiorSceneCanvas = AddCanvas();
 
-        if (wallsValues != null && wallsValues.Count() > 0) {
-            GameObject walls = new("Walls");
-            walls.transform.SetParent(BuildingInterior.transform);
-            walls.AddComponent<Tilemap>();
-            walls.AddComponent<TilemapRenderer>().sortingOrder = -101;
-            gameObject.AddComponent<WallsComponent>().SetWalls(wallsValues.First(val => val.tier == Tier).wallOrigins.ToList(), walls.GetComponent<Tilemap>());
-        }
+        if (wallsValues != null && wallsValues.Count() > 0) AddInteriorWalls();
 
-        if (floorsValues != null && floorsValues.Count() > 0) {
-            GameObject floors = new("Floors");
-            floors.transform.SetParent(BuildingInterior.transform);
-            floors.AddComponent<Tilemap>();
-            floors.AddComponent<TilemapRenderer>().sortingOrder = -102;
-            // Debug.Log(floorsValues);
-            gameObject.AddComponent<FlooringComponent>().SetFloors(floorsValues.First(val => val.tier == Tier).floorOrigins.ToList(), floors.GetComponent<Tilemap>());
-        }
+        if (floorsValues != null && floorsValues.Count() > 0) AddInteriorFlooring();
 
-        if (InteriorInteractions.Count > 0) {
-            InteriorButtonsParent = new("InteriorButtons");
-            InteriorButtonsParent.transform.SetParent(interiorSceneCanvas.transform);
-            InteriorButtonsParent.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
-            InteriorButtonsParent.GetComponent<RectTransform>().anchorMax = new Vector2(1, 1);
-            InteriorButtonsParent.GetComponent<RectTransform>().anchorMin = new Vector2(1, 1);
-            InteriorButtonsParent.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
-            InteriorButtonsParent.GetComponent<RectTransform>().position = new Vector3(-10, -350, 0); //this puts it right below the other button
-            InteriorButtonsParent.AddComponent<FoldingMenuGroup>();
+        interiorButtons = new();
+        GameObject buttonPrefab = CreateButtonGameObject();
 
-            GameObject closeButton = new("Close");
-            closeButton.transform.SetParent(InteriorButtonsParent.transform);
-            closeButton.AddComponent<FoldingMenuItem>().isAnchorButton = true;
-            closeButton.AddComponent<UIElement>();
-            closeButton.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
-            closeButton.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-            closeButton.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite("CloseFoldingMenu");
-            closeButton.AddComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
+        GameObject exitButton = HUDButtonCotroller.CreateButtonNextToOtherButton(GameObject.Find("NoBuilding").GetComponent<RectTransform>(), buttonPrefab, HUDButtonCotroller.RelativePosition.BOTTOM, interiorSceneCanvas.transform);
+        exitButton.name = "ENTER";
+        exitButton.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{ButtonTypes.ENTER}");
+        exitButton.AddComponent<Button>().onClick.AddListener(() => {
+            Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
+        });
+        interiorButtons.Add(exitButton);
 
 
-            foreach (ButtonTypes type in InteriorInteractions) {
-                GameObject button = new(type.ToString());
-                button.transform.SetParent(InteriorButtonsParent.transform);
-                button.AddComponent<FoldingMenuItem>();
-                button.AddComponent<UIElement>();
-                button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
-                button.GetComponent<RectTransform>().localPosition = new Vector3(0, 0, 0);
-                button.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{type}");
-                switch (type) {
-                    case ButtonTypes.TIER_ONE:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<TieredBuildingComponent>().SetTier(1);
-                            UpdateBuildingInterior();
-                        });
-                        break;
-                    case ButtonTypes.TIER_TWO:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<TieredBuildingComponent>().SetTier(2);
-                            UpdateBuildingInterior();
-                        });
-                        break;
-                    case ButtonTypes.TIER_THREE:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<TieredBuildingComponent>().SetTier(3);
-                            UpdateBuildingInterior(); ;
-                        });
-                        break;
-                    case ButtonTypes.TIER_FOUR:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<TieredBuildingComponent>().SetTier(4);
-                            UpdateBuildingInterior();
-                        });
-                        break;
-                    case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();
-                        });
-                        break;
-                    case ButtonTypes.ENTER:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            closeButton.transform.parent.GetComponent<FoldingMenuGroup>().CloseMenu();
-                            Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
-                        });
-                        break;
-                    case ButtonTypes.ADD_ANIMAL:
-                        button.AddComponent<Button>().onClick.AddListener(() => {
-                            Building.GetComponent<AnimalHouseComponent>().ToggleAnimalMenu();
-                        });
-                        break;
-                    default:
-                        throw new System.ArgumentException($"Invalid interior interaction {type}");
-                }
 
-                // button.GetComponent<Button>().onClick.AddListener(() => closeButton.transform.parent.GetComponent<FoldingMenuGroup>().ToggleMenu());
+        foreach (ButtonTypes type in InteriorInteractions) {
+            RectTransform startingButton = GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").GetComponent<RectTransform>();
+            GameObject button = HUDButtonCotroller.CreateButtonNextToOtherButton(startingButton, buttonPrefab, HUDButtonCotroller.RelativePosition.RIGHT, interiorSceneCanvas.transform);
+            button.name = type.ToString();
+            button.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{type}");
+            interiorButtons.Add(button);
 
-                closeButton.transform.SetAsLastSibling();
-
+            switch (type) {
+                case ButtonTypes.TIER_ONE:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<TieredBuildingComponent>().SetTier(1);
+                        UpdateBuildingInterior();
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                case ButtonTypes.TIER_TWO:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<TieredBuildingComponent>().SetTier(2);
+                        UpdateBuildingInterior();
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                case ButtonTypes.TIER_THREE:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<TieredBuildingComponent>().SetTier(3);
+                        UpdateBuildingInterior(); ;
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                case ButtonTypes.TIER_FOUR:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<TieredBuildingComponent>().SetTier(4);
+                        UpdateBuildingInterior();
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                case ButtonTypes.ADD_ANIMAL:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<AnimalHouseComponent>().ToggleAnimalMenu();
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                default:
+                    throw new System.ArgumentException($"Invalid interior interaction {type}");
             }
-        }
 
+            startingButton = button.GetComponent<RectTransform>();
+        }
 
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
         SceneManager.MoveGameObjectToScene(interiorSceneCanvas, BuildingInteriorScene);
 
         InteriorUpdated?.Invoke();
+    }
+
+    public GameObject GetInteriorButton(ButtonTypes type) {
+        return interiorButtons.Find(button => button.name == type.ToString());
     }
 
     public void UpdateBuildingInterior() {
@@ -321,7 +342,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
     public override void Load(BuildingScriptableObject bso) {
         InteriorInteractions = bso.interiorInteractions.ToHashSet();
-        InteriorInteractions.Add(ButtonTypes.ENTER);
+        // InteriorInteractions.Add(ButtonTypes.ENTER);
 
         floorsValues = bso.interiorFlooring;
         wallsValues = bso.interiorWalls;

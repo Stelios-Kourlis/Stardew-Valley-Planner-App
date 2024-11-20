@@ -62,7 +62,14 @@ public class CameraController : MonoBehaviour {
         if (Input.mouseScrollDelta.y != 0f) {
             if (!EventSystem.current.IsPointerOverGameObject()) {
                 float newCamSize = mainCamera.orthographicSize - Input.mouseScrollDelta.y * scrollScale;
-                newCamSize = Mathf.Clamp(newCamSize, 6f, 22.28f); //Where did I even get these numbers from????
+
+                float maxVerticalSize = (tilemapBounds.size.y / 2);
+                float maxHorizontalSize = (tilemapBounds.size.x / 2) / mainCamera.aspect;
+                float maxCamSize = Mathf.Min(maxVerticalSize, maxHorizontalSize);
+
+                newCamSize = Mathf.Clamp(newCamSize, 6f, maxCamSize);
+                //newCamSize = Mathf.Clamp(newCamSize, 6f, 22.28f); //Where did I even get these numbers from????
+                //magic numbers now dont work with other aspect ratios
                 mainCamera.orthographicSize = newCamSize;
             }
         }
@@ -89,8 +96,8 @@ public class CameraController : MonoBehaviour {
         }
         else { //keep the whole camera within bounds
             // Calculate the camera's vertical size based on its orthographic size and aspect ratio
-            float verticalSize = Camera.main.orthographicSize * 2;
-            float horizontalSize = verticalSize * Camera.main.aspect;
+            float verticalSize = mainCamera.orthographicSize * 2;
+            float horizontalSize = verticalSize * mainCamera.aspect;
 
             float minX = tilemapBounds.min.x + horizontalSize / 2;
             float maxX = tilemapBounds.max.x - horizontalSize / 2;
@@ -122,6 +129,13 @@ public class CameraController : MonoBehaviour {
             storedScrollScale = scrollScale;
             moveScale = 0;
             scrollScale = 0;
+        }
+    }
+
+    public void UnlockCamera() {
+        if (moveScale == 0 && scrollScale == 0) {
+            moveScale = storedMoveScale;
+            scrollScale = storedScrollScale;
         }
     }
 

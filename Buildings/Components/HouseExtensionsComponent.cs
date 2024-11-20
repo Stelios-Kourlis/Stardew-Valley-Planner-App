@@ -86,7 +86,7 @@ public class HouseExtensionsComponent : BuildingComponent {
     void CreateModificationMenu() {
         GetComponent<EnterableBuildingComponent>().InteriorUpdated -= CreateModificationMenu;
 
-        ModificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().InteriorButtonsParent.transform.parent).GetComponent<HouseModificationMenu>();
+        ModificationMenu = Instantiate(Resources.Load<GameObject>("UI/HouseModifications"), GetComponent<EnterableBuildingComponent>().GetInteriorButton(ButtonTypes.ENTER).transform.parent).GetComponent<HouseModificationMenu>();
         ModificationMenu.transform.position = Vector3.zero;
 
         if (!hasExtensions) {

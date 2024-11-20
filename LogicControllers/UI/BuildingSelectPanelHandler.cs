@@ -21,6 +21,8 @@ public class BuildingSelectPanelHandler : MonoBehaviour {
     [SerializeField] private GameObject typeBar;
     private BuildingType currentBuildingType;
     void Start() {
+        GameObject.Find("NoBuilding").GetComponent<Button>().onClick.AddListener(() => BuildingController.SetCurrentAction(Actions.DO_NOTHING));
+
         Transform categoryButtons = transform.Find("Rect").Find("CategoryButtons");
         Transform content = transform.Find("Rect").Find("ScrollAreaBuildings").Find("Content");
 

@@ -29,7 +29,7 @@ public abstract class TooltipableGameObject : MonoBehaviour, IPointerEnterHandle
 
     protected void StartTooltipCountdown() {
         if (TooltipMessage == "") return;
-        if (TooltipManager.Instance.IsShowingTooltip) return;
+        // if (TooltipManager.Instance.IsShowingTooltip) return;
         TooltipManager.Instance.StartTooltipCountdown(this);
     }
     public void OnPointerEnter(PointerEventData eventData) {

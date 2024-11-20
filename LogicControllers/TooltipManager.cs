@@ -19,15 +19,19 @@ public class TooltipManager : MonoBehaviour {
 
     //Whole tooltip system rework?
     public void StartTooltipCountdown(TooltipableGameObject tooltipableScript) {
-        if (IsShowingTooltip) return;
+        // if (IsShowingTooltip) return;
         if (tooltipableScript.TooltipMessage == "") return;
-        IsShowingTooltip = true;
+
         StartCoroutine(StartTooltipCountdownCoroutine(tooltipableScript));
     }
     private IEnumerator StartTooltipCountdownCoroutine(TooltipableGameObject tooltipableScript) {
         // GameObject tooltipableGameObject = tooltipableScript.gameObject;
         float counter = 0;
         while (counter < TOOLTIP_DELAY_SECONDS) {
+            if (IsShowingTooltip) {
+                yield return null;
+                continue;
+            }
             counter += Time.deltaTime;
             if (tooltipableScript.ShowTooltipCondition()) yield return null;
             else {
@@ -40,6 +44,7 @@ public class TooltipManager : MonoBehaviour {
     }
 
     public GameObject ShowTooltipOnGameObject(TooltipableGameObject tooltipableGameObject) {
+        IsShowingTooltip = true;
         GameObject tooltipGameObject = Instantiate(tooltipPrefab, GetCanvasGameObject().transform);
         tooltipGameObject.transform.GetChild(0).GetComponent<Text>().text = tooltipableGameObject.TooltipMessage;
         tooltipGameObject.GetComponent<RectTransform>().position = new Vector3(Input.mousePosition.x - 10, Input.mousePosition.y - 48, 0);
