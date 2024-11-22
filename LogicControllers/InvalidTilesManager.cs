@@ -118,8 +118,8 @@ public class InvalidTilesManager : MonoBehaviour {
 
 #pragma warning disable IDE0044 // Add readonly modifier
 
-    [SerializeField] private Tile redTileSprite;
-    [SerializeField] private Tile greenTileSprite;
+    [field: SerializeField] public Tile RedTileSprite { get; private set; }
+    [field: SerializeField] public Tile GreenTileSprite { get; private set; }
 
 #pragma warning restore IDE0044 // Add readonly modifier
     private bool unavailableCoordinatesAreVisible = false;
@@ -168,7 +168,7 @@ public class InvalidTilesManager : MonoBehaviour {
             foreach (Vector3Int coordinate in AllInvalidTiles) unavailableCoordinatesTilemap.SetTile(coordinate, null);
         }
         else {
-            foreach (Vector3Int coordinate in AllInvalidTiles) unavailableCoordinatesTilemap.SetTile(coordinate, redTileSprite);
+            foreach (Vector3Int coordinate in AllInvalidTiles) unavailableCoordinatesTilemap.SetTile(coordinate, RedTileSprite);
         }
         unavailableCoordinatesAreVisible = !unavailableCoordinatesAreVisible;
     }
@@ -180,7 +180,7 @@ public class InvalidTilesManager : MonoBehaviour {
             foreach (Vector3Int coordinate in AllPlantableTiles) plantableCoordinatesTilemap.SetTile(coordinate, null);
         }
         else {
-            foreach (Vector3Int coordinate in AllPlantableTiles) plantableCoordinatesTilemap.SetTile(coordinate, greenTileSprite);
+            foreach (Vector3Int coordinate in AllPlantableTiles) plantableCoordinatesTilemap.SetTile(coordinate, GreenTileSprite);
         }
         plantableCoordinatesAreVisible = !plantableCoordinatesAreVisible;
     }

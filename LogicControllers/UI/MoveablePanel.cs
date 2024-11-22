@@ -62,7 +62,9 @@ public class MoveablePanel : MonoBehaviour {
     }
 
     public void SetPanelToOpenPosition() {
-        if (FullFocusPanelIsOpen.Item1 && IsFullFocusPanel) return; //only 1 full focus panel can be open at a time
+        if (FullFocusPanelIsOpen.Item1 && IsFullFocusPanel) {
+            FullFocusPanelIsOpen.Item2.SetPanelToClosedPosition();
+        } //only 1 full focus panel can be open at a time
         if (panelState == PanelState.Open || panelState == PanelState.Moving) return;
         panelState = PanelState.Moving;
         if (IsFullFocusPanel) FullFocusPanelIsOpen = (true, this);

@@ -44,6 +44,7 @@ public class InputHandler : MonoBehaviour {
     GameObject followCursorObject;
     Vector3Int mouseTileOnPreviousFrame;
     public bool keybindsShouldRegister = true;
+    [SerializeField] private Tilemap massActionPreviewTilemap;
     [SerializeField] private List<CursorTexture> cursorTextures;
     [SerializeField] private GameObject wallpaperButtonPrefab;
     [SerializeField] private GameObject flooringButtonPrefab;
@@ -273,17 +274,17 @@ public class InputHandler : MonoBehaviour {
             if (building != null) building.PlaceBuildingPreview(mousePosition);
             if (mouseIsHeld && BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) {
                 mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects()[3].transform.Find("MassDeletePreview").GetComponent<Tilemap>();
-                massDeleteTilemap.ClearAllTiles();
-                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile(Utility.Tiles.Green));
+                // Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects().First(go => go.name == "Canvas").transform.Find("MassDeletePreview").GetComponent<Tilemap>();
+                massActionPreviewTilemap.ClearAllTiles();
+                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massActionPreviewTilemap.SetTile(position, InvalidTilesManager.Instance.GreenTileSprite);
             }
         }
         else if (BuildingController.CurrentAction == Actions.DELETE) {
             if (mouseIsHeld) {
                 mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects()[3].transform.Find("MassDeletePreview").GetComponent<Tilemap>();
-                massDeleteTilemap.ClearAllTiles();
-                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massDeleteTilemap.SetTile(position, LoadTile(Utility.Tiles.Red));
+                // Tilemap massDeleteTilemap = SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects().First(go => go.name == "Canvas").transform.Find("MassDeletePreview").GetComponent<Tilemap>();
+                massActionPreviewTilemap.ClearAllTiles();
+                if (mouseCoverageArea.Count() > 2) foreach (Vector3Int position in mouseCoverageArea) massActionPreviewTilemap.SetTile(position, InvalidTilesManager.Instance.RedTileSprite);
             }
         }
 

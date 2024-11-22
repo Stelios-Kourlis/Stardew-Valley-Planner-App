@@ -56,14 +56,14 @@ namespace Utility {
             return true; // All pixels are transparent, the tile is empty
         }
 
-        public static Tile LoadTile(Tiles tilesType) {
-            string path = $"{tilesType}TileSprite";
-            Sprite tileTexture = Resources.Load<Sprite>(path);
-            Debug.Assert(tileTexture != null, "Tile texture is null");
-            Tile tile = SpriteToTile(tileTexture);
-            Resources.UnloadAsset(tileTexture);
-            return tile;
-        }
+        // public static Tile LoadTile(Tiles tilesType) {
+        //     string path = $"{tilesType}TileSprite";
+        //     Sprite tileTexture = Resources.Load<Sprite>(path);
+        //     Debug.Assert(tileTexture != null, "Tile texture is null");
+        //     Tile tile = SpriteToTile(tileTexture);
+        //     Resources.UnloadAsset(tileTexture);
+        //     return tile;
+        // }
 
         public static Texture2D SpriteToTexture2D(Sprite sprite) {
             Texture2D texture = new((int)sprite.rect.width, (int)sprite.rect.height);

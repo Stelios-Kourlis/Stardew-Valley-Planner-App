@@ -239,7 +239,7 @@ public static class BuildingController {
         if (action == Actions.PLACE) CurrentBuildingBeingPlaced.DoBuildingPreview();
         else CurrentBuildingBeingPlaced.NoPreview();
 
-        GetCanvasGameObject().transform.Find("NoBuilding").gameObject.SetActive(action == Actions.PLACE);
+        GetCanvasGameObject().transform.Find("NoBuilding").gameObject.SetActive(action == Actions.PLACE && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.NOT_PLACED);
 
     }
 

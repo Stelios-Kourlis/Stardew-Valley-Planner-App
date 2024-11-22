@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class UpdateChecker : MonoBehaviour {
-    private readonly string currentVersion = "Beta-0.8";
+    private readonly string currentVersion = "Beta-0.8.1";
     private GameObject currentVerGameObject;
     private GameObject newestVerGameObject;
     private GameObject updateAvailableGameObject;

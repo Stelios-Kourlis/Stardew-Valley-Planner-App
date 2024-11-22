@@ -21,8 +21,8 @@ public class RangeEffectBuilding {
         rangeEffectGameObject.transform.SetParent(Building.transform);
         rangeEffectGameObject.AddComponent<TilemapRenderer>().sortingOrder = building.TilemapRenderer.sortingOrder - 1;
         if (rangeEffectGameObject.GetComponent<Tilemap>() == null) rangeEffectGameObject.AddComponent<Tilemap>();
-        greenTile = LoadTile(Tiles.Green);
-        redTile = LoadTile(Tiles.Red);
+        greenTile = InvalidTilesManager.Instance.GreenTileSprite;
+        redTile = InvalidTilesManager.Instance.RedTileSprite;
     }
 
     public void ShowEffectRange(Vector3Int[] rangeArea, Tiles tileType = Tiles.Green) {

@@ -249,7 +249,7 @@ public class HouseExtensionsComponent : BuildingComponent {
                 Destroy(warning);
             });
             warning.transform.GetChild(1).Find("Highlight").GetComponent<Button>().onClick.AddListener(() => {
-                Tile redTile = LoadTile(Tiles.Red);
+                Tile redTile = InvalidTilesManager.Instance.RedTileSprite;
                 warning.transform.position = new Vector3(Screen.width / 2, warning.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
                 ModificationMenu.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
                 GetCamera().GetComponent<CameraController>().SetPosition(GetMiddleOfCoordinates(positions.ToArray()));
