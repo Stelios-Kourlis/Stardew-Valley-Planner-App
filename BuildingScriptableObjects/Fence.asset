@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeName: 5
   baseHeight: 1
+  baseWidth: 0
   canBeMassPlaced: 1
   materialsNeeded: []
   defaultSprite: {fileID: 21300000, guid: 5a47741a9a7342742891287715ea3f4d, type: 3}
   atlas: {fileID: 4343727234628468602, guid: 54f34ff08bda6aa4abdfa060b6b49bc5, type: 2}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 1
   variants:
   - variantName: Wood
@@ -51,11 +54,14 @@ MonoBehaviour:
   isConnecting: 1
   connectsToTop: 0
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 0
   interiorInteractions: 
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: 
   category: 1
   isExpanded: 0

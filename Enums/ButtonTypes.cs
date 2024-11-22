@@ -15,5 +15,6 @@ public enum ButtonTypes {
     CHANGE_FISH_POND_DECO,
     ADD_ANIMAL,
     CUSTOMIZE_HOUSE_RENOVATIONS,
+    TOGGLE_MUSHROOM_BOX,
 }
 

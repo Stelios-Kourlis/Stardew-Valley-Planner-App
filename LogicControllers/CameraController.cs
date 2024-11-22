@@ -63,9 +63,11 @@ public class CameraController : MonoBehaviour {
             if (!EventSystem.current.IsPointerOverGameObject()) {
                 float newCamSize = mainCamera.orthographicSize - Input.mouseScrollDelta.y * scrollScale;
 
-                float maxVerticalSize = (tilemapBounds.size.y / 2);
-                float maxHorizontalSize = (tilemapBounds.size.x / 2) / mainCamera.aspect;
+                float maxVerticalSize = tilemapBounds.size.y / 2;
+                float maxHorizontalSize = tilemapBounds.size.x / 2 / mainCamera.aspect;
                 float maxCamSize = Mathf.Min(maxVerticalSize, maxHorizontalSize);
+
+                if (BuildingController.isInsideBuilding.Key) maxCamSize *= 2;
 
                 newCamSize = Mathf.Clamp(newCamSize, 6f, maxCamSize);
                 //newCamSize = Mathf.Clamp(newCamSize, 6f, 22.28f); //Where did I even get these numbers from????

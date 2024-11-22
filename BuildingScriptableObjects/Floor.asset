@@ -19,6 +19,8 @@ MonoBehaviour:
   materialsNeeded: []
   defaultSprite: {fileID: 5713933281591533700, guid: 92c5e1aeb6bc94b46921c11f68a51ca5, type: 3}
   atlas: {fileID: 4343727234628468602, guid: 53035314bbf12164098e87f8c8cefe50, type: 2}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 1
   variants:
   - variantName: Wood
@@ -112,6 +114,8 @@ MonoBehaviour:
   isConnecting: 1
   connectsToTop: 1
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 0
   interiorInteractions: 
   interiorWalls: []

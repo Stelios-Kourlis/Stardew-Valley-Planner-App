@@ -19,6 +19,8 @@ MonoBehaviour:
   materialsNeeded: []
   defaultSprite: {fileID: 21300000, guid: 2938fb6f725ff034bb91ed36b12dc5ad, type: 3}
   atlas: {fileID: 4343727234628468602, guid: f197e5d5d936b0f479a8f86521d7330c, type: 2}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 0
   variants: []
   isTiered: 1

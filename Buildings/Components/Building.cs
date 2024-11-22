@@ -75,6 +75,8 @@ public class Building : TooltipableGameObject {
     public Transform Transform => gameObject.transform;
     public GameObject BuildingGameObject => gameObject;
 
+    private bool canBeDeleted, canBePickedUp;
+
 
     public Action<Vector3Int> BuildingPlaced { get; set; }
     public Action BuildingRemoved { get; set; }
@@ -91,7 +93,7 @@ public class Building : TooltipableGameObject {
     }
 
     public void DeleteBuilding(bool force = false) {
-        if ((type is BuildingType.Greenhouse || type is BuildingType.House) && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
+        if (!canBeDeleted && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
 
         behaviourExtension?.OnDelete();
 
@@ -161,6 +163,7 @@ public class Building : TooltipableGameObject {
     }
 
     public bool PickupBuilding() {
+        if (!canBePickedUp) return false;
         Tilemap.ClearAllTiles();
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
@@ -315,6 +318,8 @@ public class Building : TooltipableGameObject {
         DefaultSprite = bso.defaultSprite;
         Sprite = bso.defaultSprite;
         Atlas = bso.atlas;
+        canBeDeleted = bso.canBeDeleted;
+        canBePickedUp = bso.canBePickedUp;
 
         //todo make it so maybe building has isInteractable bool to Add InteractableBuildingComponent?
         gameObject.AddComponent<InteractableBuildingComponent>().Load(bso);
@@ -326,6 +331,8 @@ public class Building : TooltipableGameObject {
         if (bso.isConnecting) gameObject.AddComponent<ConnectingBuildingComponent>().Load(bso);
 
         if (bso.isFishPond) gameObject.AddComponent<FishPondComponent>().Load(bso);
+
+        if (bso.isCave) gameObject.AddComponent<CaveComponent>().Load(bso);
 
         if (bso.isPaintable) gameObject.AddComponent<PaintableBuildingComponent>().Load(bso);
 

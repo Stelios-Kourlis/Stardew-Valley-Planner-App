@@ -22,6 +22,8 @@ public class BuildingScriptableObject : ScriptableObject {
     public List<MaterialCostEntry> materialsNeeded;
     public Sprite defaultSprite;
     public SpriteAtlas atlas;
+    public bool canBeDeleted;
+    public bool canBePickedUp;
 
     public bool isMultipleType;
     public BuildingVariant[] variants;
@@ -37,6 +39,8 @@ public class BuildingScriptableObject : ScriptableObject {
     public bool connectsToTop;
 
     public bool isFishPond;
+
+    public bool isCave;
 
     public bool isPaintable;
     public PaintableLayer[] paintableLayers;

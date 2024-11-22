@@ -148,7 +148,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         interiorButtons = new();
         GameObject buttonPrefab = CreateButtonGameObject();
 
-        GameObject exitButton = HUDButtonCotroller.CreateButtonNextToOtherButton(GameObject.Find("NoBuilding").GetComponent<RectTransform>(), buttonPrefab, HUDButtonCotroller.RelativePosition.BOTTOM, interiorSceneCanvas.transform);
+        GameObject exitButton = HUDButtonCotroller.CreateButtonNextToOtherButton(GameObject.Find("ToggleBuildingSelectButton").GetComponent<RectTransform>(), buttonPrefab, HUDButtonCotroller.RelativePosition.RIGHT, interiorSceneCanvas.transform);
         exitButton.name = "ENTER";
         exitButton.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{ButtonTypes.ENTER}");
         exitButton.AddComponent<Button>().onClick.AddListener(() => {
@@ -158,8 +158,8 @@ public class EnterableBuildingComponent : BuildingComponent {
 
 
 
+        RectTransform startingButton = exitButton.GetComponent<RectTransform>();
         foreach (ButtonTypes type in InteriorInteractions) {
-            RectTransform startingButton = GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").GetComponent<RectTransform>();
             GameObject button = HUDButtonCotroller.CreateButtonNextToOtherButton(startingButton, buttonPrefab, HUDButtonCotroller.RelativePosition.RIGHT, interiorSceneCanvas.transform);
             button.name = type.ToString();
             button.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{type}");
@@ -206,6 +206,18 @@ public class EnterableBuildingComponent : BuildingComponent {
                     });
                     interiorButtonClicked?.Invoke(type);
                     break;
+                case ButtonTypes.TOGGLE_MUSHROOM_BOX:
+                    button.AddComponent<Button>().onClick.AddListener(() => {
+                        Building.GetComponent<CaveComponent>().ToggleMushroomBoxes();
+                    });
+                    interiorButtonClicked?.Invoke(type);
+                    break;
+                // case ButtonTypes.ENTER:
+                //     button.AddComponent<Button>().onClick.AddListener(() => {
+                //         Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
+                //     });
+                //     interiorButtonClicked?.Invoke(type);
+                //     break;
                 default:
                     throw new System.ArgumentException($"Invalid interior interaction {type}");
             }

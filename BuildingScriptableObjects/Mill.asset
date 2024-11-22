@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 207e1357fea722f4f809874662f9d9a1, type: 3}
   m_Name: Mill
   m_EditorClassIdentifier: 
-  buildingName: Mill
   typeName: 12
   baseHeight: 2
+  baseWidth: 0
   canBeMassPlaced: 0
   materialsNeeded:
   - amount: 2500
@@ -31,6 +31,8 @@ MonoBehaviour:
     howToGet: 
   defaultSprite: {fileID: 21300000, guid: 9a5f0c6dbb142c94d9b4d98173bc756f, type: 3}
   atlas: {fileID: 0}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 0
   variants: []
   isTiered: 0
@@ -40,9 +42,14 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 0
   interiorInteractions: 
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 0}
+  extraBehaviourType:
+    typeName: 
+  category: 0
+  isExpanded: 0

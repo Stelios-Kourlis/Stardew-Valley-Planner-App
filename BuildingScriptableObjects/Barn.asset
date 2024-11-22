@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeName: 0
   baseHeight: 4
+  baseWidth: 0
   canBeMassPlaced: 0
   materialsNeeded: []
   defaultSprite: {fileID: 853024448359829100, guid: 475960918152bc44eb3dfa6b8e606faf, type: 3}
   atlas: {fileID: 4343727234628468602, guid: 49723dc21f884b6438fd2f13d4f3773e, type: 2}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 0
   variants: []
   isTiered: 1
@@ -66,6 +69,8 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 1
   interiorInteractions: 01000000020000000300000009000000
   interiorWalls: []

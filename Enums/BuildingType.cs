@@ -28,6 +28,8 @@ public enum BuildingType {
     Well,
     Tree,
     GiantCrop,
+    Cave,
+    MushroomBox,
     // Mailbox
 
 }

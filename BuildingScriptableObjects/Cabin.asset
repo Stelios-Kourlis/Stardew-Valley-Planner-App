@@ -19,6 +19,8 @@ MonoBehaviour:
   materialsNeeded: []
   defaultSprite: {fileID: -6478964507943517800, guid: edf7ae920ec80bc41ba38fba258743de, type: 3}
   atlas: {fileID: 4343727234628468602, guid: e26d2a25806bbfb4a8c43d972b2de581, type: 2}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 1
   variants:
   - variantName: Wood

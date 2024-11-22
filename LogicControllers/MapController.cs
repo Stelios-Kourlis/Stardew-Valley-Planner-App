@@ -167,6 +167,13 @@ public class MapController : MonoBehaviour {
         };
     }
 
+    public Vector3Int GetCavePosition() {
+        return CurrentMapType switch {
+            MapTypes.Normal => new Vector3Int(34, 58, 0),
+            _ => new Vector3Int(34, 58, 0)
+        };
+    }
+
     public Vector3Int GetCoopPosition(out List<Vector3Int> fencePositions) {
         fencePositions = new List<Vector3Int>(){
             new(62,67,0),

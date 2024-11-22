@@ -114,6 +114,7 @@ public static class BuildingController {
             PlaceHouse();
             PlaceGreenhouse();
             PlacePetBowl();
+            PlaceCave();
         }
         PlaceBin();
         if (MapController.Instance.CurrentMapType == MapController.MapTypes.Ranching) PlaceCoop();
@@ -158,6 +159,18 @@ public static class BuildingController {
         greenhouseGameObject.GetComponent<Building>().PlaceBuilding(greenhousePos);
         greenhouseGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
         Resources.UnloadAsset(greenhouse);
+    }
+
+    public static void PlaceCave() {
+        MapController mapController = GetMapController();
+        Vector3Int cavePos = mapController.GetCavePosition();
+        GameObject caveGameObject = new("Cave");
+        caveGameObject.transform.parent = CurrentTilemapTransform;
+        BuildingScriptableObject cave = Resources.Load<BuildingScriptableObject>($"BuildingScriptableObjects/Cave");
+        caveGameObject.AddComponent<Building>().LoadFromScriptableObject(cave);
+        caveGameObject.GetComponent<Building>().PlaceBuilding(cavePos);
+        caveGameObject.GetComponent<Tilemap>().color = new Color(1, 1, 1, 1);
+        Resources.UnloadAsset(cave);
     }
 
     public static void PlaceCoop() {

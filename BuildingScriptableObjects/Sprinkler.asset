@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeName: 20
   baseHeight: 1
+  baseWidth: 0
   canBeMassPlaced: 1
   materialsNeeded: []
   defaultSprite: {fileID: 4372326508361963676, guid: 9c179de418b861b4796b7e47cba7efe9, type: 3}
   atlas: {fileID: 0}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 1
   variants:
   - variantName: Normal
@@ -144,12 +147,13 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 0
   interiorInteractions: 
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 11500000, guid: a90a7a545ea568a498058b411b46b4ff, type: 3}
   extraBehaviourType:
     typeName: SprinklerBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null

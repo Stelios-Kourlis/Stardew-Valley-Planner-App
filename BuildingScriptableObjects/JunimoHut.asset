@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   typeName: 11
   baseHeight: 2
+  baseWidth: 0
   canBeMassPlaced: 0
   materialsNeeded:
   - amount: 20000
@@ -30,6 +31,8 @@ MonoBehaviour:
     howToGet: 
   defaultSprite: {fileID: 21300000, guid: 564c3706eddad7649a7a4f95a6b90159, type: 3}
   atlas: {fileID: 0}
+  canBeDeleted: 1
+  canBePickedUp: 1
   isMultipleType: 0
   variants: []
   isTiered: 0
@@ -39,12 +42,13 @@ MonoBehaviour:
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
+  isPaintable: 0
+  paintableLayers: []
   isEnterable: 0
   interiorInteractions: 
   interiorWalls: []
   interiorFlooring: []
   hasInteriorExtensions: 0
-  extraBehaviourScript: {fileID: 11500000, guid: 4030d3ddee7e07d4da88131f9460e430, type: 3}
   extraBehaviourType:
     typeName: JunimoHutBehaviour, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
