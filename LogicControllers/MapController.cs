@@ -14,6 +14,7 @@ using static Utility.InvalidTileLoader;
 using TMPro;
 using UnityEngine.UI;
 using Utility;
+using System.Threading.Tasks;
 
 public class MapController : MonoBehaviour {
     public enum MapTypes {
@@ -33,6 +34,10 @@ public class MapController : MonoBehaviour {
     public MapTypes CurrentMapType { get; private set; }
     public GameObject UIButtonPrefab;
     public Scene MapScene { get; private set; }
+    private float mapChangeProgressPrecent;
+    private bool backMapLoaded = false, frontMapLoaded = false;
+    [SerializeField] private GameObject progressModalPrefab;
+    [SerializeField] private GameObject map, mapForeground;
 
     public static MapController Instance { get; private set; }
 
@@ -42,7 +47,7 @@ public class MapController : MonoBehaviour {
 
         // mapAtlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
         // MapScene = null;
-        SetMap(MapTypes.Normal);
+        SetMapAsync(MapTypes.Normal);
 
 
     }
@@ -57,16 +62,29 @@ public class MapController : MonoBehaviour {
             mapButton.GetComponent<ContentSizeFitter>().enabled = false;
             mapButton.transform.Find("Text").GetComponent<TMP_Text>().text = System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(?<!^)([A-Z])", " $1");
             mapButton.transform.Find("Text").GetComponent<TMP_Text>().fontSize = 50;
-            mapButton.GetComponent<Button>().onClick.AddListener(() => SetMap(type));
+            mapButton.GetComponent<Button>().onClick.AddListener(() => SetMapAsync(type));
         }
     }
 
-    public void SetMap(MapTypes mapType) {
+    public async void SetMapAsync(MapTypes mapType) {
 
-        void PopulateTilemapFromFileData(Tilemap tilemap, TextAsset file) {
+        IEnumerator ShowMapChangeProgress() {
+            GameObject progressModal = Instantiate(progressModalPrefab, GetCanvasGameObject().transform);
+            progressModal.transform.Find("ProgressText").GetComponent<TMP_Text>().text = mapChangeProgressPrecent / 2 + (backMapLoaded ? 50 : 0) + "%";
+            while (!frontMapLoaded) {
+                progressModal.transform.Find("Bar").Find("BarFill").GetComponent<RectTransform>().sizeDelta = new(mapChangeProgressPrecent * 3 + (backMapLoaded ? 300 : 0), progressModal.transform.Find("Bar").Find("BarFill").GetComponent<RectTransform>().sizeDelta.y);
+                yield return null;
+            }
+            Destroy(progressModal);
+        }
+
+        async Task PopulateTilemapFromFileData(Tilemap tilemap, TextAsset file) {
             tilemap.ClearAllTiles();
             string[] mapData = file.text.Split(",\n", StringSplitOptions.RemoveEmptyEntries);
+
             Dictionary<Vector3Int, int> tileDataDict = new();
+
+            Debug.Log("Start " + DateTime.Now);
 
             foreach (string line in mapData) {
                 string[] parts = line.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
@@ -79,11 +97,26 @@ public class MapController : MonoBehaviour {
                 }
             }
 
+            Debug.Log("Half " + DateTime.Now);
+
             Tile[] tiles = Resources.LoadAll<Tile>($"Tiles");
-            foreach (KeyValuePair<Vector3Int, int> tileData in tileDataDict) {
-                tilemap.SetTile(tileData.Key, tiles.First(tile => tile.name == $"Tile{tileData.Value}"));
-            }
+            Array.Sort(tiles, (tile1, tile2) => {
+                int num1 = int.Parse(tile1.name.Replace("Tile", ""));
+                int num2 = int.Parse(tile2.name.Replace("Tile", ""));
+                return num1.CompareTo(num2);
+            });
+            int tilesPlaced = 0;
+            List<Tile> tilesToPlace = new();
+            await Task.Run(() => { //this used to be slow, now not so much. Is await still needed?
+                foreach (KeyValuePair<Vector3Int, int> tileData in tileDataDict) {
+                    tilesToPlace.Add(tiles[tileData.Value]);
+                    mapChangeProgressPrecent = (float)++tilesPlaced / tileDataDict.Count * 100;
+                }
+
+                Debug.Log("Done " + DateTime.Now);
+            });
             tiles = null;
+            tilemap.SetTiles(tileDataDict.Keys.ToArray(), tilesToPlace.ToArray());
             Resources.UnloadUnusedAssets();
 
             tilemap.CompressBounds();
@@ -91,24 +124,29 @@ public class MapController : MonoBehaviour {
 
         if (CurrentMapType == mapType && MapScene.name != null) return;
 
-        if (MapScene.name != null) SceneManager.UnloadSceneAsync(MapScene);
+        Scene oldScene = MapScene;
+        MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
+
 
         CurrentMapType = mapType;
         BuildingController.DeleteAllBuildings(true);
         BuildingController.mapSpecialCoordinates.ClearAll();
-        if (BuildingController.isInsideBuilding.Key) BuildingController.isInsideBuilding.Value.EditBuildingInterior();
+        if (BuildingController.isInsideBuilding.Key) BuildingController.isInsideBuilding.Value.ExitBuildingInteriorEditing();
 
-        MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
         UndoRedoController.ClearLogs();
 
-        GameObject map = GameObject.FindWithTag("CurrentMap");
         map.name = mapType.ToString() + "Map";
 
+        backMapLoaded = false;
+        frontMapLoaded = false;
+        StartCoroutine(ShowMapChangeProgress());
         TextAsset backData = Resources.Load<TextAsset>($"MapData/{mapType}MapBackTileData");
-        PopulateTilemapFromFileData(map.GetComponent<Tilemap>(), backData);
+        await PopulateTilemapFromFileData(map.GetComponent<Tilemap>(), backData);
+        backMapLoaded = true;
         Resources.UnloadAsset(backData);
         TextAsset frontData = Resources.Load<TextAsset>($"MapData/{mapType}MapFrontTileData");
-        PopulateTilemapFromFileData(GameObject.FindGameObjectWithTag("MapForeground").GetComponent<Tilemap>(), frontData);
+        await PopulateTilemapFromFileData(mapForeground.GetComponent<Tilemap>(), frontData);
+        frontMapLoaded = true;
         Resources.UnloadAsset(frontData);
 
 
@@ -120,15 +158,16 @@ public class MapController : MonoBehaviour {
         InvalidTilesManager.Instance.UpdateAllCoordinates();
 
         BuildingController.SetCurrentTilemapTransform(map.transform);
-        if (mapType != MapTypes.GingerIsland) BuildingController.InitializeMap();
+        BuildingController.InitializeMap();
 
         GameObject grid = new("Grid");
         grid.AddComponent<Grid>();
         grid.AddComponent<Tilemap>();
         map.transform.SetParent(grid.transform);
-        GameObject.FindGameObjectWithTag("MapForeground").transform.SetParent(grid.transform);
+        mapForeground.transform.SetParent(grid.transform);
 
         SceneManager.MoveGameObjectToScene(grid, MapScene);
+        if (oldScene.name != null) SceneManager.UnloadSceneAsync(oldScene);
     }
 
     public Vector3Int GetHousePosition() {

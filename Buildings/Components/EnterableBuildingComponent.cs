@@ -110,7 +110,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         }
 
         static GameObject CreateButtonGameObject() {
-            GameObject button = new("button");
+            GameObject button = new("InteriorInteractionButton");
             button.AddComponent<RectTransform>().sizeDelta = new Vector2(100, 100);
             button.GetComponent<RectTransform>().anchorMax = new Vector2(0, 1);
             button.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
@@ -224,6 +224,8 @@ public class EnterableBuildingComponent : BuildingComponent {
 
             startingButton = button.GetComponent<RectTransform>();
         }
+
+        Destroy(buttonPrefab);
 
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
