@@ -294,7 +294,7 @@ public class OnboradingFlow : MonoBehaviour {
         }
         EnterableBuildingComponent enterableBuildingComponent = house.GetComponent<EnterableBuildingComponent>();
         foreach (GameObject interactionButton in enterableBuildingComponent.interiorButtons) {
-            interactionButton.GetComponent<Button>().interactable = false;
+            interactionButton.GetComponent<Button>().interactable = true;
         }
         GetCanvasGameObject().transform.Find("NoBuilding").gameObject.SetActive(true);
         PlayerPrefs.SetInt("HasDoneIntro", 1);

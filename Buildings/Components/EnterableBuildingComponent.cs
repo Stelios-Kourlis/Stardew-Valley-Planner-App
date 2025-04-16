@@ -191,9 +191,11 @@ public class EnterableBuildingComponent : BuildingComponent {
                 case ButtonTypes.TIER_FOUR:
                     button.AddComponent<Button>().onClick.AddListener(() => {
                         interiorButtonClicked?.Invoke(type);
-                        Building.GetComponent<TieredBuildingComponent>().SetTier(4);
-                        UpdateBuildingInterior();
+                        NotificationManager.Instance.SendNotification("WIP", NotificationManager.Icons.ErrorIcon);
+                        // Building.GetComponent<TieredBuildingComponent>().SetTier(4);
+                        // UpdateBuildingInterior();
                     });
+                    // button.GetComponent<Button>().interactable = false;
                     break;
                 case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
                     button.AddComponent<Button>().onClick.AddListener(() => {
