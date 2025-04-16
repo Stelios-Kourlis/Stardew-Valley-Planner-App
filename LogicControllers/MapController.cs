@@ -84,7 +84,7 @@ public class MapController : MonoBehaviour {
 
             Dictionary<Vector3Int, int> tileDataDict = new();
 
-            Debug.Log("Start " + DateTime.Now);
+            // Debug.Log("Start " + DateTime.Now);
 
             await Task.Run(() => {
                 foreach (string line in mapData) {
@@ -99,7 +99,7 @@ public class MapController : MonoBehaviour {
                 }
             });
 
-            Debug.Log("Half " + DateTime.Now);
+            // Debug.Log("Half " + DateTime.Now);
 
             Tile[] tiles = Resources.LoadAll<Tile>($"Tiles");
             Array.Sort(tiles, (tile1, tile2) => {
@@ -115,7 +115,7 @@ public class MapController : MonoBehaviour {
                     mapChangeProgressPrecent = (float)++tilesPlaced / tileDataDict.Count * 100;
                 }
 
-                Debug.Log("Done " + DateTime.Now);
+                // Debug.Log("Done " + DateTime.Now);
             });
             tiles = null;
             tilemap.SetTiles(tileDataDict.Keys.ToArray(), tilesToPlace.ToArray());

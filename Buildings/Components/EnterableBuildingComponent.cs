@@ -148,10 +148,11 @@ public class EnterableBuildingComponent : BuildingComponent {
         interiorButtons = new();
         GameObject buttonPrefab = CreateButtonGameObject();
 
-        GameObject exitButton = HUDButtonCotroller.CreateButtonNextToOtherButton(GameObject.Find("ToggleBuildingSelectButton").GetComponent<RectTransform>(), buttonPrefab, HUDButtonCotroller.RelativePosition.RIGHT, interiorSceneCanvas.transform);
+        GameObject exitButton = HUDButtonCotroller.CreateButtonNextToOtherButton(GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").GetComponent<RectTransform>(), buttonPrefab, HUDButtonCotroller.RelativePosition.RIGHT, interiorSceneCanvas.transform);
         exitButton.name = "ENTER";
         exitButton.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{ButtonTypes.ENTER}");
         exitButton.AddComponent<Button>().onClick.AddListener(() => {
+            interiorButtonClicked?.Invoke(ButtonTypes.ENTER);
             Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
         });
         interiorButtons.Add(exitButton);
@@ -168,55 +169,57 @@ public class EnterableBuildingComponent : BuildingComponent {
             switch (type) {
                 case ButtonTypes.TIER_ONE:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<TieredBuildingComponent>().SetTier(1);
                         UpdateBuildingInterior();
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 case ButtonTypes.TIER_TWO:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<TieredBuildingComponent>().SetTier(2);
                         UpdateBuildingInterior();
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 case ButtonTypes.TIER_THREE:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<TieredBuildingComponent>().SetTier(3);
                         UpdateBuildingInterior(); ;
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 case ButtonTypes.TIER_FOUR:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<TieredBuildingComponent>().SetTier(4);
                         UpdateBuildingInterior();
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 case ButtonTypes.CUSTOMIZE_HOUSE_RENOVATIONS:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<HouseExtensionsComponent>().ToggleModificationMenu();
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 case ButtonTypes.ADD_ANIMAL:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<AnimalHouseComponent>().ToggleAnimalMenu();
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 case ButtonTypes.TOGGLE_MUSHROOM_BOX:
                     button.AddComponent<Button>().onClick.AddListener(() => {
+                        interiorButtonClicked?.Invoke(type);
                         Building.GetComponent<CaveComponent>().ToggleMushroomBoxes();
                     });
-                    interiorButtonClicked?.Invoke(type);
                     break;
                 // case ButtonTypes.ENTER:
                 //     button.AddComponent<Button>().onClick.AddListener(() => {
+                //         Building.GetComponent<EnterableBuildingComponent>().interiorButtonClicked?.Invoke(type);
+                //         // Debug.Log("Interior EXITED");
                 //         Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
                 //     });
-                //     interiorButtonClicked?.Invoke(type);
+                //     Debug.Log("ADDED ETNER LISTENER");
                 //     break;
                 default:
                     throw new System.ArgumentException($"Invalid interior interaction {type}");
@@ -230,7 +233,7 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
         SceneManager.MoveGameObjectToScene(interiorSceneCanvas, BuildingInteriorScene);
-        SceneManager.UnloadSceneAsync(BuildingInteriorScene);
+        // SceneManager.UnloadSceneAsync(BuildingInteriorScene);
 
         // InteriorUpdated?.Invoke();
     }
@@ -280,10 +283,12 @@ public class EnterableBuildingComponent : BuildingComponent {
         else EditBuildingInterior();
     }
 
+
+
     public void EditBuildingInterior() {
         BuildingController.isInsideBuilding = new KeyValuePair<bool, EnterableBuildingComponent>(true, this);
 
-        SceneManager.LoadScene(BuildingInteriorScene.name, LoadSceneMode.Additive);
+        // SceneManager.LoadScene(BuildingInteriorScene.name, LoadSceneMode.Additive);
 
         GetComponent<InteractableBuildingComponent>().BuildingWasPlaced(); //if the buttons havent been added yet. add them
 
@@ -350,7 +355,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         BuildingController.SetCurrentTilemapTransform(mapTransform);
 
         // SceneManager.SetActiveScene(MapScene);
-        SceneManager.UnloadSceneAsync(BuildingInteriorScene);
+        // SceneManager.UnloadSceneAsync(BuildingInteriorScene);
 
         EnteredOrExitedAnyBuilding?.Invoke();
         EnteredOrExitedBuilding?.Invoke();
