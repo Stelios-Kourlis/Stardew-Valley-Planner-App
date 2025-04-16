@@ -230,8 +230,9 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         SceneManager.MoveGameObjectToScene(grid, BuildingInteriorScene);
         SceneManager.MoveGameObjectToScene(interiorSceneCanvas, BuildingInteriorScene);
+        SceneManager.UnloadSceneAsync(BuildingInteriorScene);
 
-        InteriorUpdated?.Invoke();
+        // InteriorUpdated?.Invoke();
     }
 
     public GameObject GetInteriorButton(ButtonTypes type) {
@@ -282,6 +283,8 @@ public class EnterableBuildingComponent : BuildingComponent {
     public void EditBuildingInterior() {
         BuildingController.isInsideBuilding = new KeyValuePair<bool, EnterableBuildingComponent>(true, this);
 
+        SceneManager.LoadScene(BuildingInteriorScene.name, LoadSceneMode.Additive);
+
         GetComponent<InteractableBuildingComponent>().BuildingWasPlaced(); //if the buttons havent been added yet. add them
 
         foreach (GameObject obj in BuildingInteriorScene.GetRootGameObjects()) {
@@ -312,7 +315,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         mapTransform = BuildingController.CurrentTilemapTransform;
         BuildingController.SetCurrentTilemapTransform(BuildingInterior.transform);
 
-        SceneManager.SetActiveScene(BuildingInteriorScene);
+        // SceneManager.SetActiveScene(BuildingInteriorScene);
 
         EnteredOrExitedAnyBuilding?.Invoke();
         EnteredOrExitedBuilding?.Invoke();
@@ -346,7 +349,8 @@ public class EnterableBuildingComponent : BuildingComponent {
 
         BuildingController.SetCurrentTilemapTransform(mapTransform);
 
-        SceneManager.SetActiveScene(MapScene);
+        // SceneManager.SetActiveScene(MapScene);
+        SceneManager.UnloadSceneAsync(BuildingInteriorScene);
 
         EnteredOrExitedAnyBuilding?.Invoke();
         EnteredOrExitedBuilding?.Invoke();

@@ -10,6 +10,7 @@ public class TabGroup : MonoBehaviour {
     private Color TAB_ACTIVE_COLOR = Color.HSVToRGB(0, 0, 1);
 
     [SerializeField] private GameObject tabContentParent;
+#pragma warning disable CS0436 // Type conflicts with imported type
     [SerializeField] private List<TabButton> tabButtons;
     public TabButton SelectedTab { get; private set; }
     public void Awake() {
@@ -31,4 +32,5 @@ public class TabGroup : MonoBehaviour {
         transform.parent.Find("TabName").GetComponent<Text>().text = SelectedTab.TabName;
 
     }
+#pragma warning restore CS0436 // Type conflicts with imported type
 }

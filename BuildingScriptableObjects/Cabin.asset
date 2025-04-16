@@ -72,6 +72,7 @@ MonoBehaviour:
     - amount: 0
       materialType: 1
       howToGet: 
+    paintMask: {fileID: 0}
   - tier: 2
     costToUpgradeToThatTier:
     - amount: 10000
@@ -80,6 +81,7 @@ MonoBehaviour:
     - amount: 450
       materialType: 2
       howToGet: 
+    paintMask: {fileID: 0}
   - tier: 3
     costToUpgradeToThatTier:
     - amount: 60000
@@ -91,6 +93,7 @@ MonoBehaviour:
     - amount: 150
       materialType: 11
       howToGet: 
+    paintMask: {fileID: 0}
   - tier: 4
     costToUpgradeToThatTier:
     - amount: 160000
@@ -102,13 +105,15 @@ MonoBehaviour:
     - amount: 150
       materialType: 11
       howToGet: 
+    paintMask: {fileID: 0}
   isAnimalHouse: 0
   animalsPerTier: []
   isConnecting: 0
   connectsToTop: 0
   isFishPond: 0
-  isPaintable: 0
-  paintableLayers: []
+  isCave: 0
+  isPaintable: 1
+  paintMask: {fileID: 0}
   isEnterable: 1
   interiorInteractions: 010000000200000003000000040000000a000000
   interiorWalls:

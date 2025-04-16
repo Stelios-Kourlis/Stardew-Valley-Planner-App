@@ -86,16 +86,18 @@ public class MapController : MonoBehaviour {
 
             Debug.Log("Start " + DateTime.Now);
 
-            foreach (string line in mapData) {
-                string[] parts = line.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 3) {
-                    int x = int.Parse(parts[0].Trim());
-                    int y = int.Parse(parts[1].Trim());
-                    int value = int.Parse(parts[2].Trim());
-                    Vector3Int key = new(x, y, 0);
-                    tileDataDict[key] = value;
+            await Task.Run(() => {
+                foreach (string line in mapData) {
+                    string[] parts = line.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 3) {
+                        int x = int.Parse(parts[0].Trim());
+                        int y = int.Parse(parts[1].Trim());
+                        int value = int.Parse(parts[2].Trim());
+                        Vector3Int key = new(x, y, 0);
+                        tileDataDict[key] = value;
+                    }
                 }
-            }
+            });
 
             Debug.Log("Half " + DateTime.Now);
 

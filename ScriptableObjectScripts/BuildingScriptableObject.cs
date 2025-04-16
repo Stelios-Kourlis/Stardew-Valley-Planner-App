@@ -43,7 +43,7 @@ public class BuildingScriptableObject : ScriptableObject {
     public bool isCave;
 
     public bool isPaintable;
-    public PaintableLayer[] paintableLayers;
+    public Sprite paintMask;
 
     public bool isEnterable;
     public ButtonTypes[] interiorInteractions;

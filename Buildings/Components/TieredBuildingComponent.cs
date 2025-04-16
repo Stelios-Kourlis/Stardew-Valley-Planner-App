@@ -9,13 +9,16 @@ using UnityEngine.U2D;
 using static Utility.ClassManager;
 
 [Serializable]
-public class BuildingTier {
+public class BuildingTier
+{
     public int tier;
     public List<MaterialCostEntry> costToUpgradeToThatTier;
+    public Sprite paintMask;
 }
 
 [RequireComponent(typeof(Building))]
-public class TieredBuildingComponent : BuildingComponent {
+public class TieredBuildingComponent : BuildingComponent
+{
 
     /// <summary> The current tier of the building, to change it use SetTier() instead </summary>
     [field: SerializeField] public int Tier { get; set; } = 1;
@@ -24,20 +27,25 @@ public class TieredBuildingComponent : BuildingComponent {
     public Action<int> tierChanged;
     public BuildingTier[] tiers;
 
-    public List<MaterialCostEntry> GetMaterialsNeeded() {
+    public List<MaterialCostEntry> GetMaterialsNeeded()
+    {
         return tiers[Tier - 1].costToUpgradeToThatTier;
     }
 
-    public virtual void SetTier(int tier) {
+    public virtual void SetTier(int tier)
+    {
         Tier = tier;
         Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
         tierChanged?.Invoke(tier);
     }
 
-    public override void Load(BuildingScriptableObject bso) {
+    public override void Load(BuildingScriptableObject bso)
+    {
         tiers = bso.tiers;
-        for (int tier = 1; tier <= MaxTier; tier++) {
-            string tierStr = tier switch {
+        for (int tier = 1; tier <= MaxTier; tier++)
+        {
+            string tierStr = tier switch
+            {
                 1 => "ONE",
                 2 => "TWO",
                 3 => "THREE",
@@ -50,11 +58,13 @@ public class TieredBuildingComponent : BuildingComponent {
         SetTier(1);
     }
 
-    public override BuildingData.ComponentData Save() {
+    public override BuildingData.ComponentData Save()
+    {
         return new(typeof(TieredBuildingComponent), new() { new JProperty("Tier", Tier) });
     }
 
-    public override void Load(BuildingData.ComponentData data) {
+    public override void Load(BuildingData.ComponentData data)
+    {
         SetTier(data.GetComponentDataPropertyValue<int>("Tier"));
     }
 }

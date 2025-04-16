@@ -7,27 +7,36 @@ using UnityEngine.UI;
 using static Utility.TilemapManager;
 using static Utility.SpriteManager;
 
-public enum PaintableLayerType {
-    Building,
-    Trim,
-    Roof
+public enum PaintableParts {
+    ROOF,
+    TRIM,
+    BUILDING
 }
 
-[Serializable]
-public class PaintableLayer {
-    public PaintableLayerType type;
-    public Sprite sprite;
-    [HideInInspector] public Color color;
-    [HideInInspector] public Tilemap tilemap;
-}
 
 [RequireComponent(typeof(Building))]
 public class PaintableBuildingComponent : BuildingComponent {
 
-    public PaintableLayer[] layers;
+    private Color ROOF = Color.green;
+    private Color TRIM = Color.blue;
+    private Color BUILDING = Color.red;
+
+
+    [SerializeField] private Sprite paintMask;
     private static GameObject paintMenuPrefab;
     private GameObject paintMenu;
-    private PaintableLayer currentLayer;
+    private PaintableParts selectedPart = PaintableParts.ROOF;
+
+    private String selectedPartRefrence {
+        get {
+            return selectedPart switch {
+                PaintableParts.ROOF => "_Roof",
+                PaintableParts.TRIM => "_Trim",
+                PaintableParts.BUILDING => "_Building",
+                _ => throw new NotImplementedException(),
+            };
+        }
+    }
 
     public void Start() {
         Building.BuildingPlaced += _ => PlaceLayers();
@@ -36,36 +45,46 @@ public class PaintableBuildingComponent : BuildingComponent {
     private void PlaceLayers() {
         // GameObject paintMenuPrefab = Resources.Load<GameObject>("UI/PaintMenu");
         paintMenu = HUDButtonCotroller.CreatePanelNextToButton(paintMenuPrefab, GetComponent<InteractableBuildingComponent>().GetInteractionButtonTransform(ButtonTypes.PAINT));
+
+        foreach (Transform buttonTransform in paintMenu.transform.Find("LayerChoose")) {
+            Button button = buttonTransform.GetComponent<Button>();
+            button.onClick.AddListener(() => {
+                selectedPart = buttonTransform.name switch {
+                    "Roof" => PaintableParts.ROOF,
+                    "Trim" => PaintableParts.TRIM,
+                    "Building" => PaintableParts.BUILDING,
+                    _ => throw new NotImplementedException(),
+                };
+            });
+        }
+
+        Material material = new(Shader.Find("Shader Graphs/colorChange"));
+        gameObject.GetComponent<TilemapRenderer>().material = material;
+        material.SetTexture("_MainTex", Building.Sprite.texture);
+        material.SetTexture("_PaintMask", paintMask.texture);
         // Resources.UnloadAsset(paintMenuPrefab);
 
         Transform sliders = paintMenu.transform.Find("Sliders");
         sliders.Find("H").GetComponent<Slider>().onValueChanged.AddListener(value => {
-            Color.RGBToHSV(currentLayer.color, out float H, out float S, out float V);
+            Color layerColor = material.GetColor(selectedPartRefrence);
+            Color.RGBToHSV(layerColor, out float H, out float S, out float V);
             H = Normalize((int)value, 0, 360);
-            currentLayer.color = Color.HSVToRGB(H, S, V);
-            currentLayer.tilemap.color = currentLayer.color;
+            material.SetColor(selectedPartRefrence, Color.HSVToRGB(H, S, V));
         });
 
         sliders.Find("S").GetComponent<Slider>().onValueChanged.AddListener(value => {
-            Color.RGBToHSV(currentLayer.color, out float H, out float S, out float V);
-            S = Normalize((int)value, 0, 100);
-            currentLayer.color = Color.HSVToRGB(H, S, V);
-            currentLayer.tilemap.color = currentLayer.color;
+            Color layerColor = material.GetColor(selectedPartRefrence);
+            Color.RGBToHSV(layerColor, out float H, out float S, out float V);
+            S = Normalize((int)value, 0, 86);
+            material.SetColor(selectedPartRefrence, Color.HSVToRGB(H, S, V));
         });
 
         sliders.Find("V").GetComponent<Slider>().onValueChanged.AddListener(value => {
-            Color.RGBToHSV(currentLayer.color, out float H, out float S, out float V);
-            V = Normalize((int)value, 0, 100);
-            currentLayer.color = Color.HSVToRGB(H, S, V);
-            currentLayer.tilemap.color = currentLayer.color;
+            Color layerColor = material.GetColor(selectedPartRefrence);
+            Color.RGBToHSV(layerColor, out float H, out float S, out float V);
+            V = Normalize((int)value, 25, 86);
+            material.SetColor(selectedPartRefrence, Color.HSVToRGB(H, S, V));
         });
-
-        foreach (PaintableLayer layer in layers) {
-            if (layer.sprite == null) continue;
-            GameObject layerObject = CreateTilemapObject(Building.transform, Building.TilemapRenderer.sortingOrder, layer.type.ToString());
-            layerObject.GetComponent<Tilemap>().SetTiles(Building.SpriteCoordinates, SplitSprite(layer.sprite));
-            layer.tilemap = layerObject.GetComponent<Tilemap>();
-        }
     }
 
 
@@ -83,7 +102,7 @@ public class PaintableBuildingComponent : BuildingComponent {
     }
 
     public override void Load(BuildingScriptableObject bso) {
-        layers = bso.paintableLayers;
+        paintMask = bso.paintMask;
         if (paintMenuPrefab == null) paintMenuPrefab = Resources.Load<GameObject>("UI/PaintMenu");
 
         GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.PAINT);
