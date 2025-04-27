@@ -55,7 +55,7 @@ public class BuildingButtonController : MonoBehaviour {
     }
 
     public void UpdateButtonPositionsAndScaleForBuilding(Building building) {
-        if (BuildingController.isInsideBuilding.Key) return;
+        if (BuildingController.playerLocation.isInsideBuilding) return;
         float buttonScale = 10f / GetCamera().GetComponent<Camera>().orthographicSize;
         GameObject buttonParent = building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject;
         buttonParent.transform.position = Camera.main.WorldToScreenPoint(GetMiddleOfBuildingWorld(building));

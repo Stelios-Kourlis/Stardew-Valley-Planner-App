@@ -281,16 +281,14 @@ public class EnterableBuildingComponent : BuildingComponent {
             UpdateBuildingInterior();
         }
 
-        if (BuildingController.isInsideBuilding.Key) ExitBuildingInteriorEditing();
+        if (BuildingController.playerLocation.isInsideBuilding) ExitBuildingInteriorEditing();
         else EditBuildingInterior();
     }
 
 
 
     public void EditBuildingInterior() {
-        BuildingController.isInsideBuilding = new KeyValuePair<bool, EnterableBuildingComponent>(true, this);
-
-        // SceneManager.LoadScene(BuildingInteriorScene.name, LoadSceneMode.Additive);
+        BuildingController.playerLocation = (true, this);
 
         GetComponent<InteractableBuildingComponent>().BuildingWasPlaced(); //if the buttons havent been added yet. add them
 
@@ -330,7 +328,7 @@ public class EnterableBuildingComponent : BuildingComponent {
     }
 
     public void ExitBuildingInteriorEditing() {
-        BuildingController.isInsideBuilding = new KeyValuePair<bool, EnterableBuildingComponent>(false, null);
+        BuildingController.playerLocation = (false, null);
 
         foreach (GameObject obj in BuildingInteriorScene.GetRootGameObjects()) {
             obj.SetActive(false);

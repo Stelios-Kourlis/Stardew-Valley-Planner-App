@@ -13,7 +13,7 @@ namespace Utility {
         // public static BuildingController GetBuildingController() { return GameObject.FindGameObjectWithTag("Grid").GetComponent<BuildingController>(); }
 
         public static Tilemap GetGridTilemap() {
-            if (BuildingController.isInsideBuilding.Key) return SceneManager.GetActiveScene().GetRootGameObjects().First(go => go.name == "Grid").GetComponent<Tilemap>();
+            if (BuildingController.playerLocation.isInsideBuilding) return SceneManager.GetActiveScene().GetRootGameObjects().First(go => go.name == "Grid").GetComponent<Tilemap>();
             return GameObject.FindGameObjectWithTag("Grid").GetComponent<Tilemap>();
         }
 

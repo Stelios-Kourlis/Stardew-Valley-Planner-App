@@ -133,7 +133,7 @@ public class MapController : MonoBehaviour {
         CurrentMapType = mapType;
         BuildingController.DeleteAllBuildings(true);
         BuildingController.mapSpecialCoordinates.ClearAll();
-        if (BuildingController.isInsideBuilding.Key) BuildingController.isInsideBuilding.Value.ExitBuildingInteriorEditing();
+        if (BuildingController.playerLocation.isInsideBuilding) BuildingController.playerLocation.enterableBuildingComponent.ExitBuildingInteriorEditing();
 
         UndoRedoController.ClearLogs();
 

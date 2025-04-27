@@ -252,14 +252,14 @@ public class OnboradingFlow : MonoBehaviour {
         void onHouseExit() {
             Destroy(text);
             Destroy(legend);
-            BuildingController.isInsideBuilding.Value.interiorButtonClicked -= (type) => { if (type == ButtonTypes.ENTER) onHouseExit(); };
+            BuildingController.playerLocation.enterableBuildingComponent.interiorButtonClicked -= (type) => { if (type == ButtonTypes.ENTER) onHouseExit(); };
             foreach (GameObject interactionButton in enterableBuildingComponent.interiorButtons) {
                 interactionButton.GetComponent<Button>().interactable = true;
             }
             ShowSettingsAndTotalMaterialCost();
         }
 
-        BuildingController.isInsideBuilding.Value.interiorButtonClicked += (type) => { if (type == ButtonTypes.ENTER) onHouseExit(); };
+        BuildingController.playerLocation.enterableBuildingComponent.interiorButtonClicked += (type) => { if (type == ButtonTypes.ENTER) onHouseExit(); };
     }
 
     public void ShowSettingsAndTotalMaterialCost() {

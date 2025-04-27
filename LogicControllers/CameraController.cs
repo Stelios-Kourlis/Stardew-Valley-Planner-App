@@ -67,7 +67,7 @@ public class CameraController : MonoBehaviour {
                 float maxHorizontalSize = tilemapBounds.size.x / 2 / mainCamera.aspect;
                 float maxCamSize = Mathf.Min(maxVerticalSize, maxHorizontalSize);
 
-                if (BuildingController.isInsideBuilding.Key) maxCamSize *= 2;
+                if (BuildingController.playerLocation.isInsideBuilding) maxCamSize *= 2;
 
                 newCamSize = Mathf.Clamp(newCamSize, 6f, maxCamSize);
                 //newCamSize = Mathf.Clamp(newCamSize, 6f, 22.28f); //Where did I even get these numbers from????
@@ -92,7 +92,7 @@ public class CameraController : MonoBehaviour {
         if (tilemapBounds.Contains(cameraPosition)) return; //if the camera is inside the bounds, don't clamp it;
         // Debug.Log(tilemapBounds);
 
-        if (BuildingController.isInsideBuilding.Key) { //keep only the camera center in bounds
+        if (BuildingController.playerLocation.isInsideBuilding) { //keep only the camera center in bounds
             clampedX = Mathf.Clamp(cameraPosition.x, tilemapBounds.min.x, tilemapBounds.max.x);
             clampedY = Mathf.Clamp(cameraPosition.y, tilemapBounds.min.y, tilemapBounds.max.y);
         }

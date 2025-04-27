@@ -163,8 +163,8 @@ public class AnimalHouseComponent : BuildingComponent {
         // GameObject animalMenu = UIElements[0];
         // GameObject animalsInBuilding = UIElements[1];
 
-        if (BuildingController.isInsideBuilding.Key) {
-            EnterableBuildingComponent enterableBuildingComponent = BuildingController.isInsideBuilding.Value;
+        if (BuildingController.playerLocation.isInsideBuilding) {
+            EnterableBuildingComponent enterableBuildingComponent = BuildingController.playerLocation.enterableBuildingComponent;
 
             AnimalMenu.transform.SetParent(enterableBuildingComponent.interiorSceneCanvas.transform);
             AnimalMenu.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.5f);

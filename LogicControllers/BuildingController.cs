@@ -19,7 +19,8 @@ public static class BuildingController {
     public static BuildingType currentBuildingType = BuildingType.Stable;
     public static Actions CurrentAction { get; private set; } = Actions.PLACE;
     public static bool IsLoadingSave { get; set; } = false;
-    public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
+    // public static KeyValuePair<bool, EnterableBuildingComponent> isInsideBuilding = new(false, null);
+    public static (bool isInsideBuilding, EnterableBuildingComponent enterableBuildingComponent) playerLocation = (false, null);
     public static Transform CurrentTilemapTransform { get; private set; }
 
     public static HashSet<GameObject> buildingGameObjects = new();

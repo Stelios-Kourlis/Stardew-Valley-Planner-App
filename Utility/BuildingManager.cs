@@ -43,7 +43,7 @@ namespace Utility {
                 unavailableCoordinates = unavailableCoordinates.Except(buildingBaseCoordinates).ToHashSet();
             }
             if (unavailableCoordinates.Intersect(baseCoordinates).Count() > 0) { errorMessage = $"Can't place {building.BuildingName} there"; return false; }
-            if (BuildingController.isInsideBuilding.Key && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) { errorMessage = $"Can't place {building.BuildingName} outside of bounds"; return false; }
+            if (BuildingController.playerLocation.isInsideBuilding && baseCoordinates.Any(coord => !CoordinateIsWithinBounds(coord, unavailableCoordinates))) { errorMessage = $"Can't place {building.BuildingName} outside of bounds"; return false; }
 
             MapController.MapTypes mapType = GetMapController().CurrentMapType;
             HashSet<BuildingType> actualBuildings = new(){
@@ -69,7 +69,7 @@ namespace Utility {
 
             if ((building.type == BuildingType.Crop || building.type == BuildingType.Tree) && !plantableCoordinates.Contains(position)) { errorMessage = $"Can't place a {building.type} there"; return false; }
 
-            if (BuildingController.isInsideBuilding.Key && actualBuildings.Contains(building.type)) { errorMessage = "Can't place a building inside another building"; return false; }
+            if (BuildingController.playerLocation.isInsideBuilding && actualBuildings.Contains(building.type)) { errorMessage = "Can't place a building inside another building"; return false; }
             errorMessage = "";
             return true;
         }

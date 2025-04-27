@@ -81,7 +81,7 @@ public class InteractableBuildingComponent : BuildingComponent {
 
     public void OnMouseRightClick() {
         if (ButtonParentGameObject == null) return;
-        if (!BuildingController.isInsideBuilding.Key) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
+        if (!BuildingController.playerLocation.isInsideBuilding) ButtonParentGameObject.SetActive(!ButtonParentGameObject.activeSelf);
         UpdateButtonParentGameObject();
         BuildingWasRightClicked?.Invoke();
     }
