@@ -140,7 +140,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         else RemoveSpouseRoom();
         UndoRedoController.ignoreAction = false;
 
-        UndoRedoController.AddActionToLog(new(ModificationMenu, HouseModifications.Marriage, isMarried));
+        UndoRedoController.AddActionToLog(new HouseRenovationRecord(ModificationMenu, HouseModifications.Marriage, isMarried));
 
         // ResolveConflicts(HouseModifications.Marriage, isMarried);
 
@@ -184,7 +184,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseSpecialTileSet.AddOffset(spouseRoomOrigin);
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
-        UndoRedoController.AddActionToLog(new(ModificationMenu, oldSpouse, spouse));
+        UndoRedoController.AddActionToLog(new SpouseChangeRecord(ModificationMenu, (oldSpouse, spouse)));
     }
 
     private Vector3Int GetSpouseRoomOrigin() {
@@ -241,7 +241,7 @@ public class HouseExtensionsComponent : BuildingComponent {
                 overlapTilemap.ClearAllTiles();
                 ApplyRenovation(modification, isOn);
                 UndoRedoController.ignoreAction = false;
-                if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new(ModificationMenu, modification, isOn, buildingsDeleted));
+                if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new HouseRenovationRecord(ModificationMenu, modification, isOn, buildingsDeleted));
                 Destroy(warning);
             });
             warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => {
@@ -261,7 +261,7 @@ public class HouseExtensionsComponent : BuildingComponent {
             UndoRedoController.ignoreAction = true; //to ignore any wall changes
             ApplyRenovation(modification, isOn);
             UndoRedoController.ignoreAction = false;
-            if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new(ModificationMenu, modification, isOn));
+            if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new HouseRenovationRecord(ModificationMenu, modification, isOn));
         }
     }
 

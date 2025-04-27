@@ -5,7 +5,7 @@ using UnityEngine;
 public enum Actions {
     PLACE,
     DELETE,
-    EDIT,
+    PICKUP,
     DO_NOTHING,
     PLACE_WALLPAPER,
     PLACE_FLOORING,

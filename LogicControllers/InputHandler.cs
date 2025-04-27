@@ -9,7 +9,6 @@ using static Utility.BuildingManager;
 using static Utility.ClassManager;
 using static Utility.SpriteManager;
 using System;
-using System.Diagnostics.Eventing.Reader;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.CodeDom;
@@ -110,7 +109,7 @@ public class InputHandler : MonoBehaviour {
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.Edit)) {
-            BuildingController.SetCurrentAction(Actions.EDIT);
+            BuildingController.SetCurrentAction(Actions.PICKUP);
             NotificationManager.Instance.SendNotification("Set mode to edit", NotificationManager.Icons.InfoIcon);
         }
 
@@ -204,13 +203,13 @@ public class InputHandler : MonoBehaviour {
                             List<BuildingData> buildingsCreatedData = new();
                             foreach (Vector3Int position in mouseCoverageArea) {
                                 BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
-                                BuildingSaverLoader.Instance.SaveBuilding(BuildingController.LastBuildingPlaced);
+                                buildingsCreatedData.Add(BuildingSaverLoader.Instance.SaveBuilding(BuildingController.LastBuildingPlaced));
                             }
                             UndoRedoController.ignoreAction = false;
-                            UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, buildingsCreatedData));
+                            UndoRedoController.AddActionToLog(new BuildingPlaceRecord(buildingsCreatedData));
                         }
                         break;
-                    case Actions.EDIT:
+                    case Actions.PICKUP:
                         building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && BuildingIsAtSameSceneAsCamera(building));
                         if (building != null) building.PickupBuilding();
                         break;
@@ -225,11 +224,11 @@ public class InputHandler : MonoBehaviour {
                             buildingToDelete.DeleteBuilding();
                         }
                         UndoRedoController.ignoreAction = false;
-                        UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, buildingsDeletedData));
+                        UndoRedoController.AddActionToLog(new BuildingDeleteRecord(buildingsDeletedData));
                         break;
                     case Actions.PLACE_WALLPAPER:
-                        if (BuildingController.isInsideBuilding.Key) {
-                            WallsComponent component = BuildingController.isInsideBuilding.Value.gameObject.GetComponent<WallsComponent>();
+                        if (BuildingController.playerLocation.isInsideBuilding) {
+                            WallsComponent component = BuildingController.playerLocation.enterableBuildingComponent.gameObject.GetComponent<WallsComponent>();
                             Vector3 mousePositionInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3Int mousePositionInInteriorTilemap = component.wallPaperTilemap.WorldToCell(mousePositionInWorld);
                             mousePositionInInteriorTilemap.z = 0;
@@ -237,8 +236,8 @@ public class InputHandler : MonoBehaviour {
                         }
                         break;
                     case Actions.PLACE_FLOORING:
-                        if (BuildingController.isInsideBuilding.Key) {
-                            FlooringComponent component = BuildingController.isInsideBuilding.Value.gameObject.GetComponent<FlooringComponent>();
+                        if (BuildingController.playerLocation.isInsideBuilding) {
+                            FlooringComponent component = BuildingController.playerLocation.enterableBuildingComponent.gameObject.GetComponent<FlooringComponent>();
                             Vector3 mousePositionInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3Int mousePositionInInteriorTilemap = component.flooringTilemap.WorldToCell(mousePositionInWorld);
                             mousePositionInInteriorTilemap.z = 0;
@@ -292,14 +291,14 @@ public class InputHandler : MonoBehaviour {
 
         // //Hover Exit
         bool isHoveredBuildingStillUnderMouse = !hoveredBuilding?.BaseCoordinates?.Contains(mousePosition) ?? false;
-        if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.isInsideBuilding.Key) {
+        if (hoveredBuilding != null && isHoveredBuildingStillUnderMouse && !BuildingController.playerLocation.isInsideBuilding) {
             if (hoveredBuilding.CurrentBuildingState == Building.BuildingState.PLACED) hoveredBuilding.NoPreview();
             hoveredBuilding = null;
         }
 
         // //Hover Enter
         Building BuildingUnderMouse = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
-        bool isInsideBuilding = BuildingController.isInsideBuilding.Key;
+        bool isInsideBuilding = BuildingController.playerLocation.isInsideBuilding;
         if (BuildingUnderMouse != null && !isInsideBuilding) {
             hoveredBuilding = BuildingController.buildings.FirstOrDefault(b => b.BaseCoordinates.Contains(mousePosition));
             hoveredBuilding.DoBuildingPreview();

@@ -186,7 +186,7 @@ public class FlooringComponent : BuildingComponent {
         if (floor == null) return;
         int oldFloorTextureID = floor.floorTextureID;
         floor.ApplyFloorTexture(selectedFloorTextureID);
-        UndoRedoController.AddActionToLog(new UserAction(this, floorPosition, oldFloorTextureID, selectedFloorTextureID));
+        UndoRedoController.AddActionToLog(new FlooringChangeRecord(this, floorPosition, (oldFloorTextureID, selectedFloorTextureID)));
     }
 
     public void ApplyFloorTexture(Vector3Int floorPosition, int floorTextureID) {

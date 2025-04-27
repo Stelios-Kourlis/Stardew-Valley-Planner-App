@@ -194,7 +194,7 @@ public class WallsComponent : BuildingComponent {
         if (wall == null) return;
         int oldId = wall.wallpaperId;
         wall.ApplyWallpaper(selectedWallpaperId);
-        UndoRedoController.AddActionToLog(new UserAction(this, point, oldId, selectedWallpaperId));
+        UndoRedoController.AddActionToLog(new WallpaperChangeRecord(this, point, (oldId, selectedWallpaperId)));
     }
 
     public void ApplyWallpaper(Vector3Int point, int wallpaperId) {

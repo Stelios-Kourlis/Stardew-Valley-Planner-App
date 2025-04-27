@@ -101,7 +101,7 @@ public class Building : TooltipableGameObject {
             BuildingController.buildingGameObjects.Remove(gameObject);
             BuildingController.buildings.Remove(this);
             InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{Base}");
-            UndoRedoController.AddActionToLog(new UserAction(Actions.DELETE, BuildingSaverLoader.Instance.SaveBuilding(this)));
+            UndoRedoController.AddActionToLog(new BuildingDeleteRecord(BuildingSaverLoader.Instance.SaveBuilding(this)));
             if (TryGetComponent(out InteractableBuildingComponent component)) Destroy(component.ButtonParentGameObject);
         }
         BuildingRemoved?.Invoke();
@@ -116,7 +116,7 @@ public class Building : TooltipableGameObject {
             // case Actions.PLACE: //Place is handled diffrently
             //     PlaceBuildingPreview(GetMousePositionInTilemap());
             //     break;
-            case Actions.EDIT:
+            case Actions.PICKUP:
                 PickupBuildingPreview();
                 break;
             case Actions.DELETE:
@@ -167,7 +167,7 @@ public class Building : TooltipableGameObject {
         Tilemap.ClearAllTiles();
         BuildingController.CurrentBuildingBeingPlaced = this;
         BuildingController.SetCurrentAction(Actions.PLACE);
-        UndoRedoController.AddActionToLog(new UserAction(Actions.EDIT, BuildingSaverLoader.Instance.SaveBuilding(this)));
+        UndoRedoController.AddActionToLog(new BuildingPickupRecord(BuildingSaverLoader.Instance.SaveBuilding(this)));
         InvalidTilesManager.Instance.CurrentCoordinateSet.RemoveSpecialTileSet($"{BuildingName}{Base}");
         buildingData = BuildingSaverLoader.Instance.SaveBuilding(this);
         CurrentBuildingState = BuildingState.PICKED_UP;
@@ -211,7 +211,7 @@ public class Building : TooltipableGameObject {
         CurrentBuildingState = BuildingState.PLACED;
         if (wasPickedUp) {
             BuildingSaverLoader.Instance.LoadSavedComponents(this, buildingData);
-            BuildingController.SetCurrentAction(Actions.EDIT);
+            BuildingController.SetCurrentAction(Actions.PICKUP);
         }
         else {
             BuildingController.buildingGameObjects.Add(gameObject);
@@ -221,7 +221,7 @@ public class Building : TooltipableGameObject {
         InvalidTilesManager.Instance.CurrentCoordinateSet.AddSpecialTileSet(new($"{BuildingName}{Base}", BaseCoordinates.ToHashSet(), TileType.Invalid));
         BuildingController.LastBuildingPlaced = this;
         if (!wasPickedUp) BuildingController.CreateNewBuilding();
-        UndoRedoController.AddActionToLog(new UserAction(Actions.PLACE, BuildingSaverLoader.Instance.SaveBuilding(this)));
+        UndoRedoController.AddActionToLog(new BuildingPlaceRecord(BuildingSaverLoader.Instance.SaveBuilding(this)));
         BuildingController.anyBuildingPositionChanged?.Invoke();
         BuildingPlaced?.Invoke(Base);
         return true;

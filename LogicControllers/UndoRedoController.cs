@@ -5,11 +5,11 @@ using System.Linq;
 using UnityEngine;
 
 public static class UndoRedoController {
-    private static readonly Stack<UserAction> actionLog = new();
-    private static readonly Stack<UserAction> undoLog = new();
+    private static readonly Stack<UserActionRecord> actionLog = new();
+    private static readonly Stack<UserActionRecord> undoLog = new();
     public static bool ignoreAction = false;
 
-    public static void AddActionToLog(UserAction action) {
+    public static void AddActionToLog(UserActionRecord action) {
         if (ignoreAction) return;
         actionLog.Push(action);
         undoLog.Clear();
@@ -17,83 +17,89 @@ public static class UndoRedoController {
     public static void UndoLastAction() {
         if (actionLog.Count == 0) { NotificationManager.Instance.SendNotification("Nothing to undo", NotificationManager.Icons.InfoIcon); return; }
 
-        UserAction lastAction = actionLog.Pop();
+        UserActionRecord lastAction = actionLog.Pop();
         Debug.Log($"Undoing action {lastAction}");
         undoLog.Push(lastAction);
-        Actions action = lastAction.action;
+        // Actions action = lastAction.Action;
         ignoreAction = true;
         BuildingController.IsLoadingSave = true;
-        switch (action) {
-            case Actions.PLACE:
-                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingController.FindAndDeleteBuilding(buildingData.lowerLeftCorner);
+        switch (lastAction) {
+            case BuildingPlaceRecord buildingPlaceRecord:
+                foreach (BuildingData buildingData in buildingPlaceRecord.BuildingData) BuildingController.FindAndDeleteBuilding(buildingData.lowerLeftCorner);
                 break;
-            case Actions.DELETE:
-            case Actions.EDIT:
-                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingSaverLoader.Instance.LoadBuilding(buildingData);
-                // BuildingController.CreateNewBuilding();
+            case BuildingPickupRecord buildingPickupRecord:
+                BuildingSaverLoader.Instance.LoadBuilding(buildingPickupRecord.BuildingData);
                 break;
-            case Actions.PLACE_WALLPAPER:
-                Debug.Log(lastAction.wallsComponent);
-                lastAction.wallsComponent.ApplyWallpaper(lastAction.textureApplyPoint, lastAction.textureChange.Item1);
+            case BuildingDeleteRecord buildingDeleteRecord:
+                foreach (BuildingData buildingData in buildingDeleteRecord.BuildingData) BuildingSaverLoader.Instance.LoadBuilding(buildingData);
                 break;
-            case Actions.PLACE_FLOORING:
-                lastAction.flooringComponent.ApplyFloorTexture(lastAction.textureApplyPoint, lastAction.textureChange.Item1);
+            case WallpaperChangeRecord wallpaperChangeRecord:
+                wallpaperChangeRecord.WallsComponent.ApplyWallpaper(wallpaperChangeRecord.WallPoint, wallpaperChangeRecord.TextureChange.OldWallpaper);
                 break;
-            case Actions.HOUSE_RENOVATION:
-                lastAction.houseModificationMenu.GetModificationToggle(lastAction.extensionChanged).isOn = !lastAction.newExtensionStatus;
-                foreach (BuildingData buildingData in lastAction.BuildingData)
+            case FlooringChangeRecord flooringChangeRecord:
+                flooringChangeRecord.FlooringComponent.ApplyFloorTexture(flooringChangeRecord.FlooringPoint, flooringChangeRecord.TextureChange.OldFloorTexture);
+                break;
+            case HouseRenovationRecord houseRenovationRecord:
+                houseRenovationRecord.HouseModificationMenu.GetModificationToggle(houseRenovationRecord.ExtensionChanged).isOn = !houseRenovationRecord.NewExtensionStatus;
+                foreach (BuildingData buildingData in houseRenovationRecord.BuildingsDeleted)
                     BuildingSaverLoader.Instance.LoadBuilding(buildingData);
                 break;
-            case Actions.CHANGE_SPOUSE:
-                lastAction.houseModificationMenu.SetSpouseDropdownValue(lastAction.oldSpouse);
+            case SpouseChangeRecord spouseChangeRecord:
+                spouseChangeRecord.HouseModificationMenu.SetSpouseDropdownValue((int)spouseChangeRecord.SpouseChange.OldSpouse);
+                break;
+            // case BuildingTierChangeRecord buildingTierChangeRecord:
+            // buildingTierChangeRecord
+            case MushroomCaveMushroomChangeRecord mushroomCaveMushroomChangeRecord:
+                mushroomCaveMushroomChangeRecord.MushroomCaveComponent.ToggleMushroomBoxes();
                 break;
             default:
-                throw new ArgumentException($"Invalid action {action}");
+                throw new ArgumentException($"Invalid Type {lastAction}");
         }
 
         ignoreAction = false;
         BuildingController.IsLoadingSave = false;
         // Debug.Log($"New last action is {actionLog.First().action + " " + actionLog.First().BuildingData.buildingType}");
-        if (actionLog.Any()) if (actionLog.First().action == Actions.EDIT) UndoLastAction();//edit is a 2 phase action, undo both phases
+        if (actionLog.Any()) if (actionLog.First() is BuildingPickupRecord) UndoLastAction();//edit is a 2 phase action, undo both phases
 
     }
 
     public static void RedoLastUndo() {
         if (undoLog.Count == 0) return;
-        UserAction lastAction = undoLog.Pop();
+        UserActionRecord lastAction = undoLog.Pop();
         actionLog.Push(lastAction);
         Debug.Log($"Redoing action {lastAction}");
-        Actions action = lastAction.action;
         ignoreAction = true;
         BuildingController.IsLoadingSave = true;
-        switch (action) {
-            case Actions.PLACE:
-                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingSaverLoader.Instance.LoadBuilding(buildingData);
+        switch (lastAction) {
+            case BuildingPlaceRecord buildingPlaceRecord:
+                foreach (BuildingData buildingData in buildingPlaceRecord.BuildingData) BuildingSaverLoader.Instance.LoadBuilding(buildingData);
                 break;
-            case Actions.DELETE:
-            case Actions.EDIT:
-                foreach (BuildingData buildingData in lastAction.BuildingData) BuildingController.FindAndDeleteBuilding(buildingData.lowerLeftCorner);
+            case BuildingPickupRecord buildingPickupRecord:
+                BuildingController.FindAndDeleteBuilding(buildingPickupRecord.BuildingData.lowerLeftCorner);
                 break;
-            case Actions.PLACE_WALLPAPER:
-                lastAction.wallsComponent.ApplyWallpaper(lastAction.textureApplyPoint, lastAction.textureChange.Item2);
+            case BuildingDeleteRecord buildingDeleteRecord:
+                foreach (BuildingData buildingData in buildingDeleteRecord.BuildingData) BuildingController.FindAndDeleteBuilding(buildingData.lowerLeftCorner);
                 break;
-            case Actions.PLACE_FLOORING:
-                lastAction.flooringComponent.ApplyFloorTexture(lastAction.textureApplyPoint, lastAction.textureChange.Item2);
+            case WallpaperChangeRecord wallpaperChangeRecord:
+                wallpaperChangeRecord.WallsComponent.ApplyWallpaper(wallpaperChangeRecord.WallPoint, wallpaperChangeRecord.TextureChange.NewWallpaper);
                 break;
-            case Actions.HOUSE_RENOVATION:
-                foreach (BuildingData buildingData in lastAction.BuildingData)
+            case FlooringChangeRecord flooringChangeRecord:
+                flooringChangeRecord.FlooringComponent.ApplyFloorTexture(flooringChangeRecord.FlooringPoint, flooringChangeRecord.TextureChange.NewFloorTexture);
+                break;
+            case HouseRenovationRecord houseRenovationRecord:
+                foreach (BuildingData buildingData in houseRenovationRecord.BuildingsDeleted)
                     BuildingController.FindAndDeleteBuilding(buildingData.lowerLeftCorner);
-                lastAction.houseModificationMenu.GetModificationToggle(lastAction.extensionChanged).isOn = lastAction.newExtensionStatus;
+                houseRenovationRecord.HouseModificationMenu.GetModificationToggle(houseRenovationRecord.ExtensionChanged).isOn = houseRenovationRecord.NewExtensionStatus;
                 break;
-            case Actions.CHANGE_SPOUSE:
-                lastAction.houseModificationMenu.SetSpouseDropdownValue(lastAction.newSpouse);
+            case SpouseChangeRecord spouseChangeRecord:
+                spouseChangeRecord.HouseModificationMenu.SetSpouseDropdownValue((int)spouseChangeRecord.SpouseChange.NewSpouse);
                 break;
             default:
-                throw new ArgumentException($"Invalid action {action}");
+                throw new ArgumentException($"Invalid action {lastAction}");
         }
         ignoreAction = false;
         BuildingController.IsLoadingSave = false;
-        if (undoLog.Any()) if (lastAction.action == Actions.EDIT) RedoLastUndo();//edit is a 2 phase action, redo both phases
+        if (undoLog.Any()) if (lastAction is BuildingPickupRecord) RedoLastUndo();//edit is a 2 phase action, redo both phases
     }
 
     public static void ClearLogs() {

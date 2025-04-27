@@ -9,11 +9,12 @@ public class CaveComponent : BuildingComponent {
     private bool hasMushroomBoxes;
 
     public void ToggleMushroomBoxes() {
+        UndoRedoController.AddActionToLog(new MushroomCaveMushroomChangeRecord(this));
         if (hasMushroomBoxes) RemoveMushroomBoxes();
         else AddMushroomBoxes();
     }
 
-    public void AddMushroomBoxes() {
+    private void AddMushroomBoxes() {
         BuildingScriptableObject mushroomBox = Resources.Load<BuildingScriptableObject>("BuildingScriptableObjects/MushroomBox");
         List<Vector3Int> positions = new(){
                             new Vector3Int(4, 6, 0),
@@ -38,10 +39,14 @@ public class CaveComponent : BuildingComponent {
         hasMushroomBoxes = true;
     }
 
-    public void RemoveMushroomBoxes() {
+    private void RemoveMushroomBoxes() {
+        BuildingController.IsLoadingSave = true;
+        UndoRedoController.ignoreAction = true;
         foreach (Transform building in BuildingController.CurrentTilemapTransform) {
             if (building.name == "Mushroom Box") building.GetComponent<Building>().DeleteBuilding(true);
         }
+        BuildingController.IsLoadingSave = false;
+        UndoRedoController.ignoreAction = false;
         hasMushroomBoxes = false;
     }
 
