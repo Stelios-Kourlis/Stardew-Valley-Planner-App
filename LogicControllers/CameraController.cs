@@ -63,6 +63,7 @@ public class CameraController : MonoBehaviour {
             if (!EventSystem.current.IsPointerOverGameObject()) {
                 float newCamSize = mainCamera.orthographicSize - Input.mouseScrollDelta.y * scrollScale;
 
+
                 float maxVerticalSize = tilemapBounds.size.y / 2;
                 float maxHorizontalSize = tilemapBounds.size.x / 2 / mainCamera.aspect;
                 float maxCamSize = Mathf.Min(maxVerticalSize, maxHorizontalSize);
@@ -138,6 +139,15 @@ public class CameraController : MonoBehaviour {
         if (moveScale == 0 && scrollScale == 0) {
             moveScale = storedMoveScale;
             scrollScale = storedScrollScale;
+        }
+    }
+
+    public void LockCamera() {
+        if (moveScale != 0 || scrollScale != 0) {
+            storedMoveScale = moveScale;
+            storedScrollScale = scrollScale;
+            moveScale = 0;
+            scrollScale = 0;
         }
     }
 

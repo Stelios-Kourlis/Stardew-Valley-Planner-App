@@ -15,6 +15,8 @@ using TMPro;
 using UnityEngine.UI;
 using Utility;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using Unity.Burst.Intrinsics;
 
 public class MapController : MonoBehaviour {
     public enum MapTypes {
@@ -35,7 +37,7 @@ public class MapController : MonoBehaviour {
     public GameObject UIButtonPrefab;
     public Scene MapScene { get; private set; }
     private float mapChangeProgressPrecent;
-    private bool backMapLoaded = false, frontMapLoaded = false;
+    private bool backMapLoaded = false, frontMapLoaded = false, isChangingMap = false;
     [SerializeField] private GameObject progressModalPrefab;
     [SerializeField] private GameObject map, mapForeground;
 
@@ -44,12 +46,10 @@ public class MapController : MonoBehaviour {
     void Awake() {
         Instance = this;
         InitializeMapButtons();
+    }
 
-        // mapAtlas = Resources.Load<SpriteAtlas>("Maps/MapAtlas");
-        // MapScene = null;
-        SetMapAsync(MapTypes.Normal);
-
-
+    void Start() {
+        StartCoroutine(SetMap(MapTypes.Normal));
     }
 
     private void InitializeMapButtons() {
@@ -62,72 +62,111 @@ public class MapController : MonoBehaviour {
             mapButton.GetComponent<ContentSizeFitter>().enabled = false;
             mapButton.transform.Find("Text").GetComponent<TMP_Text>().text = System.Text.RegularExpressions.Regex.Replace(type.ToString(), "(?<!^)([A-Z])", " $1");
             mapButton.transform.Find("Text").GetComponent<TMP_Text>().fontSize = 50;
-            mapButton.GetComponent<Button>().onClick.AddListener(() => SetMapAsync(type));
+            mapButton.GetComponent<Button>().onClick.AddListener(() => StartCoroutine(SetMap(type)));
         }
     }
 
-    public async void SetMapAsync(MapTypes mapType) {
+    public IEnumerator SetMap(MapTypes mapType) {
 
         IEnumerator ShowMapChangeProgress() {
             GameObject progressModal = Instantiate(progressModalPrefab, GetCanvasGameObject().transform);
             progressModal.transform.Find("ProgressText").GetComponent<TMP_Text>().text = mapChangeProgressPrecent / 2 + (backMapLoaded ? 50 : 0) + "%";
             while (!frontMapLoaded) {
                 progressModal.transform.Find("Bar").Find("BarFill").GetComponent<RectTransform>().sizeDelta = new(mapChangeProgressPrecent * 3 + (backMapLoaded ? 300 : 0), progressModal.transform.Find("Bar").Find("BarFill").GetComponent<RectTransform>().sizeDelta.y);
+                progressModal.transform.Find("ProgressText").GetComponent<TMP_Text>().text = mapChangeProgressPrecent / 2 + (backMapLoaded ? 50 : 0) + "%";
                 yield return null;
             }
             Destroy(progressModal);
         }
 
-        async Task PopulateTilemapFromFileData(Tilemap tilemap, TextAsset file) {
+        IEnumerator PopulateTilemapFromFileData(Tilemap tilemap, TextAsset file) {
             tilemap.ClearAllTiles();
             string[] mapData = file.text.Split(",\n", StringSplitOptions.RemoveEmptyEntries);
 
-            Dictionary<Vector3Int, int> tileDataDict = new();
+            Dictionary<Vector3Int, int> tileDataDict = new(); //each coordinate with the tile that should be there
 
-            // Debug.Log("Start " + DateTime.Now);
-
-            await Task.Run(() => {
-                foreach (string line in mapData) {
-                    string[] parts = line.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length == 3) {
-                        int x = int.Parse(parts[0].Trim());
-                        int y = int.Parse(parts[1].Trim());
-                        int value = int.Parse(parts[2].Trim());
-                        Vector3Int key = new(x, y, 0);
-                        tileDataDict[key] = value;
-                    }
+            foreach (string line in mapData) { //Parse the tile data from the file, fast no need to worry about performance here
+                string[] parts = line.Split(new[] { ',', ':' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 3) {
+                    int x = int.Parse(parts[0].Trim());
+                    int y = int.Parse(parts[1].Trim());
+                    int value = int.Parse(parts[2].Trim());
+                    Vector3Int key = new(x, y, 0);
+                    tileDataDict[key] = value;
                 }
-            });
-
-            // Debug.Log("Half " + DateTime.Now);
+            }
 
             Tile[] tiles = Resources.LoadAll<Tile>($"Tiles");
-            Array.Sort(tiles, (tile1, tile2) => {
+            Array.Sort(tiles, (tile1, tile2) => { //Sort tiles by number
                 int num1 = int.Parse(tile1.name.Replace("Tile", ""));
                 int num2 = int.Parse(tile2.name.Replace("Tile", ""));
                 return num1.CompareTo(num2);
             });
+
             int tilesPlaced = 0;
             List<Tile> tilesToPlace = new();
-            await Task.Run(() => { //this used to be slow, now not so much. Is await still needed?
-                foreach (KeyValuePair<Vector3Int, int> tileData in tileDataDict) {
-                    tilesToPlace.Add(tiles[tileData.Value]);
-                    mapChangeProgressPrecent = (float)++tilesPlaced / tileDataDict.Count * 100;
+            List<Vector3Int> tilePositions = new();
+            int targetFrameRate = 30; //fps
+            long maxFrameTimeMs = 1000 / targetFrameRate;
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            foreach (KeyValuePair<Vector3Int, int> tileData in tileDataDict) { //place the tiles in the tilemap
+                tilesToPlace.Add(tiles[tileData.Value]);
+                tilePositions.Add(tileData.Key);
+                // tilemap.SetTile(tileData.Key, tiles[tileData.Value]);
+                tilesPlaced++;
+                // if (tilesPlaced % 100 == 0) UnityEngine.Debug.Log(tilesPlaced);
+                if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs || tileData.Key == tileDataDict.Last().Key) { //next frame
+                    stopwatch.Restart();
+                    tilemap.SetTiles(tilePositions.ToArray(), tilesToPlace.ToArray());
+                    tilePositions.Clear();
+                    tilesToPlace.Clear();
+                    mapChangeProgressPrecent = (float)tilesPlaced / tileDataDict.Count * 100;
+                    yield return null;
                 }
+            }
 
-                // Debug.Log("Done " + DateTime.Now);
-            });
+            if (tilePositions.Count > 0) {
+                tilemap.SetTiles(tilePositions.ToArray(), tilesToPlace.ToArray());
+                tilePositions.Clear();
+                tilesToPlace.Clear();
+            }
+
+
+            yield return null;
             tiles = null;
-            tilemap.SetTiles(tileDataDict.Keys.ToArray(), tilesToPlace.ToArray());
+            // tilemap.SetTiles(tileDataDict.Keys.ToArray(), tilesToPlace.ToArray());
             Resources.UnloadUnusedAssets();
 
-            tilemap.CompressBounds();
+            int minX = tileDataDict.Keys.Min(v => v.x);
+            int maxX = tileDataDict.Keys.Max(v => v.x);
+            int minY = tileDataDict.Keys.Min(v => v.y);
+            int maxY = tileDataDict.Keys.Max(v => v.y);
+            Vector3Int origin = new(minX, minY, 0);
+            Vector3Int size = new(maxX - minX + 1, maxY - minY + 1, 1);
+
+            tilemap.size = size;
+            tilemap.origin = origin;
+            tilemap.ResizeBounds();
         }
 
-        if (CurrentMapType == mapType && MapScene.name != null) return;
+        if (CurrentMapType == mapType && MapScene.name != null) { UnityEngine.Debug.Log("Error Loading Map"); yield break; }
+        if (isChangingMap) {
+            NotificationManager.Instance.SendNotification("Map change aleady in progress", NotificationManager.Icons.ErrorIcon);
+            yield break;
+        }
 
+        isChangingMap = true;
         Scene oldScene = MapScene;
         MapScene = SceneManager.CreateScene($"Map Scene {mapType}");
+
+        GameObject grid = new("Grid");
+        grid.AddComponent<Grid>();
+        grid.AddComponent<Tilemap>();
+        map.transform.SetParent(grid.transform);
+        mapForeground.transform.SetParent(grid.transform);
+
+        SceneManager.MoveGameObjectToScene(grid, MapScene);
+        if (oldScene.name != null) SceneManager.UnloadSceneAsync(oldScene);
 
 
         CurrentMapType = mapType;
@@ -139,15 +178,22 @@ public class MapController : MonoBehaviour {
 
         map.name = mapType.ToString() + "Map";
 
+        UnityEngine.Debug.Log($"Loading {mapType} map");
+        InputHandler.Instance.keybindsShouldRegister = false;
+        CameraController.Instance.LockCamera();
         backMapLoaded = false;
         frontMapLoaded = false;
         StartCoroutine(ShowMapChangeProgress());
+        mapForeground.SetActive(false);
         TextAsset backData = Resources.Load<TextAsset>($"MapData/{mapType}MapBackTileData");
-        await PopulateTilemapFromFileData(map.GetComponent<Tilemap>(), backData);
+        yield return PopulateTilemapFromFileData(map.GetComponent<Tilemap>(), backData);
+        map.GetComponent<Tilemap>().ResizeBounds();
+        map.GetComponent<Tilemap>().CompressBounds();
         backMapLoaded = true;
         Resources.UnloadAsset(backData);
         TextAsset frontData = Resources.Load<TextAsset>($"MapData/{mapType}MapFrontTileData");
-        await PopulateTilemapFromFileData(mapForeground.GetComponent<Tilemap>(), frontData);
+        mapForeground.SetActive(true);
+        yield return PopulateTilemapFromFileData(mapForeground.GetComponent<Tilemap>(), frontData);
         frontMapLoaded = true;
         Resources.UnloadAsset(frontData);
 
@@ -162,14 +208,9 @@ public class MapController : MonoBehaviour {
         BuildingController.SetCurrentTilemapTransform(map.transform);
         BuildingController.InitializeMap();
 
-        GameObject grid = new("Grid");
-        grid.AddComponent<Grid>();
-        grid.AddComponent<Tilemap>();
-        map.transform.SetParent(grid.transform);
-        mapForeground.transform.SetParent(grid.transform);
-
-        SceneManager.MoveGameObjectToScene(grid, MapScene);
-        if (oldScene.name != null) SceneManager.UnloadSceneAsync(oldScene);
+        InputHandler.Instance.keybindsShouldRegister = true;
+        CameraController.Instance.UnlockCamera();
+        isChangingMap = false;
     }
 
     public Vector3Int GetHousePosition() {
@@ -185,7 +226,7 @@ public class MapController : MonoBehaviour {
         return CurrentMapType switch {
             MapTypes.FourCorners => new Vector3Int(71, 65, 0),
             MapTypes.Beach => new Vector3Int(71, 95, 0),
-            MapTypes.GingerIsland => new Vector3Int(90, 70, 0),
+            MapTypes.GingerIsland => new Vector3Int(90, 69, 0),
             MapTypes.Ranching => new Vector3Int(88, 56, 0),
             _ => new Vector3Int(71, 50, 0),
         };
@@ -210,7 +251,9 @@ public class MapController : MonoBehaviour {
 
     public Vector3Int GetCavePosition() {
         return CurrentMapType switch {
-            MapTypes.Normal => new Vector3Int(34, 58, 0),
+            MapTypes.Beach => new Vector3Int(34, 93, 0),
+            MapTypes.FourCorners => new Vector3Int(30, 43, 0),
+            MapTypes.Ranching => new Vector3Int(88, 20, 0),
             _ => new Vector3Int(34, 58, 0)
         };
     }

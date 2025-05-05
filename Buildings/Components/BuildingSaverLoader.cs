@@ -15,6 +15,8 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using static Utility.ClassManager;
 using TMPro;
+using System.Diagnostics;
+using static MapController;
 
 // [RequireComponent(typeof(Building))]
 public class BuildingSaverLoader : MonoBehaviour {
@@ -79,7 +81,9 @@ public class BuildingSaverLoader : MonoBehaviour {
             PlayerPrefs.SetString("DefaultSavePath", directoryPath);
             using StreamWriter writer = new(savePath);
             List<BuildingData> allData = SaveAllBuildings();
-            JObject root = new();
+            JObject root = new() {
+                { "Farm", MapController.Instance.CurrentMapType.ToString()  }
+            };
             foreach (var data in allData) root.Add(allData.IndexOf(data).ToString(), data.ToJson());
             writer.Write(Regex.Unescape(root.ToString(Formatting.Indented)));
         }
@@ -105,24 +109,33 @@ public class BuildingSaverLoader : MonoBehaviour {
         string directoryPath = Path.GetDirectoryName(dirPath);
         PlayerPrefs.SetString("DefaultLoadPath", directoryPath);
         using StreamReader reader = new(dirPath);
-        BuildingController.DeleteAllBuildings(true);
-        BuildingController.IsLoadingSave = true;
         string text = reader.ReadToEnd();
         JObject root = JObject.Parse(text);
+        if (root["Farm"] != null)
+            yield return MapController.Instance.SetMap((MapTypes)Enum.Parse(typeof(MapTypes), root["Farm"].ToString()));
+        BuildingController.DeleteAllBuildings(true);
+        BuildingController.IsLoadingSave = true;
         GameObject loadProgressPrefab = Resources.Load<GameObject>("UI/LoadProgress");
         GameObject loadProgress = Instantiate(loadProgressPrefab, GetCanvasGameObject().transform);
         RectTransform progressBarRectTransform = loadProgress.transform.Find("Bar").Find("BarFill").GetComponent<RectTransform>();
         progressBarRectTransform.sizeDelta = new Vector2(0, progressBarRectTransform.sizeDelta.y);
-        int buildingCount = root.Properties().Count();
+        int buildingCount = root.Properties().Count() - 1; // -1 because of the farm type
         int buildingsLoaded = 0;
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        int targetFrameRate = 10; //fps
+        long maxFrameTimeMs = 1000 / targetFrameRate;
         foreach (JProperty building in root.Properties()) {
+            if (building.Name == "Farm") continue; //skip farm type
             BuildingData data = ParseBuildingFromJson(building);
             LoadBuilding(data);
             buildingsLoaded++;
-            float progress = (float)buildingsLoaded / buildingCount;
-            loadProgress.transform.Find("ProgressText").GetComponent<TMP_Text>().text = $"{buildingsLoaded}/{buildingCount} ({progress * 100:F2}%)";
-            progressBarRectTransform.sizeDelta = new Vector2(progress * 600, progressBarRectTransform.sizeDelta.y);
-            yield return null;
+            if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs) {
+                stopwatch.Restart();
+                float progress = (float)buildingsLoaded / buildingCount;
+                loadProgress.transform.Find("ProgressText").GetComponent<TMP_Text>().text = $"{buildingsLoaded}/{buildingCount} ({progress * 100:F2}%)";
+                progressBarRectTransform.sizeDelta = new Vector2(progress * 600, progressBarRectTransform.sizeDelta.y);
+                yield return null;
+            }
         }
         Destroy(loadProgress);
         BuildingController.IsLoadingSave = false;

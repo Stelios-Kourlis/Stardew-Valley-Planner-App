@@ -100,7 +100,7 @@ public class OnboradingFlow : MonoBehaviour {
             EndOnboardingFlow();
             Destroy(skipButton);
         });
-        MapController.Instance.SetMapAsync(MapController.MapTypes.Normal);
+        StartCoroutine(MapController.Instance.SetMap(MapController.MapTypes.Normal));
         GetCanvasGameObject().transform.Find("TopRightButtons").gameObject.SetActive(false);
         GetCanvasGameObject().transform.Find("NoBuilding").gameObject.SetActive(false);
         GetCanvasGameObject().transform.Find("ToggleBuildingSelectButton").gameObject.SetActive(false);
