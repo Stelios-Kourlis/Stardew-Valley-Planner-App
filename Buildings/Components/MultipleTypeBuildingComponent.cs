@@ -20,6 +20,8 @@ public class BuildingVariant {
 [RequireComponent(typeof(Building))]
 public class MultipleTypeBuildingComponent : BuildingComponent {
     public BuildingVariant[] variants;
+
+    [field: SerializeField]
     public int CurrentVariantIndex { get; private set; }
     public string CurrentType => System.Text.RegularExpressions.Regex.Replace(variants[CurrentVariantIndex].variantName, "(?<!^)([A-Z])", " $1");
     public string CurrentTypeRaw => variants[CurrentVariantIndex].variantName;
@@ -67,30 +69,6 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
         return buttons;
     }
 
-    // public static GameObject[] CreateButtonsForAllTypes(Type enumType, Type buildingType) { //can this even be made static?
-    //     List<GameObject> buttons = new();
-    //     // Enum currentTypeBackup = Type;
-    //     SpriteAtlas atlas = Resources.Load<SpriteAtlas>($"Buildings/{buildingType}Atlas");
-    //     foreach (Enum type in Enum.GetValues(enumType)) {
-    //         GameObject button = new() {
-    //             name = $"{type}",
-    //         };
-    //         button.AddComponent<Image>().sprite = atlas.GetSprite($"{type}"); ;
-    //         // SetType(type);
-    //         // button.GetComponent<Image>().sprite = Atlas.GetSprite($"{SpriteName}");
-    //         button.AddComponent<UIElement>();
-    //         // Type buildingType = Building.GetType();
-    //         button.AddComponent<Button>().onClick.AddListener(() => {
-    //             // BuildingController.SetCurrentBuildingType(buildingType, type);
-    //             BuildingController.SetCurrentAction(Actions.PLACE);
-    //         });
-    //         buttons.Add(button);
-    //     }
-    //     // SetType(currentTypeBackup);
-    //     Resources.UnloadAsset(atlas);
-    //     return buttons.ToArray();
-    // }
-
     public override void Load(BuildingScriptableObject bso) {
         variants = bso.variants;
         Building.UpdateTexture(variants[CurrentVariantIndex].variantSprite);
@@ -104,6 +82,7 @@ public class MultipleTypeBuildingComponent : BuildingComponent {
     }
 
     public override void Load(BuildingData.ComponentData data) {
+        Debug.Log($"index: {data.GetComponentDataPropertyValue<int>("Type Index")}");
         SetType(data.GetComponentDataPropertyValue<int>("Type Index"));
     }
 

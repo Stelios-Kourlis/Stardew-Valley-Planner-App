@@ -31,9 +31,8 @@ public class BuildingSaverLoader : MonoBehaviour {
     public BuildingData SaveBuilding(Building building) {
         if (building.CurrentBuildingState != Building.BuildingState.PLACED) throw new Exception("Building is not placed, cannot save");
 
-
         List<ComponentData> extraData = new();
-        foreach (BuildingComponent component in gameObject.GetComponents<BuildingComponent>()) {
+        foreach (BuildingComponent component in building.gameObject.GetComponents<BuildingComponent>()) {
             if (component.Save() != null) extraData.Add(component.Save());
         }
 
