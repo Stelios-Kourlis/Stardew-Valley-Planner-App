@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.CodeDom;
 using UnityEngine.U2D;
+using System.Diagnostics;
 
 public class InputHandler : MonoBehaviour {
 
@@ -48,7 +49,7 @@ public class InputHandler : MonoBehaviour {
     [SerializeField] private GameObject wallpaperButtonPrefab;
     [SerializeField] private GameObject flooringButtonPrefab;
 
-    void Start() {
+    void Awake() {
         if (Instance == null) Instance = this;
         else Destroy(this);
 
@@ -178,6 +179,24 @@ public class InputHandler : MonoBehaviour {
         }
     }
 
+    private IEnumerator MassPlaceObjects(Vector3Int[] positions) {
+        UndoRedoController.ignoreAction = true;
+        int targetFrameRate = 30; //fps
+        long maxFrameTimeMs = 1000 / targetFrameRate;
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        List<BuildingData> buildingsCreatedData = new();
+        foreach (Vector3Int position in positions) {
+            BuildingController.CurrentBuildingBeingPlaced.BarebonesPlace(position);
+            buildingsCreatedData.Add(BuildingSaverLoader.Instance.SaveBuilding(BuildingController.LastBuildingPlaced));
+            if (stopwatch.ElapsedMilliseconds >= maxFrameTimeMs) {
+                stopwatch.Restart();
+                yield return null;
+            }
+        }
+        UndoRedoController.ignoreAction = false;
+        UndoRedoController.AddActionToLog(new BuildingPlaceRecord(buildingsCreatedData));
+    }
+
     private void HandleMouseActions() {
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -199,21 +218,14 @@ public class InputHandler : MonoBehaviour {
                         if (!BuildingController.CurrentBuildingBeingPlaced.CanBeMassPlaced) BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(mousePosition);
                         else {
                             mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
-                            UndoRedoController.ignoreAction = true;
-                            List<BuildingData> buildingsCreatedData = new();
-                            foreach (Vector3Int position in mouseCoverageArea) {
-                                BuildingController.CurrentBuildingBeingPlaced.PlaceBuilding(position);
-                                buildingsCreatedData.Add(BuildingSaverLoader.Instance.SaveBuilding(BuildingController.LastBuildingPlaced));
-                            }
-                            UndoRedoController.ignoreAction = false;
-                            UndoRedoController.AddActionToLog(new BuildingPlaceRecord(buildingsCreatedData));
+                            StartCoroutine(MassPlaceObjects(mouseCoverageArea));
                         }
                         break;
                     case Actions.PICKUP:
                         building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && BuildingIsAtSameSceneAsCamera(building));
                         if (building != null) building.PickupBuilding();
                         break;
-                    case Actions.DELETE:
+                    case Actions.DELETE: //TODO: Undoing a delete on a multiple type reverts the building to the first variant
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                         Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0 && BuildingIsAtSameSceneAsCamera(building)).ToArray();
                         UndoRedoController.ignoreAction = true;
