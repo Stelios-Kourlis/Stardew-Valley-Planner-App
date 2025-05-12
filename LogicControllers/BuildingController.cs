@@ -215,12 +215,18 @@ public static class BuildingController {
     /// Deletes all buildings except the house
     /// </summary>
     public static void DeleteAllBuildings(bool force = false) {
+        Debug.Log("Deleting all buildings");
         var allBuilding = buildings.ToArray();
+        List<BuildingData> buildingDatas = new();
+        UndoRedoController.ignoreAction = true;
         foreach (Building building in allBuilding) {
             if (building == null) continue;
             if (building.gameObject == null) continue;
-            building.DeleteBuilding(force);
+            BuildingData buildingData = BuildingSaverLoader.Instance.SaveBuilding(building);
+            if (building.DeleteBuilding(force)) buildingDatas.Add(buildingData);
         }
+        UndoRedoController.ignoreAction = false;
+        if (buildingDatas.Count > 0) UndoRedoController.AddActionToLog(new BuildingDeleteRecord(buildingDatas));
         NotificationManager.Instance.SendNotification("Deleted all buildings", NotificationManager.Icons.InfoIcon);
     }
 
@@ -240,7 +246,10 @@ public static class BuildingController {
         if (action == Actions.PLACE) CurrentBuildingBeingPlaced.DoBuildingPreview();
         else CurrentBuildingBeingPlaced.NoPreview();
 
-        GetCanvasGameObject().transform.Find("NoBuilding").gameObject.SetActive(action == Actions.PLACE && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.NOT_PLACED);
+        if (action == Actions.PLACE && CurrentBuildingBeingPlaced.CurrentBuildingState == Building.BuildingState.NOT_PLACED)
+            GetCanvasGameObject().transform.Find("NoBuilding").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(60, -170, 0);
+        else
+            GetCanvasGameObject().transform.Find("NoBuilding").gameObject.GetComponent<RectTransform>().anchoredPosition = new Vector3(-80, -170, 0);
 
     }
 
