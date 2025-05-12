@@ -195,7 +195,7 @@ public class HouseExtensionsComponent : BuildingComponent {
         spouseSpecialTileSet.AddOffset(spouseRoomOrigin);
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
-        UndoRedoController.AddActionToLog(new SpouseChangeRecord(ModificationMenu, (oldSpouse, spouse), buildingsDeleted)); //TODO: readd
+        UndoRedoController.AddActionToLog(new SpouseChangeRecord(ModificationMenu, (oldSpouse, spouse), buildingsDeleted));
     }
 
     private Vector3Int GetSpouseRoomOrigin() {

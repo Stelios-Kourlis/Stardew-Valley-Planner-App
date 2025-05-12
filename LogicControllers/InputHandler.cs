@@ -230,7 +230,7 @@ public class InputHandler : MonoBehaviour {
                         building = BuildingController.buildings.FirstOrDefault(building => building.BaseCoordinates.Contains(mousePosition) && BuildingIsAtSameSceneAsCamera(building));
                         if (building != null) building.PickupBuilding();
                         break;
-                    case Actions.DELETE: //TODO: Undoing a delete on a multiple type reverts the building to the first variant
+                    case Actions.DELETE:
                         mouseCoverageArea = GetAllCoordinatesInArea(mousePositionWhenHoldStarted, mousePosition).ToArray();
                         Building[] buildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(mouseCoverageArea).Count() > 0 && BuildingIsAtSameSceneAsCamera(building)).ToArray();
                         UndoRedoController.ignoreAction = true;

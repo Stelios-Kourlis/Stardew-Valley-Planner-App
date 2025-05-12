@@ -80,6 +80,8 @@ public class BuildingButtonController : MonoBehaviour {
             Resources.UnloadAsset(fishAtlas);
         }
 
+        if (type == ButtonTypes.PAINT) button.GetComponent<Button>().interactable = false;
+
         button.GetComponent<RectTransform>().sizeDelta = new Vector2(BUTTON_SIZE, BUTTON_SIZE);
         AddButtonListener(type, button.GetComponent<Button>(), building);
         return button;

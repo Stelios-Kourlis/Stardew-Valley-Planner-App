@@ -85,6 +85,8 @@ public class PaintableBuildingComponent : BuildingComponent {
             V = Normalize((int)value, 25, 86);
             material.SetColor(selectedPartRefrence, Color.HSVToRGB(H, S, V));
         });
+
+        paintMenu.SetActive(false);
     }
 
 

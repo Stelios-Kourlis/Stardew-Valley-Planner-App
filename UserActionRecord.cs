@@ -78,7 +78,6 @@ public record HouseRenovationRecord(HouseModificationMenu HouseModificationMenu,
     }
 }
 
-//TODO: spouse change might delete buildings, add it
 public record SpouseChangeRecord(HouseModificationMenu HouseModificationMenu, (MarriageCandidate OldSpouse, MarriageCandidate NewSpouse) SpouseChange, IEnumerable<BuildingData> BuildingsDeleted) : UserActionRecord {
     public override GameObject GetEntryInfoAsGameObject() {
         GameObject entry = Object.Instantiate(EntryPrefab);
