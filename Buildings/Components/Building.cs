@@ -92,8 +92,8 @@ public class Building : TooltipableGameObject {
         behaviourExtension?.OnDestroy();
     }
 
-    public void DeleteBuilding(bool force = false) {
-        if (!canBeDeleted && !force) return; //Greenhouse and House shouldnt be deleted except loading a new farm
+    public bool DeleteBuilding(bool force = false) {
+        if (!canBeDeleted && !force) return false; //Greenhouse and House shouldnt be deleted except loading a new farm
 
         behaviourExtension?.OnDelete();
 
@@ -109,6 +109,8 @@ public class Building : TooltipableGameObject {
 
         Destroy(TooltipGameObject);
         Destroy(gameObject);
+
+        return true;
     }
 
     public void DoBuildingPreview() {
@@ -188,6 +190,25 @@ public class Building : TooltipableGameObject {
     }
 
     /// <summary>
+    /// Use to just place a building, without the extra effects of the action. USE CAREFULLY
+    /// </summary>
+    public void BarebonesPlace(Vector3Int position) {
+        Base = position;
+        if (!BuildingCanBePlacedAtPosition(Base, this, out _)) return;
+        PlaceBuildingPreview(position);
+        Tilemap.color = OPAQUE;
+        behaviourExtension?.OnPlace(position);
+        CurrentBuildingState = BuildingState.PLACED;
+        BuildingController.buildingGameObjects.Add(gameObject);
+        BuildingController.buildings.Add(this);
+        InvalidTilesManager.Instance.CurrentCoordinateSet.AddSpecialTileSet(new($"{BuildingName}{Base}", BaseCoordinates.ToHashSet(), TileType.Invalid));
+        BuildingController.LastBuildingPlaced = this;
+        BuildingController.CreateNewBuilding();
+        BuildingController.anyBuildingPositionChanged?.Invoke();
+        BuildingPlaced?.Invoke(Base);
+    }
+
+    /// <summary>
     /// Attempts to place the building at the given position
     /// </summary>
     /// <returns> Whether the placement succeded or not </returns>
@@ -206,7 +227,6 @@ public class Building : TooltipableGameObject {
         behaviourExtension?.OnPlace(position);
 
         PlayParticleEffect(this, true);
-        BuildingController.buildingGameObjects.Add(gameObject);
         bool wasPickedUp = BuildingState.PICKED_UP == CurrentBuildingState; //kind of ghetto but change need to happen before setting the action
         CurrentBuildingState = BuildingState.PLACED;
         if (wasPickedUp) {
@@ -321,7 +341,6 @@ public class Building : TooltipableGameObject {
         canBeDeleted = bso.canBeDeleted;
         canBePickedUp = bso.canBePickedUp;
 
-        //todo make it so maybe building has isInteractable bool to Add InteractableBuildingComponent?
         gameObject.AddComponent<InteractableBuildingComponent>().Load(bso);
 
         if (bso.isMultipleType) gameObject.AddComponent<MultipleTypeBuildingComponent>().Load(bso);
