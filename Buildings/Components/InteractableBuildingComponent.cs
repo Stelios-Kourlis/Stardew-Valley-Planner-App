@@ -86,6 +86,26 @@ public class InteractableBuildingComponent : BuildingComponent {
         BuildingWasRightClicked?.Invoke();
     }
 
+    public void OnTierChange(int oldTier, int newTier) {
+        TieredBuildingComponent tieredBuildingComponent = gameObject.GetComponent<TieredBuildingComponent>();
+        IEnumerable<BuildingData> buildingsThatWillBeDeleted;
+        IEnumerable<Animals> animalsThatWillBeRemoved;
+        if (GetComponent<TieredBuildingComponent>().TryGetComponent(out AnimalHouseComponent animalHouseComponent)) {
+            animalsThatWillBeRemoved = animalHouseComponent.GetAnimalsThatWillBeRemovedOnTierChange(newTier);
+            animalHouseComponent.UpdateMaxAnimalCapacity(newTier);
+        }
+        else animalsThatWillBeRemoved = Enumerable.Empty<Animals>();
+
+        if (GetComponent<TieredBuildingComponent>().TryGetComponent(out EnterableBuildingComponent enterableBuildingComponent)) {
+            buildingsThatWillBeDeleted = enterableBuildingComponent.GetInteriorBuildings().Select(building => BuildingSaverLoader.Instance.SaveBuilding(building));
+            enterableBuildingComponent.UpdateBuildingInterior();
+        }
+        else buildingsThatWillBeDeleted = Enumerable.Empty<BuildingData>();
+
+        UndoRedoController.AddActionToLog(new BuildingTierChangeRecord(tieredBuildingComponent, (oldTier, newTier), buildingsThatWillBeDeleted, animalsThatWillBeRemoved));
+    }
+
+
     public override BuildingData.ComponentData Save() {
         return null;
     }

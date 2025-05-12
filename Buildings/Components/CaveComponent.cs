@@ -9,7 +9,7 @@ public class CaveComponent : BuildingComponent {
     private bool hasMushroomBoxes;
 
     public void ToggleMushroomBoxes() {
-        UndoRedoController.AddActionToLog(new MushroomCaveMushroomChangeRecord(this));
+        UndoRedoController.AddActionToLog(new MushroomCaveMushroomChangeRecord(this, !hasMushroomBoxes));
         if (hasMushroomBoxes) RemoveMushroomBoxes();
         else AddMushroomBoxes();
     }

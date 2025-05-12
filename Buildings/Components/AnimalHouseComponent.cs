@@ -25,7 +25,7 @@ public class AnimalHouseComponent : BuildingComponent {
     private GameObject AnimalMenu;
     private GameObject AddAnimalsPanel => AnimalMenu != null ? AnimalMenu.transform.GetChild(0).gameObject : null;
     private GameObject AnimalsInBuildingPanel => AnimalMenu != null ? AnimalMenu.transform.GetChild(1).gameObject : null;
-    [field: SerializeField] public List<Animals> AnimalsInBuilding { get; private set; }
+    [field: SerializeField] private List<Animals> AnimalsInBuilding { get; set; }
     public int MaxAnimalCapacity => gameObject.GetComponent<TieredBuildingComponent>().Tier * 4; //capacity is based on tier
     public AnimalTiers[] animalsPerTier;
     private int Tier => GetComponent<TieredBuildingComponent>().Tier;
@@ -39,6 +39,17 @@ public class AnimalHouseComponent : BuildingComponent {
         AnimalsInBuilding.Add(animal);
         AddAnimalButton(animal);
         return true;
+    }
+
+    public void RemoveAnimal(Animals animal) {
+        if (AnimalsInBuilding.Contains(animal)) {
+            AnimalsInBuilding.Remove(animal);
+        }
+    }
+
+    public IEnumerable<Animals> GetAnimalsThatWillBeRemovedOnTierChange(int newTier) {
+        var animalsToRemove = AnimalsInBuilding.Where(animal => !animalsPerTier.First(apt => apt.tier == newTier).animalsAllowed.Contains(animal)).ToList();
+        return animalsToRemove;
     }
 
     public void UpdateMaxAnimalCapacity(int tier) {
@@ -151,7 +162,7 @@ public class AnimalHouseComponent : BuildingComponent {
         button.transform.SetParent(AnimalsInBuildingPanel.transform.GetChild(0));
         button.AddComponent<Image>().sprite = animalAtlas.GetSprite(animal.ToString());
         button.AddComponent<Button>().onClick.AddListener(() => {
-            AnimalsInBuilding.Remove(animal);
+            RemoveAnimal(animal);
             Destroy(button);
         });
         button.AddComponent<UIElement>();
@@ -210,7 +221,7 @@ public class AnimalHouseComponent : BuildingComponent {
         gameObject.GetComponent<InteractableBuildingComponent>().ButtonsCreated += CreateAnimalChoiceMenu;
         gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding(ButtonTypes.ADD_ANIMAL);
 
-        gameObject.GetComponent<TieredBuildingComponent>().tierChanged += UpdateMaxAnimalCapacity;
+        // gameObject.GetComponent<TieredBuildingComponent>().tierChanged += UpdateMaxAnimalCapacity;
 
         gameObject.GetComponent<EnterableBuildingComponent>().EnteredOrExitedBuilding += SetAnimalMenuPosition;
         gameObject.GetComponent<EnterableBuildingComponent>().EnteredOrExitedBuilding += CloseAnimalMenu;

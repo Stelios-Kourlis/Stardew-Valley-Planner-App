@@ -135,6 +135,10 @@ public class InputHandler : MonoBehaviour {
             NotificationManager.Instance.DestroyAllNotifications();
         }
 
+        if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleActionLog)) {
+            UndoRedoController.ActionLogUI.GetComponent<MoveablePanel>().TogglePanel();
+        }
+
     }
 
     public bool KeybindsForActionArePressed(KeybindHandler.Action action) {
@@ -236,7 +240,7 @@ public class InputHandler : MonoBehaviour {
                             buildingToDelete.DeleteBuilding();
                         }
                         UndoRedoController.ignoreAction = false;
-                        UndoRedoController.AddActionToLog(new BuildingDeleteRecord(buildingsDeletedData));
+                        if (buildingsDeletedData.Count > 0) UndoRedoController.AddActionToLog(new BuildingDeleteRecord(buildingsDeletedData));
                         break;
                     case Actions.PLACE_WALLPAPER:
                         if (BuildingController.playerLocation.isInsideBuilding) {
