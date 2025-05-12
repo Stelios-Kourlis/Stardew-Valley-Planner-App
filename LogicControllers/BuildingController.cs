@@ -215,7 +215,7 @@ public static class BuildingController {
     /// Deletes all buildings except the house
     /// </summary>
     public static void DeleteAllBuildings(bool force = false) {
-        Debug.Log("Deleting all buildings");
+        // Debug.Log("Deleting all buildings");
         var allBuilding = buildings.ToArray();
         List<BuildingData> buildingDatas = new();
         UndoRedoController.ignoreAction = true;

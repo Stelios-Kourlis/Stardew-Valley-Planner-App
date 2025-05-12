@@ -178,7 +178,7 @@ public class MapController : MonoBehaviour {
 
         map.name = mapType.ToString() + "Map";
 
-        UnityEngine.Debug.Log($"Loading {mapType} map");
+        // UnityEngine.Debug.Log($"Loading {mapType} map");
         InputHandler.Instance.keybindsShouldRegister = false;
         CameraController.Instance.LockCamera();
         backMapLoaded = false;

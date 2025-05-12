@@ -15,22 +15,19 @@ public class KeybindButton : MonoBehaviour {
     GameObject KeybindButtonGameObject => transform.GetChild(0).GetChild(1).gameObject;
     GameObject ResetKeybindButton => transform.GetChild(0).GetChild(2).gameObject;
 
-    private static (bool, KeybindButton) isButtonBeingRebound = (false, null);
-
-    KeyValuePair<Action, Keybind> actionKeybindPair;
+    private static bool isButtonBeingRebound = false;
     private bool cancelRebind = false;
 
-    public void Start() {
-        SetUpButton();
-        KeybindHandler.Instance.AddButtonToList(this);
-    }
 
-    private void SetUpButton() {
-        // Debug.Log("Setting up button: " + gameObject.name);
+    [SerializeField]
+    private Action Action;
 
-        Action action = (Action)Enum.Parse(typeof(Action), KeybindButtonGameObject.transform.parent.parent.name);
+    public void SetUpButton(KeybindHandler.Action action) {
+        Debug.Log("Setting up button: " + gameObject.name);
+
+        Action = action;
         Keybind actionKeybind = GetKeybind(action);
-        actionKeybindPair = new(action, actionKeybind);
+        GetComponent<TMP_Text>().text = KeybindHandler.ActionNames[action];
 
         //Keybind Text
         TMP_Text buttonText = KeybindButtonGameObject.GetComponentInChildren<TMP_Text>();
@@ -47,22 +44,22 @@ public class KeybindButton : MonoBehaviour {
     }
 
     public void SetKeybindFromButton() {
-        if (isButtonBeingRebound.Item1) isButtonBeingRebound.Item2.CancelRebind();
+        if (isButtonBeingRebound) CancelRebind(); //Aleady in the proccess of rebinding
 
         InputHandler.Instance.keybindsShouldRegister = false;
-        isButtonBeingRebound = (true, this);
+        isButtonBeingRebound = true;
         StartCoroutine(GetButtonsCoroutine());
     }
 
     public void CancelRebind() {
         cancelRebind = true;
-        isButtonBeingRebound = (false, null);
+        isButtonBeingRebound = false;
     }
 
     public void ResetKeybind() {
         TMP_Text buttonText = KeybindButtonGameObject.GetComponentInChildren<TMP_Text>();
-        Keybind defaultKeybind = GetDefaultKeybind(actionKeybindPair.Key);
-        if (!KeybindHandler.Instance.UpdateKeybind(actionKeybindPair.Key, defaultKeybind)) {
+        Keybind defaultKeybind = GetDefaultKeybind(Action);
+        if (!KeybindHandler.UpdateKeybind(Action, defaultKeybind)) {
             NotificationManager.Instance.SendNotification($"Default Keybind ({defaultKeybind}) already in use", NotificationManager.Icons.ErrorIcon);
             return;
         }
@@ -100,14 +97,14 @@ public class KeybindButton : MonoBehaviour {
 
             //Get key
             foreach (KeyCode keyCode in Enum.GetValues(typeof(KeyCode))) {
-                if (modifierButtons.Contains(keyCode) || keyCode == KeyCode.Mouse0) continue;
+                if (modifierButtons.Contains(keyCode) || keyCode == KeyCode.Mouse0 || keyCode == KeyCode.Mouse1 || keyCode == KeyCode.Mouse2) continue;
                 if (Input.GetKeyDown(keyCode)) {
                     string keyPressed = keyCode.ToString();
                     Keybind keybind = new(keyCode, optionalSecondButton);
-                    if (!KeybindHandler.Instance.UpdateKeybind(actionKeybindPair.Key, keybind)) {
+                    if (!UpdateKeybind(Action, keybind)) {
                         NotificationManager.Instance.SendNotification("Keybind already in use", NotificationManager.Icons.ErrorIcon);
                         buttonText.text = text;
-                        isButtonBeingRebound = (false, null);
+                        isButtonBeingRebound = false;
                         yield break;
                     }
                     text = "";
@@ -117,7 +114,7 @@ public class KeybindButton : MonoBehaviour {
                     yield return null;
                     CancelRebindGameObject.SetActive(false);
                     InputHandler.Instance.keybindsShouldRegister = true;
-                    isButtonBeingRebound = (false, null);
+                    isButtonBeingRebound = false;
                     yield break;
                 }
             }

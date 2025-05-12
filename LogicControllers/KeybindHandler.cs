@@ -58,6 +58,26 @@ public class KeybindHandler : MonoBehaviour {
         }
     }
 
+    public static Dictionary<Action, string> ActionNames = new() {
+        { Action.Place, "Place Building" },
+        { Action.Edit, "Pickup Building" },
+        { Action.Delete, "Delete Building" },
+        { Action.DeleteAll, "Delete All" },
+        { Action.ToggleUnavailableTiles, "Toggle Unavailable Tile Visibility" },
+        { Action.TogglePlantableTiles, "Toggle Plantable Tile Visibility" },
+        { Action.Settings, "Settings" },
+        { Action.Quit, "Quit" },
+        { Action.Save, "Save" },
+        { Action.Load, "Load" },
+        { Action.Undo, "Undo" },
+        { Action.Redo, "Redo" },
+        { Action.OpenBuildingMenu, "Open Building Selector" },
+        { Action.OpenTotalCost, "See Farm Cost" },
+        { Action.ToggleUI, "Toggle HUD" },
+        { Action.PickBuilding, "Copy Building Type" },
+        { Action.ToggleActionLog, "Toggle Action Log" }
+    };
+
     public static KeybindHandler Instance { get; private set; }
 
     private static Dictionary<Action, Keybind> keybinds = null;
@@ -68,10 +88,7 @@ public class KeybindHandler : MonoBehaviour {
         else Destroy(this);
 
         LoadKeybinds();
-    }
-
-    public void AddButtonToList(KeybindButton button) {
-        keybindButtons.Add(button);
+        ListKeybindsInSettings();
     }
 
     private static void LoadKeybinds() {
@@ -88,12 +105,28 @@ public class KeybindHandler : MonoBehaviour {
         return keybinds[action] ?? GetDefaultKeybind(action);
     }
 
-    public bool UpdateKeybind(Action action, Keybind bind) {
+    public static bool UpdateKeybind(Action action, Keybind bind) {
         foreach (var kvp in keybinds) if (kvp.Value.Equals(bind) && action != kvp.Key) return false;
         keybinds[action] = bind;
         PlayerPrefs.SetInt(action.ToString(), bind.ToInt());
         PlayerPrefs.Save();
         return true;
+    }
+
+    public static void ListKeybindsInSettings() {
+        GameObject keybindEntryPrefab = Resources.Load<GameObject>("UI/KeybindButton");
+        Transform keybindContent = GetCanvasGameObject().transform.Find("SettingsModal").Find("TabContent").Find("Controls").Find("ScrollArea").Find("Content");
+        foreach (Transform child in keybindContent)
+            if (child.name != "ResetAll") Destroy(child.gameObject); //Dont remove the reset all button
+
+        foreach (Action action in Enum.GetValues(typeof(Action))) {
+            GameObject keybindEntry = Instantiate(keybindEntryPrefab, keybindContent);
+            keybindEntry.GetComponent<KeybindButton>().SetUpButton(action);
+            keybindButtons.Add(keybindEntry.GetComponent<KeybindButton>());
+        }
+
+        keybindContent.Find("ResetAll").SetAsLastSibling();
+        keybindContent.Find("ResetAll").GetComponent<Button>().onClick.AddListener(ResetKeybinds);
     }
 
     public static void ResetKeybinds() {

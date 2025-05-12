@@ -133,6 +133,7 @@ public class InputHandler : MonoBehaviour {
         if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleUI)) {
             SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects().First(gameObject => gameObject.name == "Canvas").SetActive(!SceneManager.GetSceneByName("PermanentScene").GetRootGameObjects().First(gameObject => gameObject.name == "Canvas").activeSelf);
             NotificationManager.Instance.DestroyAllNotifications();
+            KeybindHandler.GetKeybind(KeybindHandler.Action.ToggleUI);
         }
 
         if (KeybindsForActionArePressed(KeybindHandler.Action.ToggleActionLog)) {

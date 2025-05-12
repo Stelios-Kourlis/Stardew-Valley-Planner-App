@@ -151,7 +151,7 @@ public static class UndoRedoController {
     }
 
     public static void UpdateUIActionLog() {
-        Debug.Log("Updating action log");
+        // Debug.Log("Updating action log");
         GameObject ActionLogUIContent = ActionLogUI.transform.Find("ScrollArea").Find("Content").gameObject;
         foreach (Transform child in ActionLogUIContent.transform) {
             GameObject.Destroy(child.gameObject);
