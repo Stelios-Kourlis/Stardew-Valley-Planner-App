@@ -109,6 +109,6 @@ public class PaintableBuildingComponent : BuildingComponent {
     }
 
     public override BuildingData.ComponentData Save() {
-        throw new System.NotImplementedException();
+        return null;
     }
 }

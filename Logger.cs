@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
+//UTTERLY USELESS CLASS
+
 public class Logger : MonoBehaviour {
     private string logFilePath = "A:\\Home\\Game Related\\Stardew Valley Related\\SV Planner App/log.txt";
 

@@ -32,10 +32,10 @@ public class FishPondComponent : BuildingComponent {
     /// <summary>
     ///Set the fish image and the pond color to a fish of your choosing
     /// </summary>
-    /// <param name="fishType"> The fish</param>
-    public void SetFishImage(Fish fishType) {
-        Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(fishType.ToString());
-        Color color = fishType switch { // RGB 0-255 dont work so these are the values normalized to 0-1
+    /// <param name="newFish"> The fish</param>
+    public void SetFish(Fish newFish) {
+        Building.GetComponent<InteractableBuildingComponent>().ButtonParentGameObject.transform.GetChild(0).GetChild(0).GetComponent<Image>().sprite = fishAtlas.GetSprite(newFish.ToString());
+        Color color = newFish switch { // RGB 0-255 dont work so these are the values normalized to 0-1
             Fish.LavaEel => new Color(0.7490196f, 0.1137255f, 0.1333333f, 1),
             Fish.SuperCucumber => new Color(0.4117647f, 0.3294118f, 0.7490196f, 1),
             Fish.Slimejack => new Color(0.08886068f, 0.7490196f, 0.003921576f, 1),
@@ -44,7 +44,8 @@ public class FishPondComponent : BuildingComponent {
             _ => new Color(0.2039216f, 0.5254902f, 0.7490196f, 1),
         };
         waterTilemapObject.GetComponent<Tilemap>().color = color;
-        fish = fishType;
+        UndoRedoController.AddActionToLog(new FishChangeRecord(this, (fish, newFish)));
+        fish = newFish;
     }
 
     public void CreateFishMenu() {
@@ -58,11 +59,11 @@ public class FishPondComponent : BuildingComponent {
             fishButton.gameObject.GetComponent<UIElement>().SetActionToNothingOnEnter = false;
             fishButton.onClick.AddListener(() => {
                 Fish fishType = (Fish)Enum.Parse(typeof(Fish), fishButton.GetComponent<Image>().sprite.name);
-                SetFishImage(fishType);
+                SetFish(fishType);
             });
         }
 
-        fishMenu.transform.Find("RemoveFish").GetComponent<Button>().onClick.AddListener(() => SetFishImage(Fish.PLACE_FISH));
+        fishMenu.transform.Find("RemoveFish").GetComponent<Button>().onClick.AddListener(() => SetFish(Fish.PLACE_FISH));
     }
 
     public void ToggleFishMenu() {
@@ -132,7 +133,7 @@ public class FishPondComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
-        SetFishImage(Enum.Parse<Fish>(data.GetComponentDataPropertyValue<string>("Fish")));
+        SetFish(Enum.Parse<Fish>(data.GetComponentDataPropertyValue<string>("Fish")));
         SetFishPondDeco(data.GetComponentDataPropertyValue<int>("Deco Index"));
     }
 

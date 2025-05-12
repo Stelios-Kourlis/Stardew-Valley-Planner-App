@@ -8,7 +8,7 @@ using static Utility.SpriteManager;
 /// <summary>
 /// Methods to handle buildings with an effect that has a range ex. Scarecrows, JunimoHuts etc...
 /// </summary>
-public class RangeEffectBuilding {
+public class RangeEffectBuilding { //TODO: this does not use the BuildingComponent base. it doesnt need to to work, but still
     private Building Building { get; set; }
     private Vector3Int[] RangeArea { get; set; }
     private GameObject rangeEffectGameObject;

@@ -47,7 +47,7 @@ public class FishPondBehaviour : BuildingBehaviourExtension {
         fishPondComponent.SetDecoTilemapLocation(lowerLeftCorner);
         fishPondComponent.SetWaterTilemapLocation(lowerLeftCorner);
         fishPondComponent.UpdateTilemapColors();
-        if (fishPondComponent.fish != Fish.PLACE_FISH) fishPondComponent.SetFishImage(fishPondComponent.fish);
+        if (fishPondComponent.fish != Fish.PLACE_FISH) fishPondComponent.SetFish(fishPondComponent.fish);
     }
 
     public override void OnPlacePreview(Vector3Int lowerLeftCorner) {

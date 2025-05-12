@@ -153,7 +153,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         exitButton.AddComponent<Image>().sprite = BuildingButtonController.Instance.ButtonTypesAtlas.GetSprite($"{ButtonTypes.ENTER}");
         exitButton.AddComponent<Button>().onClick.AddListener(() => {
             interiorButtonClicked?.Invoke(ButtonTypes.ENTER);
-            Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInteriorEditing();
+            Building.GetComponent<EnterableBuildingComponent>().ExitBuildingInterior();
         });
         interiorButtons.Add(exitButton);
 
@@ -244,14 +244,23 @@ public class EnterableBuildingComponent : BuildingComponent {
         return interiorButtons.Find(button => button.name == type.ToString());
     }
 
+    public IEnumerable<Building> GetInteriorBuildings() {
+        Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
+        List<Building> buildings = new();
+        foreach (Transform buildingGameObject in interiorTransform) {
+            if (!buildingGameObject.TryGetComponent(out Building building)) continue;
+            if (building.CurrentBuildingState != Building.BuildingState.PLACED) continue; //only save placed buildings
+            buildings.Add(building);
+        }
+        return buildings;
+    }
+
     public void UpdateBuildingInterior() {
         if (BuildingInteriorScene.name == null) AddBuildingInterior(); //failsafe
 
-        Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
-        foreach (Transform buildingGameObject in interiorTransform) {
-            if (!buildingGameObject.TryGetComponent(out Building building)) continue;
-            if (building.CurrentBuildingState == Building.BuildingState.PLACED) building.DeleteBuilding();
-        }
+        // Transform interiorTransform = BuildingInteriorScene.GetRootGameObjects()[0].transform.GetChild(0);
+        foreach (Building building in GetInteriorBuildings()) building.DeleteBuilding();
+
 
         BuildingInterior.GetComponent<Tilemap>().ClearAllTiles();
         interiorSprite = Resources.Load<Sprite>($"BuildingInsides/{InteractableBuildingComponent.GetBuildingInsideSpriteName()}");
@@ -277,17 +286,18 @@ public class EnterableBuildingComponent : BuildingComponent {
     public void ToggleEditBuildingInterior() {
         if (BuildingInterior == null) AddBuildingInterior(); //failsafe
 
-        if (interiorSprite.name != InteractableBuildingComponent.GetBuildingInsideSpriteName()) { //In case interior need to be updates
-            UpdateBuildingInterior();
-        }
+        //This should be handled in tierChanged listener
+        // if (interiorSprite.name != InteractableBuildingComponent.GetBuildingInsideSpriteName()) { //In case interior need to be updates
+        //     UpdateBuildingInterior(); 
+        // }
 
-        if (BuildingController.playerLocation.isInsideBuilding) ExitBuildingInteriorEditing();
-        else EditBuildingInterior();
+        if (BuildingController.playerLocation.isInsideBuilding) ExitBuildingInterior();
+        else EnterBuildingInterior();
     }
 
 
 
-    public void EditBuildingInterior() {
+    public void EnterBuildingInterior() {
         BuildingController.playerLocation = (true, this);
 
         GetComponent<InteractableBuildingComponent>().BuildingWasPlaced(); //if the buttons havent been added yet. add them
@@ -327,7 +337,7 @@ public class EnterableBuildingComponent : BuildingComponent {
         BuildingController.LastBuildingObjectCreated.transform.SetParent(BuildingInterior.transform);
     }
 
-    public void ExitBuildingInteriorEditing() {
+    public void ExitBuildingInterior() {
         BuildingController.playerLocation = (false, null);
 
         foreach (GameObject obj in BuildingInteriorScene.GetRootGameObjects()) {
@@ -394,12 +404,11 @@ public class EnterableBuildingComponent : BuildingComponent {
     }
 
     public override void Load(ComponentData data) {
-        // return;
         UpdateBuildingInterior();
-        EditBuildingInterior();
+        EnterBuildingInterior();
         foreach (JProperty property in data.GetAllComponentDataProperties()) {
             BuildingSaverLoader.Instance.LoadBuilding(BuildingSaverLoader.Instance.ParseBuildingFromJson(property));
         }
-        ExitBuildingInteriorEditing();
+        ExitBuildingInterior();
     }
 }
