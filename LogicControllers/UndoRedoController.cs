@@ -48,6 +48,10 @@ public static class UndoRedoController {
                 break;
             case SpouseChangeRecord spouseChangeRecord:
                 spouseChangeRecord.HouseModificationMenu.SetSpouseDropdownValue((int)spouseChangeRecord.SpouseChange.OldSpouse);
+                if (spouseChangeRecord.BuildingsDeleted.Any()) {
+                    foreach (BuildingData buildingData in spouseChangeRecord.BuildingsDeleted)
+                        BuildingSaverLoader.Instance.LoadBuilding(buildingData);
+                }
                 break;
             case BuildingTierChangeRecord buildingTierChangeRecord:
                 buildingTierChangeRecord.TieredBuildingComponent.SetTier(buildingTierChangeRecord.TierChange.OldTier);
@@ -151,7 +155,6 @@ public static class UndoRedoController {
     }
 
     public static void UpdateUIActionLog() {
-        // Debug.Log("Updating action log");
         GameObject ActionLogUIContent = ActionLogUI.transform.Find("ScrollArea").Find("Content").gameObject;
         foreach (Transform child in ActionLogUIContent.transform) {
             GameObject.Destroy(child.gameObject);

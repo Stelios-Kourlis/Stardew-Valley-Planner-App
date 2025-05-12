@@ -15,7 +15,7 @@ public class HouseModificationMenu : MonoBehaviour {
 
     public void Start() {
         var dropdown = Content.Find("Modifications").Find("Marriage").Find("spouse").Find("Dropdown").GetComponent<TMP_Dropdown>();
-        dropdown.onValueChanged.AddListener((int value) => {
+        dropdown.onValueChanged.AddListener(value => {
             spouseChanged?.Invoke(value);
         });
 

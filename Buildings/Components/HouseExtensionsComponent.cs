@@ -177,14 +177,25 @@ public class HouseExtensionsComponent : BuildingComponent {
 
         //Draw room
         Sprite spouseRoom = Resources.Load<SpriteAtlas>($"BuildingInsides/House/SpouseRoomAtlas").GetSprite(spouse.ToString());
-        var area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoom.textureRect.height / 16), (int)(spouseRoom.textureRect.width / 16));
+        List<Vector3Int> area = GetRectAreaFromPoint(spouseRoomOrigin, (int)(spouseRoom.textureRect.height / 16), (int)(spouseRoom.textureRect.width / 16));
+
+        //Delete all building in spouse room
+        List<Building> overlappingBuildings = GetComponent<EnterableBuildingComponent>().GetInteriorBuildings().Where(building => building.BaseCoordinates.Intersect(area).Any()).ToList();
+        List<BuildingData> buildingsDeleted = new();
+        UndoRedoController.ignoreAction = true;
+        foreach (Building building in overlappingBuildings) {
+            BuildingData buildingData = BuildingSaverLoader.Instance.SaveBuilding(building);
+            buildingsDeleted.Add(buildingData);
+            building.DeleteBuilding();
+        }
+        UndoRedoController.ignoreAction = false;
         spouseRoomTilemap.SetTiles(area.ToArray(), SplitSprite(spouseRoom));
 
         SpecialCoordinateRect spouseSpecialTileSet = GetSpecialCoordinateSet(spouse.ToString());
         spouseSpecialTileSet.AddOffset(spouseRoomOrigin);
         GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(spouseSpecialTileSet);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
-        UndoRedoController.AddActionToLog(new SpouseChangeRecord(ModificationMenu, (oldSpouse, spouse)));
+        UndoRedoController.AddActionToLog(new SpouseChangeRecord(ModificationMenu, (oldSpouse, spouse), buildingsDeleted)); //TODO: readd
     }
 
     private Vector3Int GetSpouseRoomOrigin() {
@@ -203,61 +214,31 @@ public class HouseExtensionsComponent : BuildingComponent {
         }
 
         // Debug.Log($"BuildingInsides/House/{modification}");
-        HouseModificationScriptableObject values = scriptableObjects[modification];
+        HouseModificationScriptableObject renovationAttributes = scriptableObjects[modification];
 
-        if (values == null) return;
+        if (renovationAttributes == null) return; //renovation not found
 
-        if (values.preexistingModification != HouseModifications.Null && (!houseModificationsActive[values.preexistingModification] ?? false)) {
-            NotificationManager.Instance.SendNotification($"You need to have {System.Text.RegularExpressions.Regex.Replace(values.preexistingModification.ToString(), "(?<!^)([A-Z])", " $1")} to apply {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A-Z])", " $1")}", NotificationManager.Icons.ErrorIcon);
-            Debug.Log($"You need to have {System.Text.RegularExpressions.Regex.Replace(values.preexistingModification.ToString(), "(?<!^)([A-Z])", " $1")} to apply {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A-Z])", " $1")}");
+        //Ensure any required preexisting modifications are active
+        if (renovationAttributes.preexistingModification != HouseModifications.Null && (!houseModificationsActive[renovationAttributes.preexistingModification] ?? false)) {
+            NotificationManager.Instance.SendNotification($"You need to have {System.Text.RegularExpressions.Regex.Replace(renovationAttributes.preexistingModification.ToString(), "(?<!^)([A-Z])", " $1")} to apply {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A-Z])", " $1")}", NotificationManager.Icons.ErrorIcon);
+            Debug.Log($"You need to have {System.Text.RegularExpressions.Regex.Replace(renovationAttributes.preexistingModification.ToString(), "(?<!^)([A-Z])", " $1")} to apply {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A-Z])", " $1")}");
             return;
         }
 
         //Check no buildings interfere
-        List<Vector3Int> positions = GetRectAreaFromPoint(values.spriteOrigin, (int)(values.backSprite.textureRect.height / 16), (int)(values.backSprite.textureRect.width / 16));
+        List<Vector3Int> coordinatesAffectedByRenovation = GetRectAreaFromPoint(renovationAttributes.spriteOrigin, (int)(renovationAttributes.backSprite.textureRect.height / 16), (int)(renovationAttributes.backSprite.textureRect.width / 16));
 
-        SpecialCoordinateRect modificationSpecialTiles = GetSpecialCoordinateSet(values.type.ToString());
-        modificationSpecialTiles.AddOffset(values.spriteOrigin);
-        List<Vector3Int> newInvalidPositions = modificationSpecialTiles.GetSpecialCoordinates().ToList().Where(position => position.type == TileType.Invalid).ToList().ConvertAll(position => position.position);
+        SpecialCoordinateRect modificationSpecialTiles = GetSpecialCoordinateSet(renovationAttributes.type.ToString());
+        modificationSpecialTiles.AddOffset(renovationAttributes.spriteOrigin);
+        List<Vector3Int> coordinatesThatWillNowBeInvalid = modificationSpecialTiles.GetSpecialCoordinates().ToList().Where(position => position.type == TileType.Invalid).ToList().ConvertAll(position => position.position);
 
-        bool buildingPreventsModificationPlacement = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any()).Any() && isOn;
-        bool buildingPreventsModificationRemoval = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any()).Any() && !isOn;
         List<Building> overlappingBuildings;
+        if (isOn) overlappingBuildings = GetComponent<EnterableBuildingComponent>().GetInteriorBuildings().Where(building => building.BaseCoordinates.Intersect(coordinatesAffectedByRenovation).Any()).ToList();
+        else overlappingBuildings = GetComponent<EnterableBuildingComponent>().GetInteriorBuildings().Where(building => building.BaseCoordinates.Intersect(coordinatesAffectedByRenovation.Except(coordinatesThatWillNowBeInvalid)).Any()).ToList();
 
-        if (isOn) overlappingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions).Any() && building.transform.parent.gameObject == GetComponent<EnterableBuildingComponent>().BuildingInterior).ToList();
-        else overlappingBuildings = BuildingController.buildings.Where(building => building.BaseCoordinates.Intersect(positions.Except(newInvalidPositions)).Any() && building.transform.parent.gameObject == GetComponent<EnterableBuildingComponent>().BuildingInterior).ToList();
-
-        if (overlappingBuildings.Any()) {
-            GameObject warning = Instantiate(modificationWarning, GetCanvasGameObject().transform);
-            warning.SetActive(true);
-            warning.transform.GetChild(0).GetComponent<TMP_Text>().text = $"It seems {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A - Z])", " $1")} interferes with some buildings, delete all interfering buildings?";
-            warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
-                UndoRedoController.ignoreAction = true;
-                List<BuildingData> buildingsDeleted = new();
-                foreach (Building building in overlappingBuildings) {
-                    buildingsDeleted.Add(BuildingSaverLoader.Instance.SaveBuilding(building));
-                    building.DeleteBuilding();
-                }
-                overlapTilemap.ClearAllTiles();
-                ApplyRenovation(modification, isOn);
-                UndoRedoController.ignoreAction = false;
-                if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new HouseRenovationRecord(ModificationMenu, modification, isOn, buildingsDeleted));
-                Destroy(warning);
-            });
-            warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => {
-                overlapTilemap.ClearAllTiles();
-                Destroy(warning);
-            });
-            warning.transform.GetChild(1).Find("Highlight").GetComponent<Button>().onClick.AddListener(() => {
-                Tile redTile = InvalidTilesManager.Instance.RedTileSprite;
-                warning.transform.position = new Vector3(Screen.width / 2, warning.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
-                ModificationMenu.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
-                GetCamera().GetComponent<CameraController>().SetPosition(GetMiddleOfCoordinates(positions.ToArray()));
-                foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, redTile);
-            });
-        }
+        if (overlappingBuildings.Any())
+            WarnForBuildingsInterferingWithRenovation(modification, overlappingBuildings, isOn);
         else {
-            // Debug.Log("No buildings interfere");
             UndoRedoController.ignoreAction = true; //to ignore any wall changes
             ApplyRenovation(modification, isOn);
             UndoRedoController.ignoreAction = false;
@@ -265,11 +246,42 @@ public class HouseExtensionsComponent : BuildingComponent {
         }
     }
 
-
+    private void WarnForBuildingsInterferingWithRenovation(HouseModifications modification, IEnumerable<Building> overlappingBuildings, bool isOn) {
+        GameObject warning = Instantiate(modificationWarning, GetCanvasGameObject().transform);
+        warning.SetActive(true);
+        warning.transform.GetChild(0).GetComponent<TMP_Text>().text = $"It seems {System.Text.RegularExpressions.Regex.Replace(modification.ToString(), "(?<!^)([A - Z])", " $1")} interferes with some buildings, delete all interfering buildings?";
+        warning.transform.GetChild(1).Find("Yes").GetComponent<Button>().onClick.AddListener(() => {
+            UndoRedoController.ignoreAction = true;
+            List<BuildingData> buildingsDeleted = new();
+            foreach (Building building in overlappingBuildings) {
+                buildingsDeleted.Add(BuildingSaverLoader.Instance.SaveBuilding(building));
+                building.DeleteBuilding();
+            }
+            overlapTilemap.ClearAllTiles();
+            ApplyRenovation(modification, isOn);
+            UndoRedoController.ignoreAction = false;
+            if (!isLoadingDefaultRenovations) UndoRedoController.AddActionToLog(new HouseRenovationRecord(ModificationMenu, modification, isOn, buildingsDeleted));
+            Destroy(warning);
+        });
+        warning.transform.GetChild(1).Find("Cancel").GetComponent<Button>().onClick.AddListener(() => {
+            overlapTilemap.ClearAllTiles();
+            Destroy(warning);
+        });
+        warning.transform.GetChild(1).Find("Highlight").GetComponent<Button>().onClick.AddListener(() => {
+            Tile redTile = InvalidTilesManager.Instance.RedTileSprite;
+            warning.transform.position = new Vector3(Screen.width / 2, warning.GetComponent<RectTransform>().rect.height / 2 + 50, 0);
+            ModificationMenu.GetComponent<MoveablePanel>().SetPanelToClosedPosition();
+            HouseModificationScriptableObject renovationAttributes = scriptableObjects[modification];
+            List<Vector3Int> coordinatesAffectedByRenovation = GetRectAreaFromPoint(renovationAttributes.spriteOrigin, (int)(renovationAttributes.backSprite.textureRect.height / 16), (int)(renovationAttributes.backSprite.textureRect.width / 16));
+            GetCamera().GetComponent<CameraController>().SetPosition(GetMiddleOfCoordinates(coordinatesAffectedByRenovation.ToArray()));
+            foreach (Building building in overlappingBuildings) foreach (Vector3Int position in building.BaseCoordinates) overlapTilemap.SetTile(position, redTile);
+        });
+    }
 
     private void ApplyRenovation(HouseModifications modification, bool isOn) { //dining room off 
         HouseModificationScriptableObject values = scriptableObjects[modification];
 
+        //Disable renovations that are dependent on this one
         foreach (HouseModifications houseModification in Enum.GetValues(typeof(HouseModifications))) {
             if (houseModification == HouseModifications.Null || houseModification == HouseModifications.Marriage) continue;
             HouseModificationScriptableObject otherModification = scriptableObjects[houseModification];
@@ -278,14 +290,11 @@ public class HouseExtensionsComponent : BuildingComponent {
                 ModificationMenu.SetSpriteToOff(houseModification);
                 houseModificationsActive[houseModification] = null;
             }
-
-
         }
 
         List<Vector3Int> positions = GetRectAreaFromPoint(values.spriteOrigin, (int)(values.backSprite.textureRect.height / 16), (int)(values.backSprite.textureRect.width / 16));
         // UndoRedoController.ignoreAction = true;
         if (isOn) {
-
             SpecialCoordinateRect modificationSpecialTiles = GetSpecialCoordinateSet(values.type.ToString());
             modificationSpecialTiles.AddOffset(values.spriteOrigin);
             GetComponent<EnterableBuildingComponent>().InteriorSpecialTiles.AddSpecialTileSet(modificationSpecialTiles);
@@ -311,20 +320,18 @@ public class HouseExtensionsComponent : BuildingComponent {
             foreach (WallMove wallMover in values.wallModifications) GetComponent<WallsComponent>().MoveWall(wallMover.oldWallPoint, wallMover.GetReverseModification());
             foreach (FlooringMove flooringMove in values.floorModifications) GetComponent<FlooringComponent>().MoveFloor(flooringMove.oldFlooringPoint, flooringMove.GetReverseModification());
         }
-        // UndoRedoController.ignoreAction = false;
-        // UndoRedoController.AddActionToLog(new(this, modification, isOn));
 
         GetComponent<EnterableBuildingComponent>().BuildingInterior.GetComponent<Tilemap>().CompressBounds();
         if (values.reverseActivation) ModificationMenu.GetModificationSprite(modification).sprite = checkbox[isOn ? "Off" : "On"];
         else ModificationMenu.GetModificationSprite(modification).sprite = checkbox[isOn ? "On" : "Off"];
         houseModificationsActive[values.type] = isOn;
-        ResolveConflicts(values.type, isOn);
+        ResolveTileConflicts(values.type, isOn);
         InvalidTilesManager.Instance.UpdateAllCoordinates();
         if (BuildingController.CurrentTilemapTransform == GetComponent<EnterableBuildingComponent>().BuildingInterior.transform) BuildingController.SetCurrentTilemapTransform(GetComponent<EnterableBuildingComponent>().BuildingInterior.transform); //if user inside the buildiing update the camera bounds
     }
 
-    //
-    private void ResolveConflicts(HouseModifications changedMofification, bool isOn) {
+    //Sometimes special tile are needed to bridge renovations together
+    private void ResolveTileConflicts(HouseModifications changedMofification, bool isOn) {
         if (changedMofification == HouseModifications.DiningRoom && isOn) {
             if (houseModificationsActive[HouseModifications.OpenDiningRoom] == null) {
                 ModificationMenu.GetModificationToggle(HouseModifications.OpenDiningRoom).isOn = true; //if you have dining room, this need to reactivate

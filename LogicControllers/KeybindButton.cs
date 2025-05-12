@@ -23,8 +23,6 @@ public class KeybindButton : MonoBehaviour {
     private Action Action;
 
     public void SetUpButton(KeybindHandler.Action action) {
-        Debug.Log("Setting up button: " + gameObject.name);
-
         Action = action;
         Keybind actionKeybind = GetKeybind(action);
         GetComponent<TMP_Text>().text = KeybindHandler.ActionNames[action];
