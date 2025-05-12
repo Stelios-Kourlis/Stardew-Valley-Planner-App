@@ -29,10 +29,11 @@ public class TieredBuildingComponent : BuildingComponent {
         return tiers[Tier - 1].costToUpgradeToThatTier;
     }
 
-    public virtual void SetTier(int tier) {
-        GetComponent<InteractableBuildingComponent>().OnTierChange(Tier, tier);
-        Tier = tier;
+    public virtual void SetTier(int newTier) {
+        int oldTier = Tier;
+        Tier = newTier;
         Building.UpdateTexture(Building.Atlas.GetSprite($"{gameObject.GetComponent<InteractableBuildingComponent>().GetBuildingSpriteName()}"));
+        GetComponent<InteractableBuildingComponent>().OnTierChange(oldTier, newTier);
         // tierChanged?.Invoke(tier);
     }
 
