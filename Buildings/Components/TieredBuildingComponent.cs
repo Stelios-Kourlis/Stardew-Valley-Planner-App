@@ -50,7 +50,9 @@ public class TieredBuildingComponent : BuildingComponent {
             gameObject.GetComponent<InteractableBuildingComponent>().AddInteractionToBuilding((ButtonTypes)Enum.Parse(typeof(ButtonTypes), $"TIER_{tierStr}"));
         }
 
+        UndoRedoController.ignoreAction = true;
         SetTier(1);
+        UndoRedoController.ignoreAction = false;
     }
 
     public override BuildingData.ComponentData Save() {
